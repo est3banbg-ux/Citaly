@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Citaly · Panel del dueño</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#1a1530">
+<link rel="icon" href="../favicon-32.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../cfg.js"></script>
+<style>
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;box-shadow:var(--sh)}
+.kpi span{font-size:12px;color:var(--mute);font-weight:600}.kpi b{display:block;font:800 24px "Bricolage Grotesque",sans-serif}
+.kpi.big{grid-column:1/-1;background:linear-gradient(135deg,#6c4cf5,#4b2fd6);color:#fff;border:0}.kpi.big span{color:rgba(255,255,255,.8)}.kpi.big b{font-size:32px}
+.biz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.biz .hd{display:flex;gap:10px;align-items:center}
+.biz .av{width:42px;height:42px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-weight:800;overflow:hidden;flex:none}
+.biz .av img{width:100%;height:100%;object-fit:cover}
+.biz .m{flex:1;min-width:0}.biz .m b{display:block}.biz .m span{font-size:13px;color:var(--mute);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.biz .ac{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.li:last-child{border-bottom:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="between" style="margin:6px 0 4px"><a class="logo" href="../"><img src="../icon-192.png" alt="">citaly <span class="pill">admin</span></a><button class="btn sm ghost" id="out" hidden>Salir</button></div>
+
+  <div id="login" class="card" hidden style="margin-top:20px">
+    <h2>Panel del dueño</h2><p class="mute">Entra con la cuenta de Google de administrador.</p>
+    <button class="btn" id="gIn">Entrar con Google</button><p class="err" id="lErr"></p>
+  </div>
+
+  <div id="main" hidden>
+    <div class="kpis" id="kpis"></div>
+    <input id="q" type="search" placeholder="Buscar negocio, correo o link">
+    <div class="chips" id="f" style="margin:10px 0 12px">
+      <button class="chip" data-f="all" aria-pressed="true">Todos</button><button class="chip" data-f="trial" aria-pressed="false">En prueba</button><button class="chip" data-f="active" aria-pressed="false">Pagando</button><button class="chip" data-f="exp" aria-pressed="false">Vencidos</button><button class="chip" data-f="suspended" aria-pressed="false">Pausados</button>
+    </div>
+    <div id="list"></div>
+    <div class="card"><h2>Pagos recibidos</h2><div id="pays"></div></div>
+  </div>
+  <div id="load"><div class="spin"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+var $=function(i){return document.getElementById(i)},C=CITALY,MN=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+var SUBS={},BIZ={},PUB={},PAYS=[],F="all";
+function crc(n){return "₡"+Math.round(n||0).toLocaleString("es-CR")}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fd(ms){var d=new Date(ms);return d.getDate()+" "+MN[d.getMonth()]+" "+d.getFullYear()}
+function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2400)}
+function waUrl(t,m){t=String(t||"").replace(/\D/g,"");return "https://wa.me/"+(t.length===8?"506"+t:t)+(m?"?text="+encodeURIComponent(m):"")}
+firebase.initializeApp(C.fb);var auth=firebase.auth(),db=firebase.firestore(),TS=firebase.firestore.Timestamp;
+auth.onAuthStateChanged(function(u){$("load").hidden=true;$("out").hidden=!u;
+  if(!u){$("login").hidden=false;$("main").hidden=true;return}
+  if(u.email!==C.admin){$("login").hidden=false;$("lErr").textContent="Esta cuenta ("+u.email+") no es la de administrador.";return}
+  $("login").hidden=true;$("main").hidden=false;listen()});
+$("gIn").onclick=function(){auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){if(e.code!=="auth/popup-closed-by-user")$("lErr").textContent=e.message})};
+$("out").onclick=function(){auth.signOut()};
+function listen(){
+  db.collection("subs").onSnapshot(function(s){SUBS={};s.forEach(function(d){SUBS[d.id]=d.data()});render()},err);
+  db.collection("biz").onSnapshot(function(s){BIZ={};s.forEach(function(d){BIZ[d.id]=d.data()});render()},err);
+  db.collection("payments").orderBy("at","desc").limit(100).onSnapshot(function(s){PAYS=s.docs.map(function(d){return d.data()});renderPays()},err)}
+function err(e){console.error(e);toast(e.code==="permission-denied"?"Sin permiso: revisa las reglas de Firestore":"Error de conexión")}
+function state(s){if(!s)return "none";if(s.status==="suspended")return "suspended";if(s.until.toMillis()<Date.now())return "exp";return s.status}
+function render(){var ids=Object.keys(SUBS),now=Date.now(),c={trial:0,active:0,exp:0,suspended:0};ids.forEach(function(i){var st=state(SUBS[i]);if(c[st]!=null)c[st]++});
+  var mStart=new Date();mStart.setDate(1);mStart.setHours(0,0,0,0);var mon=PAYS.filter(function(p){return p.at>=mStart.getTime()}).reduce(function(a,p){return a+(+p.amt||0)},0);
+  $("kpis").innerHTML='<div class="kpi big"><span>Ingreso mensual recurrente</span><b>'+crc(c.active*C.price)+'</b></div>'
+    +k("Negocios",ids.length)+k("Pagando",c.active)+k("En prueba",c.trial)+k("Vencidos",c.exp+c.suspended)+k("Cobrado este mes",crc(mon))+k("Conversión",ids.length?Math.round(c.active/ids.length*100)+"%":"—");
+  var q=$("q").value.trim().toLowerCase();
+  var L=ids.map(function(i){return {id:i,s:SUBS[i],b:BIZ[i]||{}}}).filter(function(x){var st=state(x.s);if(F!=="all"&&st!==F)return false;
+      return !q||[x.b.name,x.b.email,x.b.slug,x.s.email,x.b.wa].join(" ").toLowerCase().indexOf(q)>=0})
+    .sort(function(a,b){return a.s.until.toMillis()-b.s.until.toMillis()});
+  $("list").innerHTML=L.length?L.map(function(x){var st=state(x.s),dl=Math.ceil((x.s.until.toMillis()-now)/864e5),b=x.b;
+      var p={trial:'<span class="pill warn">Prueba</span>',active:'<span class="pill ok">Pagando</span>',exp:'<span class="pill bad">Vencido</span>',suspended:'<span class="pill bad">Pausado</span>'}[st]||"";
+      return '<div class="biz"><div class="hd"><div class="av">'+(b.logo?'<img alt="" src="'+b.logo+'">':esc((b.name||"?").charAt(0)))+'</div><div class="m"><b>'+esc(b.name||x.s.name||"(sin nombre)")+'</b><span>'+esc(b.email||x.s.email||"")+'</span><span>'+(b.slug?'citalyapp.com/'+esc(b.slug):"")+(b.type&&C.types[b.type]?" · "+C.types[b.type].n:"")+'</span></div>'+p+'</div>'
+        +'<p class="small mute" style="margin:8px 0 0">'+(dl>=0?(st==="trial"?"Prueba termina":"Pagado hasta")+" el "+fd(x.s.until.toMillis())+" ("+dl+" días)":"Venció el "+fd(x.s.until.toMillis())+" (hace "+(-dl)+" días)")+(x.s.start?" · Desde "+fd(x.s.start.toMillis()):"")+'</p>'
+        +'<div class="ac"><button class="btn sm" data-a="pay" data-id="'+x.id+'">💸 Registrar pago (+1 mes)</button>'+(b.wa?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+waUrl(b.wa,"¡Hola! Te escribe Esteban de Citaly 👋")+'">WhatsApp</a>':"")
+        +(b.slug?'<a class="btn sm alt" target="_blank" href="../r/?n='+esc(b.slug)+'">Ver página</a>':"")
+        +'<button class="btn sm ghost" data-a="trial" data-id="'+x.id+'">+7 días prueba</button>'
+        +(st==="suspended"?'<button class="btn sm ghost" data-a="on" data-id="'+x.id+'">Reactivar</button>':'<button class="btn sm danger" data-a="off" data-id="'+x.id+'">Pausar</button>')+'</div></div>'}).join("")
+    :'<div class="card mute" style="text-align:center">'+(ids.length?"Nada con ese filtro.":"Todavía no hay negocios. ¡A vender! 🚀")+'</div>'}
+function k(l,v){return '<div class="kpi"><span>'+l+'</span><b>'+v+'</b></div>'}
+function renderPays(){$("pays").innerHTML=PAYS.length?PAYS.map(function(p){return '<div class="li"><span>'+esc(p.name||"")+'<br><span class="mute small">'+fd(p.at)+'</span></span><b>'+crc(p.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:0">Aún no hay pagos registrados.</p>';render()}
+$("q").oninput=render;
+$("f").onclick=function(e){var b=e.target.closest("button");if(!b)return;F=b.dataset.f;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)});render()};
+$("list").onclick=function(e){var b=e.target.closest("[data-a]");if(!b)return;var id=b.dataset.id,s=SUBS[id],bz=BIZ[id]||{},a=b.dataset.a,base=Math.max(Date.now(),s.until.toMillis()),ref=db.doc("subs/"+id);
+  if(a==="pay"){var amt=prompt("¿Cuánto pagó "+(bz.name||"")+"? (colones)",C.price);if(amt==null)return;amt=+String(amt).replace(/\D/g,"")||0;
+    var nu=new Date(base);nu.setMonth(nu.getMonth()+1);var bt=db.batch();bt.update(ref,{status:"active",until:TS.fromDate(nu)});
+    bt.set(db.collection("payments").doc(),{biz:id,name:bz.name||s.name||"",amt:amt,at:Date.now(),until:nu.getTime()});
+    bt.commit().then(function(){toast("Pago registrado. Activo hasta el "+fd(nu.getTime()));if(bz.wa&&confirm("¿Avisarle por WhatsApp que ya está activo?"))window.open(waUrl(bz.wa,"¡Hola! Recibimos tu pago ✅ Tu plan de Citaly está activo hasta el "+fd(nu.getTime())+". ¡Gracias por confiar en nosotros! 🙌"),"_blank")},function(x){toast(x.message)})}
+  if(a==="trial")ref.update({until:TS.fromMillis(base+7*864e5)}).then(function(){toast("+7 días agregados")},function(x){toast(x.message)});
+  if(a==="off"&&confirm("¿Pausar a "+(bz.name||"este negocio")+"? Su página dejará de recibir reservas."))ref.update({status:"suspended"}).then(function(){toast("Pausado")});
+  if(a==="on")ref.update({status:s.until.toMillis()>Date.now()?"active":"trial"}).then(function(){toast("Reactivado")})};
+</script>
+</body>
+</html>

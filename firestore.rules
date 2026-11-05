@@ -1,0 +1,94 @@
+rules_version = '2';
+// Citaly — reglas de seguridad de Firestore
+// Cada negocio usa como ID el uid de su dueño: biz/{uid}
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email == 'est3banbg@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+    function isOwner(bid) { return signedIn() && request.auth.uid == bid; }
+    function subOk(bid) {
+      let s = get(/databases/$(database)/documents/subs/$(bid)).data;
+      return s.status != 'suspended' && s.until > request.time;
+    }
+    function str(v, max) { return v is string && v.size() <= max; }
+
+    // Perfil público de cada negocio (lo lee la página de reservas)
+    match /pub/{slug} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.biz == request.auth.uid
+        && slug.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$');
+      allow update: if signedIn()
+        && resource.data.biz == request.auth.uid
+        && request.resource.data.biz == request.auth.uid;
+      allow delete: if (signedIn() && resource.data.biz == request.auth.uid) || isAdmin();
+    }
+
+    // Suscripción: el dueño solo puede crear su prueba gratis una vez; el resto lo maneja el admin
+    match /subs/{bid} {
+      allow read: if true;
+      allow create: if isOwner(bid)
+        && request.resource.data.keys().hasOnly(['status', 'until', 'start', 'email', 'name'])
+        && request.resource.data.status == 'trial'
+        && request.resource.data.until is timestamp
+        && request.resource.data.until <= request.time + duration.value(15, 'd');
+      allow update, delete: if isAdmin();
+    }
+
+    // Pagos registrados por el admin
+    match /payments/{pid} {
+      allow read, write: if isAdmin();
+    }
+
+    // Datos privados del negocio
+    match /biz/{bid} {
+      allow read: if isOwner(bid) || isAdmin();
+      allow write: if isOwner(bid);
+
+      match /jobs/{jid} {
+        allow read, update, delete: if isOwner(bid);
+        allow create: if isOwner(bid) || (
+          subOk(bid)
+          && request.resource.data.web == true
+          && request.resource.data.st == 'Por confirmar'
+          && str(request.resource.data.cli, 60)
+          && str(request.resource.data.tel, 15)
+          && str(request.resource.data.note, 400)
+          && request.resource.data.total is number
+          && request.resource.data.items is list
+          && request.resource.data.items.size() <= 10
+        );
+      }
+
+      // Bloques de 30 minutos ocupados (sin datos personales)
+      match /slots/{sid} {
+        allow read: if true;
+        allow create: if isOwner(bid) || (
+          subOk(bid)
+          && request.resource.data.keys().hasOnly(['date', 't', 'job', 'at'])
+          && str(request.resource.data.job, 30)
+        );
+        allow update, delete: if isOwner(bid);
+      }
+
+      // Evita que un mismo número aparte muchas citas seguidas
+      match /holds/{tel} {
+        allow read, delete: if isOwner(bid);
+        allow create, update: if isOwner(bid) || (
+          (resource == null || resource.data.until < request.time)
+          && request.resource.data.keys().hasOnly(['job', 'until', 'at'])
+          && request.resource.data.until is timestamp
+        );
+      }
+
+      match /exp/{eid} {
+        allow read, write: if isOwner(bid);
+      }
+    }
+  }
+}

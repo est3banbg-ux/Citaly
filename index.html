@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Citaly · Reservas en línea y agenda para tu negocio</title>
+<meta name="description" content="Tu página de reservas con tu marca, agenda, clientes y ganancias en un solo lugar. Para barberías, salones, uñas, autos, spas y más. Prueba 14 días gratis.">
+<meta name="theme-color" content="#5a3be8">
+<meta property="og:title" content="Citaly · Tus clientes reservan solos">
+<meta property="og:description" content="Página de reservas, agenda y recordatorios por WhatsApp para tu negocio. 14 días gratis.">
+<meta property="og:image" content="https://citalyapp.com/icon-512.png">
+<link rel="icon" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="cfg.js"></script>
+<style>
+body{overflow-x:hidden}
+.c{max-width:1080px;margin:0 auto;padding:0 20px}
+nav.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
+nav.top.sc{border-color:var(--line)}
+nav.top .c{display:flex;align-items:center;justify-content:space-between;height:64px}
+nav.top .r{display:flex;gap:8px;align-items:center}
+nav.top a.in{color:var(--ink);font-weight:700;text-decoration:none;padding:8px 12px}
+.hero{padding-top:44px;padding-bottom:30px;display:grid;gap:40px;align-items:center}
+@media(min-width:880px){.hero{grid-template-columns:1.1fr .9fr;padding-top:70px;padding-bottom:50px}}
+.tag{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 8px;font-size:14px;font-weight:600;box-shadow:var(--sh)}
+.tag i{background:var(--acc2);color:#fff;border-radius:999px;padding:2px 8px;font-style:normal;font-size:12px;font-weight:800}
+.hero h1{font-size:clamp(38px,7vw,62px);line-height:1;margin:18px 0 0;letter-spacing:-.035em}
+.hero h1 em{font-style:normal;background:linear-gradient(120deg,var(--acc),#ff6a8a 60%,var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lead{font-size:clamp(17px,2.4vw,20px);color:var(--mute);margin:18px 0 26px;max-width:520px}
+.ctas{display:flex;gap:10px;flex-wrap:wrap}
+.ctas .btn{width:auto;padding:16px 24px;font-size:16px;border-radius:14px}
+.btn.big{box-shadow:0 14px 30px -12px var(--acc)}
+.trust{margin-top:14px;font-size:14px;color:var(--mute);display:flex;gap:16px;flex-wrap:wrap}
+.trust span:before{content:"✓ ";color:var(--ok);font-weight:800}
+/* phone */
+.phone{width:290px;max-width:80vw;margin:0 auto;background:#0f0c1d;border-radius:44px;padding:12px;box-shadow:0 40px 80px -30px rgba(76,47,214,.55),0 0 0 1px rgba(255,255,255,.06) inset;position:relative;transform:rotate(-2.5deg);animation:float 6s ease-in-out infinite}
+@keyframes float{50%{transform:rotate(-2.5deg) translateY(-10px)}}
+.scr{background:#f7f5ff;border-radius:34px;overflow:hidden;padding:20px 14px 16px;color:#1a1530;font-size:13px}
+.scr .bl{width:56px;height:56px;border-radius:17px;margin:4px auto 8px;background:#e0457b;color:#fff;display:grid;place-items:center;font:800 24px "Bricolage Grotesque",sans-serif}
+.scr h4{margin:0;text-align:center;font:800 18px "Bricolage Grotesque",sans-serif}
+.scr .sub{text-align:center;color:#6b6585;font-size:11px;margin-bottom:12px}
+.scr .sv{display:flex;align-items:center;gap:9px;background:#fff;border:2px solid #ece8f8;border-radius:13px;padding:8px;margin-bottom:6px}
+.scr .sv.on{border-color:#e0457b;background:#fff3f7}
+.scr .sv s{width:30px;height:30px;border-radius:9px;background:#fbe6ee;display:grid;place-items:center;text-decoration:none;font-size:15px}
+.scr .sv b{flex:1;font-size:12.5px}.scr .sv u{text-decoration:none;color:#6b6585;font-size:11px}
+.scr .hs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:10px 0}
+.scr .hs i{font-style:normal;text-align:center;border:2px solid #ece8f8;background:#fff;border-radius:9px;padding:6px 0;font-weight:700;font-size:11.5px}
+.scr .hs i.on{background:#e0457b;border-color:#e0457b;color:#fff}
+.scr .go{background:#e0457b;color:#fff;text-align:center;border-radius:12px;padding:11px;font-weight:800}
+.notif{position:absolute;right:-30px;top:70px;background:var(--card);color:var(--ink);border-radius:16px;padding:10px 13px;box-shadow:0 18px 40px -16px rgba(0,0,0,.4);font-size:13px;display:flex;gap:9px;align-items:center;transform:rotate(2.5deg);border:1px solid var(--line);animation:pop 1s 1s cubic-bezier(.2,1.5,.4,1) both}
+.notif b{display:block;font-size:13.5px}
+.notif.n2{right:auto;left:-34px;top:auto;bottom:60px;animation-delay:1.6s}
+@keyframes pop{from{opacity:0;transform:scale(.6) rotate(2.5deg)}}
+@media(max-width:420px){.notif{right:-8px}.notif.n2{left:-8px}}
+section.c{padding-top:56px;padding-bottom:56px}
+.kicker{color:var(--acc);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
+h2.t{font-size:clamp(28px,4.6vw,42px);line-height:1.05;margin:8px 0 12px;letter-spacing:-.03em}
+p.s{color:var(--mute);font-size:18px;max-width:600px;margin:0}
+.who{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.who span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:10px 16px;font-weight:700;box-shadow:var(--sh)}
+.grid3{display:grid;gap:14px;margin-top:28px}
+@media(min-width:760px){.grid3{grid-template-columns:repeat(3,1fr)}}
+.f{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--sh)}
+.f .ic{width:50px;height:50px;border-radius:15px;display:grid;place-items:center;font-size:24px;background:var(--soft);margin-bottom:14px}
+.f h3{font-size:19px;margin-bottom:6px}.f p{margin:0;color:var(--mute)}
+.steps3{counter-reset:s;display:grid;gap:14px;margin-top:28px}
+@media(min-width:760px){.steps3{grid-template-columns:repeat(3,1fr)}}
+.steps3 div{position:relative;padding:22px 22px 22px 22px;background:var(--card);border-radius:22px;border:1px solid var(--line)}
+.steps3 div:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--acc);color:#fff;font:800 18px "Bricolage Grotesque",sans-serif;margin-bottom:12px}
+.steps3 b{display:block;font:700 18px "Bricolage Grotesque",sans-serif;margin-bottom:4px}.steps3 p{margin:0;color:var(--mute)}
+.list{display:grid;gap:10px 24px;margin-top:24px;list-style:none;padding:0}
+@media(min-width:700px){.list{grid-template-columns:1fr 1fr}}
+.list li{padding-left:32px;position:relative;font-size:17px}
+.list li:before{content:"✓";position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok);display:grid;place-items:center;font-weight:800;font-size:13px}
+.price{max-width:460px;margin:30px auto 0;background:var(--card);border:2px solid var(--acc);border-radius:28px;padding:30px 26px;text-align:center;box-shadow:0 30px 60px -30px var(--acc);position:relative}
+.price .rib{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--acc2);color:#fff;font-weight:800;font-size:13px;border-radius:999px;padding:5px 14px;white-space:nowrap}
+.price .amt{font:800 58px "Bricolage Grotesque",sans-serif;letter-spacing:-.04em;line-height:1;margin:10px 0 2px}
+.price .amt small{font:600 17px Figtree,sans-serif;color:var(--mute);letter-spacing:0}
+.price ul{text-align:left;margin:20px 0}
+details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:10px}
+summary{font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:10px;font-size:17px}
+summary::-webkit-details-marker{display:none}
+summary:after{content:"+";font-size:22px;line-height:1;color:var(--acc);transition:transform .2s}
+details[open] summary:after{transform:rotate(45deg)}
+details p{margin:10px 0 0;color:var(--mute)}
+.final{background:linear-gradient(135deg,#6c4cf5,#4b2fd6 60%,#2d1a9e);color:#fff;border-radius:32px;padding:46px 26px;text-align:center;margin:20px 0 40px;position:relative;overflow:hidden}
+.final:after{content:"";position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(#ff8a5b55,transparent 70%);right:-80px;top:-80px}
+.final h2{font-size:clamp(28px,5vw,44px);margin:0 0 10px;position:relative}
+.final p{opacity:.85;margin:0 0 22px;font-size:18px;position:relative}
+.final .btn{width:auto;background:#fff;color:#4b2fd6;padding:16px 26px;font-size:17px;position:relative}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--mute);font-size:14px}
+footer .c{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+footer a{color:var(--mute)}
+.rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}.rv.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<nav class="top" id="nav"><div class="c">
+  <a class="logo" href="./"><img src="icon-192.png" alt="">citaly</a>
+  <div class="r"><a class="in" href="app/">Entrar</a><a class="btn sm" href="app/" style="padding:10px 14px">Probar gratis</a></div>
+</div></nav>
+
+<header class="c hero">
+  <div>
+    <span class="tag fade"><i>NUEVO</i> Hecho en Costa Rica 🇨🇷</span>
+    <h1 class="fade">Tus clientes <em>reservan solos.</em><br>Tú te dedicas a atender.</h1>
+    <p class="lead fade">Citaly le da a tu negocio una página de reservas con tu marca, una agenda que se llena sola y recordatorios por WhatsApp. Listo en 5 minutos.</p>
+    <div class="ctas fade"><a class="btn big" href="app/">Probar gratis <span class="tdays">14</span> días →</a><a class="btn ghost" href="#como">Ver cómo funciona</a></div>
+    <div class="trust fade"><span>Sin tarjeta</span><span>Sin contratos</span><span>Paga por SINPE</span></div>
+  </div>
+  <div style="position:relative;padding:10px 0">
+    <div class="phone" aria-hidden="true"><div class="scr">
+      <div class="bl">B</div><h4>Barbería El Rey</h4><div class="sub">citalyapp.com/barberia-el-rey</div>
+      <div class="sv on"><s>✂️</s><b>Corte de cabello</b><u>₡6.000</u></div>
+      <div class="sv"><s>🧔</s><b>Corte + barba</b><u>₡8.000</u></div>
+      <div class="sv"><s>🪒</s><b>Barba</b><u>₡4.000</u></div>
+      <div class="hs"><i>9:00 am</i><i class="on">10:30 am</i><i>11:00 am</i><i>2:00 pm</i><i>3:30 pm</i><i>5:00 pm</i></div>
+      <div class="go">Confirmar cita</div>
+    </div></div>
+    <div class="notif"><span style="font-size:22px">🔔</span><span><b>Nueva reserva</b>Carlos · mañana 10:30 am</span></div>
+    <div class="notif n2"><span style="font-size:22px">💸</span><span><b>+₡84.000</b>esta semana</span></div>
+  </div>
+</header>
+
+<section class="c rv">
+  <div class="kicker">Para negocios que trabajan con citas</div>
+  <h2 class="t">Si atiendes con cita, Citaly es para ti.</h2>
+  <div class="who"><span>💈 Barberías</span><span>💇‍♀️ Salones</span><span>💅 Uñas</span><span>🚗 Detailing y lavado</span><span>🔧 Talleres</span><span>🧖 Spas</span><span>🩺 Consultorios</span><span>🐾 Veterinarias</span><span>📸 Fotógrafos</span></div>
+</section>
+
+<section class="c rv">
+  <div class="kicker">Adiós al "¿a qué hora tiene espacio?"</div>
+  <h2 class="t">Menos mensajes. Más citas.</h2>
+  <p class="s">Deja de pasar el día contestando WhatsApp para cuadrar horarios. Tu página muestra solo las horas libres y el cliente reserva en segundos.</p>
+  <div class="grid3">
+    <div class="f"><div class="ic">📅</div><h3>Reservas 24/7</h3><p>Tus clientes agendan a cualquier hora, incluso mientras duermes. Nunca más dos citas a la misma hora.</p></div>
+    <div class="f"><div class="ic">💬</div><h3>Confirma por WhatsApp</h3><p>Con un toque le mandas la confirmación o el recordatorio al cliente, con el mensaje ya escrito.</p></div>
+    <div class="f"><div class="ic">📈</div><h3>Sabe cuánto ganas</h3><p>Ingresos, gastos y ganancia del mes, tus servicios estrella y tus mejores clientes.</p></div>
+  </div>
+</section>
+
+<section class="c rv" id="como">
+  <div class="kicker">Así de fácil</div>
+  <h2 class="t">En 5 minutos estás recibiendo reservas.</h2>
+  <div class="steps3">
+    <div><b>Crea tu cuenta</b><p>Con tu Google o tu correo. Escribe el nombre de tu negocio y elige a qué te dedicas.</p></div>
+    <div><b>Pon tus servicios y horario</b><p>Te sugerimos servicios y precios según tu tipo de negocio. Los cambias cuando quieras.</p></div>
+    <div><b>Comparte tu link</b><p>Ponlo en tu Instagram, Facebook y estado de WhatsApp. Las reservas te llegan a la app.</p></div>
+  </div>
+</section>
+
+<section class="c rv">
+  <div class="kicker">Todo incluido</div>
+  <h2 class="t">Todo lo que tu negocio necesita.</h2>
+  <ul class="list">
+    <li>Página de reservas con tu logo y tus colores</li><li>Agenda por semana y por día</li>
+    <li>Horario y duración de cada servicio</li><li>Avisos de choque de horarios</li>
+    <li>Historial de cada cliente</li><li>Mensajes de WhatsApp listos para enviar</li>
+    <li>Ingresos, gastos y ganancia del mes</li><li>Funciona como app en tu celular</li>
+    <li>Pausa las reservas cuando te vas de vacaciones</li><li>Soporte por WhatsApp en español</li>
+  </ul>
+</section>
+
+<section class="c rv" id="precio">
+  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un solo plan. Sin sorpresas.</h2><p class="s" style="margin:0 auto">Menos de lo que cuesta una sola cita que hoy se te pierde por no contestar a tiempo.</p></div>
+  <div class="price">
+    <span class="rib"><span class="tdays">14</span> días gratis</span>
+    <h3>Citaly</h3>
+    <div class="amt"><span id="pr">₡12.000</span><small> /mes</small></div>
+    <div class="mute small" id="prd"></div>
+    <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Citas y clientes sin límite</li><li>Tu página de reservas</li><li>Recordatorios por WhatsApp</li><li>Números de tu negocio</li><li>Todas las mejoras futuras</li></ul>
+    <a class="btn big" href="app/" style="padding:16px">Empezar mi prueba gratis</a>
+    <p class="mute small" style="margin:10px 0 0">No pedimos tarjeta. Al terminar la prueba, pagas por SINPE Móvil.</p>
+  </div>
+</section>
+
+<section class="c rv" style="max-width:760px">
+  <div style="text-align:center"><div class="kicker">Preguntas frecuentes</div><h2 class="t">¿Dudas? Aquí están las respuestas.</h2></div>
+  <div style="margin-top:24px">
+    <details><summary>¿Necesito poner una tarjeta para probar?</summary><p>No. Creas tu cuenta y usas todo gratis durante <span class="tdays">14</span> días. Si te gusta, pagas por SINPE Móvil y seguimos.</p></details>
+    <details><summary>¿Cómo pago la mensualidad?</summary><p>Por SINPE Móvil. Dentro de la app te salen los datos; nos mandas el comprobante por WhatsApp y te activamos el mes. Pronto también con tarjeta.</p></details>
+    <details><summary>¿Mis clientes tienen que descargar algo?</summary><p>No. Solo abren tu link desde el celular o la computadora, eligen el servicio y la hora, y listo.</p></details>
+    <details><summary>¿Funciona en mi celular?</summary><p>Sí. Citaly está hecho primero para el celular. Puedes agregarlo a tu pantalla de inicio y se usa como una app.</p></details>
+    <details><summary>¿Qué pasa si un cliente reserva y no llega?</summary><p>Lo marcas como "No vino" y queda en su historial. Además, cada número solo puede tener una reserva pendiente a la vez, para evitar reservas falsas.</p></details>
+    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. No hay contratos ni permanencia. Simplemente dejas de pagar.</p></details>
+    <details><summary>¿Mis datos están seguros?</summary><p>Tus datos se guardan en Google Firebase. Solo tú puedes ver tu agenda y tus clientes; tus clientes solo ven las horas libres, nunca quién más reservó.</p></details>
+  </div>
+</section>
+
+<div class="c rv"><div class="final">
+  <h2>Tu próxima cita puede llegar hoy.</h2>
+  <p>Crea tu página de reservas en 5 minutos. Gratis por <span class="tdays">14</span> días.</p>
+  <a class="btn" href="app/">Crear mi cuenta gratis →</a>
+</div></div>
+
+<footer><div class="c">
+  <span class="logo" style="font-size:18px"><img src="icon-192.png" alt="" style="width:24px;height:24px">citaly</span>
+  <span>Hecho con 💜 en Costa Rica · <a id="ftWa" target="_blank" rel="noopener">Escríbenos por WhatsApp</a></span>
+</div></footer>
+
+<script>
+(function(){var C=CITALY;
+  Array.prototype.forEach.call(document.querySelectorAll(".tdays"),function(e){e.textContent=C.trialDays});
+  document.getElementById("pr").textContent="₡"+C.price.toLocaleString("es-CR");
+  document.getElementById("prd").textContent="Eso es menos de ₡"+Math.ceil(C.price/30/10)*10+" al día";
+  document.getElementById("ftWa").href="https://wa.me/"+C.wa+"?text="+encodeURIComponent("Hola, quiero saber más de Citaly");
+  var nav=document.getElementById("nav");addEventListener("scroll",function(){nav.classList.toggle("sc",scrollY>8)},{passive:true});
+  if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
+    Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(e){io.observe(e)})}else Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(e){e.classList.add("in")});
+})();
+</script>
+</body>
+</html>
