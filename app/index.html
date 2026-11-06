@@ -360,8 +360,10 @@ $("oC").onclick=function(e){var b=e.target.closest("button");if(!b)return;O.c=b.
 $("oD").onclick=function(e){var b=e.target.closest("button");if(!b)return;var d=+b.dataset.d,i=O.days.indexOf(d);if(i>=0)O.days.splice(i,1);else O.days.push(d);b.setAttribute("aria-pressed",i<0)};
 Array.prototype.forEach.call(document.querySelectorAll("[data-back]"),function(b){b.onclick=function(){ostep(+b.dataset.back)}});
 $("oOut").onclick=function(){auth.signOut()};
+function fErr(id,msg){var el=$(id),old=$(id+"_e");if(old)old.remove();if(el.classList)el.classList.add("bad");var p=document.createElement("p");p.className="ferr";p.id=id+"_e";p.textContent=msg;el.insertAdjacentElement("afterend",p);el.scrollIntoView({behavior:"smooth",block:"center"});if(el.focus&&el.tagName==="INPUT")setTimeout(function(){el.focus()},300);
+  var clr=function(){el.classList.remove("bad");var o=$(id+"_e");if(o)o.remove()};el.addEventListener("input",clr,{once:true});el.addEventListener("click",clr,{once:true})}
 $("o1n").onclick=function(){var n=$("oN").value.trim(),w=telN($("oW").value);$("o1e").textContent="";
-  if(n.length<2){$("o1e").textContent="Escribe el nombre de tu negocio.";return}if(!O.t){$("o1e").textContent="Elige a qué se dedica.";return}if(w.length<8){$("o1e").textContent="Escribe el WhatsApp del negocio (8 dígitos).";return}
+  if(n.length<2){fErr("oN","Primero escribe aquí el nombre de tu negocio.");return}if(!O.t){fErr("oT","Elige a qué se dedica tu negocio.");return}if(w.length<8){fErr("oW","Escribe el WhatsApp del negocio (8 dígitos).");return}
   if(!O.slugEdited)$("oS").value=slugify(n);ostep(2);checkSlug()};
 var slugT;
 $("oS").oninput=function(){O.slugEdited=true;var v=slugify(this.value);if(v!==this.value)this.value=v;clearTimeout(slugT);O.slugOk=false;$("oSm").textContent="Revisando…";$("oSm").style.color="";slugT=setTimeout(checkSlug,450)};
