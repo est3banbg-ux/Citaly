@@ -199,6 +199,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     </div>
   </div>
   <p class="mute small" style="text-align:center">Prueba gratis por <span class="tdays">14</span> días. Sin tarjeta.</p>
+  <p class="mute small" style="text-align:center">Al continuar aceptas los <a href="../terminos.html" target="_blank">Términos</a> y la <a href="../privacidad.html" target="_blank">Privacidad</a>.</p>
 </div></section>
 
 <!-- CREAR NEGOCIO -->
@@ -446,7 +447,7 @@ function render(){if(!B)return;
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var dl=daysLeft();
-  if(SUB&&SUB.status==="trial")$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba gratis</span><b>Activar</b></div>';
+  if(SUB&&SUB.status==="trial")$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba gratis</span><b>'+(PLAY?'Ver':'Activar')+'</b></div>';
   else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trB">🔔<span style="flex:1">Tu plan vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Renovar</b></div>';
   else $("trial").innerHTML="";
   if($("trB"))$("trB").onclick=function(){openSet("plan")};
@@ -785,9 +786,11 @@ function setExtra(s){
          saveBiz({home:$("dH").checked,zones:out}).then(function(){closeSheet();toast("Guardado ✓")})}})}}
 
 /* ---------- PAGO ---------- */
-function payHtml(){return '<h3>Pagar por SINPE Móvil</h3><ol style="padding-left:20px"><li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li></ol><a class="btn wa" target="_blank" rel="noopener" href="'+payWa()+'">Enviar comprobante por WhatsApp</a><p class="mute small">Activamos tu mes en menos de 24 horas. Pago con tarjeta: muy pronto.</p>'}
+/* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
+var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
+function payHtml(){if(PLAY)return '<p class="mute">Para activar o renovar tu plan, escríbenos a soporte.</p>';return '<h3>Pagar por SINPE Móvil</h3><ol style="padding-left:20px"><li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li></ol><a class="btn wa" target="_blank" rel="noopener" href="'+payWa()+'">Enviar comprobante por WhatsApp</a><p class="mute small">Activamos tu mes en menos de 24 horas. Pago con tarjeta: muy pronto.</p>'}
 function payWa(){return waUrl(C.wa,"Hola, ya hice el SINPE de "+crc(C.price)+" para activar Citaly.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")+"\nAquí va el comprobante:")}
-function renderPay(){$("payP").textContent=crc(C.price);
+function renderPay(){if(PLAY){$("payP").parentNode.querySelectorAll("h3,ol,.big,.feat,#payWa,.mute.small").forEach(function(e){e.hidden=true});$("payS").textContent="Tus datos están guardados. Para activar o renovar tu plan, escríbenos a soporte.";var s0=SUB&&SUB.status;$("payT").textContent=s0==="suspended"?"Tu cuenta está pausada":"Tu plan no está activo";return}$("payP").textContent=crc(C.price);
   var s=SUB&&SUB.status;$("payT").textContent=s==="suspended"?"Tu cuenta está pausada":s==="active"?"Tu plan venció":"Tu prueba gratis terminó";
   $("payO").innerHTML='<li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li>';$("payWa").href=payWa()}
 
