@@ -139,6 +139,40 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .feat{list-style:none;padding:0;margin:14px 0;text-align:left}
 .feat li{padding:6px 0 6px 28px;position:relative}
 .feat li:before{content:"✓";position:absolute;left:4px;color:var(--ok);font-weight:800}
+:root{--fmbg:#e8edf0;--fmpk:#cfe6c8;--fmr:#fff;--fmm:#ffd98a;--fmw:#a9d2f2}
+@media (prefers-color-scheme:dark){:root{--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a;--fmw:#24405a}}
+.mapc{position:relative;display:block;height:118px;margin:10px 0 4px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--fmbg);text-decoration:none;color:#fff;transition:transform .15s}
+.mapc:active{transform:scale(.98)}.mapc.smc{height:96px}
+.fm{position:absolute;inset:0;width:100%;height:100%}.fm-bg{fill:var(--fmbg)}.fm-pk{fill:var(--fmpk)}.fm-r{fill:none;stroke:var(--fmr);stroke-width:3.5;stroke-linecap:round}.fm-m{fill:none;stroke:var(--fmm);stroke-width:7;stroke-linecap:round}.fm-w{fill:none;stroke:var(--fmw);stroke-width:9;stroke-linecap:round}
+.tl{position:absolute;left:50%;top:50%;width:512px;height:512px;opacity:0;transition:opacity .5s}.tl img{position:absolute;width:256px;height:256px;max-width:none}.tl.on{opacity:1}.tl.off{display:none}
+@media (prefers-color-scheme:dark){.tl{filter:invert(.92) hue-rotate(180deg) brightness(.9) contrast(.9)}}
+.osm{display:none;position:absolute;right:4px;top:3px;font-size:9px;color:#333;background:rgba(255,255,255,.75);padding:0 4px;border-radius:4px}.tl.on+.osm{display:block}
+.mcap{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:18px 10px 7px;background:linear-gradient(transparent,rgba(10,8,25,.75));font-size:13px;font-weight:600}
+.mcap span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mcap span:last-child{flex:none;background:rgba(255,255,255,.2);padding:2px 9px;border-radius:99px}
+.pin{position:absolute;left:50%;top:50%;width:30px;height:38px;transform:translate(-50%,-100%);animation:drop .6s cubic-bezier(.3,1.5,.5,1) both;filter:drop-shadow(0 3px 3px rgba(0,0,0,.35))}
+.mpu{position:absolute;left:50%;top:50%;width:26px;height:10px;margin:-5px 0 0 -13px;border-radius:50%;background:rgba(229,72,77,.45);animation:mpulse 2.2s ease-out infinite}
+@keyframes drop{0%{transform:translate(-50%,-190%);opacity:0}100%{transform:translate(-50%,-100%);opacity:1}}
+@keyframes mpulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.hero{position:relative;overflow:hidden;color:#fff;border-radius:20px;padding:16px;margin-bottom:12px;background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#120c2e));box-shadow:0 16px 34px -18px var(--acc)}
+.hero::after{content:"";position:absolute;top:-50%;bottom:-50%;width:45%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-18deg);animation:sweep 6s ease-in-out infinite;pointer-events:none}
+@keyframes sweep{0%,60%{left:-60%}100%{left:130%}}
+.hg{font-size:13px;opacity:.85}.hn{font:700 17px/1.25 "Bricolage Grotesque",system-ui,sans-serif;margin:4px 0}.hc{font:800 32px/1.1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.5px}.hs{font-size:14px;opacity:.88;margin-top:3px}
+.hbar{height:8px;border-radius:99px;background:rgba(255,255,255,.2);margin:12px 0 6px;overflow:hidden}.hbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ffd166,#fff1b8);transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.hero .mapc{border-color:rgba(255,255,255,.25);position:relative;z-index:1}
+.hrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;position:relative;z-index:1}
+.hrow a,.hnote{background:rgba(255,255,255,.17);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 11px;font:700 13px Figtree,sans-serif;text-decoration:none;cursor:pointer}
+.hnote{display:block;width:100%;margin-top:10px;position:relative;z-index:1}
+.qa{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:7px;margin:12px 0 2px}.qa .btn{width:100%}
+.stat em{display:block;font-style:normal;font-size:12px;font-weight:700;margin-top:2px}.stat em.up{color:var(--ok)}.stat em.down{color:var(--bad)}.stat.big em{color:#fff;opacity:.9}
+.goal{display:flex;gap:14px;align-items:center}.goal svg{flex:none}.goal .gr{transition:stroke-dashoffset 1.2s cubic-bezier(.2,.8,.2,1)}.goal .gp{font:800 22px "Bricolage Grotesque",system-ui,sans-serif;fill:var(--ink)}
+.ins{margin-top:10px;display:grid;gap:6px}.ins div{background:var(--bg);border-radius:10px;padding:8px 10px;font-size:14px}
+.src{margin-bottom:10px;font-size:14px}.sb{height:8px;background:var(--line);border-radius:9px;margin-top:4px;overflow:hidden}.sb i{display:block;height:100%;background:var(--acc);border-radius:9px}
+.nt{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);cursor:pointer}.nt:last-child{border-bottom:0}
+.nt .ck{width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--line);background:var(--card);color:#fff;font-weight:800;cursor:pointer;display:grid;place-items:center;font-size:13px;margin-top:1px}
+.nt.done .ck{background:var(--ok);border-color:var(--ok)}.nt.done b{text-decoration:line-through;opacity:.55}
+.nt .m{flex:1;min-width:0}.nt .m b{display:block;font-weight:600}.nt .m span{font-size:12.5px;color:var(--mute)}
+.zrow{display:grid;grid-template-columns:1fr 100px 36px;gap:7px;margin-bottom:7px}.zrow input{padding:9px 10px}
+.toast.act{pointer-events:auto}.toast .ub{background:none;border:0;color:var(--acc2);font:800 14px Figtree,sans-serif;margin-left:8px;cursor:pointer;padding:4px}
 </style>
 </head>
 <body>
@@ -245,24 +279,29 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     <div id="trial"></div>
 
     <div id="v-agenda" class="view">
+      <div id="hero"></div>
       <div id="pend"></div>
       <div class="wnav"><button class="ib" id="wP" aria-label="Semana anterior">‹</button><b id="wT"></b><button class="ib" id="wN" aria-label="Semana siguiente">›</button></div>
       <div class="week" id="week"></div>
-      <div class="between" style="margin:4px 0 10px"><h2 style="margin:0" id="dT"></h2><button class="btn sm alt" id="today">Hoy</button></div>
+      <div class="between" style="margin:4px 0 10px"><h2 style="margin:0" id="dT"></h2><div class="row" style="flex:none;gap:6px"><button class="ib" id="shDay" aria-label="Compartir citas del día" title="Compartir citas del día">📤</button><button class="btn sm alt" id="today">Hoy</button></div></div>
       <div id="dayList"></div>
     </div>
 
     <div id="v-clientes" class="view" hidden>
+      <div id="notesC"></div>
       <h2>Clientes</h2>
+      <div class="chips" id="cF" style="margin-bottom:10px"></div>
       <input id="cq" type="search" placeholder="Buscar por nombre o número">
       <div class="card" style="margin-top:12px;padding:4px 14px" id="cList"></div>
     </div>
 
     <div id="v-numeros" class="view" hidden>
       <div class="wnav"><button class="ib" id="mP" aria-label="Mes anterior">‹</button><b id="mT"></b><button class="ib" id="mN" aria-label="Mes siguiente">›</button></div>
+      <div id="goalC"></div>
       <div class="stats" id="stats"></div>
       <div class="card"><h2>Ingresos por día</h2><div class="bars" id="bars"></div></div>
       <div class="card"><h2>Servicios más vendidos</h2><div id="top"></div></div>
+      <div class="card"><h2>¿Cómo te conocieron?</h2><div id="srcs"></div></div>
       <div class="card"><div class="between"><h2 style="margin:0">Gastos</h2><button class="btn sm alt" id="addExp">+ Agregar</button></div><div id="exps" style="margin-top:6px"></div></div>
     </div>
 
@@ -278,6 +317,8 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="svc"><span class="ic">🧾</span><span class="m"><b>Servicios y precios</b><span id="svcN"></span></span>›</button>
         <button class="set" data-s="hor"><span class="ic">🕘</span><span class="m"><b>Horario</b><span id="horN"></span></span>›</button>
         <button class="set" data-s="look"><span class="ic">🎨</span><span class="m"><b>Logo y color</b><span>Cómo te ven tus clientes</span></span>›</button>
+        <button class="set" data-s="web"><span class="ic">✨</span><span class="m"><b>Portada de mi página</b><span>Frase, promoción y precios</span></span>›</button>
+        <button class="set" data-s="dom"><span class="ic">🚗</span><span class="m"><b>Servicio a domicilio</b><span id="domN">Ubicación del cliente y zonas</span></span>›</button>
         <button class="set" data-s="res"><span class="ic">📅</span><span class="m"><b>Reglas de reserva</b><span>Anticipación y días disponibles</span></span>›</button>
       </div>
       <div class="card" style="padding:4px 14px">
@@ -290,7 +331,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
   <button class="fab" id="fab"><span style="font-size:20px;line-height:1">+</span> Nueva cita</button>
   <nav class="tabs"><div>
     <button data-v="agenda" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda<span class="badge" id="pb" hidden></span></button>
-    <button data-v="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.5"/></svg>Clientes</button>
+    <button data-v="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.5"/></svg>Clientes<span class="badge" id="nb" hidden></span></button>
     <button data-v="numeros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Números</button>
     <button data-v="ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Ajustes</button>
   </div></nav>
@@ -387,7 +428,7 @@ $("oGo").onclick=function(){var b=this,a=$("oA").value||"08:00",z=$("oB").value|
   b.disabled=true;b.textContent="Creando…";
   var bt=db.batch();bt.set(db.doc("pub/"+slug),pubOf(biz));bt.set(db.doc("biz/"+U.uid),biz);bt.set(db.doc("subs/"+U.uid),{status:"trial",until:until,start:now,email:U.email||"",name:biz.name});
   bt.commit().then(function(){start(true)},function(e){b.disabled=false;b.textContent="Crear mi negocio 🎉";$("o3e").textContent=e.code==="permission-denied"?"Esa dirección ya la tomó otro negocio. Vuelve atrás y elige otra.":errEs(e)})};
-function pubOf(b){return {biz:U.uid,name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead}}
+function pubOf(b){return {biz:U.uid,name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
 
 /* ---------- ARRANQUE ---------- */
 function start(fresh){var uid=U.uid,first=true;
@@ -411,7 +452,7 @@ function render(){if(!B)return;
   if($("trB"))$("trB").onclick=function(){openSet("plan")};
   renderPay();
   var p=JOBS.filter(function(j){return j.st==="Por confirmar"}).length;$("pb").hidden=!p;$("pb").textContent=p;
-  if(VIEW==="agenda")renderAg();else if(VIEW==="clientes")renderCli();else if(VIEW==="numeros")renderNum();else renderSet()}
+  updBadges();if(VIEW==="agenda")renderAg();else if(VIEW==="clientes")renderCli();else if(VIEW==="numeros")renderNum();else renderSet()}
 Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"),function(b){b.onclick=function(){go(b.dataset.v)}});
 function go(v){VIEW=v;Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"),function(b){if(b.dataset.v===v)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
   Array.prototype.forEach.call(document.querySelectorAll(".view"),function(x){x.hidden=x.id!=="v-"+v});$("fab").hidden=v==="ajustes"||v==="numeros";window.scrollTo(0,0);render()}
@@ -420,7 +461,7 @@ function go(v){VIEW=v;Array.prototype.forEach.call(document.querySelectorAll("na
 function monday(s){var d=pd(s),k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return ymd(d)}
 function dayJobs(s){return JOBS.filter(function(j){return j.date===s}).sort(function(a,b){return tm(a.time)-tm(b.time)})}
 function active(j){return j.st!=="Cancelada"&&j.st!=="No vino"}
-function renderAg(){var t=ymd(new Date()),m=monday(SEL),html="";
+function renderAg(){renderHero();var t=ymd(new Date()),m=monday(SEL),html="";
   var pend=JOBS.filter(function(j){return j.st==="Por confirmar"}).sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time)});
   $("pend").innerHTML=pend.length?'<div class="banner hot" id="pendB">🔔<span style="flex:1"><b>'+pend.length+(pend.length===1?" reserva nueva":" reservas nuevas")+'</b> por confirmar</span>Ver</div>':"";
   if($("pendB"))$("pendB").onclick=function(){SEL=pend[0].date;renderAg();openJob(pend[0])};
@@ -432,12 +473,13 @@ function renderAg(){var t=ymd(new Date()),m=monday(SEL),html="";
   if(!L.length){$("dayList").innerHTML='<div class="empty fade"><div>'+(hrs&&hrs.on?"☀️":"😴")+'</div>'+(hrs&&hrs.on?"No hay citas este día.<br>Toca <b>+ Nueva cita</b> o comparte tu link.":"Este día está cerrado según tu horario.")+'</div>';return}
   var inc=L.filter(function(j){return j.st==="Lista"}).reduce(function(a,j){return a+(+j.total||0)},0),exp=L.filter(active).reduce(function(a,j){return a+(+j.total||0)},0);
   $("dayList").innerHTML=L.map(function(j){var end=hm(tm(j.time)+(+j.dur||60));
-    return '<div class="job fade st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join("")
+    return '<div class="job fade st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join("")
    +'<p class="mute small" style="text-align:center">'+L.filter(active).length+' citas · '+crc(exp)+' en total'+(inc?' · '+crc(inc)+' cobrado':'')+'</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#dayList .job"),function(el){el.onclick=function(){openJob(JOBS.find(function(j){return j._id===el.dataset.id}))}})}
 function pill(s){var c={"Por confirmar":"warn","Confirmada":"","Lista":"ok","No vino":"bad","Cancelada":"bad"}[s]||"";return '<span class="pill '+c+'">'+esc(s||"")+'</span>'}
 $("week").onclick=function(e){var b=e.target.closest("button");if(!b)return;SEL=b.dataset.d;renderAg()};
 $("wP").onclick=function(){SEL=addD(SEL,-7);renderAg()};$("wN").onclick=function(){SEL=addD(SEL,7);renderAg()};
+$("shDay").onclick=shareDay;
 $("today").onclick=function(){SEL=ymd(new Date());renderAg()};
 $("fab").onclick=function(){openJob(null,VIEW==="agenda"?{date:SEL}:{})};
 
@@ -449,26 +491,128 @@ window.addEventListener("popstate",function(){closeSheet(true)});
 
 /* ---------- CITA ---------- */
 var J=null;
-function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel||"",items:[],lines:[],date:pre.date||ymd(new Date()),time:"",dur:60,total:0,note:"",st:"Confirmada"};
+var HOW=["Instagram / Facebook","WhatsApp","Recomendación","Google","Pasaba por ahí","Cliente que vuelve","Otro"];
+var DURS=[15,30,45,60,75,90,105,120,150,180,240,300,360,480];
+function locOf(j){return j&&(j.ubic||"")||""}
+function msgFor(k,j){var n=first(j.cli),d=j.date?niceDay(j.date).toLowerCase()+" a las "+fh(j.time):"",it=(j.items||[]).length?"\n\n"+j.items.join(" + "):"";
+  if(k==="conf")return "¡Hola "+n+"! 👋 Te confirmamos tu cita en "+B.name+" el "+d+"."+it+(B.addr&&!B.home?"\n📍 "+B.addr:"")+"\n\n¡Te esperamos!";
+  if(k==="rec")return "¡Hola "+n+"! 👋 Te recordamos tu cita en "+B.name+" el "+d+"."+it+(B.addr&&!B.home?"\n📍 "+B.addr:"")+"\n\n¡Te esperamos!";
+  if(k==="go")return "¡Hola "+n+"! 👋 Te escribo de "+B.name+". Ya voy en camino a tu cita, llego en unos 20 minutos. ¡Nos vemos!";
+  if(k==="ty")return "¡Muchas gracias por tu visita, "+n+"! 🙌 Fue un gusto atenderte en "+B.name+".\n\nCuando quieras volver, reservas aquí en segundos: "+link();
+  if(k==="back")return "¡Hola "+n+"! 👋 Hace tiempo no te vemos en "+B.name+". ¿Te agendamos una cita?\n\nPuedes reservar aquí: "+link();
+  return "¡Hola "+n+"! 👋"}
+function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel||"",items:[],lines:[],date:pre.date||ymd(new Date()),time:"",dur:60,total:0,note:"",st:"Confirmada",ubic:pre.ubic||"",how:pre.how||""};
   if(nw&&pre.date&&pre.date<ymd(new Date()))j.date=ymd(new Date());
-  J={nw:nw,j:j,pick:(j.lines||[]).map(function(l){return l.n}),tot:+j.total||0,dur:+j.dur||60,man:!nw};
+  var sub=j.sub!=null?+j.sub:Math.max(0,(+j.total||0)-(+j.fee||0)+(+j.disc||0));
+  J={nw:nw,j:j,pick:(j.lines||[]).map(function(l){return l.n}),dur:+j.dur||60};
   var svc=(B.services||[]).map(function(s){return '<button class="chip" data-n="'+esc(s.n)+'" aria-pressed="'+(J.pick.indexOf(s.n)>=0)+'">'+(s.ic?s.ic+" ":"")+esc(s.n)+' <small>'+crc(s.p)+'</small></button>'}).join("");
   var cl=clients().map(function(c){return '<option value="'+esc(c.cli)+'">'}).join("");
+  var showLoc=B.home||j.ubic||j.addr,qa="";
+  if(!nw&&j.tel){qa+='<a class="btn sm ghost" href="tel:'+esc(telN(j.tel))+'">📞 Llamar</a>';
+    if(active(j)&&j.st!=="Lista")qa+='<a class="btn sm wa" target="_blank" rel="noopener" data-wa="'+(j.st==="Por confirmar"?"conf":"rec")+'">'+(j.st==="Por confirmar"?"✅ Confirmar":"🔔 Recordar")+'</a>';
+    if(B.home&&active(j)&&j.st!=="Lista")qa+='<a class="btn sm wa" target="_blank" rel="noopener" data-wa="go">🚗 En camino</a>';
+    if(j.st==="Lista")qa+='<a class="btn sm wa" target="_blank" rel="noopener" data-wa="ty">🙌 Agradecer</a>'}
+  if(!nw&&locOf(j))qa+='<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(gmaps(locOf(j)))+'">📍 Cómo llegar</a>'+(waze(locOf(j))?'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(waze(locOf(j)))+'">Waze</a>':"");
   sheet('<div class="between"><h2 style="margin:0">'+(nw?"Nueva cita":"Cita")+'</h2>'+(nw?"":pill(j.st))+'</div>'
    +(j.web&&j.st==="Por confirmar"?'<div class="warnbox">🌐 Reservó desde tu link. Confírmale por WhatsApp.</div>':"")
+   +(qa?'<div class="qa">'+qa+'</div>':"")
+   +(!nw&&locOf(j)?mapThumb(locOf(j)):"")
+   +(!nw&&(j.zone||j.addr)?'<p class="small" style="margin:6px 0 0">'+(j.zone?'🗺️ <b>'+esc(j.zone)+'</b> ':'')+(j.addr?'· '+esc(j.addr):'')+'</p>':"")
    +'<label for="jC">Cliente</label><input id="jC" list="jCl" value="'+esc(j.cli)+'" maxlength="60" placeholder="Nombre"><datalist id="jCl">'+cl+'</datalist>'
    +'<label for="jT">WhatsApp</label><input id="jT" inputmode="tel" value="'+esc(j.tel)+'" maxlength="15" placeholder="8888 8888">'
    +'<label>Servicios</label><div class="svcpick" id="jS">'+(svc||'<span class="mute small">Agrega servicios en Ajustes.</span>')+'</div>'
    +'<div class="row"><div><label for="jD">Día</label><input id="jD" type="date" value="'+j.date+'"></div><div><label for="jH">Hora</label><select id="jH"></select></div></div>'
-   +'<div class="row"><div><label for="jDu">Duración</label><select id="jDu">'+[15,30,45,60,75,90,105,120,150,180,240,300,360,480].map(function(m){return '<option value="'+m+'">'+durTxt(m)+'</option>'}).join("")+'</select></div><div><label for="jP">Total (₡)</label><input id="jP" type="number" inputmode="numeric" min="0" step="500" value="'+(J.tot||"")+'"></div></div>'
+   +'<div class="row"><div><label for="jDu">Duración</label><select id="jDu">'+DURS.map(function(m){return '<option value="'+m+'">'+durTxt(m)+'</option>'}).join("")+'</select></div><div><label for="jP">Precio (₡)</label><input id="jP" type="number" inputmode="numeric" min="0" step="500" value="'+(sub||"")+'"></div></div>'
+   +'<div class="row"><div><label for="jDs">Descuento (₡)</label><input id="jDs" type="number" inputmode="numeric" min="0" step="500" value="'+(+j.disc||"")+'" placeholder="0"></div><div><label>&nbsp;</label><div class="sum" id="jSum" style="margin:0"></div></div></div>'
    +'<div id="jW"></div>'
-   +'<label for="jN">Nota</label><textarea id="jN" maxlength="400" placeholder="Detalles, dirección, preferencias…">'+esc(j.note||"")+'</textarea>'
+   +(showLoc?'<label for="jU">Ubicación del cliente</label><div class="row"><input id="jU" value="'+esc(j.ubic||"")+'" placeholder="Pega aquí la ubicación que te mandó" style="flex:3"><button class="btn sm alt" id="jUp" style="flex:1">Pegar</button></div><p class="mute small" id="jUm" style="margin:5px 0 0"></p><div id="jUv"></div>':"")
+   +'<label for="jHow">¿Cómo nos conoció?</label><select id="jHow"><option value="">Sin dato</option>'+HOW.map(function(h){return '<option'+(h===j.how?" selected":"")+'>'+h+'</option>'}).join("")+'</select>'
+   +'<label for="jN">Nota</label><textarea id="jN" maxlength="400" placeholder="Detalles, preferencias…">'+esc(j.note||"")+'</textarea>'
    +(nw?"":'<label for="jE">Estado</label><select id="jE">'+STS.map(function(s){return '<option'+(s===j.st?" selected":"")+'>'+s+'</option>'}).join("")+'</select>')
    +'<p class="err" id="jErr"></p>'
    +'<div class="acts">'+(nw?'<button class="btn full" id="jSave">Guardar cita</button>':
      (j.st!=="Lista"?'<button class="btn full" id="jDone">✓ Marcar como atendida</button>':"")
-     +'<a class="btn wa" id="jWa" target="_blank" rel="noopener">'+(j.st==="Por confirmar"?"Confirmar":"Recordar")+' por WhatsApp</a><button class="btn alt" id="jSave">Guardar cambios</button><button class="btn danger full" id="jDel">Eliminar cita</button>')+'</div>',
-   function(){$("jDu").value=String(J.dur);fillHours(j.time);bindJob()})}
+     +'<button class="btn alt full" id="jSave">Guardar cambios</button><button class="btn danger full" id="jDel">Eliminar cita</button>')+'</div>',
+   function(){$("jDu").value=String(J.dur);fillHours(j.time);bindJob();jTot();if($("jU"))updU()})}
+function jTot(){var p=+$("jP").value||0,ds=+$("jDs").value||0,fee=+J.j.fee||0,t=Math.max(0,p-ds)+fee;
+  $("jSum").innerHTML='<span>Total</span><span>'+crc(t)+'</span>';$("jSum").title=fee?"Incluye domicilio "+crc(fee):"";return t}
+function updU(){var v=$("jU").value,p=parseLoc(v);$("jUv").innerHTML=p?mapThumb(v,true):"";$("jUm").textContent=!p?"Si el cliente te mandó su ubicación por WhatsApp, cópiala y toca Pegar.":p.ll?"✓ Coordenadas: funciona con Maps, Waze y la ruta del día":p.url?"✓ Enlace de mapa guardado":"Se buscará esta dirección en el mapa"}
+function bindJob(){$("jS").onclick=function(e){var b=e.target.closest("button");if(!b)return;var n=b.dataset.n,i=J.pick.indexOf(n);if(i>=0)J.pick.splice(i,1);else J.pick.push(n);b.setAttribute("aria-pressed",i<0);
+    var L=lines();$("jP").value=L.reduce(function(a,l){return a+l.p},0)||"";var d=(B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).reduce(function(a,s){return a+(+s.d||0)},0);
+    if(d){$("jDu").value=DURS.find(function(m){return m>=d})||480}fillHours($("jH").value);jTot()};
+  $("jP").oninput=$("jDs").oninput=jTot;
+  $("jD").onchange=function(){fillHours($("jH").value)};$("jH").onchange=clashMsg;$("jDu").onchange=function(){fillHours($("jH").value)};
+  $("jC").oninput=function(){var c=clients().find(function(x){return x.cli.toLowerCase()===$("jC").value.trim().toLowerCase()});if(c){if(!$("jT").value)$("jT").value=c.tel;if($("jU")&&!$("jU").value&&c.ubic){$("jU").value=c.ubic;updU()}if(!$("jHow").value&&c.how)$("jHow").value="Cliente que vuelve"}};
+  if($("jU")){$("jU").oninput=updU;$("jUp").onclick=function(){try{navigator.clipboard.readText().then(function(t){if(t){$("jU").value=t.trim();updU();toast("Ubicación pegada ✓")}},function(){toast("Mantén presionado el campo y toca Pegar")})}catch(e){toast("Mantén presionado el campo y toca Pegar")}}}
+  $("jSave").onclick=function(){saveJob()};
+  if($("jDone"))$("jDone").onclick=function(){saveJob("Lista")};
+  if($("jDel"))$("jDel").onclick=function(){if(!confirm("¿Eliminar esta cita?"))return;var cp=Object.assign({},J.j);delJob(J.j).then(function(){closeSheet();undoToast("Cita eliminada",function(){restoreJob(cp)})},function(e){$("jErr").textContent=errEs(e)})};
+  Array.prototype.forEach.call(document.querySelectorAll("#shC [data-wa]"),function(a){var k=a.dataset.wa,j=J.j;a.href=waUrl(j.tel,msgFor(k,j));
+    a.onclick=function(){if(k==="conf"&&j.st==="Por confirmar")setTimeout(function(){db.doc("biz/"+U.uid+"/jobs/"+j._id).update({st:"Confirmada"});toast("Marcada como confirmada")},400)}})}
+function first(n){return String(n||"").trim().split(/\s+/)[0]||""}
+function lines(){return (B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).map(function(s){return {n:s.n,p:+s.p||0}})}
+function blocks(date,time,dur){var r=[],s=tm(time),n=Math.ceil((+dur||60)/30);for(var i=0;i<n;i++)r.push(date+"_"+hm(s+i*30).replace(":",""));return r}
+function saveJob(forceSt){var c=$("jC").value.trim(),t=telN($("jT").value),d=$("jD").value,h=$("jH").value,dur=+$("jDu").value||60,st=forceSt||($("jE")?$("jE").value:"Confirmada");
+  $("jErr").textContent="";if(!c){$("jErr").textContent="Escribe el nombre del cliente.";return}if(!d||!h){$("jErr").textContent="Elige el día y la hora.";return}if(t&&t.length<8){$("jErr").textContent="Revisa el WhatsApp: son 8 dígitos.";return}
+  var L=lines(),old=J.j,id=old._id||String(Date.now()*100+Math.floor(Math.random()*100)),sub=Math.max(0,+$("jP").value||0),disc=Math.min(sub,Math.max(0,+$("jDs").value||0)),fee=+old.fee||0,tot=sub-disc+fee;
+  var data={id:id,cli:c.slice(0,60),tel:t,items:L.length?L.map(function(l){return l.n}):(old.items||[]),lines:L.length?L:(old.lines||[]),date:d,time:h,dur:dur,sub:sub,disc:disc,fee:fee,total:tot,
+    ubic:$("jU")?$("jU").value.trim().slice(0,300):(old.ubic||""),addr:old.addr||"",zone:old.zone||"",how:$("jHow").value,note:$("jN").value.trim().slice(0,400),st:st,web:!!old.web,src:old.src||"app",at:old.at||Date.now(),upd:Date.now()};
+  if(st==="Lista"&&!old.doneAt)data.doneAt=Date.now();
+  $("jSave").disabled=true;
+  writeJob(data,old).then(function(){closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓")},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
+function writeJob(data,old){old=old||{};var id=data.id,st=data.st,oldB=old._id&&active(old)?blocks(old.date,old.time,old.dur):[],newB=st==="Cancelada"||st==="No vino"?[]:blocks(data.date,data.time,data.dur);
+  var bt=db.batch();bt.set(db.doc("biz/"+U.uid+"/jobs/"+id),data,{merge:true});
+  oldB.forEach(function(b){if(newB.indexOf(b)<0)bt.delete(db.doc("biz/"+U.uid+"/slots/"+b))});
+  newB.forEach(function(b){bt.set(db.doc("biz/"+U.uid+"/slots/"+b),{date:data.date,t:b.split("_")[1],job:id,at:Date.now()})});
+  if(old.tel&&st!=="Por confirmar"&&st!=="Confirmada")bt.delete(db.doc("biz/"+U.uid+"/holds/"+old.tel));
+  return bt.commit()}
+function restoreJob(cp){var d=Object.assign({},cp);delete d._id;writeJob(d,{}).then(function(){toast("Cita recuperada ✓")},function(e){toast(errEs(e))})}
+function delJob(j){var bt=db.batch();bt.delete(db.doc("biz/"+U.uid+"/jobs/"+j._id));if(active(j))blocks(j.date,j.time,j.dur).forEach(function(b){bt.delete(db.doc("biz/"+U.uid+"/slots/"+b))});if(j.tel)bt.delete(db.doc("biz/"+U.uid+"/holds/"+j.tel));return bt.commit()}
+function undoToast(msg,fn){var e=$("toast");e.innerHTML=esc(msg)+' <button class="ub">Deshacer</button>';e.classList.add("on","act");clearTimeout(toast.t);
+  e.querySelector(".ub").onclick=function(){e.classList.remove("on","act");clearTimeout(toast.t);fn()};toast.t=setTimeout(function(){e.classList.remove("on","act")},6000)}
+
+/* ---------- MAPAS (igual que GlassStudioCR) ---------- */
+function parseLoc(t){t=(t||"").trim();if(!t)return null;var c=t.match(/(-?\d{1,2}\.\d{3,})\s*,\s*(-?\d{1,3}\.\d{3,})/),u=t.match(/https?:\/\/\S+/);
+  if(c)return {ll:c[1]+","+c[2],url:u?u[0]:null};if(u)return {url:u[0]};return {q:t}}
+function gmaps(t){var p=parseLoc(t);if(!p)return "#";if(p.ll)return "https://www.google.com/maps/search/?api=1&query="+p.ll;if(p.url)return p.url;return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.q)}
+function waze(t){var p=parseLoc(t);if(!p)return null;if(p.ll)return "https://waze.com/ul?ll="+p.ll+"&navigate=yes";if(p.q)return "https://waze.com/ul?q="+encodeURIComponent(p.q)+"&navigate=yes";return null}
+function hs(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(a){return function(){a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function fakeMap(seed){var r=rng(seed),i,s='<svg class="fm" viewBox="0 0 320 120" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect class="fm-bg" width="320" height="120"/>';
+  for(i=0;i<4;i++)s+='<rect class="fm-pk" x="'+(r()*290|0)+'" y="'+(r()*95|0)+'" width="'+(24+r()*50|0)+'" height="'+(14+r()*28|0)+'" rx="5"/>';
+  if(r()>.45){var xw=r()*320|0;s+='<path class="fm-w" d="M'+xw+' -10C'+(xw+50)+' 40 '+(xw-50)+' 80 '+(xw+25)+' 130"/>'}
+  for(i=0;i<8;i++){var y=r()*120|0;s+='<path class="fm-r" d="M-10 '+y+'Q160 '+(y+(r()-.5)*70|0)+' 330 '+(y+(r()-.5)*50|0)+'"/>'}
+  for(i=0;i<7;i++){var x=r()*320|0;s+='<path class="fm-r" d="M'+x+' -10L'+(x+(r()-.5)*90|0)+' 130"/>'}
+  var y0=35+r()*50|0;s+='<path class="fm-m" d="M-10 '+y0+'C100 '+(y0-35+r()*70|0)+' 220 '+(y0-35+r()*70|0)+' 330 '+(35+r()*50|0)+'"/>';return s+'</svg>'}
+function tileLayer(ll){var p=ll.split(","),la=+p[0],lo=+p[1],z=16,n=Math.pow(2,z),xf=(lo+180)/360*n,rd=la*Math.PI/180,yf=(1-Math.log(Math.tan(rd)+1/Math.cos(rd))/Math.PI)/2*n;
+  if(!isFinite(xf)||!isFinite(yf))return "";var x=Math.floor(xf),y=Math.floor(yf),x0=xf-x<.5?x-1:x,y0=yf-y<.5?y-1:y,px=(xf-x0)*256,py=(yf-y0)*256,h="";
+  for(var b=0;b<2;b++)for(var a=0;a<2;a++)h+='<img alt="" loading="lazy" src="https://tile.openstreetmap.org/'+z+'/'+(x0+a)+'/'+(y0+b)+'.png" style="left:'+a*256+'px;top:'+b*256+'px" onload="this.parentNode.classList.add(\'on\')" onerror="this.parentNode.classList.add(\'off\')">';
+  return '<div class="tl" style="margin-left:'+(-px).toFixed(1)+'px;margin-top:'+(-py).toFixed(1)+'px">'+h+'</div><span class="osm">© OpenStreetMap</span>'}
+var PINSVG='<svg class="pin" viewBox="0 0 30 38" aria-hidden="true"><path d="M15 37C15 37 28 24.5 28 14A13 13 0 0 0 2 14C2 24.5 15 37 15 37Z" fill="#e5484d" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
+function mapThumb(t,small){var p=parseLoc(t);if(!p)return "";var lab=p.ll?"Ubicación del cliente":p.url?"Ubicación en Maps":p.q;
+  return '<a class="mapc'+(small?' smc':'')+'" href="'+esc(gmaps(t))+'" target="_blank" rel="noopener" aria-label="Abrir ubicación: '+esc(lab)+'">'+fakeMap(hs(p.ll||p.url||p.q))+(p.ll?tileLayer(p.ll):'')+'<span class="mpu"></span>'+PINSVG+'<span class="mcap"><span>📍 '+esc(lab)+'</span><span>Abrir ›</span></span></a>'}
+function routeUrl(L){var P=L.map(function(j){var p=parseLoc(locOf(j));return !p?null:p.ll?p.ll:(p.q||null)}).filter(Boolean);if(!P.length)return null;
+  var u="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination="+encodeURIComponent(P[P.length-1]);if(P.length>1)u+="&waypoints="+encodeURIComponent(P.slice(0,-1).join("|"));return u}
+
+/* ---------- INICIO DEL DÍA ---------- */
+function renderHero(){var t=ymd(new Date()),n=new Date(),nowM=n.getHours()*60+n.getMinutes(),T=dayJobs(t).filter(active),done=T.filter(function(j){return j.st==="Lista"}).length;
+  var nx=T.filter(function(j){return j.st!=="Lista"}).find(function(j){return tm(j.time)+(+j.dur||60)>nowM})||null,big="",line="",sub="";
+  if(nx){var mn=tm(nx.time)-nowM;line="Próxima: "+esc(nx.cli)+" a las "+fh(nx.time);big=mn<=0?(mn>-30?"Es ahora":"Atrasada "+(Math.floor(-mn/60)?Math.floor(-mn/60)+" h ":"")+(-mn%60)+" min"):mn<60?"En "+mn+" min":"En "+Math.floor(mn/60)+" h"+(mn%60?" "+mn%60+" min":"");sub=esc((nx.items||[]).join(" + "))}
+  else if(T.length&&done===T.length){line="Terminaste las citas de hoy";big="¡Buen trabajo! 🎉"}
+  else if(T.length){line="Ya pasaron las citas de hoy";big="Márcalas como atendidas";sub="Así tus números quedan al día"}
+  else{line="No tienes citas hoy";big="Día libre ☀️";sub="Buen momento para escribirle a clientes que hace rato no vienen"}
+  var money=T.reduce(function(a,j){return a+(+j.total||0)},0),due=dueNotes().length,ru=B.home?routeUrl(T.filter(function(j){return j.st!=="Lista"})):null;
+  $("hero").innerHTML='<div class="hero fade"><div class="hg">'+DN[n.getDay()].replace(/^./,function(c){return c.toUpperCase()})+" "+n.getDate()+" de "+MN[n.getMonth()]+'</div><div class="hn">'+line+'</div><div class="hc">'+big+'</div>'+(sub?'<div class="hs">'+sub+'</div>':'')
+   +(nx&&locOf(nx)?mapThumb(locOf(nx),true):'')
+   +(T.length?'<div class="hbar"><i id="hb"></i></div><div class="hs">'+done+' de '+T.length+' atendidas · '+crc(money)+'</div>':'')
+   +(due?'<button class="hnote" id="hNotes">📌 '+due+(due===1?" recordatorio pendiente":" recordatorios pendientes")+'</button>':'')
+   +((nx&&(locOf(nx)||(B.home&&nx.tel)))||ru?'<div class="hrow">'+(nx&&locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(gmaps(locOf(nx)))+'">📍 Cómo llegar</a>':'')+(B.home&&nx&&nx.tel?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("go",nx)))+'">🚗 Voy en camino</a>':'')+(ru?'<a target="_blank" rel="noopener" href="'+esc(ru)+'">🗺️ Ruta del día</a>':'')+'</div>':'')+'</div>';
+  var hb=$("hb");if(hb)requestAnimationFrame(function(){requestAnimationFrame(function(){hb.style.width=(T.length?done/T.length*100:0)+"%"})});
+  if($("hNotes"))$("hNotes").onclick=function(){go("clientes")}}
+function shareDay(){var L=dayJobs(SEL).filter(active);if(!L.length){toast("No hay citas este día");return}
+  var t="📅 "+B.name+" · "+niceDay(SEL)+"\n\n"+L.map(function(j){return "• "+fh(j.time)+" · "+j.cli+((j.items||[]).length?" · "+j.items.join(" + "):"")+(j.tel?" · "+j.tel:"")+(locOf(j)?"\n   📍 "+gmaps(locOf(j)):"")}).join("\n");
+  if(navigator.share)navigator.share({text:t}).catch(function(){});else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")}
+
 function fillHours(cur){var d=$("jD").value,h=B.hours&&B.hours[pd(d).getDay()],a=h&&h.on?tm(h.a):tm("07:00"),z=h&&h.on?tm(h.b):tm("20:00"),o="",dur=+$("jDu").value||60;
   if(cur&&(tm(cur)<a||tm(cur)>=z)){a=Math.min(a,tm(cur));z=Math.max(z,tm(cur)+30)}
   var busy=dayJobs(d).filter(function(x){return active(x)&&(!J||x._id!==J.j._id)});
@@ -478,67 +622,94 @@ function fillHours(cur){var d=$("jD").value,h=B.hours&&B.hours[pd(d).getDay()],a
 function clashMsg(){var d=$("jD").value,t=$("jH").value,dur=+$("jDu").value||60;if(!t){$("jW").innerHTML="";return}
   var c=dayJobs(d).filter(function(x){if(!active(x)||x._id===J.j._id)return false;var s=tm(x.time),e=s+(+x.dur||60);return tm(t)<e&&tm(t)+dur>s});
   $("jW").innerHTML=c.length?'<div class="warnbox">⚠️ Choca con '+esc(c[0].cli||"otra cita")+' ('+fh(c[0].time)+').</div>':""}
-function bindJob(){$("jS").onclick=function(e){var b=e.target.closest("button");if(!b)return;var n=b.dataset.n,i=J.pick.indexOf(n);if(i>=0)J.pick.splice(i,1);else J.pick.push(n);b.setAttribute("aria-pressed",i<0);
-    var L=lines();$("jP").value=L.reduce(function(a,l){return a+l.p},0)||"";var d=(B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).reduce(function(a,s){return a+(+s.d||0)},0);
-    if(d){var best=[15,30,45,60,75,90,105,120,150,180,240,300,360,480].find(function(m){return m>=d})||480;$("jDu").value=best}fillHours($("jH").value)};
-  $("jD").onchange=function(){fillHours($("jH").value)};$("jH").onchange=clashMsg;$("jDu").onchange=function(){fillHours($("jH").value)};
-  $("jC").oninput=function(){var c=clients().find(function(x){return x.cli.toLowerCase()===$("jC").value.trim().toLowerCase()});if(c&&!$("jT").value)$("jT").value=c.tel};
-  $("jSave").onclick=function(){saveJob()};
-  if($("jDone"))$("jDone").onclick=function(){saveJob("Lista")};
-  if($("jDel"))$("jDel").onclick=function(){if(!confirm("¿Eliminar esta cita?"))return;delJob(J.j).then(function(){closeSheet();toast("Cita eliminada")},function(e){$("jErr").textContent=errEs(e)})};
-  if($("jWa")){var j=J.j;$("jWa").href=waUrl(j.tel,(j.st==="Por confirmar"?"¡Hola "+first(j.cli)+"! 👋 Te confirmamos tu cita en "+B.name+" el "+niceDay(j.date).toLowerCase()+" a las "+fh(j.time)+".":"¡Hola "+first(j.cli)+"! 👋 Te recordamos tu cita en "+B.name+" el "+niceDay(j.date).toLowerCase()+" a las "+fh(j.time)+".")+((j.items||[]).length?"\n\n"+j.items.join(" + "):"")+(B.addr?"\n📍 "+B.addr:"")+"\n\n¡Te esperamos!");
-    if(!j.tel)$("jWa").removeAttribute("href");$("jWa").onclick=function(){if(!j.tel){toast("Esta cita no tiene WhatsApp");return false}if(j.st==="Por confirmar")setTimeout(function(){db.doc("biz/"+U.uid+"/jobs/"+j._id).update({st:"Confirmada"});toast("Marcada como confirmada")},400)}}}
-function first(n){return String(n||"").trim().split(/\s+/)[0]||""}
-function lines(){return (B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).map(function(s){return {n:s.n,p:+s.p||0}})}
-function blocks(date,time,dur){var r=[],s=tm(time),n=Math.ceil((+dur||60)/30);for(var i=0;i<n;i++)r.push(date+"_"+hm(s+i*30).replace(":",""));return r}
-function saveJob(forceSt){var c=$("jC").value.trim(),t=telN($("jT").value),d=$("jD").value,h=$("jH").value,dur=+$("jDu").value||60,tot=Math.max(0,+$("jP").value||0),st=forceSt||($("jE")?$("jE").value:"Confirmada");
-  $("jErr").textContent="";if(!c){$("jErr").textContent="Escribe el nombre del cliente.";return}if(!d||!h){$("jErr").textContent="Elige el día y la hora.";return}if(t&&t.length<8){$("jErr").textContent="Revisa el WhatsApp: son 8 dígitos.";return}
-  var L=lines(),old=J.j,id=old._id||String(Date.now()*100+Math.floor(Math.random()*100)),ref=db.doc("biz/"+U.uid+"/jobs/"+id);
-  var data={id:id,cli:c.slice(0,60),tel:t,items:L.length?L.map(function(l){return l.n}):(old.items||[]),lines:L.length?L:(old.lines||[]),date:d,time:h,dur:dur,total:tot,note:$("jN").value.trim().slice(0,400),st:st,web:!!old.web,src:old.src||"app",at:old.at||Date.now(),upd:Date.now()};
-  if(st==="Lista"&&!old.doneAt)data.doneAt=Date.now();
-  var oldB=old._id&&active(old)?blocks(old.date,old.time,old.dur):[],newB=st==="Cancelada"||st==="No vino"?[]:blocks(d,h,dur);
-  var bt=db.batch();bt.set(ref,data,{merge:true});
-  oldB.forEach(function(b){if(newB.indexOf(b)<0)bt.delete(db.doc("biz/"+U.uid+"/slots/"+b))});
-  newB.forEach(function(b){bt.set(db.doc("biz/"+U.uid+"/slots/"+b),{date:d,t:b.split("_")[1],job:id,at:Date.now()})});
-  if(old.tel&&st!=="Por confirmar"&&st!=="Confirmada")bt.delete(db.doc("biz/"+U.uid+"/holds/"+old.tel));
-  $("jSave").disabled=true;
-  bt.commit().then(function(){closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓")},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
-function delJob(j){var bt=db.batch();bt.delete(db.doc("biz/"+U.uid+"/jobs/"+j._id));if(active(j))blocks(j.date,j.time,j.dur).forEach(function(b){bt.delete(db.doc("biz/"+U.uid+"/slots/"+b))});if(j.tel)bt.delete(db.doc("biz/"+U.uid+"/holds/"+j.tel));return bt.commit()}
-
 /* ---------- CLIENTES ---------- */
-function clients(){var M={};JOBS.forEach(function(j){var k=j.tel||("n:"+String(j.cli||"").toLowerCase().trim());if(!k||k==="n:")return;var c=M[k]||(M[k]={cli:j.cli,tel:j.tel,n:0,spent:0,last:"",first:"9999",jobs:[]});
-  c.jobs.push(j);if(j.st==="Lista"){c.n++;c.spent+=+j.total||0}if(j.date>c.last){c.last=j.date;c.cli=j.cli||c.cli}if(j.date<c.first)c.first=j.date});
-  return Object.keys(M).map(function(k){return M[k]}).sort(function(a,b){return b.last.localeCompare(a.last)})}
+var CF="all";
+function clients(){var M={},t=ymd(new Date());JOBS.forEach(function(j){var k=j.tel||("n:"+String(j.cli||"").toLowerCase().trim());if(!k||k==="n:")return;var c=M[k]||(M[k]={cli:j.cli,tel:j.tel,n:0,spent:0,last:"",lastDone:"",first:"9999",next:"",ubic:"",how:"",jobs:[]});
+  c.jobs.push(j);if(j.st==="Lista"){c.n++;c.spent+=+j.total||0;if(j.date>c.lastDone)c.lastDone=j.date}if(j.date>c.last){c.last=j.date;c.cli=j.cli||c.cli}if(j.date<c.first){c.first=j.date;if(j.how)c.how=j.how}
+  if(j.ubic&&j.date>=(c._ud||"")){c.ubic=j.ubic;c._ud=j.date}if(active(j)&&j.st!=="Lista"&&j.date>=t&&(!c.next||j.date<c.next))c.next=j.date});
+  return Object.keys(M).map(function(k){var c=M[k];c.od=0;if(!c.next&&c.lastDone){var m=Math.floor((Date.now()-pd(c.lastDone).getTime())/(30*864e5));if(m>=2)c.od=m}return c}).sort(function(a,b){return b.last.localeCompare(a.last)})}
 $("cq").oninput=renderCli;
-function renderCli(){var q=$("cq").value.trim().toLowerCase(),L=clients().filter(function(c){return !q||String(c.cli).toLowerCase().indexOf(q)>=0||String(c.tel).indexOf(q.replace(/\D/g,"")||"~")>=0});
-  $("cList").innerHTML=L.length?L.map(function(c,i){return '<div class="cl" data-i="'+i+'"><div class="ini">'+esc(String(c.cli||"?").charAt(0).toUpperCase())+'</div><div class="m"><b>'+esc(c.cli)+'</b><span>'+(c.n?c.n+(c.n===1?" visita":" visitas")+" · "+crc(c.spent):c.last>=ymd(new Date())?"Cita próxima":"Sin visitas atendidas")+'</span></div><span class="mute small">'+(c.last?pd(c.last).getDate()+" "+MN[pd(c.last).getMonth()].slice(0,3):"")+'</span></div>'}).join("")
-   :'<div class="empty"><div>👥</div>'+(q?"No encontramos a nadie con eso.":"Aquí aparecen tus clientes cuando agendes citas.")+'</div>';
+$("cF").onclick=function(e){var b=e.target.closest("button");if(!b)return;CF=b.dataset.f;renderCli()};
+function renderCli(){renderNotes();var q=$("cq").value.trim().toLowerCase(),A=clients(),odN=A.filter(function(c){return c.od}).length;
+  $("cF").innerHTML='<button class="chip" data-f="all" aria-pressed="'+(CF==="all")+'">Todos · '+A.length+'</button><button class="chip" data-f="od" aria-pressed="'+(CF==="od")+'">💤 Para reactivar · '+odN+'</button><button class="chip" data-f="top" aria-pressed="'+(CF==="top")+'">⭐ Mejores</button>';
+  var L=A.filter(function(c){return (CF!=="od"||c.od)&&(!q||String(c.cli).toLowerCase().indexOf(q)>=0||String(c.tel).indexOf(q.replace(/\D/g,"")||"~")>=0)});
+  if(CF==="top")L.sort(function(a,b){return b.spent-a.spent});
+  $("cList").innerHTML=L.length?L.map(function(c,i){return '<div class="cl" data-i="'+i+'"><div class="ini">'+esc(String(c.cli||"?").charAt(0).toUpperCase())+'</div><div class="m"><b>'+esc(c.cli)+'</b><span>'+(c.od?'<span style="color:var(--warn);font-weight:700">Hace '+c.od+' meses que no viene</span>':c.next?"📅 Próxima cita "+pd(c.next).getDate()+" "+MN[pd(c.next).getMonth()].slice(0,3):c.n?c.n+(c.n===1?" visita":" visitas")+" · "+crc(c.spent):"Sin visitas atendidas")+'</span></div>'+(c.od&&c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor("back",c)))+'" onclick="event.stopPropagation()">Escribirle</a>':'<span class="mute small">'+(c.n?crc(c.spent):"")+'</span>')+'</div>'}).join("")
+   :'<div class="empty"><div>👥</div>'+(q?"No encontramos a nadie con eso.":CF==="od"?"¡Bien! Ningún cliente se te está perdiendo.":"Aquí aparecen tus clientes cuando agendes citas.")+'</div>';
   Array.prototype.forEach.call(document.querySelectorAll("#cList .cl"),function(el){el.onclick=function(){openCli(L[+el.dataset.i])}})}
-function openCli(c){var js=c.jobs.slice().sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)});
+function openCli(c){var js=c.jobs.slice().sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)}),N=notesOf(c);
   sheet('<div class="between"><h2 style="margin:0">'+esc(c.cli)+'</h2><span class="mute">'+esc(c.tel||"")+'</span></div>'
+   +(c.od?'<div class="warnbox">💤 Hace '+c.od+' meses que no viene. Un mensaje a tiempo lo puede traer de vuelta.</div>':"")
    +'<div class="stats" style="margin-top:12px"><div class="stat"><span>Visitas</span><b>'+c.n+'</b></div><div class="stat"><span>Ha gastado</span><b>'+crc(c.spent)+'</b></div></div>'
-   +'<div class="acts" style="margin:0 0 12px">'+(c.tel?'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(c.tel,"¡Hola "+first(c.cli)+"! 👋")+'">WhatsApp</a>':"")+'<button class="btn alt'+(c.tel?"":" full")+'" id="cNew">Nueva cita</button></div>'
-   +'<h3>Historial</h3>'+js.map(function(j){return '<div class="li"><span>'+pd(j.date).getDate()+" "+MN[pd(j.date).getMonth()].slice(0,3)+" "+pd(j.date).getFullYear()+'<br><span class="mute small">'+esc((j.items||[]).join(" + ")||"—")+'</span></span><span style="text-align:right">'+crc(j.total)+'<br>'+pill(j.st)+'</span></div>'}).join(""),
-   function(){$("cNew").onclick=function(){closeSheet();setTimeout(function(){openJob(null,{cli:c.cli,tel:c.tel})},50)}})}
+   +(c.how?'<p class="small mute" style="margin:-4px 0 10px">Nos conoció por: <b>'+esc(c.how)+'</b></p>':"")
+   +'<div class="qa" style="margin:0 0 12px">'+(c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor(c.od?"back":"hi",c)))+'">'+(c.od?"💬 Escribirle":"💬 WhatsApp")+'</a><a class="btn sm ghost" href="tel:'+esc(telN(c.tel))+'">📞 Llamar</a>':"")+'<button class="btn sm alt" id="cNew">📅 Nueva cita</button><button class="btn sm alt" id="cNote">📌 Nota</button></div>'
+   +(c.ubic?mapThumb(c.ubic,true):"")
+   +(N.length?'<h3 style="margin-top:12px">Notas</h3>'+N.map(noteRow).join(""):"")
+   +'<h3 style="margin-top:12px">Historial</h3>'+js.map(function(j){return '<div class="li"><span>'+pd(j.date).getDate()+" "+MN[pd(j.date).getMonth()].slice(0,3)+" "+pd(j.date).getFullYear()+'<br><span class="mute small">'+esc((j.items||[]).join(" + ")||"—")+'</span></span><span style="text-align:right">'+crc(j.total)+'<br>'+pill(j.st)+'</span></div>'}).join(""),
+   function(){$("cNew").onclick=function(){closeSheet();setTimeout(function(){openJob(null,{cli:c.cli,tel:c.tel,ubic:c.ubic,how:c.n?"Cliente que vuelve":c.how})},50)};
+     $("cNote").onclick=function(){closeSheet();setTimeout(function(){openNote(null,{cli:c.cli,tel:c.tel})},50)};bindNoteRows($("shC"))})}
+
+/* ---------- NOTAS Y RECORDATORIOS ---------- */
+function NOTES(){return (B&&B.notes||[]).slice()}
+function notesOf(c){return NOTES().filter(function(n){return (c.tel&&n.tel===c.tel)||(!n.tel&&n.cli&&String(n.cli).toLowerCase()===String(c.cli).toLowerCase())}).sort(noteSort)}
+function noteSort(a,b){return (a.done-b.done)||String(a.due||"9999").localeCompare(String(b.due||"9999"))||(b.at-a.at)}
+function dueNotes(){var t=ymd(new Date());return NOTES().filter(function(n){return !n.done&&n.due&&n.due<=t})}
+function dueTxt(d){var t=ymd(new Date());if(!d)return "";if(d<t)return '<span class="pill bad">Vencida · '+pd(d).getDate()+" "+MN[pd(d).getMonth()].slice(0,3)+'</span>';if(d===t)return '<span class="pill warn">Hoy</span>';if(d===addD(t,1))return '<span class="pill">Mañana</span>';return '<span class="pill">'+pd(d).getDate()+" "+MN[pd(d).getMonth()].slice(0,3)+'</span>'}
+function noteRow(n){return '<div class="nt'+(n.done?" done":"")+'" data-n="'+n.id+'"><button class="ck" data-ck="'+n.id+'" aria-label="Marcar hecha">'+(n.done?"✓":"")+'</button><div class="m"><b>'+esc(n.txt)+'</b><span>'+(n.cli?"👤 "+esc(n.cli)+" ":"")+dueTxt(n.due)+'</span></div></div>'}
+function bindNoteRows(root){Array.prototype.forEach.call(root.querySelectorAll(".nt"),function(el){el.onclick=function(e){var id=el.dataset.n,ck=e.target.closest("[data-ck]");var L=NOTES(),n=L.find(function(x){return x.id===id});if(!n)return;
+  if(ck){n.done=!n.done;saveNotes(L).then(function(){toast(n.done?"Nota hecha ✓":"Nota pendiente")});el.classList.toggle("done",n.done);ck.textContent=n.done?"✓":"";return}closeSheet();setTimeout(function(){openNote(n)},50)}})}
+function renderNotes(){var P=NOTES().filter(function(n){return !n.done}).sort(noteSort),D=dueNotes().length;
+  $("notesC").innerHTML='<div class="card"><div class="between"><h2 style="margin:0">📌 Recordatorios'+(D?' <span class="pill bad">'+D+'</span>':'')+'</h2><button class="btn sm alt" id="nAdd">+ Nota</button></div>'
+   +(P.length?'<div style="margin-top:8px">'+P.slice(0,8).map(noteRow).join("")+'</div>'+(P.length>8?'<p class="mute small">y '+(P.length-8)+' más…</p>':''):'<p class="mute small" style="margin:8px 0 0">Anota cosas como "Llamar a Ana para el retoque" y ponle fecha para que te avise aquí.</p>')+'</div>';
+  $("nAdd").onclick=function(){openNote(null)};bindNoteRows($("notesC"))}
+function saveNotes(L){B.notes=L;updBadges();return db.doc("biz/"+U.uid).set({notes:L},{merge:true}).catch(function(e){toast(errEs(e))})}
+function openNote(n,pre){pre=pre||{};var nw=!n;n=n||{id:"n"+Date.now(),txt:"",cli:pre.cli||"",tel:pre.tel||"",due:"",done:false,at:Date.now()};
+  var cl=clients().map(function(c){return '<option value="'+esc(c.cli)+'">'}).join("");
+  sheet('<h2>'+(nw?"Nueva nota":"Nota")+'</h2><label for="nT">¿Qué tienes que recordar?</label><textarea id="nT" maxlength="300" placeholder="Ej: Llamarle para el retoque del mes">'+esc(n.txt)+'</textarea>'
+   +'<label for="nC">Cliente (opcional)</label><input id="nC" list="nCl" maxlength="60" value="'+esc(n.cli)+'"><datalist id="nCl">'+cl+'</datalist>'
+   +'<label for="nD">Recordar el (opcional)</label><div class="chips" id="nQ" style="margin-bottom:8px"><button class="chip" data-q="0">Hoy</button><button class="chip" data-q="1">Mañana</button><button class="chip" data-q="7">En 1 semana</button><button class="chip" data-q="30">En 1 mes</button></div><input id="nD" type="date" value="'+esc(n.due||"")+'">'
+   +'<p class="err" id="nE"></p><div class="acts"><button class="btn full" id="nS">Guardar nota</button>'+(nw?"":'<button class="btn alt" id="nDn">'+(n.done?"Marcar pendiente":"✓ Marcar hecha")+'</button><button class="btn danger" id="nX">Eliminar</button>')+'</div>',
+   function(){$("nQ").onclick=function(e){var b=e.target.closest("button");if(b)$("nD").value=addD(ymd(new Date()),+b.dataset.q)};
+     $("nS").onclick=function(){var t=$("nT").value.trim();if(!t){$("nE").textContent="Escribe la nota.";return}var cn=$("nC").value.trim(),c=clients().find(function(x){return x.cli.toLowerCase()===cn.toLowerCase()});
+       var L=NOTES().filter(function(x){return x.id!==n.id});L.push({id:n.id,txt:t.slice(0,300),cli:cn.slice(0,60),tel:c?c.tel||"":(cn===n.cli?n.tel:""),due:$("nD").value||"",done:!!n.done,at:n.at||Date.now()});
+       saveNotes(L).then(function(){closeSheet();toast("Nota guardada ✓");if(VIEW==="clientes")renderCli()})};
+     if($("nDn"))$("nDn").onclick=function(){var L=NOTES();L.forEach(function(x){if(x.id===n.id)x.done=!x.done});saveNotes(L).then(function(){closeSheet();if(VIEW==="clientes")renderCli()})};
+     if($("nX"))$("nX").onclick=function(){var cp=Object.assign({},n),L=NOTES().filter(function(x){return x.id!==n.id});saveNotes(L).then(function(){closeSheet();if(VIEW==="clientes")renderCli();undoToast("Nota eliminada",function(){var M=NOTES();M.push(cp);saveNotes(M).then(function(){if(VIEW==="clientes")renderCli()})})})}})}
+function updBadges(){var d=dueNotes().length;$("nb").hidden=!d;$("nb").textContent=d}
 
 /* ---------- NÚMEROS ---------- */
 $("mP").onclick=function(){MON.setMonth(MON.getMonth()-1);renderNum()};$("mN").onclick=function(){MON.setMonth(MON.getMonth()+1);renderNum()};
-function renderNum(){var y=MON.getFullYear(),m=MON.getMonth(),pre=y+"-"+pad(m+1),days=new Date(y,m+1,0).getDate();$("mT").textContent=MN[m]+" "+y;
-  var J1=JOBS.filter(function(j){return j.date.indexOf(pre)===0}),done=J1.filter(function(j){return j.st==="Lista"}),inc=done.reduce(function(a,j){return a+(+j.total||0)},0);
+function monthSums(y,m){var pre=y+"-"+pad(m+1),J1=JOBS.filter(function(j){return String(j.date).indexOf(pre)===0}),done=J1.filter(function(j){return j.st==="Lista"}),inc=done.reduce(function(a,j){return a+(+j.total||0)},0);
   var E=EXP.filter(function(e){return String(e.date).indexOf(pre)===0}),ex=E.reduce(function(a,e){return a+(+e.amt||0)},0);
-  var nov=J1.filter(function(j){return j.st==="No vino"}).length,fut=J1.filter(function(j){return (j.st==="Confirmada"||j.st==="Por confirmar")}).reduce(function(a,j){return a+(+j.total||0)},0);
-  var newC=clients().filter(function(c){return c.first.indexOf(pre)===0}).length;
-  $("stats").innerHTML='<div class="stat big"><span>Ganancia del mes</span><b>'+crc(inc-ex)+'</b></div>'
-   +stat("Ingresos",crc(inc))+stat("Gastos",crc(ex))+stat("Citas atendidas",done.length)+stat("Ticket promedio",crc(done.length?inc/done.length:0))+stat("Clientes nuevos",newC)+stat("Por cobrar (agendado)",crc(fut))+(nov?stat("No llegaron",nov):"");
-  var per=[];for(var d=1;d<=days;d++)per.push(0);done.forEach(function(j){per[+j.date.slice(8)-1]+=+j.total||0});var mx=Math.max.apply(null,per)||1;
+  return {pre:pre,J:J1,done:done,inc:inc,E:E,ex:ex,gan:inc-ex,cnt:done.length,newC:clients().filter(function(c){return c.first.indexOf(pre)===0}).length}}
+function delta(c,p,inv){if(!p&&!c)return "";if(!p)return '<em class="up">nuevo</em>';var x=Math.round((c-p)/Math.abs(p)*100),good=inv?x<=0:x>=0;return '<em class="'+(good?"up":"down")+'">'+(x>=0?"▲ +":"▼ ")+x+'%</em>'}
+function renderNum(){var y=MON.getFullYear(),m=MON.getMonth(),days=new Date(y,m+1,0).getDate();$("mT").textContent=MN[m]+" "+y;
+  var c=monthSums(y,m),pv=new Date(y,m-1,1),p=monthSums(pv.getFullYear(),pv.getMonth()),pn=MN[pv.getMonth()];
+  var nov=c.J.filter(function(j){return j.st==="No vino"}).length,fut=c.J.filter(function(j){return j.st==="Confirmada"||j.st==="Por confirmar"}).reduce(function(a,j){return a+(+j.total||0)},0);
+  renderGoal(c,y,m);
+  $("stats").innerHTML='<div class="stat big"><span>Ganancia del mes</span><b>'+crc(c.gan)+'</b>'+delta(c.gan,p.gan)+'</div>'
+   +stat("Ingresos",crc(c.inc),delta(c.inc,p.inc))+stat("Gastos",crc(c.ex),delta(c.ex,p.ex,1))+stat("Citas atendidas",c.cnt,delta(c.cnt,p.cnt))+stat("Ticket promedio",crc(c.cnt?c.inc/c.cnt:0))+stat("Clientes nuevos",c.newC,delta(c.newC,p.newC))+stat("Por cobrar (agendado)",crc(fut))+(nov?stat("No llegaron",nov):"")
+   +'<p class="mute small" style="grid-column:1/-1;margin:-2px 0 0">El ▲▼ compara con '+pn+'.</p>';
+  var per=[];for(var d=1;d<=days;d++)per.push(0);c.done.forEach(function(j){per[+j.date.slice(8)-1]+=+j.total||0});var mx=Math.max.apply(null,per)||1;
   $("bars").innerHTML=per.map(function(v,i){return '<i class="'+(v?"":"z")+'" style="height:'+Math.max(2,v/mx*100)+'%" title="'+(i+1)+': '+crc(v)+'"></i>'}).join("");
-  var T={};done.forEach(function(j){(j.lines||[]).forEach(function(l){var t=T[l.n]||(T[l.n]={n:0,v:0});t.n++;t.v+=+l.p||0})});
+  var T={};c.done.forEach(function(j){(j.lines||[]).forEach(function(l){var t=T[l.n]||(T[l.n]={n:0,v:0});t.n++;t.v+=+l.p||0})});
   var tk=Object.keys(T).sort(function(a,b){return T[b].v-T[a].v}).slice(0,6);
   $("top").innerHTML=tk.length?tk.map(function(k){return '<div class="li"><span>'+esc(k)+' <span class="mute small">×'+T[k].n+'</span></span><b>'+crc(T[k].v)+'</b></div>'}).join(""):'<p class="mute small" style="margin:0">Marca citas como atendidas para ver tus servicios estrella.</p>';
-  E.sort(function(a,b){return String(b.date).localeCompare(a.date)});
-  $("exps").innerHTML=E.length?E.map(function(e){return '<div class="li" data-id="'+e._id+'" style="cursor:pointer"><span>'+esc(e.desc)+'<br><span class="mute small">'+pd(e.date).getDate()+" "+MN[pd(e.date).getMonth()].slice(0,3)+(e.cat?" · "+esc(e.cat):"")+'</span></span><b>'+crc(e.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:6px 0 0">Anota lo que gastas (materiales, alquiler, luz…) para saber tu ganancia real.</p>';
+  var S={},sn=0;c.J.filter(active).forEach(function(j){if(!j.how)return;S[j.how]=(S[j.how]||0)+1;sn++});var sk=Object.keys(S).sort(function(a,b){return S[b]-S[a]});
+  $("srcs").innerHTML=sk.length?sk.map(function(k){var pc=Math.round(S[k]/sn*100);return '<div class="src"><div class="between"><span>'+esc(k)+'</span><b>'+S[k]+' · '+pc+'%</b></div><div class="sb"><i style="width:'+pc+'%"></i></div></div>'}).join(""):'<p class="mute small" style="margin:0">Cuando anotes "¿Cómo nos conoció?" en las citas, aquí ves qué te trae más clientes.</p>';
+  c.E.sort(function(a,b){return String(b.date).localeCompare(a.date)});
+  $("exps").innerHTML=c.E.length?c.E.map(function(e){return '<div class="li" data-id="'+e._id+'" style="cursor:pointer"><span>'+esc(e.desc)+'<br><span class="mute small">'+pd(e.date).getDate()+" "+MN[pd(e.date).getMonth()].slice(0,3)+(e.cat?" · "+esc(e.cat):"")+'</span></span><b>'+crc(e.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:6px 0 0">Anota lo que gastas (materiales, alquiler, luz…) para saber tu ganancia real.</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#exps .li"),function(el){el.onclick=function(){openExp(EXP.find(function(x){return x._id===el.dataset.id}))}})}
-function stat(l,v){return '<div class="stat"><span>'+l+'</span><b>'+v+'</b></div>'}
+function stat(l,v,d){return '<div class="stat"><span>'+l+'</span><b>'+v+'</b>'+(d||"")+'</div>'}
+function renderGoal(c,y,m){var G=+B.goal||0,now=new Date(),cur=y===now.getFullYear()&&m===now.getMonth(),Cc=263.9,pct=G?Math.min(1,c.inc/G):0,dl=new Date(y,m+1,0).getDate()-now.getDate()+1;
+  var msg=!G?"Ponte una meta para ver cuánto te falta":c.inc>=G?"¡Meta cumplida! 🎉 Vas "+crc(c.inc-G)+" arriba":cur?"Te faltan "+crc(G-c.inc)+" · unos "+crc((G-c.inc)/Math.max(1,dl))+" por día":"Te faltaron "+crc(G-c.inc);
+  var lim=addD(ymd(now),-90),wd=[0,0,0,0,0,0,0],cl={};JOBS.forEach(function(j){if(j.st==="Lista"&&j.date>=lim){wd[pd(j.date).getDay()]+=+j.total||0;cl[j.cli]=(cl[j.cli]||0)+(+j.total||0)}});
+  var bi=wd.indexOf(Math.max.apply(null,wd)),tc=Object.keys(cl).sort(function(a,b){return cl[b]-cl[a]})[0];
+  $("goalC").innerHTML='<div class="card"><h2>🎯 Meta del mes</h2><div class="goal"><svg width="104" height="104" viewBox="0 0 104 104" role="img" aria-label="Avance de la meta"><circle cx="52" cy="52" r="42" fill="none" stroke="var(--line)" stroke-width="10"/><circle class="gr" id="gpr" cx="52" cy="52" r="42" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+Cc+'" stroke-dashoffset="'+Cc+'" transform="rotate(-90 52 52)"/><text class="gp" x="52" y="60" text-anchor="middle">'+Math.round(pct*100)+'%</text></svg><div><div class="mute small">Ingresos de '+MN[m]+'</div><b style="font:800 22px Bricolage Grotesque,system-ui,sans-serif">'+crc(c.inc)+'</b><div class="mute small">'+msg+'</div></div></div>'
+   +(Math.max.apply(null,wd)>0?'<div class="ins"><div>📈 Tu mejor día (últimos 3 meses): <b>'+DN[bi]+'</b></div>'+(tc?'<div>⭐ Cliente que más te ha dejado: <b>'+esc(tc)+'</b> ('+crc(cl[tc])+')</div>':'')+'</div>':'')
+   +'<label for="gIn">Mi meta de ingresos por mes (₡)</label><div class="row"><input id="gIn" type="number" inputmode="numeric" min="0" step="10000" value="'+(G||"")+'" placeholder="Ej: 500000" style="flex:2"><button class="btn sm alt" id="gSv" style="flex:1">Guardar</button></div></div>';
+  var pr=$("gpr");requestAnimationFrame(function(){requestAnimationFrame(function(){pr.style.strokeDashoffset=Cc*(1-pct)})});
+  $("gSv").onclick=function(){var v=Math.max(0,+$("gIn").value||0);db.doc("biz/"+U.uid).set({goal:v},{merge:true}).then(function(){B.goal=v;toast(v?"Meta guardada 🎯":"Meta quitada");renderNum()},function(e){toast(errEs(e))})}}
 $("addExp").onclick=function(){openExp(null)};
 function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Materiales"};
   sheet('<h2>'+(nw?"Nuevo gasto":"Gasto")+'</h2><label for="eD">¿En qué?</label><input id="eD" maxlength="60" value="'+esc(e.desc)+'" placeholder="Ej: Productos, gasolina, alquiler">'
@@ -553,7 +724,7 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
 function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
   $("svcN").textContent=(B.services||[]).length+" servicios";var on=(B.hours||[]).filter(function(h){return h.on});$("horN").textContent=on.length?on.length+" días · "+fh(on[0].a)+" a "+fh(on[0].b):"Sin horario";
   $("planN").textContent=!SUB?"":SUB.status==="trial"?"Prueba gratis · "+daysLeft()+" días":SUB.status==="active"?"Activo hasta el "+fdate(SUB.until):"Suspendido";
-  $("em").textContent=U.email||"";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
+  $("em").textContent=U.email||"";$("domN").textContent=B.home?"Activo · "+((B.zones||[]).length?(B.zones.length+" zonas"):"sin zonas"):"Desactivado";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
 function fdate(ts){var d=ts.toDate();return d.getDate()+" de "+MN[d.getMonth()]}
 $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toast($("openT").checked?"Reservas en línea activadas":"Reservas en línea pausadas")})};
 $("lCopy").onclick=function(){copy(link())};
@@ -564,6 +735,7 @@ function saveBiz(p){Object.keys(p).forEach(function(k){B[k]=p[k]});var bt=db.bat
 Array.prototype.forEach.call(document.querySelectorAll("[data-s]"),function(b){b.onclick=function(){openSet(b.dataset.s)}});
 $("out").onclick=$("payOut").onclick=function(){if(confirm("¿Cerrar sesión?"))auth.signOut()};
 function openSet(s){
+  setExtra(s);
   if(s==="welcome")sheet('<div style="text-align:center"><div style="font-size:48px">🎉</div><h2>¡Bienvenido a Citaly!</h2><p class="mute">Tu negocio ya tiene su página de reservas:</p><div class="linkbox">'+esc(link().replace(/^https:\/\//,""))+'</div></div>'
     +'<ol style="padding-left:20px"><li>Revisa tus <b>servicios y precios</b> en Ajustes.</li><li>Comparte tu link en WhatsApp, Instagram y Facebook.</li><li>Cuando alguien reserve, te sale aquí para confirmarle.</li></ol><div class="acts"><button class="btn alt" id="wSvc">Ver servicios</button><button class="btn" id="wSh">Compartir link</button></div>',
     function(){$("wSvc").onclick=function(){closeSheet();go("ajustes");setTimeout(function(){openSet("svc")},300)};$("wSh").onclick=share});
@@ -590,6 +762,27 @@ function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign(
       $("svA").onclick=function(){L.push({id:"s"+Date.now(),n:"",p:"",d:60,ic:"✨"});box.innerHTML=rows();var ins=box.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
       $("svS").onclick=function(){var out=L.filter(function(s){return String(s.n).trim()}).map(function(s,i){return {id:s.id||"s"+i,n:String(s.n).trim().slice(0,50),p:Math.max(0,+s.p||0),d:+s.d||60,ic:String(s.ic||"").slice(0,4)}});
         if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
+
+function setExtra(s){
+  if(s==="web")sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente antes de reservar.</p>'
+    +'<label for="wT">Frase principal</label><input id="wT" maxlength="70" value="'+esc(B.tagline||"")+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
+    +'<label for="wS">Descripción corta (opcional)</label><textarea id="wS" maxlength="160" placeholder="Ej: Barbería en San Pedro. Reserva en 1 minuto.">'+esc(B.blurb||"")+'</textarea>'
+    +'<label for="wP">Promoción (opcional)</label><input id="wP" maxlength="90" value="'+esc(B.promo||"")+'" placeholder="Ej: 10% de descuento en tu primera cita">'
+    +'<div class="between" style="margin-top:14px"><div><b>Mostrar lista de precios</b><div class="mute small">En la portada, antes de reservar</div></div><label class="toggle"><input type="checkbox" id="wSp"'+(B.showPrices!==false?" checked":"")+'><span></span></label></div>'
+    +'<div class="between" style="margin-top:14px"><div><b>Preguntar "¿Cómo nos conociste?"</b><div class="mute small">Para saber qué te trae clientes</div></div><label class="toggle"><input type="checkbox" id="wH"'+(B.askHow!==false?" checked":"")+'><span></span></label></div>'
+    +'<div style="height:16px"></div><div class="row"><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(link())+'">Ver mi página</a><button class="btn" id="wSv">Guardar</button></div>',
+    function(){$("wSv").onclick=function(){saveBiz({tagline:$("wT").value.trim(),blurb:$("wS").value.trim(),promo:$("wP").value.trim(),showPrices:$("wSp").checked,askHow:$("wH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}});
+  if(s==="dom"){var Z=(B.zones||[]).map(function(z){return {n:z.n,fee:z.fee}});
+    function zr(){return Z.map(function(z,i){return '<div class="zrow"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(z.n)+'" placeholder="Zona (ej: Heredia centro)"><input data-i="'+i+'" data-k="fee" type="number" inputmode="numeric" min="0" step="500" value="'+(z.fee||"")+'" placeholder="₡ extra"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div>'}).join("")}
+    sheet('<h2>Servicio a domicilio</h2><div class="between"><div><b>Voy donde está el cliente</b><div class="mute small">La página le pide su ubicación al reservar</div></div><label class="toggle"><input type="checkbox" id="dH"'+(B.home?" checked":"")+'><span></span></label></div>'
+     +'<div id="dZ"'+(B.home?"":" hidden")+'><label>Zonas que atiendes (opcional)</label><p class="mute small" style="margin:-2px 0 8px">Si cobras extra por distancia, pon el monto. Déjalo vacío si es gratis.</p><div id="zl">'+zr()+'</div><button class="btn ghost" id="zA">+ Agregar zona</button></div>'
+     +'<div style="height:16px"></div><button class="btn" id="dSv">Guardar</button>',
+     function(){$("dH").onchange=function(){$("dZ").hidden=!this.checked};var zl=$("zl");
+       zl.oninput=function(e){var t=e.target;if(t.dataset.k==null)return;Z[+t.dataset.i][t.dataset.k]=t.dataset.k==="fee"?+t.value||0:t.value};
+       zl.onclick=function(e){var b=e.target.closest("[data-rm]");if(!b)return;Z.splice(+b.dataset.rm,1);zl.innerHTML=zr()};
+       $("zA").onclick=function(){Z.push({n:"",fee:0});zl.innerHTML=zr();var ins=zl.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
+       $("dSv").onclick=function(){var out=Z.filter(function(z){return String(z.n).trim()}).slice(0,40).map(function(z){return {n:String(z.n).trim().slice(0,40),fee:Math.max(0,+z.fee||0)}});
+         saveBiz({home:$("dH").checked,zones:out}).then(function(){closeSheet();toast("Guardado ✓")})}})}}
 
 /* ---------- PAGO ---------- */
 function payHtml(){return '<h3>Pagar por SINPE Móvil</h3><ol style="padding-left:20px"><li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li></ol><a class="btn wa" target="_blank" rel="noopener" href="'+payWa()+'">Enviar comprobante por WhatsApp</a><p class="mute small">Activamos tu mes en menos de 24 horas. Pago con tarjeta: muy pronto.</p>'}
