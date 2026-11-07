@@ -16,6 +16,25 @@ service cloud.firestore {
       return s.status != 'suspended' && s.until > request.time;
     }
     function str(v, max) { return v is string && v.size() <= max; }
+    // Hora de la cita en Costa Rica (UTC-6) como fecha y hora universal
+    function citaTs(f, t) {
+      let p = f.split('-');
+      let h = t.split(':');
+      return timestamp.date(int(p[0]), int(p[1]), int(p[2])) + duration.value(int(h[0]) * 60 + int(h[1]) + 360, 'm');
+    }
+    // El cliente cambia o cancela su propia cita con el código secreto de su link, hasta 12 horas antes
+    function selfEdit() {
+      let o = resource.data;
+      let d = request.resource.data;
+      return o.web == true && ('tk' in o) && d.key == o.tk
+        && d.diff(o).affectedKeys().hasOnly(['date', 'time', 'st', 'key', 'chg', 'chgAt'])
+        && d.chgAt == request.time
+        && (o.st == 'Por confirmar' || o.st == 'Confirmada')
+        && citaTs(o.date, o.time) > request.time + duration.value(12, 'h')
+        && ((d.chg == 'cancelada' && d.st == 'Cancelada' && d.date == o.date && d.time == o.time)
+          || (d.chg == 'movida' && d.st == 'Por confirmar' && str(d.date, 10) && str(d.time, 5)
+              && citaTs(d.date, d.time) > request.time + duration.value(2, 'h')));
+    }
 
     // Perfil público de cada negocio (lo lee la página de reservas)
     match /pub/{slug} {
@@ -50,8 +69,15 @@ service cloud.firestore {
       allow read: if isOwner(bid) || isAdmin();
       allow write: if isOwner(bid);
 
+      // La cita de ese espacio la está cambiando su cliente en esta misma operación
+      function selfJob(jid) {
+        let jp = /databases/$(database)/documents/biz/$(bid)/jobs/$(jid);
+        return jid is string && existsAfter(jp) && getAfter(jp).data.chgAt == request.time && getAfter(jp).data.key == getAfter(jp).data.tk;
+      }
+
       match /jobs/{jid} {
-        allow read, update, delete: if isOwner(bid);
+        allow read, delete: if isOwner(bid);
+        allow update: if isOwner(bid) || selfEdit();
         allow create: if isOwner(bid) || (
           subOk(bid)
           && request.resource.data.web == true
@@ -73,17 +99,32 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['date', 't', 'job', 'at'])
           && str(request.resource.data.job, 30)
         );
-        allow update, delete: if isOwner(bid);
+        allow update: if isOwner(bid);
+        allow delete: if isOwner(bid) || resource == null || selfJob(resource.data.job);
       }
 
       // Evita que un mismo número aparte muchas citas seguidas
       match /holds/{tel} {
-        allow read, delete: if isOwner(bid);
+        allow read: if isOwner(bid);
+        allow delete: if isOwner(bid) || resource == null || selfJob(resource.data.job);
         allow create, update: if isOwner(bid) || (
           (resource == null || resource.data.until < request.time)
           && request.resource.data.keys().hasOnly(['job', 'until', 'at'])
           && request.resource.data.until is timestamp
         );
+      }
+
+      // "Mi cita": resumen que el cliente abre con su link secreto
+      match /mine/{tk} {
+        allow get: if tk.size() >= 20;
+        allow list: if isOwner(bid);
+        allow create: if tk.size() >= 20 && tk.size() <= 40 && subOk(bid)
+          && request.resource.data.keys().hasOnly(['job', 'cli', 'tel', 'date', 'time', 'dur', 'items', 'total', 'zone', 'st', 'at'])
+          && str(request.resource.data.job, 30) && str(request.resource.data.cli, 60) && str(request.resource.data.tel, 15)
+          && request.resource.data.st == 'activa';
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['date', 'time', 'st', 'upd'])
+          && (request.resource.data.st == 'activa' || request.resource.data.st == 'cancelada');
+        allow delete: if isOwner(bid);
       }
 
       match /exp/{eid} {

@@ -83,6 +83,9 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .mpu{position:absolute;left:50%;top:50%;width:26px;height:10px;margin:-5px 0 0 -13px;border-radius:50%;background:rgba(229,72,77,.45);animation:mpulse 2.2s ease-out infinite}
 @keyframes drop{0%{transform:translate(-50%,-190%);opacity:0}100%{transform:translate(-50%,-100%);opacity:1}}
 @keyframes mpulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.4);opacity:0}}
+.mylink{text-align:left;background:var(--card);border:1.5px dashed var(--acc);border-radius:16px;padding:12px 14px;margin:6px 0 12px}.mylink b{display:block}.mylink small{display:block;color:var(--mute);font-size:13px;margin:3px 0 8px}
+.ml{display:flex;gap:6px}.ml input{flex:1;min-width:0;font-size:13px;padding:9px 10px}.ml button{border:0;border-radius:10px;padding:0 14px;background:var(--acc);color:#fff;font-weight:700;cursor:pointer}
+#mc .note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 12px;text-align:left}#mc .days{margin-top:8px}#mc .hours{margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -146,6 +149,12 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="foot">Reservas con <a href="../" target="_blank">citaly</a></div>
   </div>
 
+  <div id="mc" hidden>
+    <div class="mini"><div class="lg" id="lg3"></div><b id="nm3"></b></div>
+    <div id="mcb" style="text-align:center;padding-top:14px"><div class="spin"></div></div>
+    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a></div>
+  </div>
+
   <div id="ok" class="done" hidden>
     <div class="big">🎉</div>
     <h1>¡Tu hora quedó apartada!</h1>
@@ -153,6 +162,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="card" style="text-align:left" id="okS"></div>
     <a class="btn wa big" id="okWa" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
     <p class="mute small" style="margin:6px 0 12px">Mándanos el mensaje y te respondemos por ahí mismo.</p>
+    <div class="mylink" id="mylink" hidden><b>🔁 ¿Necesitas cambiar o cancelar?</b><small>Guarda este link: ahí puedes cambiar el día u hora, o cancelar, hasta 12 horas antes.</small><div class="ml"><input id="mlv" readonly aria-label="Link de tu cita"><button id="mlc">Copiar</button></div></div>
     <a class="btn alt" id="okCal" target="_blank" rel="noopener">📅 Agregar a mi calendario</a>
     <button class="btn ghost" id="again" style="margin-top:8px">Reservar otra cita</button>
     <div class="foot">¿Tienes un negocio? <a href="../">Crea tu página de reservas gratis</a></div>
@@ -201,7 +211,7 @@ var slug=(new URLSearchParams(location.search).get("n")||"").toLowerCase().repla
 var P=null,BID="",S={pick:[],day:"",t:null,step:0,ll:"",acc:0,zone:-1,how:""},BUSY={},T0=Date.now(),db=null,STEPS=[];
 try{firebase.initializeApp(C.fb);db=firebase.firestore()}catch(e){}
 if(!slug||!db)notFound();else db.doc("pub/"+slug).get().then(function(d){if(!d.exists){notFound();return}P=d.data();BID=P.biz;
-  return db.doc("subs/"+BID).get().then(function(s){var x=s.exists?s.data():null,ok=x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now();init(ok&&P.open!==false)})}).catch(function(){notFound(true)});
+  return db.doc("subs/"+BID).get().then(function(s){var x=s.exists?s.data():null,ok=x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now();if(MCQ){openMine();return}init(ok&&P.open!==false)})}).catch(function(){notFound(true)});
 function notFound(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
 
 function init(open){$("load").hidden=true;$("land").hidden=false;var col=P.color||C.colors[0];
@@ -289,16 +299,21 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
   var end=pd(S.day);end.setMinutes(tm(S.t)+dur());
   var job={id:id,cli:$("cli").value.trim().slice(0,60),tel:tel,items:L.map(function(l){return l.n}),lines:L,date:S.day,time:S.t,dur:dur(),sub:subT(),disc:0,fee:fee(),total:total(),
     ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",how:S.how||"",note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
-  var bt=db.batch();bt.set(db.doc("biz/"+BID+"/jobs/"+id),job);
-  blocks().forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
-  bt.set(db.doc("biz/"+BID+"/holds/"+tel),{job:id,until:firebase.firestore.Timestamp.fromDate(end),at:at});
-  bt.commit().then(done,function(){loadBusy().then(function(){b.textContent="Confirmar cita";
+  var tk=newTok();S.tk=tk;
+  function mk(wt){var bt=db.batch(),jd=Object.assign({},job);if(wt)jd.tk=tk;bt.set(db.doc("biz/"+BID+"/jobs/"+id),jd);
+    blocks().forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
+    bt.set(db.doc("biz/"+BID+"/holds/"+tel),{job:id,until:firebase.firestore.Timestamp.fromDate(end),at:at});
+    if(wt)bt.set(db.doc("biz/"+BID+"/mine/"+tk),{job:id,cli:job.cli,tel:tel,date:S.day,time:S.t,dur:dur(),items:job.items,total:job.total,zone:job.zone,st:"activa",at:at});
+    return bt}
+  /* Si las reglas nuevas todavía no están publicadas, reintenta sin el link de "Mi cita" */
+  mk(true).commit().then(done,function(){S.tk=null;mk(false).commit().then(done,fail)});
+  function fail(){loadBusy().then(function(){b.textContent="Confirmar cita";
     var taken=blocks().some(function(k){return BUSY[k]});
     if(taken){S.t=null;show(STEPS.indexOf("when"));err("Uy, alguien acaba de tomar esa hora. Elige otra, por favor.")}
-    else{upd();err("Ya tienes una cita pendiente con este número. Para cambiarla o agendar otra, escríbenos por WhatsApp.")}})})}
+    else{upd();err("Ya tienes una cita pendiente con este número. Para cambiarla o agendar otra, escríbenos por WhatsApp.")}})}}
 function waText(){var z=S.zone>=0?P.zones[S.zone]:null;return "¡Hola "+P.name+"! 👋 Acabo de reservar por su página:\n\n📅 "+niceDay(S.day)+", "+fh(S.t)+"\n✨ "+picked().map(function(s){return s.n}).join(" + ")+"\n💰 "+crc(total())+"\n👤 "+$("cli").value.trim()
-  +(P.home?(z?"\n🗺️ "+z.n:"")+(S.ll?"\n📍 https://maps.google.com/?q="+S.ll:"")+($("ad").value.trim()?"\n🏠 "+$("ad").value.trim():""):"")+($("nt").value.trim()?"\n📝 "+$("nt").value.trim():"")}
-function done(){$("flow").hidden=true;$("bar").hidden=true;$("ok").hidden=false;window.scrollTo(0,0);
+  +(P.home?(z?"\n🗺️ "+z.n:"")+(S.ll?"\n📍 https://maps.google.com/?q="+S.ll:"")+($("ad").value.trim()?"\n🏠 "+$("ad").value.trim():""):"")+($("nt").value.trim()?"\n📝 "+$("nt").value.trim():"")+(S.tk?"\n\n🔗 Para cambiar o cancelar mi cita: "+myLink(S.tk):"")}
+function done(){if(S.tk){$("mylink").hidden=false;$("mlv").value=myLink(S.tk);$("mlc").onclick=function(){var v=$("mlv").value;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(function(){$("mlc").textContent="¡Copiado!"},function(){$("mlv").select()})}}$("flow").hidden=true;$("bar").hidden=true;$("ok").hidden=false;window.scrollTo(0,0);
   $("okT").textContent=P.name+" recibió tu reserva.";
   $("okS").innerHTML='<b>'+niceDay(S.day).replace(/^./,function(c){return c.toUpperCase()})+', '+fh(S.t)+'</b><br><span class="mute">'+esc(picked().map(function(s){return s.n}).join(" + "))+" · "+crc(total())+'</span>';
   $("okWa").href=waUrl(P.wa,waText());
@@ -308,6 +323,56 @@ function done(){$("flow").hidden=true;$("bar").hidden=true;$("ok").hidden=false;
 $("again").onclick=function(){location.href=location.pathname+"?n="+slug+"&go=1"};
 function confetti(){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;var K=[P.color||"#6c4cf5","#ff8a5b","#ffd166","#4cc782","#8b72ff"];
   for(var i=0;i<60;i++){var d=document.createElement("i");d.className="cf";d.style.left=Math.random()*100+"vw";d.style.background=K[i%K.length];d.style.setProperty("--dx",(Math.random()*160-80)+"px");d.style.setProperty("--r",(Math.random()*900-450)+"deg");d.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(d);setTimeout(function(x){x.remove()}.bind(null,d),2800)}}
+
+/* ===== MI CITA: el cliente cambia o cancela su cita con su link secreto (hasta 12 h antes) ===== */
+var MCQ=(new URLSearchParams(location.search).get("cita")||"").toLowerCase().replace(/[^a-z0-9]/g,""),MC=null,MS={day:"",t:null};
+function newTok(){var a=new Uint8Array(24),c="abcdefghijkmnpqrstuvwxyz23456789";crypto.getRandomValues(a);return Array.prototype.map.call(a,function(x){return c[x%32]}).join("")}
+function myLink(tk){return location.origin+location.pathname+"?n="+slug+"&cita="+tk}
+function atMs(f,t){var d=pd(f);d.setMinutes(tm(t));return d.getTime()}
+function mcBox(h){$("mcb").innerHTML=h;window.scrollTo(0,0)}
+function mcWa(t){return waUrl(P.wa,t||"¡Hola "+P.name+"! 👋 Quiero hacer un cambio en mi cita"+(MC?" del "+niceDay(MC.date)+", "+fh(MC.time):""))}
+function openMine(){$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
+  $("lg3").innerHTML=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("nm3").textContent=P.name;
+  db.doc("biz/"+BID+"/mine/"+MCQ).get().then(function(d){if(!d.exists){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p><a class="btn wa" target="_blank" rel="noopener" href="'+mcWa("¡Hola "+P.name+"! 👋 Tengo una consulta sobre mi cita")+'">Escribir por WhatsApp</a>');return}MC=d.data();renderMine()},
+   function(){mcBox('<h2>No se pudo cargar tu cita</h2><p class="mute">Revisa tu internet y vuelve a intentar.</p><a class="btn alt" href="">Reintentar</a>')})}
+function mcSum(){return '<div class="card sumc" style="text-align:left;margin:14px 0"><div class="li"><span>📅 '+niceDay(MC.date).replace(/^./,function(c){return c.toUpperCase()})+'</span><b>'+fh(MC.time)+'</b></div>'
+  +'<div class="li"><span>✨ '+esc((MC.items||[]).join(" + ")||"Tu cita")+'</span><span>'+durTxt(+MC.dur||60)+'</span></div>'+(MC.zone?'<div class="li"><span>🗺️ '+esc(MC.zone)+'</span></div>':'')
+  +'<div class="li"><b>Total</b><b>'+crc(MC.total)+'</b></div></div>'}
+function renderMine(){var left=atMs(MC.date,MC.time)-Date.now(),can=MC.st==="activa"&&left>12*36e5,hi='<p class="mute" style="margin:2px 0 0">Hola '+esc(String(MC.cli).split(" ")[0])+' 👋</p>';
+  if(MC.st==="cancelada"){mcBox('<h2>Cita cancelada</h2>'+hi+mcSum()+'<p class="mute">Cuando quieras, reserva otra.</p><a class="btn big" href="?n='+slug+'&go=1">Reservar una cita nueva</a>');return}
+  if(left<0){mcBox('<h2>Esta cita ya pasó</h2>'+hi+mcSum()+'<a class="btn alt" href="?n='+slug+'&go=1">Reservar otra cita</a>');return}
+  if(!can){mcBox('<h2>Tu cita</h2>'+hi+mcSum()+'<div class="note">Faltan menos de 12 horas. Para cambiarla o cancelarla escríbenos por WhatsApp.</div><a class="btn wa" target="_blank" rel="noopener" href="'+mcWa()+'">Escribir por WhatsApp</a>');return}
+  mcBox('<h2>Tu cita</h2>'+hi+mcSum()+'<button class="btn big" id="mcMove">🔁 Cambiar día u hora</button><button class="btn ghost" id="mcCancel" style="margin-top:8px;color:var(--bad)">Cancelar mi cita</button><a class="btn ghost" style="margin-top:8px" target="_blank" rel="noopener" href="'+mcWa()+'">💬 Escribir por WhatsApp</a><p class="mute small" style="margin-top:12px">Puedes cambiar o cancelar tu cita aquí hasta 12 horas antes.</p>');
+  $("mcMove").onclick=startMove;$("mcCancel").onclick=askCancel}
+function mBlocks(day,t,d){var r=[],s=tm(t);for(var k=0;k<d;k+=30)r.push(day+"_"+hm(s+k).replace(":",""));return r}
+function freeFor(day){var h=(P.hours||[])[pd(day).getDay()];if(!h||!h.on)return [];var a=tm(h.a),z=tm(h.b),d=Math.max(30,+MC.dur||60),out=[];
+  for(var m=a;m+d<=z;m+=30){var t=hm(m);if(atMs(day,t)-Date.now()<Math.max(2,+P.lead||0)*36e5)continue;if(day===MC.date&&t===MC.time)continue;if(!mBlocks(day,t,d).some(function(k){return BUSY[k]}))out.push(t)}return out}
+function startMove(){MS={day:"",t:null};mcBox('<h2>Elige el nuevo día</h2><p class="mute">Solo te mostramos las horas libres.</p><div class="days" id="mdays"></div><div class="hours" id="mhrs"></div><div id="mhe"></div><p class="err" id="mer"></p><button class="btn big" id="mGo" disabled>Confirmar el cambio</button><button class="btn ghost" id="mBack" style="margin-top:8px">Volver</button>');
+  $("mBack").onclick=renderMine;$("mGo").onclick=doMove;loadMBusy()}
+function loadMBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P.ahead||21));
+  db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};sn.forEach(function(d){if(String((d.data()||{}).job)!==String(MC.job))BUSY[d.id]=1});renderMDays()},function(){BUSY={};renderMDays()})}
+function renderMDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeFor(s).length;if(f&&!first)first=s;
+    h+='<button data-d="'+s+'" aria-pressed="'+(s===MS.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):"lleno")+'</button>'}
+  $("mdays").innerHTML=h;if(!MS.day)MS.day=first;Array.prototype.forEach.call($("mdays").children,function(b){b.setAttribute("aria-pressed",b.dataset.d===MS.day);b.onclick=function(){if(b.disabled)return;MS.day=b.dataset.d;MS.t=null;renderMDays()}});
+  var L=MS.day?freeFor(MS.day):[];$("mhrs").innerHTML=L.map(function(t){return '<button data-t="'+t+'" aria-pressed="'+(t===MS.t)+'">'+fh(t)+'</button>'}).join("");
+  $("mhe").innerHTML=MS.day?"":'<div class="note">No hay espacios libres en los próximos días. Escríbenos por WhatsApp.</div>';
+  Array.prototype.forEach.call($("mhrs").children,function(b){b.onclick=function(){MS.t=b.dataset.t;renderMDays()}});$("mGo").disabled=MS.t==null}
+function doMove(){var b=$("mGo");if(MS.t==null)return;b.disabled=true;b.textContent="Cambiando tu cita…";$("mer").textContent="";
+  var d=Math.max(30,+MC.dur||60),O=mBlocks(MC.date,MC.time,d),N=mBlocks(MS.day,MS.t,d),at=Date.now(),bt=db.batch(),J=String(MC.job),before=niceDay(MC.date)+", "+fh(MC.time);
+  bt.update(db.doc("biz/"+BID+"/jobs/"+J),{date:MS.day,time:MS.t,st:"Por confirmar",key:MCQ,chg:"movida",chgAt:firebase.firestore.FieldValue.serverTimestamp()});
+  O.forEach(function(k){if(N.indexOf(k)<0)bt.delete(db.doc("biz/"+BID+"/slots/"+k))});
+  N.forEach(function(k){if(O.indexOf(k)<0)bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:MS.day,t:k.split("_")[1],job:J,at:at})});
+  bt.update(db.doc("biz/"+BID+"/mine/"+MCQ),{date:MS.day,time:MS.t,upd:at});
+  bt.commit().then(function(){MC.date=MS.day;MC.time=MS.t;var t="¡Hola "+P.name+"! 👋 Cambié mi cita desde el link.\nAntes: "+before+"\nAhora: "+niceDay(MC.date)+", "+fh(MC.time)+"\n👤 "+MC.cli;
+    mcBox('<div class="big" style="font-size:54px">✅</div><h2>¡Listo, cambiamos tu cita!</h2>'+mcSum()+'<a class="btn wa big" target="_blank" rel="noopener" href="'+waUrl(P.wa,t)+'">Avisar por WhatsApp</a><p class="mute small">Te confirmamos la nueva hora por WhatsApp.</p><button class="btn ghost" id="mOk">Ver mi cita</button>');$("mOk").onclick=renderMine},
+   function(){b.disabled=false;b.textContent="Confirmar el cambio";$("mer").innerHTML=atMs(MC.date,MC.time)-Date.now()<12*36e5?"Ya faltan menos de 12 horas. Escríbenos por WhatsApp para cambiarla.":"No se pudo cambiar: puede que esa hora se acabe de ocupar. Elige otra o escríbenos por WhatsApp.";loadMBusy()})}
+function askCancel(){mcBox('<h2>¿Cancelar tu cita?</h2>'+mcSum()+'<p class="mute">La hora queda libre para otra persona. También puedes cambiarla de día.</p><button class="btn big" id="cY" style="background:var(--bad)">Sí, cancelar mi cita</button><button class="btn alt" id="cM" style="margin-top:8px">🔁 Mejor cambiar el día</button><button class="btn ghost" id="cN" style="margin-top:8px">No, dejarla como está</button><p class="err" id="mer"></p>');
+  $("cN").onclick=renderMine;$("cM").onclick=startMove;$("cY").onclick=function(){var b=this;b.disabled=true;b.textContent="Cancelando…";
+    var bt=db.batch(),J=String(MC.job);bt.update(db.doc("biz/"+BID+"/jobs/"+J),{st:"Cancelada",key:MCQ,chg:"cancelada",chgAt:firebase.firestore.FieldValue.serverTimestamp()});
+    mBlocks(MC.date,MC.time,Math.max(30,+MC.dur||60)).forEach(function(k){bt.delete(db.doc("biz/"+BID+"/slots/"+k))});if(MC.tel)bt.delete(db.doc("biz/"+BID+"/holds/"+MC.tel));
+    bt.update(db.doc("biz/"+BID+"/mine/"+MCQ),{st:"cancelada",upd:Date.now()});
+    bt.commit().then(function(){MC.st="cancelada";mcBox('<h2>Tu cita quedó cancelada</h2><p class="mute">Gracias por avisar. Cuando quieras, reserva otra.</p><a class="btn big" href="?n='+slug+'&go=1">Reservar una cita nueva</a><a class="btn wa" style="margin-top:8px" target="_blank" rel="noopener" href="'+waUrl(P.wa,"¡Hola "+P.name+"! 👋 Cancelé mi cita del "+niceDay(MC.date)+", "+fh(MC.time)+". 👤 "+MC.cli)+'">Avisar por WhatsApp</a>')},
+     function(){b.disabled=false;b.textContent="Sí, cancelar mi cita";$("mer").textContent="No se pudo cancelar. Si faltan menos de 12 horas, escríbenos por WhatsApp."})}}
 </script>
 </body>
 </html>

@@ -515,7 +515,7 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
     if(j.st==="Lista")qa+='<a class="btn sm wa" target="_blank" rel="noopener" data-wa="ty">🙌 Agradecer</a>'}
   if(!nw&&locOf(j))qa+='<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(gmaps(locOf(j)))+'">📍 Cómo llegar</a>'+(waze(locOf(j))?'<a class="btn sm ghost" target="_blank" rel="noopener" href="'+esc(waze(locOf(j)))+'">Waze</a>':"");
   sheet('<div class="between"><h2 style="margin:0">'+(nw?"Nueva cita":"Cita")+'</h2>'+(nw?"":pill(j.st))+'</div>'
-   +(j.web&&j.st==="Por confirmar"?'<div class="warnbox">🌐 Reservó desde tu link. Confírmale por WhatsApp.</div>':"")
+   +(j.chg==="movida"&&j.st==="Por confirmar"?'<div class="warnbox">🔁 El cliente cambió la cita a esta hora desde su link. Confírmale por WhatsApp.</div>':j.chg==="cancelada"&&j.st==="Cancelada"?'<div class="warnbox">❌ El cliente canceló esta cita desde su link. La hora ya quedó libre.</div>':j.web&&j.st==="Por confirmar"?'<div class="warnbox">🌐 Reservó desde tu link. Confírmale por WhatsApp.</div>':"")
    +(qa?'<div class="qa">'+qa+'</div>':"")
    +(!nw&&locOf(j)?mapThumb(locOf(j)):"")
    +(!nw&&(j.zone||j.addr)?'<p class="small" style="margin:6px 0 0">'+(j.zone?'🗺️ <b>'+esc(j.zone)+'</b> ':'')+(j.addr?'· '+esc(j.addr):'')+'</p>':"")
