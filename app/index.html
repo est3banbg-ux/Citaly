@@ -114,7 +114,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .li{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;gap:10px}
 .li:last-child{border-bottom:0}
 /* settings */
-.set{display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;color:var(--ink);font:inherit}
+.set{text-decoration:none;display:flex;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:0;border-right:0;border-top:0;width:100%;text-align:left;color:var(--ink);font:inherit}
 .set:last-child{border-bottom:0}
 .set .ic{width:36px;height:36px;border-radius:11px;background:var(--soft);display:grid;place-items:center;font-size:18px;flex:none}
 .set .m{flex:1}.set .m b{display:block;font-size:15px}.set .m span{font-size:13px;color:var(--mute)}
@@ -183,7 +183,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 <section id="auth" class="screen"><div class="wrap">
   <div class="hero fade">
     <a class="logo" href="../"><img src="../icon-192.png" alt="">citaly</a>
-    <p class="mute">Tu agenda, tus clientes y tus reservas en línea, en un solo lugar.</p>
+    <p class="mute">Tu agenda, tus clientes y tu página de reservas, en un solo lugar.</p>
   </div>
   <div class="card fade">
     <button class="btn gbtn" id="gIn"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar con Google</button>
@@ -194,62 +194,23 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     <div style="height:12px"></div>
     <button class="btn" id="aGo">Entrar</button>
     <div class="between" style="margin-top:8px">
-      <button class="link" id="aMode">Crear cuenta nueva</button>
+      <button class="link" id="aMode">Primera vez: crear contraseña</button>
       <button class="link" id="aReset">Olvidé mi contraseña</button>
     </div>
   </div>
-  <p class="mute small" style="text-align:center">Prueba gratis por <span class="tdays">14</span> días. Sin tarjeta.</p>
+  <p class="mute small" style="text-align:center">Entra con el correo que registramos para tu negocio.</p>
   <p class="mute small" style="text-align:center">Al continuar aceptas los <a href="../terminos.html" target="_blank">Términos</a> y la <a href="../privacidad.html" target="_blank">Privacidad</a>.</p>
 </div></section>
 
-<!-- CREAR NEGOCIO -->
-<section id="onb" class="screen"><div class="wrap">
-  <div class="between" style="margin:6px 0 10px"><a class="logo"><img src="../icon-192.png" alt="">citaly</a><button class="link" id="oOut">Salir</button></div>
-  <div class="steps"><i class="on"></i><i></i><i></i></div>
-
-  <div class="ostep on" id="o1">
-    <h1>Creemos tu negocio</h1>
-    <p class="mute">Te toma 2 minutos. Todo se puede cambiar después.</p>
-    <div class="card">
-      <label for="oN">Nombre del negocio</label><input id="oN" maxlength="50" placeholder="Ej: Barbería El Rey">
-      <label>¿A qué se dedica?</label>
-      <div class="typegrid" id="oT"></div>
-      <label for="oW">WhatsApp del negocio</label><input id="oW" inputmode="tel" placeholder="8888 8888" maxlength="15">
-      <p class="err" id="o1e"></p>
-    </div>
-    <button class="btn" id="o1n">Siguiente</button>
-  </div>
-
-  <div class="ostep" id="o2">
-    <h1>Tu link de reservas</h1>
-    <p class="mute">Lo compartes con tus clientes para que agenden solos.</p>
-    <div class="card">
-      <label for="oS">Tu dirección</label>
-      <div class="slugbox"><b>citalyapp.com/</b><input id="oS" maxlength="40" autocapitalize="off" autocomplete="off" spellcheck="false"></div>
-      <p class="small" id="oSm" style="margin:6px 0 0"></p>
-      <label>Color de tu marca</label>
-      <div class="swatches" id="oC"></div>
-      <label>Logo (opcional)</label>
-      <div class="logoup"><div class="lg" id="oLg">📷</div><div><button class="btn sm alt" id="oLb">Subir logo</button><p class="mute small" style="margin:4px 0 0">Cuadrado se ve mejor.</p></div></div>
-      <input type="file" id="oLf" accept="image/*" hidden>
-      <p class="err" id="o2e"></p>
-    </div>
-    <div class="row"><button class="btn ghost" data-back="1">Atrás</button><button class="btn" id="o2n">Siguiente</button></div>
-  </div>
-
-  <div class="ostep" id="o3">
-    <h1>¿Cuándo atiendes?</h1>
-    <p class="mute">Tus clientes solo podrán reservar en este horario.</p>
-    <div class="card">
-      <label>Días</label>
-      <div class="chips daychips" id="oD"></div>
-      <div class="row"><div><label for="oA">Desde</label><input id="oA" type="time" value="08:00" step="1800"></div><div><label for="oB">Hasta</label><input id="oB" type="time" value="18:00" step="1800"></div></div>
-      <label>Servicios para empezar</label>
-      <div id="oSv" class="small mute"></div>
-      <p class="mute small" style="margin:8px 0 0">Después los puedes editar en Ajustes.</p>
-      <p class="err" id="o3e"></p>
-    </div>
-    <div class="row"><button class="btn ghost" data-back="2">Atrás</button><button class="btn" id="oGo">Crear mi negocio 🎉</button></div>
+<!-- SIN ACCESO / VERIFICAR CORREO -->
+<section id="noacc" class="screen"><div class="wrap" style="text-align:center;padding-top:40px">
+  <a class="logo"><img src="../icon-192.png" alt="">citaly</a>
+  <div class="card fade" style="margin-top:20px;text-align:left">
+    <div id="naBody"></div>
+    <div style="height:14px"></div>
+    <a class="btn wa" id="naWa" target="_blank" rel="noopener">Escribir a Citaly por WhatsApp</a>
+    <div style="height:8px"></div>
+    <button class="btn ghost" id="naOut">Usar otro correo</button>
   </div>
 </div></section>
 
@@ -257,14 +218,14 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 <section id="pay" class="screen"><div class="wrap pay">
   <a class="logo"><img src="../icon-192.png" alt="">citaly</a>
   <div class="card fade" style="margin-top:20px">
-    <h1 id="payT">Tu prueba gratis terminó</h1>
-    <p class="mute" id="payS">Tus datos están guardados. Activa tu plan para seguir usando Citaly.</p>
-    <div class="big" id="payP">₡12.000</div><div class="mute small">por mes · todo incluido</div>
-    <ul class="feat"><li>Agenda y clientes sin límite</li><li>Tu página de reservas en línea</li><li>Recordatorios por WhatsApp</li><li>Ingresos, gastos y ganancias</li></ul>
+    <h1 id="payT">Tu mensualidad está pendiente</h1>
+    <p class="mute" id="payS">Tus datos están guardados. Paga la mensualidad para seguir usando Citaly y recibir reservas.</p>
+    <div class="big" id="payP">₡12.000</div><div class="mute small">por mes · hosting, soporte y cambios incluidos</div>
+    <ul class="feat"><li>Tu página web y tu página de reservas</li><li>Agenda, clientes, ingresos y gastos</li><li>Cambios de precios y horarios cuando los necesites</li><li>Soporte por WhatsApp</li></ul>
     <h3 style="text-align:left">Cómo pagar por SINPE Móvil</h3>
     <ol id="payO"></ol>
     <a class="btn wa" id="payWa" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>
-    <p class="mute small" style="margin:10px 0 0">Te activamos en menos de 24 horas, normalmente en minutos. Pago con tarjeta: muy pronto.</p>
+    <p class="mute small" style="margin:10px 0 0">Te activamos en menos de 24 horas, normalmente en minutos.</p>
   </div>
   <button class="link" id="payOut">Cerrar sesión</button>
 </div></section>
@@ -311,6 +272,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <h2>Tu link de reservas</h2>
         <div class="linkbox" id="lnk"></div>
         <div class="row"><button class="btn alt" id="lCopy">Copiar</button><button class="btn" id="lShare">Compartir</button></div>
+        <a class="set" id="wLnk" target="_blank" rel="noopener" style="border-bottom:0;padding:12px 2px 0"><span class="ic">🌐</span><span class="m"><b>Tu página web</b><span id="wLnkT"></span></span>↗</a>
         <div class="between" style="margin-top:14px"><div><b>Reservas en línea</b><div class="mute small" id="openTxt"></div></div><label class="toggle"><input type="checkbox" id="openT"><span></span></label></div>
       </div>
       <div class="card" style="padding:4px 14px">
@@ -323,7 +285,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="res"><span class="ic">📅</span><span class="m"><b>Reglas de reserva</b><span>Anticipación y días disponibles</span></span>›</button>
       </div>
       <div class="card" style="padding:4px 14px">
-        <button class="set" data-s="plan"><span class="ic">⭐</span><span class="m"><b>Mi plan</b><span id="planN"></span></span>›</button>
+        <button class="set" data-s="plan"><span class="ic">⭐</span><span class="m"><b>Mi mensualidad</b><span id="planN"></span></span>›</button>
         <a class="set" id="help" target="_blank" rel="noopener"><span class="ic">💬</span><span class="m"><b>Ayuda por WhatsApp</b><span>Te respondemos rápido</span></span>›</a>
         <button class="set" id="out"><span class="ic">🚪</span><span class="m"><b>Cerrar sesión</b><span id="em"></span></span></button>
       </div>
@@ -346,7 +308,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 var $=function(i){return document.getElementById(i)};
 var C=CITALY,DN=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],DS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"],MN=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 var STS=["Por confirmar","Confirmada","Lista","No vino","Cancelada"];
-var U=null,B=null,SUB=null,JOBS=[],EXP=[],UNS=[],VIEW="agenda",SEL=ymd(new Date()),MON=new Date();MON.setDate(1);
+var U=null,BID=null,B=null,SUB=null,JOBS=[],EXP=[],UNS=[],VIEW="agenda",SEL=ymd(new Date()),MON=new Date();MON.setDate(1);
 var db,auth;
 function pad(n){return n<10?"0"+n:""+n}
 function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
@@ -365,74 +327,50 @@ function durTxt(m){var h=Math.floor(m/60),r=m%60;return (h?h+" h":"")+(h&&r?" ":
 function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2400)}
 function show(id){Array.prototype.forEach.call(document.querySelectorAll(".screen"),function(s){s.classList.toggle("on",s.id===id)});window.scrollTo(0,0)}
-function link(){return C.site+"/"+(B&&B.slug||"")}
+function link(){return C.site+"/"+(B&&B.slug||"")+"/reservar"}
+function webLink(){return C.site+"/"+(B&&B.slug||"")}
 var ERR={"auth/invalid-email":"Ese correo no es válido.","auth/user-not-found":"No hay una cuenta con ese correo.","auth/wrong-password":"La contraseña no es correcta.","auth/invalid-credential":"El correo o la contraseña no son correctos.","auth/email-already-in-use":"Ya existe una cuenta con ese correo. Toca Entrar.","auth/weak-password":"La contraseña necesita al menos 6 caracteres.","auth/too-many-requests":"Demasiados intentos. Espera un momento.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/network-request-failed":"Sin conexión. Revisa tu internet.","auth/unauthorized-domain":"Este sitio todavía no está autorizado en Firebase.","permission-denied":"No tienes permiso para hacer eso.","unavailable":"Sin conexión. Revisa tu internet."};
 function errEs(e){var c=e&&e.code||"";return ERR[c]!=null?ERR[c]:"Algo salió mal. Intenta otra vez."}
-Array.prototype.forEach.call(document.querySelectorAll(".tdays"),function(e){e.textContent=C.trialDays});
 
 /* ---------- FIREBASE ---------- */
 try{firebase.initializeApp(C.fb);auth=firebase.auth();db=firebase.firestore()}catch(e){document.body.innerHTML='<div class="wrap"><div class="card">No se pudo cargar Citaly. Revisa tu conexión y recarga.</div></div>'}
 if(auth)auth.getRedirectResult().catch(function(e){var m=errEs(e);if(m){show("auth");$("aErr").textContent=m}});
-if(auth)auth.onAuthStateChanged(function(u){stop();U=u;if(!u){show("auth");return}show("load");
-  db.doc("biz/"+u.uid).get().then(function(d){if(!d.exists){startOnb();return}start()},function(e){show("auth");$("aErr").textContent=errEs(e)})});
-function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];B=null;SUB=null;JOBS=[];EXP=[]}
+if(auth)auth.onAuthStateChanged(function(u){stop();U=u;if(!u){show("auth");return}enter(u)});
+/* Busca el negocio de esta persona: el suyo propio (cuentas viejas) o el que el admin le asignó en own/{correo} */
+function enter(u){U=u;show("load");
+  var pw=(u.providerData||[]).some(function(p){return p.providerId==="password"});
+  if(pw&&!u.emailVerified){noAcc("verify");return}
+  db.doc("biz/"+u.uid).get().then(function(d){if(d.exists){BID=u.uid;start();return}
+    if(!u.email){noAcc();return}
+    return db.doc("own/"+u.email.toLowerCase()).get().then(function(o){if(!o.exists||!o.data().biz){noAcc();return}BID=o.data().biz;start()})
+  }).catch(function(e){console.error(e);show("auth");$("aErr").textContent=errEs(e)})}
+function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];BID=null;B=null;SUB=null;JOBS=[];EXP=[]}
 
 /* ---------- ACCESO ---------- */
 var aNew=false;
-$("aMode").onclick=function(){aNew=!aNew;$("aGo").textContent=aNew?"Crear cuenta":"Entrar";this.textContent=aNew?"Ya tengo cuenta":"Crear cuenta nueva";$("aP").autocomplete=aNew?"new-password":"current-password";$("aErr").textContent=""};
+$("aMode").onclick=function(){aNew=!aNew;$("aGo").textContent=aNew?"Crear contraseña":"Entrar";this.textContent=aNew?"Ya tengo contraseña":"Primera vez: crear contraseña";$("aP").autocomplete=aNew?"new-password":"current-password";$("aErr").textContent=""};
 $("aGo").onclick=function(){var e=$("aE").value.trim(),p=$("aP").value,b=this;$("aErr").textContent="";
   if(!/^\S+@\S+\.\S+$/.test(e)){$("aErr").textContent="Escribe tu correo.";return}if(p.length<6){$("aErr").textContent="La contraseña necesita al menos 6 caracteres.";return}
-  b.disabled=true;(aNew?auth.createUserWithEmailAndPassword(e,p):auth.signInWithEmailAndPassword(e,p)).catch(function(x){$("aErr").textContent=errEs(x)}).finally(function(){b.disabled=false})};
+  b.disabled=true;(aNew?auth.createUserWithEmailAndPassword(e,p).then(function(r){return r.user.sendEmailVerification().then(function(){noAcc("verify")})}):auth.signInWithEmailAndPassword(e,p)).catch(function(x){$("aErr").textContent=errEs(x)}).finally(function(){b.disabled=false})};
 $("aP").onkeydown=function(e){if(e.key==="Enter")$("aGo").click()};
 $("aReset").onclick=function(){var e=$("aE").value.trim();if(!/^\S+@\S+\.\S+$/.test(e)){$("aErr").textContent="Escribe tu correo arriba y vuelve a tocar aquí.";return}
   auth.sendPasswordResetEmail(e).then(function(){$("aErr").textContent="";toast("Te enviamos un correo para cambiar la contraseña")},function(x){$("aErr").textContent=errEs(x)})};
 $("gIn").onclick=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});$("aErr").textContent="";
   auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$("aErr").textContent=errEs(x)})};
 
-/* ---------- CREAR NEGOCIO ---------- */
-var O={t:"",c:C.colors[0],logo:"",days:[1,2,3,4,5,6],slugOk:false,slugEdited:false};
-function startOnb(){show("onb");
-  $("oT").innerHTML=Object.keys(C.types).map(function(k){return '<button data-t="'+k+'" aria-pressed="'+(O.t===k)+'"><span>'+C.types[k].ic+'</span>'+esc(C.types[k].n)+'</button>'}).join("");
-  $("oC").innerHTML=C.colors.map(function(c){return '<button style="background:'+c+'" data-c="'+c+'" aria-pressed="'+(O.c===c)+'" aria-label="Color '+c+'"></button>'}).join("");
-  $("oD").innerHTML=DS.map(function(d,i){return '<button class="chip" data-d="'+i+'" aria-pressed="'+(O.days.indexOf(i)>=0)+'">'+d+'</button>'}).join("");
-  ostep(1)}
-function ostep(n){[1,2,3].forEach(function(i){$("o"+i).classList.toggle("on",i===n)});Array.prototype.forEach.call(document.querySelectorAll(".steps i"),function(e,i){e.classList.toggle("on",i<n)});window.scrollTo(0,0);if(n===3)renderOSvc()}
-$("oT").onclick=function(e){var b=e.target.closest("button");if(!b)return;O.t=b.dataset.t;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)})};
-$("oC").onclick=function(e){var b=e.target.closest("button");if(!b)return;O.c=b.dataset.c;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)})};
-$("oD").onclick=function(e){var b=e.target.closest("button");if(!b)return;var d=+b.dataset.d,i=O.days.indexOf(d);if(i>=0)O.days.splice(i,1);else O.days.push(d);b.setAttribute("aria-pressed",i<0)};
-Array.prototype.forEach.call(document.querySelectorAll("[data-back]"),function(b){b.onclick=function(){ostep(+b.dataset.back)}});
-$("oOut").onclick=function(){auth.signOut()};
-function fErr(id,msg){var el=$(id),old=$(id+"_e");if(old)old.remove();if(el.classList)el.classList.add("bad");var p=document.createElement("p");p.className="ferr";p.id=id+"_e";p.textContent=msg;el.insertAdjacentElement("afterend",p);el.scrollIntoView({behavior:"smooth",block:"center"});if(el.focus&&el.tagName==="INPUT")setTimeout(function(){el.focus()},300);
-  var clr=function(){el.classList.remove("bad");var o=$(id+"_e");if(o)o.remove()};el.addEventListener("input",clr,{once:true});el.addEventListener("click",clr,{once:true})}
-$("o1n").onclick=function(){var n=$("oN").value.trim(),w=telN($("oW").value);$("o1e").textContent="";
-  if(n.length<2){fErr("oN","Primero escribe aquí el nombre de tu negocio.");return}if(!O.t){fErr("oT","Elige a qué se dedica tu negocio.");return}if(w.length<8){fErr("oW","Escribe el WhatsApp del negocio (8 dígitos).");return}
-  if(!O.slugEdited)$("oS").value=slugify(n);ostep(2);checkSlug()};
-var slugT;
-$("oS").oninput=function(){O.slugEdited=true;var v=slugify(this.value);if(v!==this.value)this.value=v;clearTimeout(slugT);O.slugOk=false;$("oSm").textContent="Revisando…";$("oSm").style.color="";slugT=setTimeout(checkSlug,450)};
-function checkSlug(){var s=$("oS").value,m=$("oSm");O.slugOk=false;
-  if(!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(s)){m.textContent="Usa entre 3 y 40 letras, números o guiones.";m.style.color="var(--bad)";return Promise.resolve(false)}
-  if(["app","admin","r","www","api","citaly","ayuda","precios","login"].indexOf(s)>=0){m.textContent="Ese nombre está reservado. Prueba otro.";m.style.color="var(--bad)";return Promise.resolve(false)}
-  return db.doc("pub/"+s).get().then(function(d){if($("oS").value!==s)return false;if(d.exists&&d.data().biz!==U.uid){m.textContent="✗ Ya lo está usando otro negocio. Prueba con otro.";m.style.color="var(--bad)";return false}
-    O.slugOk=true;m.textContent="✓ Disponible";m.style.color="var(--ok)";return true},function(){m.textContent="No se pudo revisar. Revisa tu internet.";m.style.color="var(--bad)";return false})}
-$("oLb").onclick=function(){$("oLf").click()};
-$("oLf").onchange=function(){var f=this.files[0];if(!f)return;resizeImg(f,256).then(function(u){O.logo=u;$("oLg").innerHTML='<img alt="" src="'+u+'">'},function(){toast("No se pudo leer esa imagen")});this.value=""};
+/* ---------- SIN ACCESO ---------- */
+function noAcc(kind){show("noacc");var e=esc(U&&U.email||"");
+  if(kind==="verify"){$("naBody").innerHTML='<h2>Confirma tu correo</h2><p class="mute">Te enviamos un correo a <b>'+e+'</b> con un enlace para confirmarlo. Ábrelo y luego toca el botón de abajo.</p><div class="row"><button class="btn" id="naOk">Ya lo confirmé</button><button class="btn alt" id="naRe">Reenviar correo</button></div>';
+    $("naOk").onclick=function(){U.reload().then(function(){if(auth.currentUser.emailVerified){return auth.currentUser.getIdToken(true).then(function(){enter(auth.currentUser)})}toast("Todavía no aparece confirmado. Revisa tu correo (y la carpeta de spam).")})};
+    $("naRe").onclick=function(){U.sendEmailVerification().then(function(){toast("Correo reenviado ✓")},function(x){toast(errEs(x))})}}
+  else $("naBody").innerHTML='<h2>Este correo no tiene un negocio en Citaly</h2><p class="mute">Entraste como <b>'+e+'</b>. Citaly le monta el sistema a cada negocio y nosotros te damos acceso con tu correo.</p><p class="mute">Si ya contrataste, pídenos que agreguemos este correo. Si quieres el sistema para tu negocio, escríbenos.</p>';
+  $("naWa").href=waUrl(C.wa,kind==="verify"?"Hola, no me llega el correo para confirmar mi cuenta de Citaly ("+(U&&U.email||"")+")":"Hola, quiero entrar a Citaly con este correo: "+(U&&U.email||""))}
+$("naOut").onclick=function(){auth.signOut()};
 function resizeImg(f,S){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var c=document.createElement("canvas"),s=Math.min(im.width,im.height);c.width=c.height=S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);var u=c.toDataURL("image/webp",.82);if(u.indexOf("image/webp")<0)u=c.toDataURL("image/jpeg",.82);ok(u)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
-$("o2n").onclick=function(){$("o2e").textContent="";checkSlug().then(function(ok){if(ok)ostep(3);else $("o2e").textContent="Elige una dirección disponible."})};
-function renderOSvc(){var t=C.types[O.t]||C.types.otro;$("oSv").innerHTML=t.svc.map(function(s){return '<div class="li"><span>'+s[3]+" "+esc(s[0])+'</span><span>'+crc(s[1])+" · "+durTxt(s[2])+'</span></div>'}).join("")}
-$("oGo").onclick=function(){var b=this,a=$("oA").value||"08:00",z=$("oB").value||"18:00";$("o3e").textContent="";
-  if(!O.days.length){$("o3e").textContent="Elige al menos un día.";return}if(tm(z)-tm(a)<60){$("o3e").textContent="La hora de cierre debe ser después de la de apertura.";return}
-  var t=C.types[O.t]||C.types.otro,slug=$("oS").value,now=firebase.firestore.Timestamp.now();
-  var hours=[0,1,2,3,4,5,6].map(function(d){return {on:O.days.indexOf(d)>=0,a:a,b:z}});
-  var svc=t.svc.map(function(s,i){return {id:"s"+(i+1),n:s[0],p:s[1],d:s[2],ic:s[3]}});
-  var biz={name:$("oN").value.trim(),type:O.t,wa:telN($("oW").value),addr:"",slug:slug,color:O.c,logo:O.logo,services:svc,hours:hours,open:true,ahead:21,lead:2,email:U.email||"",created:now};
-  var until=firebase.firestore.Timestamp.fromMillis(Date.now()+C.trialDays*864e5);
-  b.disabled=true;b.textContent="Creando…";
-  var bt=db.batch();bt.set(db.doc("pub/"+slug),pubOf(biz));bt.set(db.doc("biz/"+U.uid),biz);bt.set(db.doc("subs/"+U.uid),{status:"trial",until:until,start:now,email:U.email||"",name:biz.name});
-  bt.commit().then(function(){start(true)},function(e){b.disabled=false;b.textContent="Crear mi negocio 🎉";$("o3e").textContent=e.code==="permission-denied"?"Esa dirección ya la tomó otro negocio. Vuelve atrás y elige otra.":errEs(e)})};
-function pubOf(b){return {biz:U.uid,name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
+function pubOf(b){return {biz:BID,web:b.web||{},name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
 
 /* ---------- ARRANQUE ---------- */
-function start(fresh){var uid=U.uid,first=true;
+function start(fresh){var uid=BID,first=true;
   UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;if(first){first=false;show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));
   UNS.push(db.doc("subs/"+uid).onSnapshot(function(d){SUB=d.exists?d.data():null;if(B)show(subValid()?"main":"pay");render()},dbErr));
   UNS.push(db.collection("biz/"+uid+"/jobs").onSnapshot(function(s){JOBS=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});render()},dbErr));
@@ -447,8 +385,8 @@ function render(){if(!B)return;
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var dl=daysLeft();
-  if(SUB&&SUB.status==="trial")$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba gratis</span><b>'+(PLAY?'Ver':'Activar')+'</b></div>';
-  else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trB">🔔<span style="flex:1">Tu plan vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Renovar</b></div>';
+  if(SUB&&SUB.status==="trial")$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba</span><b>Ver</b></div>';
+  else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trB">🔔<span style="flex:1">Tu mensualidad vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Pagar</b></div>';
   else $("trial").innerHTML="";
   if($("trB"))$("trB").onclick=function(){openSet("plan")};
   renderPay();
@@ -549,7 +487,7 @@ function bindJob(){$("jS").onclick=function(e){var b=e.target.closest("button");
   if($("jDone"))$("jDone").onclick=function(){saveJob("Lista")};
   if($("jDel"))$("jDel").onclick=function(){if(!confirm("¿Eliminar esta cita?"))return;var cp=Object.assign({},J.j);delJob(J.j).then(function(){closeSheet();undoToast("Cita eliminada",function(){restoreJob(cp)})},function(e){$("jErr").textContent=errEs(e)})};
   Array.prototype.forEach.call(document.querySelectorAll("#shC [data-wa]"),function(a){var k=a.dataset.wa,j=J.j;a.href=waUrl(j.tel,msgFor(k,j));
-    a.onclick=function(){if(k==="conf"&&j.st==="Por confirmar")setTimeout(function(){db.doc("biz/"+U.uid+"/jobs/"+j._id).update({st:"Confirmada"});toast("Marcada como confirmada")},400)}})}
+    a.onclick=function(){if(k==="conf"&&j.st==="Por confirmar")setTimeout(function(){db.doc("biz/"+BID+"/jobs/"+j._id).update({st:"Confirmada"});toast("Marcada como confirmada")},400)}})}
 function first(n){return String(n||"").trim().split(/\s+/)[0]||""}
 function lines(){return (B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).map(function(s){return {n:s.n,p:+s.p||0}})}
 function blocks(date,time,dur){var r=[],s=tm(time),n=Math.ceil((+dur||60)/30);for(var i=0;i<n;i++)r.push(date+"_"+hm(s+i*30).replace(":",""));return r}
@@ -562,13 +500,13 @@ function saveJob(forceSt){var c=$("jC").value.trim(),t=telN($("jT").value),d=$("
   $("jSave").disabled=true;
   writeJob(data,old).then(function(){closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓")},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
 function writeJob(data,old){old=old||{};var id=data.id,st=data.st,oldB=old._id&&active(old)?blocks(old.date,old.time,old.dur):[],newB=st==="Cancelada"||st==="No vino"?[]:blocks(data.date,data.time,data.dur);
-  var bt=db.batch();bt.set(db.doc("biz/"+U.uid+"/jobs/"+id),data,{merge:true});
-  oldB.forEach(function(b){if(newB.indexOf(b)<0)bt.delete(db.doc("biz/"+U.uid+"/slots/"+b))});
-  newB.forEach(function(b){bt.set(db.doc("biz/"+U.uid+"/slots/"+b),{date:data.date,t:b.split("_")[1],job:id,at:Date.now()})});
-  if(old.tel&&st!=="Por confirmar"&&st!=="Confirmada")bt.delete(db.doc("biz/"+U.uid+"/holds/"+old.tel));
+  var bt=db.batch();bt.set(db.doc("biz/"+BID+"/jobs/"+id),data,{merge:true});
+  oldB.forEach(function(b){if(newB.indexOf(b)<0)bt.delete(db.doc("biz/"+BID+"/slots/"+b))});
+  newB.forEach(function(b){bt.set(db.doc("biz/"+BID+"/slots/"+b),{date:data.date,t:b.split("_")[1],job:id,at:Date.now()})});
+  if(old.tel&&st!=="Por confirmar"&&st!=="Confirmada")bt.delete(db.doc("biz/"+BID+"/holds/"+old.tel));
   return bt.commit()}
 function restoreJob(cp){var d=Object.assign({},cp);delete d._id;writeJob(d,{}).then(function(){toast("Cita recuperada ✓")},function(e){toast(errEs(e))})}
-function delJob(j){var bt=db.batch();bt.delete(db.doc("biz/"+U.uid+"/jobs/"+j._id));if(active(j))blocks(j.date,j.time,j.dur).forEach(function(b){bt.delete(db.doc("biz/"+U.uid+"/slots/"+b))});if(j.tel)bt.delete(db.doc("biz/"+U.uid+"/holds/"+j.tel));return bt.commit()}
+function delJob(j){var bt=db.batch();bt.delete(db.doc("biz/"+BID+"/jobs/"+j._id));if(active(j))blocks(j.date,j.time,j.dur).forEach(function(b){bt.delete(db.doc("biz/"+BID+"/slots/"+b))});if(j.tel)bt.delete(db.doc("biz/"+BID+"/holds/"+j.tel));return bt.commit()}
 function undoToast(msg,fn){var e=$("toast");e.innerHTML=esc(msg)+' <button class="ub">Deshacer</button>';e.classList.add("on","act");clearTimeout(toast.t);
   e.querySelector(".ub").onclick=function(){e.classList.remove("on","act");clearTimeout(toast.t);fn()};toast.t=setTimeout(function(){e.classList.remove("on","act")},6000)}
 
@@ -663,7 +601,7 @@ function renderNotes(){var P=NOTES().filter(function(n){return !n.done}).sort(no
   $("notesC").innerHTML='<div class="card"><div class="between"><h2 style="margin:0">📌 Recordatorios'+(D?' <span class="pill bad">'+D+'</span>':'')+'</h2><button class="btn sm alt" id="nAdd">+ Nota</button></div>'
    +(P.length?'<div style="margin-top:8px">'+P.slice(0,8).map(noteRow).join("")+'</div>'+(P.length>8?'<p class="mute small">y '+(P.length-8)+' más…</p>':''):'<p class="mute small" style="margin:8px 0 0">Anota cosas como "Llamar a Ana para el retoque" y ponle fecha para que te avise aquí.</p>')+'</div>';
   $("nAdd").onclick=function(){openNote(null)};bindNoteRows($("notesC"))}
-function saveNotes(L){B.notes=L;updBadges();return db.doc("biz/"+U.uid).set({notes:L},{merge:true}).catch(function(e){toast(errEs(e))})}
+function saveNotes(L){B.notes=L;updBadges();return db.doc("biz/"+BID).set({notes:L},{merge:true}).catch(function(e){toast(errEs(e))})}
 function openNote(n,pre){pre=pre||{};var nw=!n;n=n||{id:"n"+Date.now(),txt:"",cli:pre.cli||"",tel:pre.tel||"",due:"",done:false,at:Date.now()};
   var cl=clients().map(function(c){return '<option value="'+esc(c.cli)+'">'}).join("");
   sheet('<h2>'+(nw?"Nueva nota":"Nota")+'</h2><label for="nT">¿Qué tienes que recordar?</label><textarea id="nT" maxlength="300" placeholder="Ej: Llamarle para el retoque del mes">'+esc(n.txt)+'</textarea>'
@@ -708,9 +646,9 @@ function renderGoal(c,y,m){var G=+B.goal||0,now=new Date(),cur=y===now.getFullYe
   var bi=wd.indexOf(Math.max.apply(null,wd)),tc=Object.keys(cl).sort(function(a,b){return cl[b]-cl[a]})[0];
   $("goalC").innerHTML='<div class="card"><h2>🎯 Meta del mes</h2><div class="goal"><svg width="104" height="104" viewBox="0 0 104 104" role="img" aria-label="Avance de la meta"><circle cx="52" cy="52" r="42" fill="none" stroke="var(--line)" stroke-width="10"/><circle class="gr" id="gpr" cx="52" cy="52" r="42" fill="none" stroke="var(--acc)" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+Cc+'" stroke-dashoffset="'+Cc+'" transform="rotate(-90 52 52)"/><text class="gp" x="52" y="60" text-anchor="middle">'+Math.round(pct*100)+'%</text></svg><div><div class="mute small">Ingresos de '+MN[m]+'</div><b style="font:800 22px Bricolage Grotesque,system-ui,sans-serif">'+crc(c.inc)+'</b><div class="mute small">'+msg+'</div></div></div>'
    +(Math.max.apply(null,wd)>0?'<div class="ins"><div>📈 Tu mejor día (últimos 3 meses): <b>'+DN[bi]+'</b></div>'+(tc?'<div>⭐ Cliente que más te ha dejado: <b>'+esc(tc)+'</b> ('+crc(cl[tc])+')</div>':'')+'</div>':'')
-   +'<label for="gIn">Mi meta de ingresos por mes (₡)</label><div class="row"><input id="gIn" type="number" inputmode="numeric" min="0" step="10000" value="'+(G||"")+'" placeholder="Ej: 500000" style="flex:2"><button class="btn sm alt" id="gSv" style="flex:1">Guardar</button></div></div>';
+   +'<label for="goalIn">Mi meta de ingresos por mes (₡)</label><div class="row"><input id="goalIn" type="number" inputmode="numeric" min="0" step="10000" value="'+(G||"")+'" placeholder="Ej: 500000" style="flex:2"><button class="btn sm alt" id="gSv" style="flex:1">Guardar</button></div></div>';
   var pr=$("gpr");requestAnimationFrame(function(){requestAnimationFrame(function(){pr.style.strokeDashoffset=Cc*(1-pct)})});
-  $("gSv").onclick=function(){var v=Math.max(0,+$("gIn").value||0);db.doc("biz/"+U.uid).set({goal:v},{merge:true}).then(function(){B.goal=v;toast(v?"Meta guardada 🎯":"Meta quitada");renderNum()},function(e){toast(errEs(e))})}}
+  $("gSv").onclick=function(){var v=Math.max(0,+$("goalIn").value||0);db.doc("biz/"+BID).set({goal:v},{merge:true}).then(function(){B.goal=v;toast(v?"Meta guardada 🎯":"Meta quitada");renderNum()},function(e){toast(errEs(e))})}}
 $("addExp").onclick=function(){openExp(null)};
 function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Materiales"};
   sheet('<h2>'+(nw?"Nuevo gasto":"Gasto")+'</h2><label for="eD">¿En qué?</label><input id="eD" maxlength="60" value="'+esc(e.desc)+'" placeholder="Ej: Productos, gasolina, alquiler">'
@@ -718,13 +656,13 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
    +'<label for="eC">Categoría</label><select id="eC">'+["Materiales","Alquiler","Servicios (luz, agua, internet)","Transporte","Publicidad","Salarios","Otros"].map(function(c){return '<option'+(c===e.cat?" selected":"")+'>'+c+'</option>'}).join("")+'</select>'
    +'<p class="err" id="eErr"></p><div class="acts"><button class="btn full" id="eS">Guardar</button>'+(nw?"":'<button class="btn danger full" id="eX">Eliminar</button>')+'</div>',
    function(){$("eS").onclick=function(){var d=$("eD").value.trim(),a=+$("eA").value;if(!d||!(a>0)){$("eErr").textContent="Escribe en qué y el monto.";return}
-      var id=e._id||String(Date.now());db.doc("biz/"+U.uid+"/exp/"+id).set({desc:d,amt:a,date:$("eF").value||ymd(new Date()),cat:$("eC").value,at:Date.now()}).then(function(){closeSheet();toast("Gasto guardado")},function(x){$("eErr").textContent=errEs(x)})};
-    if($("eX"))$("eX").onclick=function(){if(confirm("¿Eliminar este gasto?"))db.doc("biz/"+U.uid+"/exp/"+e._id).delete().then(function(){closeSheet();toast("Gasto eliminado")})}})}
+      var id=e._id||String(Date.now());db.doc("biz/"+BID+"/exp/"+id).set({desc:d,amt:a,date:$("eF").value||ymd(new Date()),cat:$("eC").value,at:Date.now()}).then(function(){closeSheet();toast("Gasto guardado")},function(x){$("eErr").textContent=errEs(x)})};
+    if($("eX"))$("eX").onclick=function(){if(confirm("¿Eliminar este gasto?"))db.doc("biz/"+BID+"/exp/"+e._id).delete().then(function(){closeSheet();toast("Gasto eliminado")})}})}
 
 /* ---------- AJUSTES ---------- */
-function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
+function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("wLnk").href=webLink();$("wLnkT").textContent=webLink().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
   $("svcN").textContent=(B.services||[]).length+" servicios";var on=(B.hours||[]).filter(function(h){return h.on});$("horN").textContent=on.length?on.length+" días · "+fh(on[0].a)+" a "+fh(on[0].b):"Sin horario";
-  $("planN").textContent=!SUB?"":SUB.status==="trial"?"Prueba gratis · "+daysLeft()+" días":SUB.status==="active"?"Activo hasta el "+fdate(SUB.until):"Suspendido";
+  $("planN").textContent=!SUB?"":SUB.status==="trial"?"Prueba · "+daysLeft()+" días":SUB.status==="active"?"Al día hasta el "+fdate(SUB.until):"Pausado";
   $("em").textContent=U.email||"";$("domN").textContent=B.home?"Activo · "+((B.zones||[]).length?(B.zones.length+" zonas"):"sin zonas"):"Desactivado";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
 function fdate(ts){var d=ts.toDate();return d.getDate()+" de "+MN[d.getMonth()]}
 $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toast($("openT").checked?"Reservas en línea activadas":"Reservas en línea pausadas")})};
@@ -732,7 +670,7 @@ $("lCopy").onclick=function(){copy(link())};
 $("lShare").onclick=$("shareTop").onclick=function(){share()};
 function copy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast("Link copiado ✓")},function(){prompt("Copia tu link:",t)})}
 function share(){var t="¡Reserva tu cita en "+B.name+" en segundos! 📅";if(navigator.share)navigator.share({title:B.name,text:t,url:link()}).catch(function(){});else copy(link())}
-function saveBiz(p){Object.keys(p).forEach(function(k){B[k]=p[k]});var bt=db.batch();bt.set(db.doc("biz/"+U.uid),p,{merge:true});bt.set(db.doc("pub/"+B.slug),pubOf(B));return bt.commit().catch(function(e){toast(errEs(e));throw e})}
+function saveBiz(p){Object.keys(p).forEach(function(k){B[k]=p[k]});var bt=db.batch();bt.set(db.doc("biz/"+BID),p,{merge:true});bt.set(db.doc("pub/"+B.slug),pubOf(B));return bt.commit().catch(function(e){toast(errEs(e));throw e})}
 Array.prototype.forEach.call(document.querySelectorAll("[data-s]"),function(b){b.onclick=function(){openSet(b.dataset.s)}});
 $("out").onclick=$("payOut").onclick=function(){if(confirm("¿Cerrar sesión?"))auth.signOut()};
 function openSet(s){
@@ -753,7 +691,7 @@ function openSet(s){
       $("kS").onclick=function(){saveBiz({logo:lg,color:col}).then(function(){closeSheet();toast("Guardado ✓")})}})}
   if(s==="res")sheet('<h2>Reglas de reserva</h2><label for="rL">¿Con cuánta anticipación mínima pueden reservar?</label><select id="rL">'+[[0,"Sin mínimo"],[1,"1 hora antes"],[2,"2 horas antes"],[4,"4 horas antes"],[12,"12 horas antes"],[24,"1 día antes"],[48,"2 días antes"]].map(function(o){return '<option value="'+o[0]+'"'+(+B.lead===o[0]?" selected":"")+'>'+o[1]+'</option>'}).join("")+'</select><label for="rA">¿Hasta cuántos días adelante?</label><select id="rA">'+[7,14,21,30,45,60,90].map(function(d){return '<option value="'+d+'"'+(+B.ahead===d?" selected":"")+'>'+d+' días</option>'}).join("")+'</select><div style="height:16px"></div><button class="btn" id="rS">Guardar</button>',
     function(){$("rS").onclick=function(){saveBiz({lead:+$("rL").value,ahead:+$("rA").value}).then(function(){closeSheet();toast("Guardado ✓")})}});
-  if(s==="plan")sheet('<h2>Mi plan</h2><div class="card" style="box-shadow:none"><div class="between"><b>Citaly</b>'+(SUB&&SUB.status==="active"?'<span class="pill ok">Activo</span>':SUB&&SUB.status==="trial"?'<span class="pill warn">Prueba gratis</span>':'<span class="pill bad">Vencido</span>')+'</div><div style="font:800 28px Bricolage Grotesque,sans-serif;margin-top:6px">'+crc(C.price)+'<span class="mute small" style="font-family:Figtree"> /mes</span></div><p class="mute small" style="margin:4px 0 0">'+(SUB&&SUB.until?(SUB.status==="trial"?"Tu prueba termina el ":"Pagado hasta el ")+fdate(SUB.until)+".":"")+'</p></div>'+payHtml(),null)}
+  if(s==="plan")sheet('<h2>Mi mensualidad</h2><div class="card" style="box-shadow:none"><div class="between"><b>Citaly'+(SUB&&SUB.plan==="pro"?" PRO":"")+'</b>'+(SUB&&SUB.status==="active"?'<span class="pill ok">Al día</span>':SUB&&SUB.status==="trial"?'<span class="pill warn">Prueba</span>':'<span class="pill bad">Pendiente</span>')+'</div><div style="font:800 28px Bricolage Grotesque,sans-serif;margin-top:6px">'+crc(C.price)+'<span class="mute small" style="font-family:Figtree"> /mes</span></div><p class="mute small" style="margin:4px 0 0">'+(SUB&&SUB.until?(SUB.status==="trial"?"Tu prueba termina el ":"Pagada hasta el ")+fdate(SUB.until)+".":"")+'</p></div>'+payHtml(),null)}
 
 function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign({},s)});
   function rows(){return L.map(function(s,i){return '<div class="svcrow"><input value="'+esc(s.ic||"")+'" data-i="'+i+'" data-k="ic" maxlength="4" style="text-align:center;font-size:20px;padding:6px"><div><input value="'+esc(s.n)+'" data-i="'+i+'" data-k="n" maxlength="50" placeholder="Nombre del servicio"><div class="x"><input type="number" inputmode="numeric" value="'+esc(s.p)+'" data-i="'+i+'" data-k="p" placeholder="Precio ₡"><select data-i="'+i+'" data-k="d">'+[15,30,45,60,75,90,105,120,150,180,240,300,360,480].map(function(m){return '<option value="'+m+'"'+(+s.d===m?" selected":"")+'>'+durTxt(m)+'</option>'}).join("")+'</select><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div></div></div>'}).join("")}
@@ -765,14 +703,14 @@ function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign(
         if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
 
 function setExtra(s){
-  if(s==="web")sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente antes de reservar.</p>'
-    +'<label for="wT">Frase principal</label><input id="wT" maxlength="70" value="'+esc(B.tagline||"")+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
-    +'<label for="wS">Descripción corta (opcional)</label><textarea id="wS" maxlength="160" placeholder="Ej: Barbería en San Pedro. Reserva en 1 minuto.">'+esc(B.blurb||"")+'</textarea>'
-    +'<label for="wP">Promoción (opcional)</label><input id="wP" maxlength="90" value="'+esc(B.promo||"")+'" placeholder="Ej: 10% de descuento en tu primera cita">'
-    +'<div class="between" style="margin-top:14px"><div><b>Mostrar lista de precios</b><div class="mute small">En la portada, antes de reservar</div></div><label class="toggle"><input type="checkbox" id="wSp"'+(B.showPrices!==false?" checked":"")+'><span></span></label></div>'
-    +'<div class="between" style="margin-top:14px"><div><b>Preguntar "¿Cómo nos conociste?"</b><div class="mute small">Para saber qué te trae clientes</div></div><label class="toggle"><input type="checkbox" id="wH"'+(B.askHow!==false?" checked":"")+'><span></span></label></div>'
-    +'<div style="height:16px"></div><div class="row"><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(link())+'">Ver mi página</a><button class="btn" id="wSv">Guardar</button></div>',
-    function(){$("wSv").onclick=function(){saveBiz({tagline:$("wT").value.trim(),blurb:$("wS").value.trim(),promo:$("wP").value.trim(),showPrices:$("wSp").checked,askHow:$("wH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}});
+  if(s==="web")sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente en tu página web y al reservar. Para cambiar fotos, reseñas o preguntas, escríbenos.</p>'
+    +'<label for="ptT">Frase principal</label><input id="ptT" maxlength="70" value="'+esc(B.tagline||"")+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
+    +'<label for="ptS">Descripción corta (opcional)</label><textarea id="ptS" maxlength="160" placeholder="Ej: Barbería en San Pedro. Reserva en 1 minuto.">'+esc(B.blurb||"")+'</textarea>'
+    +'<label for="ptP">Promoción (opcional)</label><input id="ptP" maxlength="90" value="'+esc(B.promo||"")+'" placeholder="Ej: 10% de descuento en tu primera cita">'
+    +'<div class="between" style="margin-top:14px"><div><b>Mostrar lista de precios</b><div class="mute small">En la portada, antes de reservar</div></div><label class="toggle"><input type="checkbox" id="ptSp"'+(B.showPrices!==false?" checked":"")+'><span></span></label></div>'
+    +'<div class="between" style="margin-top:14px"><div><b>Preguntar "¿Cómo nos conociste?"</b><div class="mute small">Para saber qué te trae clientes</div></div><label class="toggle"><input type="checkbox" id="ptH"'+(B.askHow!==false?" checked":"")+'><span></span></label></div>'
+    +'<div style="height:16px"></div><div class="row"><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(webLink())+'">Ver mi página</a><button class="btn" id="ptSv">Guardar</button></div>',
+    function(){$("ptSv").onclick=function(){saveBiz({tagline:$("ptT").value.trim(),blurb:$("ptS").value.trim(),promo:$("ptP").value.trim(),showPrices:$("ptSp").checked,askHow:$("ptH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}});
   if(s==="dom"){var Z=(B.zones||[]).map(function(z){return {n:z.n,fee:z.fee}});
     function zr(){return Z.map(function(z,i){return '<div class="zrow"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(z.n)+'" placeholder="Zona (ej: Heredia centro)"><input data-i="'+i+'" data-k="fee" type="number" inputmode="numeric" min="0" step="500" value="'+(z.fee||"")+'" placeholder="₡ extra"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div>'}).join("")}
     sheet('<h2>Servicio a domicilio</h2><div class="between"><div><b>Voy donde está el cliente</b><div class="mute small">La página le pide su ubicación al reservar</div></div><label class="toggle"><input type="checkbox" id="dH"'+(B.home?" checked":"")+'><span></span></label></div>'
@@ -788,10 +726,10 @@ function setExtra(s){
 /* ---------- PAGO ---------- */
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
 var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
-function payHtml(){if(PLAY)return '<p class="mute">Para activar o renovar tu plan, escríbenos a soporte.</p>';return '<h3>Pagar por SINPE Móvil</h3><ol style="padding-left:20px"><li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li></ol><a class="btn wa" target="_blank" rel="noopener" href="'+payWa()+'">Enviar comprobante por WhatsApp</a><p class="mute small">Activamos tu mes en menos de 24 horas. Pago con tarjeta: muy pronto.</p>'}
-function payWa(){return waUrl(C.wa,"Hola, ya hice el SINPE de "+crc(C.price)+" para activar Citaly.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")+"\nAquí va el comprobante:")}
-function renderPay(){if(PLAY){$("payP").parentNode.querySelectorAll("h3,ol,.big,.feat,#payWa,.mute.small").forEach(function(e){e.hidden=true});$("payS").textContent="Tus datos están guardados. Para activar o renovar tu plan, escríbenos a soporte.";var s0=SUB&&SUB.status;$("payT").textContent=s0==="suspended"?"Tu cuenta está pausada":"Tu plan no está activo";return}$("payP").textContent=crc(C.price);
-  var s=SUB&&SUB.status;$("payT").textContent=s==="suspended"?"Tu cuenta está pausada":s==="active"?"Tu plan venció":"Tu prueba gratis terminó";
+function payHtml(){if(PLAY)return '<p class="mute">Para pagar tu mensualidad, escríbenos a soporte.</p>';return '<h3>Pagar por SINPE Móvil</h3><ol style="padding-left:20px"><li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li></ol><a class="btn wa" target="_blank" rel="noopener" href="'+payWa()+'">Enviar comprobante por WhatsApp</a><p class="mute small">Registramos tu pago en menos de 24 horas.</p>'}
+function payWa(){return waUrl(C.wa,"Hola, ya hice el SINPE de "+crc(C.price)+" de la mensualidad de Citaly.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")+"\nAquí va el comprobante:")}
+function renderPay(){if(PLAY){$("payP").parentNode.querySelectorAll("h3,ol,.big,.feat,#payWa,.mute.small").forEach(function(e){e.hidden=true});$("payS").textContent="Tus datos están guardados. Para pagar tu mensualidad, escríbenos a soporte.";var s0=SUB&&SUB.status;$("payT").textContent=s0==="suspended"?"Tu cuenta está pausada":"Tu mensualidad está pendiente";return}$("payP").textContent=crc(C.price);
+  var s=SUB&&SUB.status;$("payT").textContent=s==="suspended"?"Tu cuenta está pausada":"Tu mensualidad está pendiente";
   $("payO").innerHTML='<li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li>';$("payWa").href=payWa()}
 
 /* ---------- PWA ---------- */

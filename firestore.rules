@@ -1,6 +1,7 @@
 rules_version = '2';
 // Citaly — reglas de seguridad de Firestore
-// Cada negocio usa como ID el uid de su dueño: biz/{uid}
+// Citaly 2.0: el admin crea cada negocio (biz/{id}) y registra quién entra a él en own/{correo}.
+// Los negocios viejos usan como ID el uid de su dueño y siguen funcionando.
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -10,7 +11,17 @@ service cloud.firestore {
         && request.auth.token.email == 'est3banbg@gmail.com'
         && request.auth.token.email_verified == true;
     }
-    function isOwner(bid) { return signedIn() && request.auth.uid == bid; }
+    function myEmail() { return request.auth.token.email; }
+    function verified() {
+      return signedIn() && ('email' in request.auth.token) && request.auth.token.email_verified == true;
+    }
+    // Dueño o persona del equipo de ese negocio
+    function isOwner(bid) {
+      return signedIn() && (request.auth.uid == bid
+        || (verified()
+            && exists(/databases/$(database)/documents/own/$(myEmail()))
+            && get(/databases/$(database)/documents/own/$(myEmail())).data.biz == bid));
+    }
     function subOk(bid) {
       let s = get(/databases/$(database)/documents/subs/$(bid)).data;
       return s.status != 'suspended' && s.until > request.time;
@@ -39,24 +50,28 @@ service cloud.firestore {
     // Perfil público de cada negocio (lo lee la página de reservas)
     match /pub/{slug} {
       allow read: if true;
-      allow create: if signedIn()
-        && request.resource.data.biz == request.auth.uid
-        && slug.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$');
-      allow update: if signedIn()
-        && resource.data.biz == request.auth.uid
-        && request.resource.data.biz == request.auth.uid;
-      allow delete: if (signedIn() && resource.data.biz == request.auth.uid) || isAdmin();
+      allow create: if isAdmin() && slug.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$');
+      allow update: if isAdmin()
+        || (isOwner(resource.data.biz) && request.resource.data.biz == resource.data.biz);
+      allow delete: if isAdmin();
+
+      // Fotos de la página web del negocio
+      match /fotos/{fid} {
+        allow read: if true;
+        allow write: if isAdmin() || isOwner(get(/databases/$(database)/documents/pub/$(slug)).data.biz);
+      }
     }
 
-    // Suscripción: el dueño solo puede crear su prueba gratis una vez; el resto lo maneja el admin
+    // Quién entra a cada negocio: own/{correo} = { biz, rol }. Solo lo maneja el admin.
+    match /own/{email} {
+      allow read: if isAdmin() || (verified() && myEmail() == email);
+      allow write: if isAdmin();
+    }
+
+    // Mensualidad de cada negocio: la maneja el admin
     match /subs/{bid} {
       allow read: if true;
-      allow create: if isOwner(bid)
-        && request.resource.data.keys().hasOnly(['status', 'until', 'start', 'email', 'name'])
-        && request.resource.data.status == 'trial'
-        && request.resource.data.until is timestamp
-        && request.resource.data.until <= request.time + duration.value(15, 'd');
-      allow update, delete: if isAdmin();
+      allow write: if isAdmin();
     }
 
     // Pagos registrados por el admin
@@ -67,7 +82,8 @@ service cloud.firestore {
     // Datos privados del negocio
     match /biz/{bid} {
       allow read: if isOwner(bid) || isAdmin();
-      allow write: if isOwner(bid);
+      allow create, delete: if isAdmin();
+      allow update: if isOwner(bid) || isAdmin();
 
       // La cita de ese espacio la está cambiando su cliente en esta misma operación
       function selfJob(jid) {

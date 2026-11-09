@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Citaly · Reservas en línea y agenda para tu negocio</title>
-<meta name="description" content="Tu página de reservas con tu marca, agenda, clientes y ganancias en un solo lugar. Para barberías, salones, uñas, autos, spas y más. Prueba 14 días gratis.">
+<title>Citaly · Te montamos tu página web y tus reservas en línea</title>
+<meta name="description" content="Te montamos tu página web, tu página de reservas y tu agenda con tu marca. Nosotros lo configuramos todo; tú solo atiendes. Hecho en Costa Rica.">
 <meta name="theme-color" content="#5a3be8">
-<meta property="og:title" content="Citaly · Tus clientes reservan solos">
-<meta property="og:description" content="Página de reservas, agenda y recordatorios por WhatsApp para tu negocio. 14 días gratis.">
+<meta property="og:title" content="Citaly · Te montamos el sistema, tus clientes reservan solos">
+<meta property="og:description" content="Página web, reservas en línea y agenda para tu negocio, configurado por nosotros.">
 <meta property="og:image" content="https://citalyapp.com/icon-512.png">
 <link rel="icon" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -95,21 +95,30 @@ footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--mute);fo
 footer .c{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
 footer a{color:var(--mute)}
 .rv{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}.rv.in{opacity:1;transform:none}
+.prices{display:grid;gap:18px;margin-top:30px;max-width:900px;margin-left:auto;margin-right:auto}
+@media(min-width:760px){.prices{grid-template-columns:1fr 1fr}}
+.prices .price{margin:0;max-width:none}
+.price.soon{border-color:var(--line);box-shadow:var(--sh);opacity:.92}
+.price .amt.sm{font-size:44px}
+.price .then{font-weight:700;margin-top:4px}
+.ex{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--sh);margin-top:24px;text-decoration:none;color:var(--ink)}
+.ex img{width:64px;height:64px;border-radius:16px;flex:none}
+.ex b{display:block;font:700 19px "Bricolage Grotesque",sans-serif}.ex span{color:var(--mute)}
 </style>
 </head>
 <body>
 <nav class="top" id="nav"><div class="c">
   <a class="logo" href="./"><img src="icon-192.png" alt="">citaly</a>
-  <div class="r"><a class="in" href="app/">Entrar</a><a class="btn sm" href="app/" style="padding:10px 14px">Probar gratis</a></div>
+  <div class="r"><a class="in" href="app/">Entrar</a><a class="btn sm wa-demo" target="_blank" rel="noopener" style="padding:10px 14px">Pedir una demo</a></div>
 </div></nav>
 
 <header class="c hero">
   <div>
-    <span class="tag fade"><i>NUEVO</i> Hecho en Costa Rica 🇨🇷</span>
-    <h1 class="fade">Tus clientes <em>reservan solos.</em><br>Tú te dedicas a atender.</h1>
-    <p class="lead fade">Citaly le da a tu negocio una página de reservas con tu marca, una agenda que se llena sola y recordatorios por WhatsApp. Listo en 5 minutos.</p>
-    <div class="ctas fade"><a class="btn big" href="app/">Probar gratis <span class="tdays">14</span> días →</a><a class="btn ghost" href="#como">Ver cómo funciona</a></div>
-    <div class="trust fade"><span>Sin tarjeta</span><span>Sin contratos</span><span>Paga por SINPE</span></div>
+    <span class="tag fade"><i>CR</i> Hecho en Costa Rica 🇨🇷</span>
+    <h1 class="fade">Te montamos el sistema.<br><em>Tus clientes reservan solos.</em></h1>
+    <p class="lead fade">Página web con tu marca, página de reservas, agenda y control de clientes y gastos. Nosotros lo configuramos todo y te enseñamos a usarlo. Tú solo atiendes.</p>
+    <div class="ctas fade"><a class="btn big wa-demo" target="_blank" rel="noopener">Quiero una demo →</a><a class="btn ghost" href="glassstudiocr" target="_blank">Ver un ejemplo real</a></div>
+    <div class="trust fade"><span>Lo configuramos por ti</span><span>Te capacitamos</span><span>Pagas por SINPE</span></div>
   </div>
   <div style="position:relative;padding:10px 0">
     <div class="phone" aria-hidden="true"><div class="scr">
@@ -128,27 +137,28 @@ footer a{color:var(--mute)}
 <section class="c rv">
   <div class="kicker">Para negocios que trabajan con citas</div>
   <h2 class="t">Si atiendes con cita, Citaly es para ti.</h2>
-  <div class="who"><span>💈 Barberías</span><span>💇‍♀️ Salones</span><span>💅 Uñas</span><span>🚗 Detailing y lavado</span><span>🔧 Talleres</span><span>🧖 Spas</span><span>🩺 Consultorios</span><span>🐾 Veterinarias</span><span>📸 Fotógrafos</span></div>
+  <div class="who"><span>💈 Barberías</span><span>💇‍♀️ Salones</span><span>💅 Uñas</span><span>🚗 Detailing y lavado</span><span>🔧 Talleres</span><span>🧖 Spas</span><span>🩺 Consultorios</span><span>🐾 Veterinarias</span><span>🏋️ Entrenadores</span></div>
 </section>
 
 <section class="c rv">
   <div class="kicker">Adiós al "¿a qué hora tiene espacio?"</div>
   <h2 class="t">Menos mensajes. Más citas.</h2>
-  <p class="s">Deja de pasar el día contestando WhatsApp para cuadrar horarios. Tu página muestra solo las horas libres y el cliente reserva en segundos.</p>
+  <p class="s">¿Cuántos clientes se te van por no contestar el WhatsApp a tiempo mientras trabajas? Con Citaly ven tus servicios, tus precios y tus horas libres, y reservan en segundos.</p>
   <div class="grid3">
-    <div class="f"><div class="ic">📅</div><h3>Reservas 24/7</h3><p>Tus clientes agendan a cualquier hora, incluso mientras duermes. Nunca más dos citas a la misma hora.</p></div>
-    <div class="f"><div class="ic">💬</div><h3>Confirma por WhatsApp</h3><p>Con un toque le mandas la confirmación o el recordatorio al cliente, con el mensaje ya escrito.</p></div>
-    <div class="f"><div class="ic">📈</div><h3>Sabe cuánto ganas</h3><p>Ingresos, gastos y ganancia del mes, tus servicios estrella y tus mejores clientes.</p></div>
+    <div class="f"><div class="ic">🌐</div><h3>Tu página web</h3><p>Con tu logo, tus colores, tus servicios, fotos de tus trabajos, reseñas de tus clientes y preguntas frecuentes.</p></div>
+    <div class="f"><div class="ic">📅</div><h3>Reservas 24/7</h3><p>Tus clientes agendan a cualquier hora y solo ven las horas libres. Nunca más dos citas a la misma hora.</p></div>
+    <div class="f"><div class="ic">📈</div><h3>Tu negocio en números</h3><p>Agenda, clientes, ingresos, gastos y ganancia del mes en una app en tu celular, para ti y tu equipo.</p></div>
   </div>
+  <a class="ex" href="glassstudiocr" target="_blank"><img src="demo/glassstudiocr/logo.png" alt=""><span style="flex:1"><b>Míralo funcionando: GlassStudioCR</b><span>Pulido de parabrisas y focos a domicilio. Su página web y sus reservas están hechas con Citaly.</span></span><span style="font-size:22px">→</span></a>
 </section>
 
 <section class="c rv" id="como">
   <div class="kicker">Así de fácil</div>
-  <h2 class="t">En 5 minutos estás recibiendo reservas.</h2>
+  <h2 class="t">Tú nos cuentas. Nosotros lo montamos.</h2>
   <div class="steps3">
-    <div><b>Crea tu cuenta</b><p>Con tu Google o tu correo. Escribe el nombre de tu negocio y elige a qué te dedicas.</p></div>
-    <div><b>Pon tus servicios y horario</b><p>Te sugerimos servicios y precios según tu tipo de negocio. Los cambias cuando quieras.</p></div>
-    <div><b>Comparte tu link</b><p>Ponlo en tu Instagram, Facebook y estado de WhatsApp. Las reservas te llegan a la app.</p></div>
+    <div><b>Nos cuentas de tu negocio</b><p>Servicios, precios, horario, tu logo y fotos de tus trabajos. Por WhatsApp, sin complicaciones.</p></div>
+    <div><b>Montamos todo</b><p>Tu página web, tu página de reservas y tu app de agenda con tu marca, listas para usar.</p></div>
+    <div><b>Te capacitamos y lanzas</b><p>En 15 minutos te enseñamos a usarla. Compartes tu link en Instagram, Facebook y WhatsApp, y las reservas te llegan a la app.</p></div>
   </div>
 </section>
 
@@ -156,44 +166,56 @@ footer a{color:var(--mute)}
   <div class="kicker">Todo incluido</div>
   <h2 class="t">Todo lo que tu negocio necesita.</h2>
   <ul class="list">
-    <li>Página de reservas con tu logo y tus colores</li><li>Agenda por semana y por día</li>
-    <li>Horario y duración de cada servicio</li><li>Avisos de choque de horarios</li>
-    <li>Historial de cada cliente</li><li>Mensajes de WhatsApp listos para enviar</li>
-    <li>Ingresos, gastos y ganancia del mes</li><li>Funciona como app en tu celular</li>
-    <li>Pausa las reservas cuando te vas de vacaciones</li><li>Soporte por WhatsApp en español</li>
+    <li>Página web con tu marca en citalyapp.com/tu-negocio</li><li>Página de reservas con tus horas libres</li>
+    <li>Agenda por semana y por día</li><li>Duración de cada servicio y avisos de choque</li>
+    <li>Historial de cada cliente</li><li>Mensajes de WhatsApp listos para confirmar y recordar</li>
+    <li>Ingresos, gastos y ganancia del mes</li><li>Acceso para ti y tu equipo</li>
+    <li>Servicio a domicilio con zonas y ubicación del cliente</li><li>Cambios de precios y horarios cuando los necesites</li>
   </ul>
 </section>
 
 <section class="c rv" id="precio">
-  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un solo plan. Sin sorpresas.</h2><p class="s" style="margin:0 auto">Menos de lo que cuesta una sola cita que hoy se te pierde por no contestar a tiempo.</p></div>
-  <div class="price">
-    <span class="rib"><span class="tdays">14</span> días gratis</span>
-    <h3>Citaly</h3>
-    <div class="amt"><span id="pr">₡12.000</span><small> /mes</small></div>
-    <div class="mute small" id="prd"></div>
-    <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Citas y clientes sin límite</li><li>Tu página de reservas</li><li>Recordatorios por WhatsApp</li><li>Números de tu negocio</li><li>Todas las mejoras futuras</li></ul>
-    <a class="btn big" href="app/" style="padding:16px">Empezar mi prueba gratis</a>
-    <p class="mute small" style="margin:10px 0 0">No pedimos tarjeta. Al terminar la prueba, pagas por SINPE Móvil.</p>
+  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un pago de instalación y una mensualidad.</h2><p class="s" style="margin:0 auto">Pagas el 50 % al empezar y el resto cuando te lo entregamos funcionando.</p></div>
+  <div class="prices">
+    <div class="price">
+      <span class="rib">Disponible</span>
+      <h3>Standard</h3>
+      <div class="amt sm"><span class="pStd">₡150.000</span></div>
+      <div class="mute small">instalación, un solo pago</div>
+      <div class="then">+ <span class="pMes">₡30.000</span> al mes</div>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Página web con tu marca</li><li>Página de reservas</li><li>App de agenda, clientes y gastos</li><li>Hasta 10 servicios cargados</li><li>Capacitación de 15 minutos</li><li>Hosting, soporte y cambios incluidos en la mensualidad</li></ul>
+      <a class="btn big wa-demo" target="_blank" rel="noopener" style="padding:16px">Quiero el mío</a>
+    </div>
+    <div class="price soon">
+      <span class="rib" style="background:var(--mute)">Muy pronto</span>
+      <h3>PRO</h3>
+      <div class="amt sm"><span class="pPro">₡250.000</span></div>
+      <div class="mute small">instalación, un solo pago</div>
+      <div class="then">+ <span class="pMes">₡30.000</span> al mes</div>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del Standard</li><li>Asistente de WhatsApp con inteligencia artificial que responde precios y ubicación</li><li>Recordatorios automáticos antes de la cita</li><li>Mensaje después del servicio para pedir reseña en Google</li></ul>
+      <a class="btn ghost wa-pro" target="_blank" rel="noopener" style="padding:16px">Avísame cuando esté listo</a>
+    </div>
   </div>
 </section>
 
 <section class="c rv" style="max-width:760px">
   <div style="text-align:center"><div class="kicker">Preguntas frecuentes</div><h2 class="t">¿Dudas? Aquí están las respuestas.</h2></div>
   <div style="margin-top:24px">
-    <details><summary>¿Necesito poner una tarjeta para probar?</summary><p>No. Creas tu cuenta y usas todo gratis durante <span class="tdays">14</span> días. Si te gusta, pagas por SINPE Móvil y seguimos.</p></details>
-    <details><summary>¿Cómo pago la mensualidad?</summary><p>Por SINPE Móvil. Dentro de la app te salen los datos; nos mandas el comprobante por WhatsApp y te activamos el mes. Pronto también con tarjeta.</p></details>
+    <details><summary>¿Tengo que configurar algo yo?</summary><p>No. Tú nos pasas la información de tu negocio y nosotros lo montamos todo. Al final te enseñamos a usarlo en 15 minutos.</p></details>
+    <details><summary>¿Cómo pago?</summary><p>Por SINPE Móvil. La instalación se paga 50 % al empezar y 50 % al entregar. La mensualidad se paga cada mes y te avisamos desde la app cuando se acerca la fecha.</p></details>
+    <details><summary>¿Qué incluye la mensualidad?</summary><p>Que tu página y tu app sigan en línea, soporte por WhatsApp y los cambios de precios, servicios y horarios que necesites.</p></details>
     <details><summary>¿Mis clientes tienen que descargar algo?</summary><p>No. Solo abren tu link desde el celular o la computadora, eligen el servicio y la hora, y listo.</p></details>
-    <details><summary>¿Funciona en mi celular?</summary><p>Sí. Citaly está hecho primero para el celular. Puedes agregarlo a tu pantalla de inicio y se usa como una app.</p></details>
+    <details><summary>¿Mi equipo también puede usar la app?</summary><p>Sí. Le damos acceso con su correo a cada persona de tu equipo.</p></details>
     <details><summary>¿Qué pasa si un cliente reserva y no llega?</summary><p>Lo marcas como "No vino" y queda en su historial. Además, cada número solo puede tener una reserva pendiente a la vez, para evitar reservas falsas.</p></details>
-    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. No hay contratos ni permanencia. Simplemente dejas de pagar.</p></details>
-    <details><summary>¿Mis datos están seguros?</summary><p>Tus datos se guardan en Google Firebase. Solo tú puedes ver tu agenda y tus clientes; tus clientes solo ven las horas libres, nunca quién más reservó.</p></details>
+    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. No hay permanencia: si dejas de pagar la mensualidad, tu página se pausa. La instalación no es reembolsable una vez entregado el sistema.</p></details>
+    <details><summary>¿Mis datos están seguros?</summary><p>Se guardan en Google Firebase. Solo tú y tu equipo pueden ver tu agenda y tus clientes; tus clientes solo ven las horas libres, nunca quién más reservó.</p></details>
   </div>
 </section>
 
 <div class="c rv"><div class="final">
-  <h2>Tu próxima cita puede llegar hoy.</h2>
-  <p>Crea tu página de reservas en 5 minutos. Gratis por <span class="tdays">14</span> días.</p>
-  <a class="btn" href="app/">Crear mi cuenta gratis →</a>
+  <h2>Tu próxima cita puede llegar sola.</h2>
+  <p>Escríbenos y te mostramos cómo se vería tu negocio en Citaly.</p>
+  <a class="btn wa-demo" target="_blank" rel="noopener">Pedir mi demo por WhatsApp →</a>
 </div></div>
 
 <footer><div class="c">
@@ -202,11 +224,13 @@ footer a{color:var(--mute)}
 </div></footer>
 
 <script>
-(function(){var C=CITALY;
-  Array.prototype.forEach.call(document.querySelectorAll(".tdays"),function(e){e.textContent=C.trialDays});
-  document.getElementById("pr").textContent="₡"+C.price.toLocaleString("es-CR");
-  document.getElementById("prd").textContent="Eso es menos de ₡"+Math.ceil(C.price/30/10)*10+" al día";
-  document.getElementById("ftWa").href="https://wa.me/"+C.wa+"?text="+encodeURIComponent("Hola, quiero saber más de Citaly");
+(function(){var C=CITALY,f=function(n){return "₡"+n.toLocaleString("es-CR")},wa=function(m){return "https://wa.me/"+C.wa+"?text="+encodeURIComponent(m)};
+  Array.prototype.forEach.call(document.querySelectorAll(".pStd"),function(e){e.textContent=f(C.setup.std)});
+  Array.prototype.forEach.call(document.querySelectorAll(".pPro"),function(e){e.textContent=f(C.setup.pro)});
+  Array.prototype.forEach.call(document.querySelectorAll(".pMes"),function(e){e.textContent=f(C.price)});
+  Array.prototype.forEach.call(document.querySelectorAll(".wa-demo"),function(e){e.href=wa("Hola, quiero una demo de Citaly para mi negocio")});
+  Array.prototype.forEach.call(document.querySelectorAll(".wa-pro"),function(e){e.href=wa("Hola, me interesa el plan PRO de Citaly con asistente de WhatsApp")});
+  document.getElementById("ftWa").href=wa("Hola, quiero saber más de Citaly");
   var nav=document.getElementById("nav");addEventListener("scroll",function(){nav.classList.toggle("sc",scrollY>8)},{passive:true});
   if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
     Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(e){io.observe(e)})}else Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(e){e.classList.add("in")});

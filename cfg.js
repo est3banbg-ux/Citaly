@@ -10,8 +10,9 @@ var CITALY = {
   },
   site: "https://citalyapp.com",
   admin: "est3banbg@gmail.com",
-  price: 12000,          // colones por mes, plan único
-  trialDays: 14,
+  price: 30000,          // mensualidad (hosting, soporte y cambios)
+  setup: { std: 150000, pro: 250000 },  // instalación: Standard y PRO
+  trialDays: 0,          // ya no hay prueba gratis: el admin crea cada negocio
   sinpe: "7089-2537",    // número SINPE Móvil donde los negocios pagan (confirmar)
   sinpeName: "Esteban",  // a nombre de quién sale el SINPE (confirmar)
   wa: "50670892537",     // WhatsApp de soporte y comprobantes

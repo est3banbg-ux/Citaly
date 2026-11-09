@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Citaly · Panel del dueño</title>
+<title>Citaly · Panel del admin</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#1a1530">
 <link rel="icon" href="../favicon-32.png">
@@ -15,17 +15,54 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="../cfg.js"></script>
 <style>
+.wrap{max-width:720px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+@media(min-width:620px){.kpis{grid-template-columns:repeat(3,1fr)}}
 .kpi{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px;box-shadow:var(--sh)}
-.kpi span{font-size:12px;color:var(--mute);font-weight:600}.kpi b{display:block;font:800 24px "Bricolage Grotesque",sans-serif}
+.kpi span{font-size:12px;color:var(--mute);font-weight:600}.kpi b{display:block;font:800 22px "Bricolage Grotesque",sans-serif}
 .kpi.big{grid-column:1/-1;background:linear-gradient(135deg,#6c4cf5,#4b2fd6);color:#fff;border:0}.kpi.big span{color:rgba(255,255,255,.8)}.kpi.big b{font-size:32px}
 .biz{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:var(--sh)}
 .biz .hd{display:flex;gap:10px;align-items:center}
-.biz .av{width:42px;height:42px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-weight:800;overflow:hidden;flex:none}
-.biz .av img{width:100%;height:100%;object-fit:cover}
+.av{width:44px;height:44px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-weight:800;overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}
 .biz .m{flex:1;min-width:0}.biz .m b{display:block}.biz .m span{font-size:13px;color:var(--mute);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .biz .ac{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.li:last-child{border-bottom:0}
+.li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px;gap:10px}.li:last-child{border-bottom:0}
+/* editor */
+.ed h2{margin:0 0 4px}.ed .card{margin-bottom:14px}
+.ed .hint{font-size:13px;color:var(--mute);margin:2px 0 0}
+.slugbox{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);overflow:hidden}
+.slugbox b{padding:0 2px 0 12px;color:var(--mute);font-weight:600;font-size:14px;white-space:nowrap}
+.slugbox input{border:0;background:transparent;padding-left:0}
+.swatches{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.swatches button{width:36px;height:36px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:0 0 0 1px var(--line)}
+.swatches button[aria-pressed=true]{border-color:var(--card);box-shadow:0 0 0 3px var(--ink)}
+.swatches input{width:52px;height:38px;padding:2px;border-radius:10px}
+.logoup{display:flex;align-items:center;gap:12px}
+.logoup .lg{width:72px;height:72px;border-radius:18px;background:var(--soft);display:grid;place-items:center;font-size:26px;overflow:hidden;flex:none}
+.logoup .lg img{width:100%;height:100%;object-fit:cover}
+.rowl{display:grid;gap:7px;padding:10px 0;border-bottom:1px solid var(--line)}.rowl:last-child{border-bottom:0}
+.r4{display:grid;grid-template-columns:52px 1fr 36px;gap:7px;align-items:center}
+.r3{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.rowl input,.rowl select,.rowl textarea{padding:9px 10px}
+.ib{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:16px;cursor:pointer;display:inline-grid;place-items:center;flex:none}
+.hrow{display:grid;grid-template-columns:62px 1fr 1fr;gap:8px;align-items:center;margin-bottom:8px}
+.hrow input{padding:8px 10px}.hrow input:disabled{opacity:.35}
+.toggle{position:relative;width:50px;height:30px;flex:none}
+.toggle input{opacity:0;width:0;height:0}
+.toggle span{position:absolute;inset:0;background:var(--line);border-radius:99px;transition:.2s;cursor:pointer}
+.toggle span:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.toggle input:checked+span{background:var(--acc)}.toggle input:checked+span:before{transform:translateX(20px)}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.ph{position:relative;border-radius:12px;overflow:hidden;background:var(--soft);display:flex;flex-direction:column}
+.ph img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.ph input{border-radius:0;border:0;border-top:1px solid var(--line);padding:7px 8px;font-size:13px;background:var(--card)}
+.ph .tb{position:absolute;top:5px;right:5px;display:flex;gap:4px}
+.ph .tb button{width:28px;height:28px;border-radius:8px;border:0;background:rgba(0,0,0,.6);color:#fff;cursor:pointer;font-size:13px}
+.ph .n{position:absolute;top:5px;left:5px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;padding:2px 7px;font-size:12px;font-weight:700}
+.savebar{position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}
+.demo{display:flex;gap:10px;align-items:center;background:color-mix(in srgb,var(--acc2) 14%,var(--card));border:1px dashed color-mix(in srgb,var(--acc2) 50%,var(--line));border-radius:14px;padding:11px 13px;margin-bottom:14px;font-size:14px}
+.demo .btn{flex:none}
 </style>
 </head>
 <body>
@@ -33,73 +70,317 @@
   <div class="between" style="margin:6px 0 4px"><a class="logo" href="../"><img src="../icon-192.png" alt="">citaly <span class="pill">admin</span></a><button class="btn sm ghost" id="out" hidden>Salir</button></div>
 
   <div id="login" class="card" hidden style="margin-top:20px">
-    <h2>Panel del dueño</h2><p class="mute">Entra con la cuenta de Google de administrador.</p>
+    <h2>Panel del admin</h2><p class="mute">Entra con la cuenta de Google de administrador.</p>
     <button class="btn" id="gIn">Entrar con Google</button><p class="err" id="lErr"></p>
   </div>
 
   <div id="main" hidden>
     <div class="kpis" id="kpis"></div>
+    <button class="btn" id="newB">+ Nuevo negocio</button>
+    <div style="height:12px"></div>
     <input id="q" type="search" placeholder="Buscar negocio, correo o link">
     <div class="chips" id="f" style="margin:10px 0 12px">
-      <button class="chip" data-f="all" aria-pressed="true">Todos</button><button class="chip" data-f="trial" aria-pressed="false">En prueba</button><button class="chip" data-f="active" aria-pressed="false">Pagando</button><button class="chip" data-f="exp" aria-pressed="false">Vencidos</button><button class="chip" data-f="suspended" aria-pressed="false">Pausados</button>
+      <button class="chip" data-f="all" aria-pressed="true">Todos</button><button class="chip" data-f="active" aria-pressed="false">Al día</button><button class="chip" data-f="exp" aria-pressed="false">Pendientes</button><button class="chip" data-f="suspended" aria-pressed="false">Pausados</button><button class="chip" data-f="demo" aria-pressed="false">Demos</button>
     </div>
     <div id="list"></div>
     <div class="card"><h2>Pagos recibidos</h2><div id="pays"></div></div>
   </div>
+
+  <div id="ed" class="ed" hidden></div>
   <div id="load"><div class="spin"></div></div>
 </div>
 <div class="toast" id="toast"></div>
 <script>
 "use strict";
 var $=function(i){return document.getElementById(i)},C=CITALY,MN=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
-var SUBS={},BIZ={},PUB={},PAYS=[],F="all";
+var DS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"],DURS=[15,30,45,60,75,90,105,120,150,180,240,300,360,480];
+var RESERVED=["app","admin","r","w","demo","www","api","citaly","ayuda","precios","login","privacidad","terminos"];
+var SUBS={},BIZ={},PAYS=[],F="all";
 function crc(n){return "₡"+Math.round(n||0).toLocaleString("es-CR")}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function fd(ms){var d=new Date(ms);return d.getDate()+" "+MN[d.getMonth()]+" "+d.getFullYear()}
-function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2400)}
-function waUrl(t,m){t=String(t||"").replace(/\D/g,"");return "https://wa.me/"+(t.length===8?"506"+t:t)+(m?"?text="+encodeURIComponent(m):"")}
+function pad(n){return n<10?"0"+n:""+n}
+function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function tm(s){var p=String(s||"0:0").split(":");return +p[0]*60+ +p[1]}
+function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
+function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2600)}
+function telN(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
+function waUrl(t,m){t=telN(t);return "https://wa.me/"+(t.length===8?"506"+t:t)+(m?"?text="+encodeURIComponent(m):"")}
+function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
+function emails(t){return String(t||"").toLowerCase().split(/[\s,;]+/).map(function(x){return x.trim()}).filter(function(x){return /^\S+@\S+\.\S+$/.test(x)})}
+function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
 firebase.initializeApp(C.fb);var auth=firebase.auth(),db=firebase.firestore(),TS=firebase.firestore.Timestamp;
+
 auth.onAuthStateChanged(function(u){$("load").hidden=true;$("out").hidden=!u;
-  if(!u){$("login").hidden=false;$("main").hidden=true;return}
+  if(!u){$("login").hidden=false;$("main").hidden=true;$("ed").hidden=true;return}
   if(u.email!==C.admin){$("login").hidden=false;$("lErr").textContent="Esta cuenta ("+u.email+") no es la de administrador.";return}
   $("login").hidden=true;$("main").hidden=false;listen()});
 $("gIn").onclick=function(){auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(function(e){if(e.code!=="auth/popup-closed-by-user")$("lErr").textContent=e.message})};
 $("out").onclick=function(){auth.signOut()};
-function listen(){
+var listening=false;
+function listen(){if(listening)return;listening=true;
   db.collection("subs").onSnapshot(function(s){SUBS={};s.forEach(function(d){SUBS[d.id]=d.data()});render()},err);
   db.collection("biz").onSnapshot(function(s){BIZ={};s.forEach(function(d){BIZ[d.id]=d.data()});render()},err);
-  db.collection("payments").orderBy("at","desc").limit(100).onSnapshot(function(s){PAYS=s.docs.map(function(d){return d.data()});renderPays()},err)}
+  db.collection("payments").orderBy("at","desc").limit(200).onSnapshot(function(s){PAYS=s.docs.map(function(d){return d.data()});renderPays()},err)}
 function err(e){console.error(e);toast(e.code==="permission-denied"?"Sin permiso: revisa las reglas de Firestore":"Error de conexión")}
-function state(s){if(!s)return "none";if(s.status==="suspended")return "suspended";if(s.until.toMillis()<Date.now())return "exp";return s.status}
-function render(){var ids=Object.keys(SUBS),now=Date.now(),c={trial:0,active:0,exp:0,suspended:0};ids.forEach(function(i){var st=state(SUBS[i]);if(c[st]!=null)c[st]++});
-  var mStart=new Date();mStart.setDate(1);mStart.setHours(0,0,0,0);var mon=PAYS.filter(function(p){return p.at>=mStart.getTime()}).reduce(function(a,p){return a+(+p.amt||0)},0);
-  $("kpis").innerHTML='<div class="kpi big"><span>Ingreso mensual recurrente</span><b>'+crc(c.active*C.price)+'</b></div>'
-    +k("Negocios",ids.length)+k("Pagando",c.active)+k("En prueba",c.trial)+k("Vencidos",c.exp+c.suspended)+k("Cobrado este mes",crc(mon))+k("Conversión",ids.length?Math.round(c.active/ids.length*100)+"%":"—");
+
+/* ---------- LISTA ---------- */
+function state(s){if(!s)return "none";if(s.demo)return "demo";if(s.status==="suspended")return "suspended";if(!s.until||s.until.toMillis()<Date.now())return "exp";return "active"}
+function render(){var ids=Object.keys(BIZ),now=Date.now(),c={active:0,exp:0,suspended:0,demo:0},mrr=0;
+  ids.forEach(function(i){var s=SUBS[i],st=state(s);if(c[st]!=null)c[st]++;if(st==="active")mrr+=+(s.fee!=null?s.fee:C.price)||0});
+  var mStart=new Date();mStart.setDate(1);mStart.setHours(0,0,0,0);
+  var mon=PAYS.filter(function(p){return p.at>=mStart.getTime()}).reduce(function(a,p){return a+(+p.amt||0)},0);
+  var setup=PAYS.filter(function(p){return p.type==="setup"}).reduce(function(a,p){return a+(+p.amt||0)},0);
+  $("kpis").innerHTML='<div class="kpi big"><span>Mensualidades (ingreso fijo por mes)</span><b>'+crc(mrr)+'</b></div>'
+    +k("Clientes al día",c.active)+k("Pendientes de pago",c.exp+c.suspended)+k("Cobrado este mes",crc(mon))+k("Instalaciones cobradas",crc(setup))+k("Demos",c.demo);
   var q=$("q").value.trim().toLowerCase();
-  var L=ids.map(function(i){return {id:i,s:SUBS[i],b:BIZ[i]||{}}}).filter(function(x){var st=state(x.s);if(F!=="all"&&st!==F)return false;
-      return !q||[x.b.name,x.b.email,x.b.slug,x.s.email,x.b.wa].join(" ").toLowerCase().indexOf(q)>=0})
-    .sort(function(a,b){return a.s.until.toMillis()-b.s.until.toMillis()});
-  $("list").innerHTML=L.length?L.map(function(x){var st=state(x.s),dl=Math.ceil((x.s.until.toMillis()-now)/864e5),b=x.b;
-      var p={trial:'<span class="pill warn">Prueba</span>',active:'<span class="pill ok">Pagando</span>',exp:'<span class="pill bad">Vencido</span>',suspended:'<span class="pill bad">Pausado</span>'}[st]||"";
-      return '<div class="biz"><div class="hd"><div class="av">'+(b.logo?'<img alt="" src="'+b.logo+'">':esc((b.name||"?").charAt(0)))+'</div><div class="m"><b>'+esc(b.name||x.s.name||"(sin nombre)")+'</b><span>'+esc(b.email||x.s.email||"")+'</span><span>'+(b.slug?'citalyapp.com/'+esc(b.slug):"")+(b.type&&C.types[b.type]?" · "+C.types[b.type].n:"")+'</span></div>'+p+'</div>'
-        +'<p class="small mute" style="margin:8px 0 0">'+(dl>=0?(st==="trial"?"Prueba termina":"Pagado hasta")+" el "+fd(x.s.until.toMillis())+" ("+dl+" días)":"Venció el "+fd(x.s.until.toMillis())+" (hace "+(-dl)+" días)")+(x.s.start?" · Desde "+fd(x.s.start.toMillis()):"")+'</p>'
-        +'<div class="ac"><button class="btn sm" data-a="pay" data-id="'+x.id+'">💸 Registrar pago (+1 mes)</button>'+(b.wa?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+waUrl(b.wa,"¡Hola! Te escribe Esteban de Citaly 👋")+'">WhatsApp</a>':"")
-        +(b.slug?'<a class="btn sm alt" target="_blank" href="../r/?n='+esc(b.slug)+'">Ver página</a>':"")
-        +'<button class="btn sm ghost" data-a="trial" data-id="'+x.id+'">+7 días prueba</button>'
-        +(st==="suspended"?'<button class="btn sm ghost" data-a="on" data-id="'+x.id+'">Reactivar</button>':'<button class="btn sm danger" data-a="off" data-id="'+x.id+'">Pausar</button>')+'</div></div>'}).join("")
-    :'<div class="card mute" style="text-align:center">'+(ids.length?"Nada con ese filtro.":"Todavía no hay negocios. ¡A vender! 🚀")+'</div>'}
+  var L=ids.map(function(i){return {id:i,s:SUBS[i]||null,b:BIZ[i]}}).filter(function(x){var st=state(x.s);if(F!=="all"&&!(st===F||(F==="exp"&&st==="none")))return false;
+      return !q||[x.b.name,x.b.email,x.b.slug,x.b.wa,(x.b.team||[]).join(" ")].join(" ").toLowerCase().indexOf(q)>=0})
+    .sort(function(a,b){return (a.s&&a.s.until?a.s.until.toMillis():0)-(b.s&&b.s.until?b.s.until.toMillis():0)});
+  $("list").innerHTML=L.length?L.map(function(x){var st=state(x.s),b=x.b,s=x.s,dl=s&&s.until?Math.ceil((s.until.toMillis()-now)/864e5):0;
+      var p={active:'<span class="pill ok">Al día</span>',exp:'<span class="pill bad">Pendiente</span>',none:'<span class="pill bad">Sin mensualidad</span>',suspended:'<span class="pill bad">Pausado</span>',demo:'<span class="pill warn">Demo</span>'}[st]||"";
+      var plan=s&&s.plan==="pro"?"PRO":s&&s.plan==="standard"?"Standard":"";
+      return '<div class="biz"><div class="hd"><div class="av">'+(b.logo?'<img alt="" src="'+b.logo+'">':esc((b.name||"?").charAt(0)))+'</div><div class="m"><b>'+esc(b.name||"(sin nombre)")+'</b><span>'+esc(b.email||"")+((b.team||[]).length?" + "+b.team.length+" del equipo":"")+'</span><span>'+(b.slug?'citalyapp.com/'+esc(b.slug):"")+(plan?" · "+plan:"")+(s&&s.fee!=null&&!s.demo?" · "+crc(s.fee)+"/mes":"")+'</span></div>'+p+'</div>'
+        +(s&&s.until&&st!=="demo"?'<p class="small mute" style="margin:8px 0 0">'+(dl>=0?"Mensualidad pagada hasta el "+fd(s.until.toMillis())+" ("+dl+" días)":"Venció el "+fd(s.until.toMillis())+" (hace "+(-dl)+" días)")+'</p>':"")
+        +'<div class="ac"><button class="btn sm" data-a="edit" data-id="'+x.id+'">✏️ Editar</button>'
+        +(b.slug?'<a class="btn sm alt" target="_blank" href="../'+esc(b.slug)+'">🌐 Web</a><a class="btn sm alt" target="_blank" href="../r/?n='+esc(b.slug)+'">📅 Reservas</a>':"")
+        +(st!=="demo"?'<button class="btn sm ghost" data-a="pay" data-id="'+x.id+'">💸 Registrar mensualidad</button>':"")
+        +(b.wa?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+waUrl(b.wa,"¡Hola! Te escribe Esteban de Citaly 👋")+'">WhatsApp</a>':"")
+        +(s?(st==="suspended"?'<button class="btn sm ghost" data-a="on" data-id="'+x.id+'">Reactivar</button>':'<button class="btn sm danger" data-a="off" data-id="'+x.id+'">Pausar</button>'):"")+'</div></div>'}).join("")
+    :'<div class="card mute" style="text-align:center">'+(ids.length?"Nada con ese filtro.":"Todavía no hay negocios. Toca <b>+ Nuevo negocio</b>.")+'</div>'}
 function k(l,v){return '<div class="kpi"><span>'+l+'</span><b>'+v+'</b></div>'}
-function renderPays(){$("pays").innerHTML=PAYS.length?PAYS.map(function(p){return '<div class="li"><span>'+esc(p.name||"")+'<br><span class="mute small">'+fd(p.at)+'</span></span><b>'+crc(p.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:0">Aún no hay pagos registrados.</p>';render()}
+function renderPays(){$("pays").innerHTML=PAYS.length?PAYS.map(function(p){return '<div class="li"><span>'+esc(p.name||"")+' <span class="pill">'+(p.type==="setup"?"Instalación":"Mensualidad")+'</span><br><span class="mute small">'+fd(p.at)+'</span></span><b>'+crc(p.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:0">Aún no hay pagos registrados.</p>';render()}
 $("q").oninput=render;
 $("f").onclick=function(e){var b=e.target.closest("button");if(!b)return;F=b.dataset.f;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)});render()};
-$("list").onclick=function(e){var b=e.target.closest("[data-a]");if(!b)return;var id=b.dataset.id,s=SUBS[id],bz=BIZ[id]||{},a=b.dataset.a,base=Math.max(Date.now(),s.until.toMillis()),ref=db.doc("subs/"+id);
-  if(a==="pay"){var amt=prompt("¿Cuánto pagó "+(bz.name||"")+"? (colones)",C.price);if(amt==null)return;amt=+String(amt).replace(/\D/g,"")||0;
-    var nu=new Date(base);nu.setMonth(nu.getMonth()+1);var bt=db.batch();bt.update(ref,{status:"active",until:TS.fromDate(nu)});
-    bt.set(db.collection("payments").doc(),{biz:id,name:bz.name||s.name||"",amt:amt,at:Date.now(),until:nu.getTime()});
-    bt.commit().then(function(){toast("Pago registrado. Activo hasta el "+fd(nu.getTime()));if(bz.wa&&confirm("¿Avisarle por WhatsApp que ya está activo?"))window.open(waUrl(bz.wa,"¡Hola! Recibimos tu pago ✅ Tu plan de Citaly está activo hasta el "+fd(nu.getTime())+". ¡Gracias por confiar en nosotros! 🙌"),"_blank")},function(x){toast(x.message)})}
-  if(a==="trial")ref.update({until:TS.fromMillis(base+7*864e5)}).then(function(){toast("+7 días agregados")},function(x){toast(x.message)});
+$("list").onclick=function(e){var b=e.target.closest("[data-a]");if(!b)return;var id=b.dataset.id,s=SUBS[id],bz=BIZ[id]||{},a=b.dataset.a,ref=db.doc("subs/"+id);
+  if(a==="edit"){openEd(id);return}
+  if(a==="pay"){var fee=s&&s.fee!=null?s.fee:C.price,amt=prompt("¿Cuánto pagó "+(bz.name||"")+" de mensualidad? (colones)",fee);if(amt==null)return;amt=+String(amt).replace(/\D/g,"")||0;
+    var base=Math.max(Date.now(),s&&s.until?s.until.toMillis():0),nu=new Date(base);nu.setMonth(nu.getMonth()+1);var bt=db.batch();
+    bt.set(ref,{status:"active",until:TS.fromDate(nu),name:bz.name||"",email:bz.email||""},{merge:true});
+    bt.set(db.collection("payments").doc(),{biz:id,name:bz.name||"",amt:amt,at:Date.now(),until:nu.getTime(),type:"mes"});
+    bt.commit().then(function(){toast("Pago registrado. Al día hasta el "+fd(nu.getTime()));if(bz.wa&&confirm("¿Avisarle por WhatsApp que recibiste el pago?"))window.open(waUrl(bz.wa,"¡Hola! Recibimos tu pago de la mensualidad ✅ Tu sistema de Citaly está al día hasta el "+fd(nu.getTime())+". ¡Gracias! 🙌"),"_blank")},function(x){toast(x.message)})}
   if(a==="off"&&confirm("¿Pausar a "+(bz.name||"este negocio")+"? Su página dejará de recibir reservas."))ref.update({status:"suspended"}).then(function(){toast("Pausado")});
-  if(a==="on")ref.update({status:s.until.toMillis()>Date.now()?"active":"trial"}).then(function(){toast("Reactivado")})};
+  if(a==="on")ref.update({status:"active"}).then(function(){toast("Reactivado")})};
+
+/* ---------- EDITOR DE NEGOCIO ---------- */
+var E=null;
+function blank(){var t=C.types.otro;return {id:null,name:"",type:"",slug:"",slugOk:false,wa:"",addr:"",email:"",team:"",color:C.colors[0],logo:"",
+  services:[],hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"18:00"}}),home:false,zones:[],
+  tagline:"",blurb:"",promo:"",web:{faqs:[],reviews:[]},fotos:[],delFotos:[],
+  plan:"standard",fee:C.price,until:ymd(new Date(Date.now()+31*864e5)),setupPaid:C.setup.std,demo:false,extra:{}}}
+function openEd(id){
+  if(!id){E=blank();edRender();return}
+  var b=BIZ[id],s=SUBS[id]||{};if(!b)return;$("load").hidden=false;
+  db.collection("pub/"+b.slug+"/fotos").orderBy("i").get().then(function(q){return q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||""}})},function(){return []}).then(function(fotos){$("load").hidden=true;
+    E={id:id,name:b.name||"",type:b.type||"otro",slug:b.slug,slugOk:true,wa:b.wa||"",addr:b.addr||"",email:b.email||"",team:(b.team||[]).join("\n"),color:b.color||C.colors[0],logo:b.logo||"",
+      services:(b.services||[]).map(function(x){return Object.assign({},x)}),hours:(b.hours||blank().hours).map(function(h){return Object.assign({},h)}),home:!!b.home,zones:(b.zones||[]).map(function(z){return Object.assign({},z)}),
+      tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",web:JSON.parse(JSON.stringify(b.web||{})),fotos:fotos,delFotos:[],
+      plan:s.plan||"standard",fee:s.fee!=null?s.fee:C.price,until:"",setupPaid:0,demo:!!s.demo,
+      oldEmails:[b.email].concat(b.team||[]).filter(Boolean).map(function(x){return x.toLowerCase()}),
+      extra:{open:b.open,ahead:b.ahead,lead:b.lead,showPrices:b.showPrices,askHow:b.askHow,goal:b.goal}};
+    E.web.faqs=E.web.faqs||[];E.web.reviews=E.web.reviews||[];edRender()})}
+function closeEd(){E=null;$("ed").hidden=true;$("main").hidden=false;window.scrollTo(0,0)}
+function sec(t,sub){return '<h2>'+t+'</h2>'+(sub?'<p class="hint" style="margin-bottom:6px">'+sub+'</p>':"")}
+function tog(id,on){return '<label class="toggle"><input type="checkbox" id="'+id+'"'+(on?" checked":"")+'><span></span></label>'}
+function edRender(){var nw=!E.id,W=E.web;$("main").hidden=true;$("ed").hidden=false;
+  var h='<div class="between" style="margin:10px 0 12px"><h1>'+(nw?"Nuevo negocio":esc(E.name))+'</h1><button class="btn sm ghost" id="eX">Cerrar</button></div>';
+  if(nw)h+='<div class="demo"><span style="flex:1">¿Armando la demo? Llena todo con los datos, logo y fotos de GlassStudioCR.</span><button class="btn sm" id="eDemo">Usar GlassStudioCR</button></div>';
+  // datos
+  h+='<div class="card">'+sec("1. Datos del negocio")
+    +'<label for="eN">Nombre</label><input id="eN" maxlength="50" value="'+esc(E.name)+'" placeholder="Ej: Barbería El Legado">'
+    +'<label for="eT">Tipo de negocio</label><select id="eT"><option value="">Elige…</option>'+Object.keys(C.types).map(function(k){return '<option value="'+k+'"'+(E.type===k?" selected":"")+'>'+C.types[k].ic+" "+esc(C.types[k].n)+'</option>'}).join("")+'</select>'
+    +'<label for="eS">Link</label>'+(nw?'<div class="slugbox"><b>citalyapp.com/</b><input id="eS" maxlength="40" autocapitalize="off" autocomplete="off" spellcheck="false" value="'+esc(E.slug)+'"></div><p class="small" id="eSm" style="margin:6px 0 0"></p>':'<div class="slugbox"><b>citalyapp.com/'+esc(E.slug)+'</b></div><p class="hint">El link no se puede cambiar después de creado.</p>')
+    +'<label for="eW">WhatsApp del negocio</label><input id="eW" inputmode="tel" maxlength="15" value="'+esc(E.wa)+'" placeholder="8888 8888">'
+    +'<label for="eA">Dirección o zona (opcional)</label><input id="eA" maxlength="120" value="'+esc(E.addr)+'" placeholder="Ej: Santa Ana, 200 m oeste de la iglesia">'
+    +'</div>';
+  // acceso
+  h+='<div class="card">'+sec("2. Quién entra a la app","Con estos correos entran a citalyapp.com/app. Con Google entran directo; con otro correo crean su contraseña y lo confirman.")
+    +'<label for="eE">Correo del dueño</label><input id="eE" type="email" inputmode="email" value="'+esc(E.email)+'" placeholder="dueno@gmail.com">'
+    +'<label for="eTm">Correos del equipo (opcional, uno por línea)</label><textarea id="eTm" placeholder="ayudante@gmail.com">'+esc(E.team)+'</textarea>'
+    +'</div>';
+  // marca
+  h+='<div class="card">'+sec("3. Logo y color")
+    +'<div class="logoup"><div class="lg" id="eLg">'+(E.logo?'<img alt="" src="'+E.logo+'">':"📷")+'</div><div class="row" style="flex:1"><button class="btn sm alt" id="eLb">Subir logo</button>'+(E.logo?'<button class="btn sm danger" id="eLr">Quitar</button>':"")+'</div></div><input type="file" id="eLf" accept="image/*" hidden>'
+    +'<label>Color de la marca</label><div class="swatches" id="eC">'+C.colors.map(function(c){return '<button style="background:'+c+'" data-c="'+c+'" aria-pressed="'+(E.color===c)+'" aria-label="Color '+c+'"></button>'}).join("")+'<input type="color" id="eCc" value="'+esc(E.color)+'" aria-label="Otro color"></div>'
+    +'<p class="hint">Que se lea bien con letra blanca encima (colores medios u oscuros).</p></div>';
+  // servicios
+  h+='<div class="card">'+sec("4. Servicios y precios","La duración bloquea la agenda.")+'<div id="eSv"></div><button class="btn ghost" id="eSvA" style="margin-top:8px">+ Agregar servicio</button></div>';
+  // horario
+  h+='<div class="card">'+sec("5. Horario")+[1,2,3,4,5,6,0].map(function(d){var x=E.hours[d];return '<div class="hrow"><button class="chip" data-hd="'+d+'" aria-pressed="'+!!x.on+'">'+DS[d]+'</button><input type="time" step="1800" id="ha'+d+'" value="'+x.a+'"'+(x.on?"":" disabled")+'><input type="time" step="1800" id="hb'+d+'" value="'+x.b+'"'+(x.on?"":" disabled")+'></div>'}).join("")+'</div>';
+  // domicilio
+  h+='<div class="card"><div class="between"><div>'+sec("6. Servicio a domicilio","La página de reservas le pide al cliente su ubicación.")+'</div>'+tog("eH",E.home)+'</div><div id="eZw"'+(E.home?"":" hidden")+'><label>Zonas (deja el monto vacío si es gratis)</label><div id="eZ"></div><button class="btn ghost" id="eZa" style="margin-top:8px">+ Agregar zona</button></div></div>';
+  // web
+  h+='<div class="card">'+sec("7. Página web","Lo que se ve en citalyapp.com/"+esc(E.slug||"negocio")+". Todo es opcional menos la frase principal.")
+    +'<label for="wTg">Frase principal</label><input id="wTg" maxlength="70" value="'+esc(E.tagline)+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
+    +'<label for="wBl">Descripción corta</label><textarea id="wBl" maxlength="260" placeholder="Qué hacen, dónde y por qué elegirlos. 1 o 2 frases.">'+esc(E.blurb)+'</textarea>'
+    +'<label for="wPr">Promoción</label><input id="wPr" maxlength="90" value="'+esc(E.promo)+'" placeholder="Ej: 10% de descuento en tu primera cita">'
+    +'<label for="wPn">Detalle de la promoción</label><input id="wPn" maxlength="120" value="'+esc(W.promoNote||"")+'" placeholder="Ej: Solo reservando desde la página">'
+    +'<label for="wFt">Puntos fuertes (uno por línea, máximo 4)</label><textarea id="wFt" placeholder="Domicilio gratis en la GAM&#10;Listo en 2 horas">'+esc(W.feats||"")+'</textarea>'
+    +'<label for="wAb">Sobre nosotros</label><textarea id="wAb" maxlength="900" style="min-height:100px" placeholder="La historia del negocio, cómo trabajan, qué los hace diferentes.">'+esc(W.about||"")+'</textarea>'
+    +'<label for="wSn">Nota debajo de los precios</label><input id="wSn" maxlength="160" value="'+esc(W.svcNote||"")+'" placeholder="Ej: Si el carro es otro tipo, el precio se ajusta al real.">'
+    +'<label for="wHn">Nota del servicio a domicilio</label><input id="wHn" maxlength="160" value="'+esc(W.homeNote||"")+'" placeholder="Ej: Trabajamos en tu casa o en el parqueo de tu trabajo.">'
+    +'<label>Preguntas frecuentes</label><div id="wFq"></div><button class="btn ghost" id="wFqA" style="margin-top:8px">+ Agregar pregunta</button>'
+    +'<label>Reseñas de clientes reales</label><p class="hint" style="margin-top:-2px">Copia reseñas reales (Google, Facebook, Instagram) y pon de dónde salen.</p><div id="wRv"></div><button class="btn ghost" id="wRvA" style="margin-top:8px">+ Agregar reseña</button>'
+    +'<label for="wGr">Link para dejar reseña en Google</label><input id="wGr" inputmode="url" value="'+esc(W.greview||"")+'" placeholder="https://g.page/r/…">'
+    +'<div class="r3"><div><label for="wIg">Instagram</label><input id="wIg" inputmode="url" value="'+esc(W.ig||"")+'" placeholder="instagram.com/…"></div><div><label for="wFb">Facebook</label><input id="wFb" inputmode="url" value="'+esc(W.fb||"")+'" placeholder="facebook.com/…"></div></div>'
+    +'<div class="r3"><div><label for="wTt">TikTok</label><input id="wTt" inputmode="url" value="'+esc(W.tt||"")+'" placeholder="tiktok.com/@…"></div><div><label for="wEm">Correo público</label><input id="wEm" type="email" value="'+esc(W.email||"")+'"></div></div>'
+    +'</div>';
+  // fotos
+  h+='<div class="card">'+sec("8. Fotos de trabajos","La primera sale en la portada. Máximo 12.")+'<div class="photos" id="ePh"></div><div style="height:8px"></div><button class="btn alt" id="ePhA">+ Subir fotos</button><input type="file" id="ePhF" accept="image/*" multiple hidden></div>';
+  // plan
+  h+='<div class="card">'+sec("9. Plan y cobro")
+    +'<label for="pPl">Plan</label><select id="pPl"><option value="standard"'+(E.plan==="standard"&&!E.demo?" selected":"")+'>Standard · '+crc(C.setup.std)+' instalación</option><option value="pro"'+(E.plan==="pro"&&!E.demo?" selected":"")+'>PRO · '+crc(C.setup.pro)+' instalación</option><option value="demo"'+(E.demo?" selected":"")+'>Demo (no se cobra)</option></select>'
+    +'<div id="pMon"'+(E.demo?" hidden":"")+'><label for="pFe">Mensualidad (₡)</label><input id="pFe" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.fee)+'">'
+    +(nw?'<label for="pUn">Mensualidad pagada hasta</label><input id="pUn" type="date" value="'+esc(E.until)+'"><label for="pSp">Instalación cobrada hoy (₡)</label><input id="pSp" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.setupPaid)+'"><p class="hint">Si cobraste el 50 % al inicio, pon ese monto. El resto lo registras al entregar.</p>':'<p class="hint">Las mensualidades se registran desde la lista con "Registrar mensualidad".</p>')+'</div>'
+    +'</div>';
+  h+='<p class="err" id="eErr"></p><div class="savebar"><button class="btn ghost" id="eX2" style="flex:0 0 auto;width:auto">Cancelar</button><button class="btn" id="eGo">'+(nw?"Crear negocio":"Guardar cambios")+'</button></div>';
+  $("ed").innerHTML=h;window.scrollTo(0,0);edWire()}
+
+function svcRows(){$("eSv").innerHTML=E.services.length?E.services.map(function(s,i){return '<div class="rowl"><div class="r4"><input value="'+esc(s.ic||"")+'" data-i="'+i+'" data-k="ic" maxlength="4" style="text-align:center;font-size:20px;padding:6px"><input value="'+esc(s.n)+'" data-i="'+i+'" data-k="n" maxlength="50" placeholder="Nombre del servicio"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div><div class="r3"><input type="number" inputmode="numeric" value="'+esc(s.p)+'" data-i="'+i+'" data-k="p" placeholder="Precio ₡"><select data-i="'+i+'" data-k="d">'+DURS.map(function(m){return '<option value="'+m+'"'+(+s.d===m?" selected":"")+'>'+durTxt(m)+'</option>'}).join("")+'</select></div></div>'}).join(""):'<p class="mute small">Elige el tipo de negocio para cargar servicios de ejemplo, o agrégalos.</p>'}
+function zoneRows(){$("eZ").innerHTML=E.zones.map(function(z,i){return '<div class="rowl"><div class="r4" style="grid-template-columns:1fr 110px 36px"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(z.n)+'" placeholder="Zona (ej: Heredia)"><input data-i="'+i+'" data-k="fee" type="number" inputmode="numeric" min="0" step="500" value="'+(z.fee||"")+'" placeholder="₡ extra"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div></div>'}).join("")}
+function faqRows(){$("wFq").innerHTML=E.web.faqs.map(function(f,i){return '<div class="rowl"><div class="r4" style="grid-template-columns:1fr 36px"><input data-i="'+i+'" data-k="q" maxlength="140" value="'+esc(f.q)+'" placeholder="Pregunta"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div><textarea data-i="'+i+'" data-k="a" maxlength="600" placeholder="Respuesta">'+esc(f.a)+'</textarea></div>'}).join("")}
+function revRows(){$("wRv").innerHTML=E.web.reviews.map(function(r,i){return '<div class="rowl"><textarea data-i="'+i+'" data-k="t" maxlength="300" placeholder="Lo que dijo el cliente">'+esc(r.t)+'</textarea><div class="r4" style="grid-template-columns:1fr 1fr 36px"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(r.n)+'" placeholder="Nombre (ej: Grace C.)"><input data-i="'+i+'" data-k="src" maxlength="60" value="'+esc(r.src||"")+'" placeholder="Fuente (ej: Google)"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div></div>'}).join("")}
+function phRows(){$("ePh").innerHTML=E.fotos.map(function(f,i){return '<div class="ph"><img alt="" src="'+f.img+'"><span class="n">'+(i+1)+'</span><div class="tb">'+(i?'<button data-up="'+i+'" aria-label="Mover antes">◀</button>':"")+'<button data-rm="'+i+'" aria-label="Quitar">✕</button></div><input data-i="'+i+'" maxlength="60" value="'+esc(f.cap||"")+'" placeholder="Texto (opcional)"></div>'}).join("");$("ePhA").hidden=E.fotos.length>=12}
+function listWire(box,arr,redraw,num){box.oninput=box.onchange=function(e){var t=e.target;if(t.dataset.k==null)return;arr()[+t.dataset.i][t.dataset.k]=num&&num.indexOf(t.dataset.k)>=0?(t.value===""?"":+t.value):t.value};
+  box.onclick=function(e){var b=e.target.closest("[data-rm]");if(!b)return;arr().splice(+b.dataset.rm,1);redraw()}}
+function edWire(){
+  $("eX").onclick=$("eX2").onclick=function(){if(confirm("¿Salir sin guardar?"))closeEd()};
+  if($("eDemo"))$("eDemo").onclick=loadDemo;
+  $("eN").oninput=function(){E.name=this.value;if($("eS")&&!E.slugEdited){$("eS").value=slugify(this.value);E.slug=$("eS").value;checkSlug()}};
+  $("eT").onchange=function(){var t=C.types[this.value];E.type=this.value;if(t&&(!E.services.length||E.svcFromType)){E.services=t.svc.map(function(s,i){return {id:"s"+(i+1),n:s[0],p:s[1],d:s[2],ic:s[3]}});E.svcFromType=true;svcRows()}};
+  if($("eS"))$("eS").oninput=function(){E.slugEdited=true;var v=slugify(this.value);if(v!==this.value)this.value=v;E.slug=v;clearTimeout(slugT);E.slugOk=false;$("eSm").textContent="Revisando…";$("eSm").style.color="";slugT=setTimeout(checkSlug,450)};
+  $("eLb").onclick=function(){$("eLf").click()};
+  $("eLf").onchange=function(){var f=this.files[0];if(!f)return;squareImg(f,256).then(function(u){E.logo=u;edRefreshLogo()},function(){toast("No se pudo leer esa imagen")});this.value=""};
+  if($("eLr"))$("eLr").onclick=function(){E.logo="";edRefreshLogo()};
+  $("eC").onclick=function(e){var b=e.target.closest("button");if(!b)return;setColor(b.dataset.c)};
+  $("eCc").oninput=function(){setColor(this.value)};
+  svcRows();listWire($("eSv"),function(){return E.services},svcRows,["p","d"]);
+  $("eSv").addEventListener("input",function(){E.svcFromType=false});
+  $("eSvA").onclick=function(){E.services.push({id:"s"+Date.now(),n:"",p:"",d:60,ic:"✨"});svcRows();var ins=$("eSv").querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
+  Array.prototype.forEach.call(document.querySelectorAll("[data-hd]"),function(b){b.onclick=function(){var on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);$("ha"+b.dataset.hd).disabled=$("hb"+b.dataset.hd).disabled=!on}});
+  $("eH").onchange=function(){E.home=this.checked;$("eZw").hidden=!this.checked};
+  zoneRows();listWire($("eZ"),function(){return E.zones},zoneRows,["fee"]);
+  $("eZa").onclick=function(){E.zones.push({n:"",fee:""});zoneRows()};
+  faqRows();listWire($("wFq"),function(){return E.web.faqs},faqRows);
+  $("wFqA").onclick=function(){E.web.faqs.push({q:"",a:""});faqRows()};
+  revRows();listWire($("wRv"),function(){return E.web.reviews},revRows);
+  $("wRvA").onclick=function(){E.web.reviews.push({t:"",n:"",src:""});revRows()};
+  phRows();
+  $("ePh").oninput=function(e){var t=e.target;if(t.dataset.i!=null)E.fotos[+t.dataset.i].cap=t.value};
+  $("ePh").onclick=function(e){var r=e.target.closest("[data-rm]"),u=e.target.closest("[data-up]");
+    if(r){var f=E.fotos.splice(+r.dataset.rm,1)[0];if(f.id)E.delFotos.push(f.id);phRows()}
+    if(u){var i=+u.dataset.up,x=E.fotos[i];E.fotos[i]=E.fotos[i-1];E.fotos[i-1]=x;phRows()}};
+  $("ePhA").onclick=function(){$("ePhF").click()};
+  $("ePhF").onchange=function(){var fs=Array.prototype.slice.call(this.files,0,12-E.fotos.length);this.value="";if(!fs.length)return;toast("Preparando fotos…");
+    fs.reduce(function(p,f){return p.then(function(){return fitImg(f,1200).then(function(u){E.fotos.push({img:u,cap:""})},function(){toast("Una foto no se pudo leer")})})},Promise.resolve()).then(phRows)};
+  $("pPl").onchange=function(){var v=this.value;$("pMon").hidden=v==="demo";if($("pSp"))$("pSp").value=v==="pro"?C.setup.pro:v==="standard"?C.setup.std:0};
+  $("eGo").onclick=save}
+var slugT;
+function setColor(c){E.color=c;$("eCc").value=/^#[0-9a-f]{6}$/i.test(c)?c:"#6c4cf5";Array.prototype.forEach.call($("eC").querySelectorAll("button"),function(x){x.setAttribute("aria-pressed",x.dataset.c===c)})}
+function edRefreshLogo(){$("eLg").innerHTML=E.logo?'<img alt="" src="'+E.logo+'">':"📷"}
+function checkSlug(){var s=E.slug,m=$("eSm");E.slugOk=false;if(!m)return Promise.resolve(true);
+  if(!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(s)){m.textContent="Usa entre 3 y 40 letras, números o guiones.";m.style.color="var(--bad)";return Promise.resolve(false)}
+  if(RESERVED.indexOf(s)>=0){m.textContent="Ese nombre está reservado. Prueba otro.";m.style.color="var(--bad)";return Promise.resolve(false)}
+  return db.doc("pub/"+s).get().then(function(d){if(E.slug!==s)return false;if(d.exists){m.textContent="✗ Ya lo usa otro negocio.";m.style.color="var(--bad)";return false}
+    E.slugOk=true;m.textContent="✓ Disponible: citalyapp.com/"+s;m.style.color="var(--ok)";return true},function(){m.textContent="No se pudo revisar. Revisa tu internet.";m.style.color="var(--bad)";return false})}
+
+/* imágenes: logo cuadrado y fotos con el lado más largo a S px */
+function readImg(f){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){ok(im)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
+function enc(c,q){var u=c.toDataURL("image/webp",q);if(u.indexOf("image/webp")<0)u=c.toDataURL("image/jpeg",q);return u}
+function squareImgEl(im,S){var c=document.createElement("canvas"),s=Math.min(im.width,im.height);c.width=c.height=S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);return enc(c,.85)}
+function fitImgEl(im,S){var k=Math.min(1,S/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
+  var q=.82,u=enc(c,q);while(u.length>600000&&q>.4){q-=.12;u=enc(c,q)}return u}
+function squareImg(f,S){return readImg(f).then(function(im){return squareImgEl(im,S)})}
+function fitImg(f,S){return readImg(f).then(function(im){return fitImgEl(im,S)})}
+function urlImg(u){return new Promise(function(ok,ko){var im=new Image();im.onload=function(){ok(im)};im.onerror=ko;im.src=u})}
+
+/* ---------- GUARDAR ---------- */
+function collect(){E.name=$("eN").value.trim();E.type=$("eT").value;E.wa=telN($("eW").value);E.addr=$("eA").value.trim();E.email=$("eE").value.trim().toLowerCase();E.team=$("eTm").value;
+  E.hours=[0,1,2,3,4,5,6].map(function(d){return {on:document.querySelector('[data-hd="'+d+'"]').getAttribute("aria-pressed")==="true",a:$("ha"+d).value||"08:00",b:$("hb"+d).value||"18:00"}});
+  E.tagline=$("wTg").value.trim();E.blurb=$("wBl").value.trim();E.promo=$("wPr").value.trim();
+  var W=E.web;W.promoNote=$("wPn").value.trim();W.feats=lines($("wFt").value).slice(0,4).join("\n");W.about=$("wAb").value.trim();W.svcNote=$("wSn").value.trim();W.homeNote=$("wHn").value.trim();
+  W.greview=$("wGr").value.trim();W.ig=$("wIg").value.trim();W.fb=$("wFb").value.trim();W.tt=$("wTt").value.trim();W.email=$("wEm").value.trim();
+  var pl=$("pPl").value;E.demo=pl==="demo";E.plan=E.demo?"standard":pl;E.fee=E.demo?0:Math.max(0,+$("pFe").value||0);
+  if($("pUn"))E.until=$("pUn").value;if($("pSp"))E.setupPaid=E.demo?0:Math.max(0,+$("pSp").value||0)}
+function fail(id,msg){$("eErr").textContent=msg;var el=id&&$(id);if(el){el.classList.add("bad");el.scrollIntoView({behavior:"smooth",block:"center"});el.addEventListener("input",function(){el.classList.remove("bad")},{once:true})}return false}
+function validate(){$("eErr").textContent="";
+  if(E.name.length<2)return fail("eN","Falta el nombre del negocio.");
+  if(!E.type)return fail("eT","Elige el tipo de negocio.");
+  if(!E.id&&!E.slugOk)return fail("eS","Elige un link disponible.");
+  if(E.wa.length<8)return fail("eW","Escribe el WhatsApp del negocio (8 dígitos).");
+  if(!/^\S+@\S+\.\S+$/.test(E.email))return fail("eE","Escribe el correo del dueño.");
+  if(!E.services.some(function(s){return String(s.n).trim()}))return fail("eSvA","Agrega al menos un servicio.");
+  if(E.hours.some(function(h){return h.on&&tm(h.b)-tm(h.a)<30}))return fail(null,"Revisa el horario: el cierre debe ser después de la apertura.");
+  if(!E.hours.some(function(h){return h.on}))return fail(null,"Marca al menos un día en el horario.");
+  if(!E.tagline)return fail("wTg","Escribe la frase principal de la página.");
+  if(!E.id&&!E.demo&&!E.until)return fail("pUn","Pon hasta cuándo está pagada la mensualidad.");
+  return true}
+function pubOf(b,bid){return {biz:bid,web:b.web||{},name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
+function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.id||db.collection("biz").doc().id,now=TS.now();
+  var team=emails(E.team).filter(function(x){return x!==E.email}),all=[E.email].concat(team);
+  var services=E.services.filter(function(s){return String(s.n).trim()}).map(function(s,i){return {id:s.id||"s"+(i+1),n:String(s.n).trim().slice(0,50),p:Math.max(0,+s.p||0),d:+s.d||60,ic:String(s.ic||"").slice(0,4)}});
+  var zones=E.home?E.zones.filter(function(z){return String(z.n).trim()}).slice(0,40).map(function(z){return {n:String(z.n).trim().slice(0,40),fee:Math.max(0,+z.fee||0)}}):[];
+  var W=E.web,web={promoNote:W.promoNote||"",feats:W.feats||"",about:W.about||"",svcNote:W.svcNote||"",homeNote:W.homeNote||"",greview:W.greview||"",ig:W.ig||"",fb:W.fb||"",tt:W.tt||"",email:W.email||"",
+    faqs:W.faqs.filter(function(f){return String(f.q).trim()&&String(f.a).trim()}).slice(0,20).map(function(f){return {q:String(f.q).trim(),a:String(f.a).trim()}}),
+    reviews:W.reviews.filter(function(r){return String(r.t).trim()}).slice(0,12).map(function(r){return {t:String(r.t).trim(),n:String(r.n||"").trim(),src:String(r.src||"").trim()}})};
+  var x=E.extra||{};
+  var biz={name:E.name,type:E.type,wa:E.wa,addr:E.addr,slug:E.slug,color:E.color,logo:E.logo,services:services,hours:E.hours,home:E.home,zones:zones,tagline:E.tagline,blurb:E.blurb,promo:E.promo,web:web,email:E.email,team:team,
+    open:x.open!==false,ahead:x.ahead||21,lead:x.lead==null?2:x.lead,showPrices:x.showPrices!==false,askHow:x.askHow!==false};
+  btn.disabled=true;btn.textContent="Guardando…";
+  // revisa que ningún correo esté ya en otro negocio
+  Promise.all(all.map(function(em){return db.doc("own/"+em).get().then(function(d){return d.exists&&d.data().biz!==bid?em:null})})).then(function(taken){
+    taken=taken.filter(Boolean);if(taken.length)throw {msg:"Este correo ya entra a otro negocio: "+taken.join(", ")+". Usa otro o quítalo del otro negocio."};
+    var bt=db.batch();
+    if(nw){biz.created=now;bt.set(db.doc("biz/"+bid),biz)}else bt.set(db.doc("biz/"+bid),biz,{merge:true});
+    bt.set(db.doc("pub/"+E.slug),pubOf(biz,bid));
+    var sub={name:E.name,email:E.email,plan:E.plan,fee:E.fee,demo:E.demo};
+    if(nw){sub.start=now;sub.status="active";sub.until=E.demo?TS.fromMillis(Date.now()+365*864e5):TS.fromDate(new Date(E.until+"T23:59:00-06:00"))}
+    else if(E.demo&&!(SUBS[bid]&&SUBS[bid].until&&SUBS[bid].until.toMillis()>Date.now())){sub.status="active";sub.until=TS.fromMillis(Date.now()+365*864e5)}
+    bt.set(db.doc("subs/"+bid),sub,{merge:true});
+    all.forEach(function(em,i){bt.set(db.doc("own/"+em),{biz:bid,rol:i===0?"dueño":"equipo",name:E.name})});
+    (E.oldEmails||[]).forEach(function(em){if(all.indexOf(em)<0)bt.delete(db.doc("own/"+em))});
+    if(nw&&E.setupPaid>0)bt.set(db.collection("payments").doc(),{biz:bid,name:E.name,amt:E.setupPaid,at:Date.now(),type:"setup",plan:E.plan});
+    return bt.commit()}).then(function(){
+    // fotos, una por una (cada una es un documento)
+    var col="pub/"+E.slug+"/fotos",ops=E.delFotos.map(function(id){return function(){return db.doc(col+"/"+id).delete()}});
+    E.fotos.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;return ref.set({img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i})})});
+    return ops.reduce(function(p,op){return p.then(op)},Promise.resolve())}).then(function(){
+    toast(nw?"¡Negocio creado! 🎉":"Cambios guardados ✓");var s=E.slug,em=E.email,n=E.name;closeEd();
+    if(nw)setTimeout(function(){if(confirm("Listo: citalyapp.com/"+s+"\n\nEl dueño entra a citalyapp.com/app con "+em+".\n\n¿Abrir la página web del negocio?"))window.open("../"+s,"_blank")},300)
+  }).catch(function(e){console.error(e);btn.disabled=false;btn.textContent=nw?"Crear negocio":"Guardar cambios";$("eErr").textContent=e&&e.msg?e.msg:e&&e.code==="permission-denied"?"Sin permiso. ¿Ya pegaste las reglas nuevas en Firebase?":"No se pudo guardar: "+(e&&e.message||e)})}
+$("newB").onclick=function(){openEd(null)};
+
+/* ---------- DEMO: GlassStudioCR ---------- */
+var DEMO_GS={name:"GlassStudioCR",type:"autos",slug:"glassstudiocr",wa:"70892537",addr:"",email:"glassstudiocr@gmail.com",color:"#0d7a85",
+  services:[["Parabrisas + protección cerámica (sedán o hatchback)",20000,120,"🛡️"],["Parabrisas + protección cerámica (SUV o pick-up)",25000,120,"🚙"],["Todos los vidrios + protección cerámica",40000,120,"✨"],["Todos los vidrios sin protección",30000,120,"🪟"],["Pulido de focos con polímero líquido (el par)",20000,120,"💡"],["Pulido de techo panorámico",15000,60,"☀️"]],
+  hours:[{on:true,a:"08:00",b:"15:00"},{on:true,a:"06:00",b:"16:00"},{on:true,a:"06:00",b:"16:00"},{on:true,a:"06:00",b:"16:00"},{on:true,a:"06:00",b:"16:00"},{on:true,a:"06:00",b:"16:00"},{on:true,a:"06:00",b:"16:00"}],
+  home:true,zones:[["San José",0],["Heredia",0],["Alajuela",0],["Cartago",5000]],
+  tagline:"No cambiés tu parabrisas. Restauralo.",
+  blurb:"Eliminamos gota seca, lluvia ácida, hongos, manchas y micro rayones de tus vidrios y focos. Llegamos a tu casa o trabajo en la GAM y te lo dejamos como de fábrica, por una fracción de lo que cuesta cambiarlo.",
+  promo:"Agendá en línea tu parabrisas y te regalamos el vidrio trasero y los retrovisores",
+  web:{promoNote:"Sedán o SUV, mismo regalo · solo agendando desde la página",feats:"Domicilio gratis en la GAM\nProtección cerámica incluida\nListo en unas 2 horas",
+    about:"No tenemos local: el servicio es 100 % a domicilio. Llegamos a tu casa, a tu trabajo o donde tengás el carro parqueado.\n\nUsamos óxido de cerio, polish especial para vidrios y máquinas rotativas para quitar la capa dañada sin deformar el vidrio. Al final aplicamos un sellador cerámico para que la lluvia resbale y el brillo dure meses.",
+    svcNote:"Si al llegar el tipo de carro es otro, el precio se ajusta al real y te lo decimos antes de empezar.",
+    homeNote:"Trabajamos en tu casa, en el parqueo de tu trabajo o donde tengás el carro. Vos seguís en lo tuyo.",
+    faqs:[["¿Dónde están ubicados? ¿Llegan a mi zona?","No tenemos local: el servicio es 100 % a domicilio. Vamos a tu casa, trabajo o donde tengás el carro parqueado, y el traslado es gratis en toda la GAM (San José, Heredia y Alajuela)."],
+      ["¿Cuánto dura el servicio?","Cada servicio dura unas 2 horas. Al agendar en línea solo te mostramos las horas que tenemos libres."],
+      ["¿Quita cualquier rayón?","Eliminamos gota seca, lluvia ácida, hongos, manchas y micro rayones. Para rayones profundos, mandanos una foto por WhatsApp y te decimos con honestidad si se puede restaurar antes de que pagués nada."],
+      ["¿Cuánto dura la protección cerámica?","El sellador hace que la lluvia resbale y que el brillo dure meses. Para que te dure más, evitá lavar los vidrios con productos abrasivos."],
+      ["¿Y si mi carro no es ni sedán ni SUV?","Elegí el que más se parezca. Si al llegar el tipo de carro es otro, el precio se ajusta al real, y te lo decimos antes de empezar."],
+      ["¿También pulen focos?","Sí. Quitamos lo amarillo y opaco y los sellamos con polímero líquido. Cuesta ₡20 000 el par y lo podés sumar a cualquier servicio de vidrios."]],
+    reviews:[["Muy buen servicio al cliente, me quedaron como nuevo.","Grace C.","Pulido de focos · Facebook"],["Excelente trabajo 💯 Recomendados y servicio al cliente.","Alejandro G.","Facebook"],["Excelente servicio y atención, ¡muchas gracias! 👍","Gabriel C.","Instagram"],["Recomendado al 100 %.","Jhulian R.","Instagram"]],
+    email:"GlassStudioCR@gmail.com"},
+  fotos:[["../demo/glassstudiocr/despues.jpg","Después: parabrisas restaurado"],["../demo/glassstudiocr/antes.jpg","Antes: gota seca y manchas"]],
+  logo:"../demo/glassstudiocr/logo.png"};
+function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Cargando…";
+  E.name=D.name;E.type=D.type;E.slug=D.slug;E.slugEdited=true;E.wa=D.wa;E.addr=D.addr;E.email=D.email;E.team="";E.color=D.color;E.svcFromType=false;
+  E.services=D.services.map(function(s,i){return {id:"s"+(i+1),n:s[0],p:s[1],d:s[2],ic:s[3]}});E.hours=D.hours.map(function(h){return Object.assign({},h)});
+  E.home=D.home;E.zones=D.zones.map(function(z){return {n:z[0],fee:z[1]}});E.tagline=D.tagline;E.blurb=D.blurb;E.promo=D.promo;
+  E.web={promoNote:D.web.promoNote,feats:D.web.feats,about:D.web.about,svcNote:D.web.svcNote,homeNote:D.web.homeNote,email:D.web.email,greview:"",ig:"",fb:"",tt:"",
+    faqs:D.web.faqs.map(function(f){return {q:f[0],a:f[1]}}),reviews:D.web.reviews.map(function(r){return {t:r[0],n:r[1],src:r[2]}})};
+  E.demo=true;E.plan="standard";E.fee=0;E.setupPaid=0;
+  Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
+    .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
 </body>
 </html>

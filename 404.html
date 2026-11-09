@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Citaly</title>
 <script>
-// citalyapp.com/mi-negocio  →  página de reservas de ese negocio
-(function(){var p=location.pathname.replace(/^\/+|\/+$/g,"").split("/")[0].toLowerCase();
-if(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(p))location.replace("/r/?n="+p);else location.replace("/")})();
+// citalyapp.com/mi-negocio           →  página web de ese negocio  (/w/)
+// citalyapp.com/mi-negocio/reservar  →  página de reservas         (/r/)
+(function(){var parts=location.pathname.replace(/^\/+|\/+$/g,"").toLowerCase().split("/"),p=parts[0],sub=parts[1]||"";
+var q=location.search.replace(/^\?/,"");q=q?"&"+q:"";
+if(!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(p)){location.replace("/");return}
+location.replace((sub==="reservar"||sub==="r"?"/r/?n=":"/w/?n=")+p+q+location.hash)})();
 </script></head><body></body></html>

@@ -112,6 +112,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
       <button class="btn big" id="go2" style="margin-top:6px">Reservar mi cita</button>
       <a class="btn ghost" id="waTop" target="_blank" rel="noopener" style="margin-top:8px">💬 Escríbenos por WhatsApp</a>
     </div>
+    <a class="btn ghost" id="toWeb" style="margin-top:8px">🌐 Ver más de este negocio</a>
     <div class="foot">Reservas con <a href="../" target="_blank">citaly</a></div>
   </div>
 
@@ -165,7 +166,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="mylink" id="mylink" hidden><b>🔁 ¿Necesitas cambiar o cancelar?</b><small>Guarda este link: ahí puedes cambiar el día u hora, o cancelar, hasta 12 horas antes.</small><div class="ml"><input id="mlv" readonly aria-label="Link de tu cita"><button id="mlc">Copiar</button></div></div>
     <a class="btn alt" id="okCal" target="_blank" rel="noopener">📅 Agregar a mi calendario</a>
     <button class="btn ghost" id="again" style="margin-top:8px">Reservar otra cita</button>
-    <div class="foot">¿Tienes un negocio? <a href="../">Crea tu página de reservas gratis</a></div>
+    <div class="foot">¿Tienes un negocio? <a href="../">Conoce Citaly</a></div>
   </div>
 </div>
 
@@ -219,6 +220,7 @@ function init(open){$("load").hidden=true;$("land").hidden=false;var col=P.color
   var lg=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
   $("nm").textContent=P.name;$("nm2").textContent=P.name;$("tg").textContent=P.tagline||"Reserva tu cita en segundos";$("bl").textContent=P.blurb||P.addr||"";
   if(P.promo){$("pm").hidden=false;$("pmT").textContent=P.promo}
+  $("toWeb").href="/"+slug;$("toWeb").textContent="🌐 Ver más de "+P.name;
   var hi="Hola "+P.name+", quiero agendar una cita";$("waTop").href=$("waC").href=waUrl(P.wa,hi);
   $("pk").innerHTML=(P.home?'<span>🚗 Vamos donde estés</span>':P.addr?'<span>📍 '+esc(P.addr)+'</span>':'')+'<span>⏱️ Reservas en 1 minuto</span><span>💬 Confirmación por WhatsApp</span>';
   $("h3").innerHTML='<div><b>Elige servicio y hora</b><span>Solo ves las horas libres</span></div>'+(P.home?'<div><b>Mándanos tu ubicación</b><span>Con un toque, desde tu celular</span></div>':'<div><b>Déjanos tu nombre</b><span>Y tu WhatsApp para confirmarte</span></div>')+'<div><b>¡Listo!</b><span>'+(P.home?"Llegamos y tú sigues en lo tuyo":"Te esperamos a tu hora")+'</span></div>';
