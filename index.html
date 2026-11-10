@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Citaly · Te montamos tu página web y tus reservas en línea</title>
+<title>Citaly · Tu página web y reservas en línea, un solo pago</title>
 <meta name="description" content="Te montamos tu página web, tu página de reservas y tu agenda con tu marca. Nosotros lo configuramos todo; tú solo atiendes. Hecho en Costa Rica.">
 <meta name="theme-color" content="#5a3be8">
 <meta property="og:title" content="Citaly · Te montamos el sistema, tus clientes reservan solos">
@@ -105,35 +105,98 @@ footer a{color:var(--mute)}
 .ex{display:flex;gap:16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--sh);margin-top:24px;text-decoration:none;color:var(--ink)}
 .ex img{width:64px;height:64px;border-radius:16px;flex:none}
 .ex b{display:block;font:700 19px "Bricolage Grotesque",sans-serif}.ex span{color:var(--mute)}
+/* v3 */
+.promo-top{display:inline-block;line-height:1.35;background:linear-gradient(90deg,#fff3e8,#ffe6f0);color:#7a2b00;border:1px solid #ffd2b0;border-radius:999px;padding:7px 14px;font-size:14px;font-weight:700;text-decoration:none}
+@media (prefers-color-scheme:dark){.promo-top{background:#3a2112;color:#ffd9bf;border-color:#6b3a1c}}
+.phone.shot{padding:10px;transform:rotate(-2.5deg)}
+.phone img{display:block;width:100%;height:auto}
+.phone.shot img{border-radius:34px}
+.case img{max-width:100%}
+.phone.sm{width:230px;transform:none;animation:none;border-radius:36px;padding:8px}
+.phone.sm img{border-radius:28px}
+.show{display:grid;gap:26px;margin-top:30px;text-align:center}
+@media(min-width:820px){.show{grid-template-columns:repeat(3,1fr)}}
+.show b{display:block;font:700 19px "Bricolage Grotesque",sans-serif;margin-top:16px}.show p{margin:4px auto 0;color:var(--mute);max-width:280px}
+.vs{display:grid;gap:14px;margin-top:28px}
+@media(min-width:760px){.vs{grid-template-columns:1fr 1fr}}
+.vs>div{border-radius:24px;padding:24px;border:1px solid var(--line);background:var(--card);box-shadow:var(--sh)}
+.vs h3{margin:0 0 12px;font-size:20px}
+.vs ul{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.vs li{padding-left:30px;position:relative}
+.vs .no li:before{content:"✕";position:absolute;left:0;color:var(--bad);font-weight:800}
+.vs .yes{border:2px solid var(--acc)}
+.vs .yes li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.case{display:grid;gap:26px;align-items:center;margin-top:28px;background:var(--card);border:1px solid var(--line);border-radius:30px;padding:26px;box-shadow:var(--sh)}
+@media(min-width:820px){.case{grid-template-columns:.8fr 1.2fr;padding:36px}}
+.case blockquote{margin:14px 0;font-size:18px;line-height:1.5;border-left:4px solid var(--acc);padding-left:14px}
+.case .row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.case .row2 .btn{width:auto}
+.risk{display:flex;gap:14px;align-items:center;background:color-mix(in srgb,var(--ok) 10%,var(--card));border:1px solid color-mix(in srgb,var(--ok) 35%,var(--line));border-radius:20px;padding:16px 18px;margin-top:22px}
+.risk span{font-size:30px}.risk b{display:block;font-size:17px}.risk p{margin:2px 0 0;color:var(--mute)}
+.extras{max-width:760px;margin:26px auto 0;display:grid;gap:10px}
+.extras div{display:flex;justify-content:space-between;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.extras span{color:var(--mute)}.extras b{white-space:nowrap}
+.dockc{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .3s}
+.dockc.on{transform:none}.dockc .btn{box-shadow:none}
+@media(min-width:860px){.dockc{display:none}}
+@media(max-width:819px){.show{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:18px;margin:30px -20px 0;padding:0 20px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .show::-webkit-scrollbar{display:none}.show>div{flex:0 0 74%;scroll-snap-align:center}.show .phone.sm{width:100%;max-width:240px}
+  .case .phone.sm{width:190px}}
+.swipe{display:none;text-align:center;color:var(--mute);font-size:14px;margin-top:6px}@media(max-width:819px){.swipe{display:block}}
+footer{padding-bottom:100px}@media(min-width:860px){footer{padding-bottom:40px}}
 </style>
 </head>
 <body>
 <nav class="top" id="nav"><div class="c">
   <a class="logo" href="./"><img src="icon-192.png" alt="">citaly</a>
-  <div class="r"><a class="in" href="app/">Entrar</a><a class="btn sm wa-demo" target="_blank" rel="noopener" style="padding:10px 14px">Pedir una demo</a></div>
+  <div class="r"><a class="in" href="app/">Entrar</a><a class="btn sm wa-demo" target="_blank" rel="noopener" style="padding:10px 14px">Demo gratis</a></div>
 </div></nav>
 
 <header class="c hero">
   <div>
-    <span class="tag fade"><i>CR</i> Hecho en Costa Rica 🇨🇷</span>
-    <h1 class="fade">Te montamos el sistema.<br><em>Tus clientes reservan solos.</em></h1>
-    <p class="lead fade">Página web con tu marca, página de reservas, agenda y control de clientes y gastos. Nosotros lo configuramos todo y te enseñamos a usarlo. Tú solo atiendes.</p>
-    <div class="ctas fade"><a class="btn big wa-demo" target="_blank" rel="noopener">Quiero una demo →</a><a class="btn ghost" href="glassstudiocr" target="_blank">Ver un ejemplo real</a></div>
-    <div class="trust fade"><span>Lo configuramos por ti</span><span>Un solo pago</span><span>Sin mensualidades</span></div>
+    <a class="promo-top fade" href="#precio">🎁 Promo de lanzamiento: <span class="pPromo">₡100.000</span> · solo <span class="pCupos">5</span> cupos</a>
+    <h1 class="fade">Tus clientes reservan solos.<br><em>Tú solo atiendes.</em></h1>
+    <p class="lead fade">Te montamos tu página web, tu página de reservas y tu app de agenda, con tu marca. <b>Un solo pago, sin mensualidades.</b></p>
+    <div class="ctas fade"><a class="btn big wa-demo" target="_blank" rel="noopener">Pedir mi demo gratis →</a><a class="btn ghost" href="#caso">Ver un caso real</a></div>
+    <div class="trust fade"><span>Demo gratis antes de pagar</span><span>Un solo pago</span><span>Funciona en cualquier celular</span></div>
   </div>
   <div style="position:relative;padding:10px 0">
-    <div class="phone" aria-hidden="true"><div class="scr">
-      <div class="bl">B</div><h4>Barbería El Rey</h4><div class="sub">citalyapp.com/barberia-el-rey</div>
-      <div class="sv on"><s>✂️</s><b>Corte de cabello</b><u>₡6.000</u></div>
-      <div class="sv"><s>🧔</s><b>Corte + barba</b><u>₡8.000</u></div>
-      <div class="sv"><s>🪒</s><b>Barba</b><u>₡4.000</u></div>
-      <div class="hs"><i>9:00 am</i><i class="on">10:30 am</i><i>11:00 am</i><i>2:00 pm</i><i>3:30 pm</i><i>5:00 pm</i></div>
-      <div class="go">Confirmar cita</div>
-    </div></div>
-    <div class="notif"><span style="font-size:22px">🔔</span><span><b>Nueva reserva</b>Carlos · mañana 10:30 am</span></div>
-    <div class="notif n2"><span style="font-size:22px">💸</span><span><b>+₡84.000</b>esta semana</span></div>
+    <div class="phone shot"><img src="img/demo-reservas.webp" alt="Página de reservas: el cliente elige su vehículo, el servicio y ve el precio" width="600" height="1298"></div>
+    <div class="notif"><span style="font-size:22px">🔔</span><span><b>Nueva reserva</b>María · mañana 11 am</span></div>
+    <div class="notif n2"><span style="font-size:22px">📅</span><span><b>3 citas hoy</b>sin contestar un solo chat</span></div>
   </div>
 </header>
+
+<section class="c rv">
+  <div class="kicker">¿Te suena?</div>
+  <h2 class="t">Cada cliente que no contestas a tiempo, se va con otro.</h2>
+  <div class="vs">
+    <div class="no"><h3>😩 Sin Citaly</h3><ul><li>"¿Cuánto cuesta?" "¿Tiene espacio el sábado?" mil veces al día</li><li>Contestas tarde porque estás trabajando y el cliente se aburre</li><li>La agenda en la cabeza, en un cuaderno o en el chat</li><li>No sabes cuánto ganaste en el mes</li></ul></div>
+    <div class="yes"><h3>😎 Con Citaly</h3><ul><li>Tu cliente ve tus servicios, precios y horas libres en tu página</li><li>Reserva solo, a cualquier hora, aunque estés atendiendo</li><li>Todas tus citas ordenadas en una app en tu celular</li><li>Ingresos, gastos y ganancia del mes a la vista</li></ul></div>
+  </div>
+</section>
+
+<section class="c rv" id="ver">
+  <div style="text-align:center"><div class="kicker">Así se ve</div><h2 class="t">Tres cosas trabajando para ti.</h2><p class="s" style="margin:0 auto">Todo con tu logo, tus colores, tus servicios y tus precios.</p></div>
+  <div class="show">
+    <div><div class="phone sm"><img src="img/demo-web.webp" alt="Página web del negocio" width="600" height="1298"></div><b>1. Tu página web</b><p>Quiénes son, servicios, fotos de tus trabajos, reseñas y preguntas. Lista para Instagram y Google.</p></div>
+    <div><div class="phone sm"><img src="img/demo-reservas.webp" alt="Página de reservas" width="600" height="1298"></div><b>2. Tu página de reservas</b><p>El cliente elige servicio, día y hora libre en 1 minuto. Nunca dos citas a la misma hora.</p></div>
+    <div><div class="phone sm"><img src="img/demo-app.webp" alt="App de agenda del negocio" width="600" height="1298"></div><b>3. Tu app de agenda</b><p>Las reservas te llegan solas. Confirmas por WhatsApp con un toque y llevas tus números.</p></div>
+  </div>
+  <p class="swipe">← Desliza para ver las tres →</p>
+</section>
+
+<section class="c rv" id="caso">
+  <div class="kicker">Caso real</div>
+  <h2 class="t">Citaly nació en mi propio negocio.</h2>
+  <div class="case">
+    <div class="phone sm" style="margin:0 auto"><img src="img/gs-web.webp" alt="Página web de GlassStudioCR" width="600" height="1298"></div>
+    <div>
+      <div style="display:flex;gap:12px;align-items:center"><img src="demo/glassstudiocr/logo.png" alt="" width="52" height="52" style="border-radius:14px"><div><b style="font:700 20px 'Bricolage Grotesque',sans-serif">GlassStudioCR</b><div class="mute small">Pulido de parabrisas y focos a domicilio · Costa Rica</div></div></div>
+      <blockquote>"Me pasaba el día contestando precios y horarios por WhatsApp mientras trabajaba. Me hice este sistema: ahora mis clientes ven todo en mi página y agendan solos. Eso mismo es lo que te monto a ti."<br><span class="mute small">— Esteban Bolaños, dueño de GlassStudioCR y creador de Citaly</span></blockquote>
+      <div class="row2"><a class="btn" href="https://glassstudiocr.com" target="_blank" rel="noopener">Ver glassstudiocr.com ↗</a><a class="btn ghost" href="https://citas.glassstudiocr.com/reservar" target="_blank" rel="noopener">Ver cómo reservan ↗</a></div>
+    </div>
+  </div>
+</section>
 
 <section class="c rv">
   <div class="kicker">Para negocios que trabajan con citas</div>
@@ -141,26 +204,15 @@ footer a{color:var(--mute)}
   <div class="who"><span>💈 Barberías</span><span>💇‍♀️ Salones</span><span>💅 Uñas</span><span>🚗 Detailing y lavado</span><span>🔧 Talleres</span><span>🧖 Spas</span><span>🩺 Consultorios</span><span>🐾 Veterinarias</span><span>🏋️ Entrenadores</span></div>
 </section>
 
-<section class="c rv">
-  <div class="kicker">Adiós al "¿a qué hora tiene espacio?"</div>
-  <h2 class="t">Menos mensajes. Más citas.</h2>
-  <p class="s">¿Cuántos clientes se te van por no contestar el WhatsApp a tiempo mientras trabajas? Con Citaly ven tus servicios, tus precios y tus horas libres, y reservan en segundos.</p>
-  <div class="grid3">
-    <div class="f"><div class="ic">🌐</div><h3>Tu página web</h3><p>Con tu logo, tus colores, tus servicios, fotos de tus trabajos, reseñas de tus clientes y preguntas frecuentes.</p></div>
-    <div class="f"><div class="ic">📅</div><h3>Reservas 24/7</h3><p>Tus clientes agendan a cualquier hora y solo ven las horas libres. Nunca más dos citas a la misma hora.</p></div>
-    <div class="f"><div class="ic">📈</div><h3>Tu negocio en números</h3><p>Agenda, clientes, ingresos, gastos y ganancia del mes en una app en tu celular, para ti y tu equipo.</p></div>
-  </div>
-  <a class="ex" href="glassstudiocr" target="_blank"><img src="demo/glassstudiocr/logo.png" alt=""><span style="flex:1"><b>Míralo funcionando: GlassStudioCR</b><span>Pulido de parabrisas y focos a domicilio. Su página web y sus reservas están hechas con Citaly.</span></span><span style="font-size:22px">→</span></a>
-</section>
-
 <section class="c rv" id="como">
   <div class="kicker">Así de fácil</div>
   <h2 class="t">Tú nos cuentas. Nosotros lo montamos.</h2>
   <div class="steps3">
-    <div><b>Nos cuentas de tu negocio</b><p>Servicios, precios, horario, tu logo y fotos de tus trabajos. Por WhatsApp, sin complicaciones.</p></div>
-    <div><b>Montamos todo</b><p>Tu página web, tu página de reservas y tu app de agenda con tu marca, listas para usar.</p></div>
-    <div><b>Te capacitamos y lanzas</b><p>En 15 minutos te enseñamos a usarla. Compartes tu link en Instagram, Facebook y WhatsApp, y las reservas te llegan a la app.</p></div>
+    <div><b>Nos escribes</b><p>Nos cuentas tus servicios, precios y horario por WhatsApp. Si tienes logo y fotos, mejor.</p></div>
+    <div><b>Te armamos tu demo gratis</b><p>En menos de 24 horas te mandamos tu página funcionando para que la pruebes tú mismo.</p></div>
+    <div><b>Si te gusta, la activamos</b><p>Pagas la mitad, te capacitamos en 15 minutos, compartes tu link y las reservas te empiezan a llegar.</p></div>
   </div>
+  <div class="risk"><span>🛡️</span><div><b>Si no te gusta la demo, no pagas nada.</b><p>Primero la ves funcionando con tu negocio. Después decides.</p></div></div>
 </section>
 
 <section class="c rv">
@@ -171,19 +223,19 @@ footer a{color:var(--mute)}
     <li>Agenda por semana y por día</li><li>Duración de cada servicio y avisos de choque</li>
     <li>Historial de cada cliente</li><li>Mensajes de WhatsApp listos para confirmar y recordar</li>
     <li>Ingresos, gastos y ganancia del mes</li><li>Acceso para ti y tu equipo</li>
-    <li>Servicio a domicilio con zonas y ubicación del cliente</li><li>Funciones a la medida para tu tipo de negocio</li>
+    <li>Servicio a domicilio con zonas y ubicación del cliente</li><li>Tú cambias precios, servicios y horarios cuando quieras</li>
   </ul>
 </section>
 
 <section class="c rv" id="precio">
-  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un solo pago. Sin mensualidades.</h2><p class="s" style="margin:0 auto">Pagas el 50 % al empezar y el resto cuando te lo entregamos funcionando. Después no pagas nada cada mes.</p></div>
+  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un solo pago. Sin mensualidades.</h2><p class="s" style="margin:0 auto">Pagas el 50 % cuando apruebas tu demo y el resto cuando te lo entregamos funcionando. Después no pagas nada cada mes.</p></div>
   <div class="prices p3">
     <div class="price">
-      <span class="rib">Promo de lanzamiento</span>
+      <span class="rib">🎁 Promo de lanzamiento</span>
       <h3>Lanzamiento</h3>
       <div class="amt sm"><span class="pPromo">₡100.000</span></div>
       <div class="mute small">pago único · solo los primeros <span class="pCupos">5</span> negocios</div>
-      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del plan Standard</li><li>Precio especial por estrenar Citaly con nosotros</li></ul>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del plan Standard</li><li>Te ahorras <span class="pAhorro">₡50.000</span></li></ul>
       <a class="btn big wa-promo" target="_blank" rel="noopener" style="padding:16px">Quiero la promo</a>
     </div>
     <div class="price soon">
@@ -197,32 +249,37 @@ footer a{color:var(--mute)}
       <h3>Personalizado</h3>
       <div class="amt sm"><span class="pPers">₡250.000</span></div>
       <div class="mute small">pago único</div>
-      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del Standard</li><li>1 función hecha a la medida de tu negocio</li><li>Por ejemplo: precio según tipo de vehículo, control de insumos o lo que tu negocio necesite</li></ul>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del Standard</li><li>1 función hecha a la medida de tu negocio</li><li>Por ejemplo: precio según tipo de vehículo o control de insumos</li></ul>
       <a class="btn ghost wa-pers" target="_blank" rel="noopener" style="padding:16px">Contarles qué necesito</a>
     </div>
   </div>
-  <p class="s" style="text-align:center;margin:22px auto 0">¿Después quieres algo nuevo? Funciones a la medida desde <b class="pMod">₡40.000</b>, pago único.</p>
+  <div class="extras">
+    <div><span>Funciones nuevas a la medida, cuando las necesites</span><b>desde <span class="pMod">₡40.000</span></b></div>
+    <div><span>Dominio propio (ej. tunegocio.com), opcional</span><b>costo anual del dominio</b></div>
+  </div>
 </section>
 
 <section class="c rv" style="max-width:760px">
   <div style="text-align:center"><div class="kicker">Preguntas frecuentes</div><h2 class="t">¿Dudas? Aquí están las respuestas.</h2></div>
   <div style="margin-top:24px">
+    <details><summary>¿Tengo que pagar algo cada mes?</summary><p>No. Es un solo pago. Tus precios, servicios y horarios los cambias tú mismo desde la app cuando quieras.</p></details>
     <details><summary>¿Tengo que configurar algo yo?</summary><p>No. Tú nos pasas la información de tu negocio y nosotros lo montamos todo. Al final te enseñamos a usarlo en 15 minutos.</p></details>
-    <details><summary>¿Cómo pago?</summary><p>Por SINPE Móvil: 50 % al empezar y 50 % cuando te lo entregamos funcionando. Es un solo pago.</p></details>
-    <details><summary>¿Tengo que pagar algo cada mes?</summary><p>No. No hay mensualidades. Tus precios, servicios y horarios los cambias tú mismo desde la app cuando quieras.</p></details>
-    <details><summary>¿Y si quiero algo especial para mi negocio?</summary><p>Lo programamos y lo activamos solo para tu negocio. Las funciones a la medida van desde ₡40.000, pago único.</p></details>
+    <details><summary>¿Cómo es eso de la demo gratis?</summary><p>Te armamos tu página con tu nombre y tus servicios para que la pruebes antes de pagar. Si no te convence, no pagas nada.</p></details>
+    <details><summary>¿Cómo pago?</summary><p>Por SINPE Móvil: 50 % cuando apruebas tu demo y 50 % cuando te lo entregamos funcionando.</p></details>
     <details><summary>¿Mis clientes tienen que descargar algo?</summary><p>No. Solo abren tu link desde el celular o la computadora, eligen el servicio y la hora, y listo.</p></details>
-    <details><summary>¿Mi equipo también puede usar la app?</summary><p>Sí. Le damos acceso con su correo a cada persona de tu equipo.</p></details>
+    <details><summary>¿Y la app para mí?</summary><p>Abres citalyapp.com/app en tu celular y tocas "Agregar a pantalla de inicio". Te queda el ícono como cualquier app y siempre está actualizada.</p></details>
+    <details><summary>¿Mi equipo también puede usarla?</summary><p>Sí. Le damos acceso con su correo a cada persona de tu equipo.</p></details>
+    <details><summary>¿Y si quiero algo especial para mi negocio?</summary><p>Lo programamos y lo activamos solo para tu negocio. Las funciones a la medida van desde ₡40.000, pago único.</p></details>
+    <details><summary>¿Puedo tener mi propio dominio (tunegocio.com)?</summary><p>Sí, es opcional. Tu página funciona gratis en citalyapp.com/tu-negocio. Si quieres tu propio dominio, solo pagas lo que cuesta el dominio cada año.</p></details>
     <details><summary>¿Qué pasa si un cliente reserva y no llega?</summary><p>Lo marcas como "No vino" y queda en su historial. Además, cada número solo puede tener una reserva pendiente a la vez, para evitar reservas falsas.</p></details>
-    
     <details><summary>¿Mis datos están seguros?</summary><p>Se guardan en Google Firebase. Solo tú y tu equipo pueden ver tu agenda y tus clientes; tus clientes solo ven las horas libres, nunca quién más reservó.</p></details>
   </div>
 </section>
 
 <div class="c rv"><div class="final">
   <h2>Tu próxima cita puede llegar sola.</h2>
-  <p>Escríbenos y te mostramos cómo se vería tu negocio en Citaly.</p>
-  <a class="btn wa-demo" target="_blank" rel="noopener">Pedir mi demo por WhatsApp →</a>
+  <p>Escríbenos y en menos de 24 horas te mandamos tu demo gratis.</p>
+  <a class="btn wa-demo" target="_blank" rel="noopener">Pedir mi demo gratis por WhatsApp →</a>
 </div></div>
 
 <footer><div class="c">
@@ -230,15 +287,18 @@ footer a{color:var(--mute)}
   <span>Hecho con 💜 en Costa Rica · <a id="ftWa" target="_blank" rel="noopener">WhatsApp</a> · <a href="terminos.html">Términos</a> · <a href="privacidad.html">Privacidad</a></span>
 </div></footer>
 
+<div class="dockc" id="dock"><a class="btn wa-demo" target="_blank" rel="noopener">Pedir mi demo gratis →</a></div>
+
 <script>
 (function(){var C=CITALY,f=function(n){return "₡"+n.toLocaleString("es-CR")},wa=function(m){return "https://wa.me/"+C.wa+"?text="+encodeURIComponent(m)};
   var set=function(sel,v){Array.prototype.forEach.call(document.querySelectorAll(sel),function(e){e.textContent=v})};
-  set(".pPromo",f(C.setup.promo));set(".pStd",f(C.setup.std));set(".pPers",f(C.setup.pers));set(".pMod",f(C.modFrom));set(".pCupos",C.promoCupos);
-  Array.prototype.forEach.call(document.querySelectorAll(".wa-demo"),function(e){e.href=wa("Hola, quiero una demo de Citaly para mi negocio")});
-  Array.prototype.forEach.call(document.querySelectorAll(".wa-promo"),function(e){e.href=wa("Hola, quiero la promo de lanzamiento de Citaly para mi negocio")});
-  Array.prototype.forEach.call(document.querySelectorAll(".wa-pers"),function(e){e.href=wa("Hola, quiero Citaly Personalizado. Mi negocio necesita:")});
+  set(".pPromo",f(C.setup.promo));set(".pStd",f(C.setup.std));set(".pPers",f(C.setup.pers));set(".pMod",f(C.modFrom));set(".pCupos",C.promoCupos);set(".pAhorro",f(C.setup.std-C.setup.promo));
+  var each=function(sel,m){Array.prototype.forEach.call(document.querySelectorAll(sel),function(e){e.href=wa(m)})};
+  each(".wa-demo","Hola, quiero mi demo gratis de Citaly. Mi negocio se llama: ");
+  each(".wa-promo","Hola, quiero la promo de lanzamiento de Citaly. Mi negocio se llama: ");
+  each(".wa-pers","Hola, quiero Citaly Personalizado. Mi negocio necesita: ");
   document.getElementById("ftWa").href=wa("Hola, quiero saber más de Citaly");
-  var nav=document.getElementById("nav");addEventListener("scroll",function(){nav.classList.toggle("sc",scrollY>8)},{passive:true});
+  var nav=document.getElementById("nav"),dock=document.getElementById("dock");addEventListener("scroll",function(){nav.classList.toggle("sc",scrollY>8);dock.classList.toggle("on",scrollY>600)},{passive:true});
   if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});
     Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(e){io.observe(e)})}else Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(e){e.classList.add("in")});
 })();
