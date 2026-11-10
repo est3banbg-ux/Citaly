@@ -195,7 +195,7 @@ function edRender(){var nw=!E.id,W=E.web;$("main").hidden=true;$("ed").hidden=fa
     +'</div>';
   // acceso
   h+='<div class="card">'+sec("2. Quién entra a la app","Con estos correos entran a citalyapp.com/app. Con Google entran directo; con otro correo crean su contraseña y lo confirman.")
-    +'<label for="eE">Correo del dueño</label><input id="eE" type="email" inputmode="email" value="'+esc(E.email)+'" placeholder="dueno@gmail.com">'
+    +'<label for="eE">Correo del dueño <span class="mute small">(en una demo para un prospecto puede quedar vacío)</span></label><input id="eE" type="email" inputmode="email" value="'+esc(E.email)+'" placeholder="dueno@gmail.com">'
     +'<label for="eTm">Correos del equipo (opcional, uno por línea)</label><textarea id="eTm" placeholder="ayudante@gmail.com">'+esc(E.team)+'</textarea>'
     +'</div>';
   // marca
@@ -308,7 +308,7 @@ function validate(){$("eErr").textContent="";
   if(!E.type)return fail("eT","Elige el tipo de negocio.");
   if(!E.id&&!E.slugOk)return fail("eS","Elige un link disponible.");
   if(E.wa.length<8)return fail("eW","Escribe el WhatsApp del negocio (8 dígitos).");
-  if(!/^\S+@\S+\.\S+$/.test(E.email))return fail("eE","Escribe el correo del dueño.");
+  if(E.email?!/^\S+@\S+\.\S+$/.test(E.email):!E.demo)return fail("eE",E.email?"Revisa el correo del dueño.":"Escribe el correo del dueño (en una demo puede quedar vacío).");
   if(!E.services.some(function(s){return String(s.n).trim()}))return fail("eSvA","Agrega al menos un servicio.");
   if(E.hours.some(function(h){return h.on&&tm(h.b)-tm(h.a)<30}))return fail(null,"Revisa el horario: el cierre debe ser después de la apertura.");
   if(!E.hours.some(function(h){return h.on}))return fail(null,"Marca al menos un día en el horario.");
@@ -317,7 +317,7 @@ function validate(){$("eErr").textContent="";
   return true}
 function pubOf(b,bid){return {biz:bid,web:b.web||{},name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
 function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.id||db.collection("biz").doc().id,now=TS.now();
-  var team=emails(E.team).filter(function(x){return x!==E.email}),all=[E.email].concat(team);
+  var team=emails(E.team).filter(function(x){return x!==E.email}),all=(E.email?[E.email]:[]).concat(team);
   var services=E.services.filter(function(s){return String(s.n).trim()}).map(function(s,i){return {id:s.id||"s"+(i+1),n:String(s.n).trim().slice(0,50),p:Math.max(0,+s.p||0),d:+s.d||60,ic:String(s.ic||"").slice(0,4)}});
   var zones=E.home?E.zones.filter(function(z){return String(z.n).trim()}).slice(0,40).map(function(z){return {n:String(z.n).trim().slice(0,40),fee:Math.max(0,+z.fee||0)}}):[];
   var W=E.web,web={promoNote:W.promoNote||"",feats:W.feats||"",about:W.about||"",svcNote:W.svcNote||"",homeNote:W.homeNote||"",greview:W.greview||"",ig:W.ig||"",fb:W.fb||"",tt:W.tt||"",email:W.email||"",
@@ -337,7 +337,7 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     if(nw){sub.start=now;sub.status="active";sub.until=E.demo?TS.fromMillis(Date.now()+365*864e5):TS.fromDate(new Date(E.until+"T23:59:00-06:00"))}
     else if(E.demo&&!(SUBS[bid]&&SUBS[bid].until&&SUBS[bid].until.toMillis()>Date.now())){sub.status="active";sub.until=TS.fromMillis(Date.now()+365*864e5)}
     bt.set(db.doc("subs/"+bid),sub,{merge:true});
-    all.forEach(function(em,i){bt.set(db.doc("own/"+em),{biz:bid,rol:i===0?"dueño":"equipo",name:E.name})});
+    all.forEach(function(em){bt.set(db.doc("own/"+em),{biz:bid,rol:em===E.email?"dueño":"equipo",name:E.name})});
     (E.oldEmails||[]).forEach(function(em){if(all.indexOf(em)<0)bt.delete(db.doc("own/"+em))});
     if(nw&&E.setupPaid>0)bt.set(db.collection("payments").doc(),{biz:bid,name:E.name,amt:E.setupPaid,at:Date.now(),type:"setup",plan:E.plan});
     return bt.commit()}).then(function(){
@@ -346,7 +346,7 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     E.fotos.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;return ref.set({img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i})})});
     return ops.reduce(function(p,op){return p.then(op)},Promise.resolve())}).then(function(){
     toast(nw?"¡Negocio creado! 🎉":"Cambios guardados ✓");var s=E.slug,em=E.email,n=E.name;closeEd();
-    if(nw)setTimeout(function(){if(confirm("Listo: citalyapp.com/"+s+"\n\nEl dueño entra a citalyapp.com/app con "+em+".\n\n¿Abrir la página web del negocio?"))window.open("../"+s,"_blank")},300)
+    if(nw)setTimeout(function(){if(confirm("Listo: citalyapp.com/"+s+"\n\n"+(em?"El dueño entra a citalyapp.com/app con "+em+".":"Es una demo sin dueño: cuando el negocio contrate, edítala, ponle su correo y cámbiale el plan.")+"\n\n¿Abrir la página web del negocio?"))window.open("../"+s,"_blank")},300)
   }).catch(function(e){console.error(e);btn.disabled=false;btn.textContent=nw?"Crear negocio":"Guardar cambios";$("eErr").textContent=e&&e.msg?e.msg:e&&e.code==="permission-denied"?"Sin permiso. ¿Ya pegaste las reglas nuevas en Firebase?":"No se pudo guardar: "+(e&&e.message||e)})}
 $("newB").onclick=function(){openEd(null)};
 
