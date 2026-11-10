@@ -10,9 +10,17 @@ var CITALY = {
   },
   site: "https://citalyapp.com",
   admin: "est3banbg@gmail.com",
-  price: 30000,          // mensualidad (hosting, soporte y cambios)
-  setup: { std: 150000, pro: 250000 },  // instalación: Standard y PRO
-  trialDays: 0,          // ya no hay prueba gratis: el admin crea cada negocio
+  price: 0,              // ya no hay mensualidad: pago único
+  setup: { promo: 100000, std: 150000, pers: 250000 },  // promo de lanzamiento, Standard, Personalizado
+  promoCupos: 5,         // la promo es para los primeros 5 negocios
+  modFrom: 40000,        // módulos a la medida, desde
+  trialDays: 0,
+  // Módulos que se encienden por negocio desde el admin. Para agregar uno nuevo:
+  // 1) se registra aquí, 2) se programa en la app/página revisando modOn(B, "clave").
+  mods: {
+    vehiculo: { n: "Precio según tipo de vehículo", ic: "🚙", d: "El cliente elige su vehículo al reservar y los servicios marcados cambian de precio según el tipo." },
+    insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." }
+  },
   sinpe: "7089-2537",    // número SINPE Móvil donde los negocios pagan (confirmar)
   sinpeName: "Esteban",  // a nombre de quién sale el SINPE (confirmar)
   wa: "50670892537",     // WhatsApp de soporte y comprobantes

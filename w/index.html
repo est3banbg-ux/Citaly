@@ -168,7 +168,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
   var bookBtn=function(cls,txt){return OPEN?'<a class="btn '+cls+'" href="'+bookUrl()+'">'+(txt||"Reservar mi cita")+'</a>':'<a class="btn '+cls+'" target="_blank" rel="noopener" href="'+waUrl(P.wa,"Hola "+name+", quiero agendar una cita")+'">Agendar por WhatsApp</a>'};
   var hs=hoursSummary(H),now=openNow(H),feats=lines(W.feats);
   if(!feats.length)feats=[P.home?"Vamos donde estés":(P.addr?P.addr:""),OPEN?"Reserva en línea en 1 minuto":"",  "Confirmación por WhatsApp"].filter(Boolean);
-  var hero1=FOTOS[0],svcs=P.services||[],showP=P.showPrices!==false,revs=(W.reviews||[]).filter(function(r){return r&&r.t}),faqs=(W.faqs||[]).filter(function(f){return f&&f.q&&f.a}),zones=P.zones||[];
+  var vehOn=!!(P.mods&&P.mods.vehiculo&&(P.veh||[]).length),hero1=FOTOS[0],svcs=P.services||[],showP=P.showPrices!==false,revs=(W.reviews||[]).filter(function(r){return r&&r.t}),faqs=(W.faqs||[]).filter(function(f){return f&&f.q&&f.a}),zones=P.zones||[];
   var nav=[];if(svcs.length)nav.push(["servicios","Servicios"]);if(FOTOS.length)nav.push(["trabajos","Trabajos"]);if(revs.length)nav.push(["resenas","Reseñas"]);if(faqs.length)nav.push(["preguntas","Preguntas"]);nav.push(["contacto","Contacto"]);
   var h='';
   h+='<header class="nav"><div class="c"><a class="brand" href="#top"><span class="lg">'+lg+'</span><span>'+esc(name)+'</span></a><nav class="links">'+nav.map(function(n){return '<a href="#'+n[0]+'">'+n[1]+'</a>'}).join("")+'</nav>'+bookBtn("", OPEN?"Reservar":"")+'</div></header>';
@@ -183,7 +183,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
     +'</div><div>'+(hero1?'<div class="shot"><img alt="'+esc(hero1.cap||name)+'" src="'+img(hero1.img)+'">'+(hero1.cap?'<span class="cap">'+esc(hero1.cap)+'</span>':"")+'</div>':'<div class="bigl">'+lg+'</div>')+'</div></div></section>';
   // servicios
   if(svcs.length)h+='<section class="s" id="servicios"><div class="c rv"><div class="kick">Servicios'+(showP?" y precios":"")+'</div><h2 class="t">'+esc(W.svcTitle||"¿Qué necesitas?")+'</h2><p class="sub">'+esc(W.svcSub||(OPEN?"Elige y reserva en línea. Solo ves las horas libres.":"Escríbenos y te agendamos."))+'</p><div class="grid g2">'
-    +svcs.map(function(s){return '<a class="svc" href="'+(OPEN?bookUrl():wa)+'"'+(OPEN?"":' target="_blank" rel="noopener"')+'><span class="ic">'+esc(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+durTxt(+s.d||60)+'</span></span><span class="p">'+(showP?(s.p?crc(s.p):"Consultar"):"")+'<small>'+(OPEN?"Reservar →":"Consultar →")+'</small></span></a>'}).join("")
+    +svcs.map(function(s){return '<a class="svc" href="'+(OPEN?bookUrl():wa)+'"'+(OPEN?"":' target="_blank" rel="noopener"')+'><span class="ic">'+esc(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+durTxt(+s.d||60)+'</span></span><span class="p">'+(showP?(s.p?(s.vx&&vehOn?'<small style="display:inline;color:var(--mute)">desde </small>':"")+crc(s.p):"Consultar"):"")+'<small>'+(OPEN?"Reservar →":"Consultar →")+'</small></span></a>'}).join("")
     +'</div>'+(W.svcNote?'<p class="mute small" style="margin-top:14px">'+esc(W.svcNote)+'</p>':"")+'</div></section>';
   // trabajos
   if(FOTOS.length)h+='<section class="s alt" id="trabajos"><div class="c rv"><div class="kick">Nuestro trabajo</div><h2 class="t">'+esc(W.galTitle||"Trabajos reales")+'</h2><p class="sub">'+esc(W.galSub||"Toca una foto para verla en grande.")+'</p><div class="gal" id="gal">'

@@ -98,6 +98,7 @@ footer a{color:var(--mute)}
 .prices{display:grid;gap:18px;margin-top:30px;max-width:900px;margin-left:auto;margin-right:auto}
 @media(min-width:760px){.prices{grid-template-columns:1fr 1fr}}
 .prices .price{margin:0;max-width:none}
+@media(min-width:900px){.prices.p3{grid-template-columns:repeat(3,1fr);max-width:1060px}}
 .price.soon{border-color:var(--line);box-shadow:var(--sh);opacity:.92}
 .price .amt.sm{font-size:44px}
 .price .then{font-weight:700;margin-top:4px}
@@ -118,7 +119,7 @@ footer a{color:var(--mute)}
     <h1 class="fade">Te montamos el sistema.<br><em>Tus clientes reservan solos.</em></h1>
     <p class="lead fade">Página web con tu marca, página de reservas, agenda y control de clientes y gastos. Nosotros lo configuramos todo y te enseñamos a usarlo. Tú solo atiendes.</p>
     <div class="ctas fade"><a class="btn big wa-demo" target="_blank" rel="noopener">Quiero una demo →</a><a class="btn ghost" href="glassstudiocr" target="_blank">Ver un ejemplo real</a></div>
-    <div class="trust fade"><span>Lo configuramos por ti</span><span>Te capacitamos</span><span>Pagas por SINPE</span></div>
+    <div class="trust fade"><span>Lo configuramos por ti</span><span>Un solo pago</span><span>Sin mensualidades</span></div>
   </div>
   <div style="position:relative;padding:10px 0">
     <div class="phone" aria-hidden="true"><div class="scr">
@@ -170,44 +171,50 @@ footer a{color:var(--mute)}
     <li>Agenda por semana y por día</li><li>Duración de cada servicio y avisos de choque</li>
     <li>Historial de cada cliente</li><li>Mensajes de WhatsApp listos para confirmar y recordar</li>
     <li>Ingresos, gastos y ganancia del mes</li><li>Acceso para ti y tu equipo</li>
-    <li>Servicio a domicilio con zonas y ubicación del cliente</li><li>Cambios de precios y horarios cuando los necesites</li>
+    <li>Servicio a domicilio con zonas y ubicación del cliente</li><li>Funciones a la medida para tu tipo de negocio</li>
   </ul>
 </section>
 
 <section class="c rv" id="precio">
-  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un pago de instalación y una mensualidad.</h2><p class="s" style="margin:0 auto">Pagas el 50 % al empezar y el resto cuando te lo entregamos funcionando.</p></div>
-  <div class="prices">
+  <div style="text-align:center"><div class="kicker">Precio</div><h2 class="t">Un solo pago. Sin mensualidades.</h2><p class="s" style="margin:0 auto">Pagas el 50 % al empezar y el resto cuando te lo entregamos funcionando. Después no pagas nada cada mes.</p></div>
+  <div class="prices p3">
     <div class="price">
-      <span class="rib">Disponible</span>
-      <h3>Standard</h3>
-      <div class="amt sm"><span class="pStd">₡150.000</span></div>
-      <div class="mute small">instalación, un solo pago</div>
-      <div class="then">+ <span class="pMes">₡30.000</span> al mes</div>
-      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Página web con tu marca</li><li>Página de reservas</li><li>App de agenda, clientes y gastos</li><li>Hasta 10 servicios cargados</li><li>Capacitación de 15 minutos</li><li>Hosting, soporte y cambios incluidos en la mensualidad</li></ul>
-      <a class="btn big wa-demo" target="_blank" rel="noopener" style="padding:16px">Quiero el mío</a>
+      <span class="rib">Promo de lanzamiento</span>
+      <h3>Lanzamiento</h3>
+      <div class="amt sm"><span class="pPromo">₡100.000</span></div>
+      <div class="mute small">pago único · solo los primeros <span class="pCupos">5</span> negocios</div>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del plan Standard</li><li>Precio especial por estrenar Citaly con nosotros</li></ul>
+      <a class="btn big wa-promo" target="_blank" rel="noopener" style="padding:16px">Quiero la promo</a>
     </div>
     <div class="price soon">
-      <span class="rib" style="background:var(--mute)">Muy pronto</span>
-      <h3>PRO</h3>
-      <div class="amt sm"><span class="pPro">₡250.000</span></div>
-      <div class="mute small">instalación, un solo pago</div>
-      <div class="then">+ <span class="pMes">₡30.000</span> al mes</div>
-      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del Standard</li><li>Asistente de WhatsApp con inteligencia artificial que responde precios y ubicación</li><li>Recordatorios automáticos antes de la cita</li><li>Mensaje después del servicio para pedir reseña en Google</li></ul>
-      <a class="btn ghost wa-pro" target="_blank" rel="noopener" style="padding:16px">Avísame cuando esté listo</a>
+      <h3>Standard</h3>
+      <div class="amt sm"><span class="pStd">₡150.000</span></div>
+      <div class="mute small">pago único</div>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Página web con tu marca</li><li>Página de reservas</li><li>App de agenda, clientes y gastos</li><li>Hasta 10 servicios cargados</li><li>Capacitación de 15 minutos</li></ul>
+      <a class="btn ghost wa-demo" target="_blank" rel="noopener" style="padding:16px">Quiero el mío</a>
+    </div>
+    <div class="price soon">
+      <h3>Personalizado</h3>
+      <div class="amt sm"><span class="pPers">₡250.000</span></div>
+      <div class="mute small">pago único</div>
+      <ul class="list" style="grid-template-columns:1fr;margin-top:18px"><li>Todo lo del Standard</li><li>1 función hecha a la medida de tu negocio</li><li>Por ejemplo: precio según tipo de vehículo, control de insumos o lo que tu negocio necesite</li></ul>
+      <a class="btn ghost wa-pers" target="_blank" rel="noopener" style="padding:16px">Contarles qué necesito</a>
     </div>
   </div>
+  <p class="s" style="text-align:center;margin:22px auto 0">¿Después quieres algo nuevo? Funciones a la medida desde <b class="pMod">₡40.000</b>, pago único.</p>
 </section>
 
 <section class="c rv" style="max-width:760px">
   <div style="text-align:center"><div class="kicker">Preguntas frecuentes</div><h2 class="t">¿Dudas? Aquí están las respuestas.</h2></div>
   <div style="margin-top:24px">
     <details><summary>¿Tengo que configurar algo yo?</summary><p>No. Tú nos pasas la información de tu negocio y nosotros lo montamos todo. Al final te enseñamos a usarlo en 15 minutos.</p></details>
-    <details><summary>¿Cómo pago?</summary><p>Por SINPE Móvil. La instalación se paga 50 % al empezar y 50 % al entregar. La mensualidad se paga cada mes y te avisamos desde la app cuando se acerca la fecha.</p></details>
-    <details><summary>¿Qué incluye la mensualidad?</summary><p>Que tu página y tu app sigan en línea, soporte por WhatsApp y los cambios de precios, servicios y horarios que necesites.</p></details>
+    <details><summary>¿Cómo pago?</summary><p>Por SINPE Móvil: 50 % al empezar y 50 % cuando te lo entregamos funcionando. Es un solo pago.</p></details>
+    <details><summary>¿Tengo que pagar algo cada mes?</summary><p>No. No hay mensualidades. Tus precios, servicios y horarios los cambias tú mismo desde la app cuando quieras.</p></details>
+    <details><summary>¿Y si quiero algo especial para mi negocio?</summary><p>Lo programamos y lo activamos solo para tu negocio. Las funciones a la medida van desde ₡40.000, pago único.</p></details>
     <details><summary>¿Mis clientes tienen que descargar algo?</summary><p>No. Solo abren tu link desde el celular o la computadora, eligen el servicio y la hora, y listo.</p></details>
     <details><summary>¿Mi equipo también puede usar la app?</summary><p>Sí. Le damos acceso con su correo a cada persona de tu equipo.</p></details>
     <details><summary>¿Qué pasa si un cliente reserva y no llega?</summary><p>Lo marcas como "No vino" y queda en su historial. Además, cada número solo puede tener una reserva pendiente a la vez, para evitar reservas falsas.</p></details>
-    <details><summary>¿Puedo cancelar cuando quiera?</summary><p>Sí. No hay permanencia: si dejas de pagar la mensualidad, tu página se pausa. La instalación no es reembolsable una vez entregado el sistema.</p></details>
+    
     <details><summary>¿Mis datos están seguros?</summary><p>Se guardan en Google Firebase. Solo tú y tu equipo pueden ver tu agenda y tus clientes; tus clientes solo ven las horas libres, nunca quién más reservó.</p></details>
   </div>
 </section>
@@ -225,11 +232,11 @@ footer a{color:var(--mute)}
 
 <script>
 (function(){var C=CITALY,f=function(n){return "₡"+n.toLocaleString("es-CR")},wa=function(m){return "https://wa.me/"+C.wa+"?text="+encodeURIComponent(m)};
-  Array.prototype.forEach.call(document.querySelectorAll(".pStd"),function(e){e.textContent=f(C.setup.std)});
-  Array.prototype.forEach.call(document.querySelectorAll(".pPro"),function(e){e.textContent=f(C.setup.pro)});
-  Array.prototype.forEach.call(document.querySelectorAll(".pMes"),function(e){e.textContent=f(C.price)});
+  var set=function(sel,v){Array.prototype.forEach.call(document.querySelectorAll(sel),function(e){e.textContent=v})};
+  set(".pPromo",f(C.setup.promo));set(".pStd",f(C.setup.std));set(".pPers",f(C.setup.pers));set(".pMod",f(C.modFrom));set(".pCupos",C.promoCupos);
   Array.prototype.forEach.call(document.querySelectorAll(".wa-demo"),function(e){e.href=wa("Hola, quiero una demo de Citaly para mi negocio")});
-  Array.prototype.forEach.call(document.querySelectorAll(".wa-pro"),function(e){e.href=wa("Hola, me interesa el plan PRO de Citaly con asistente de WhatsApp")});
+  Array.prototype.forEach.call(document.querySelectorAll(".wa-promo"),function(e){e.href=wa("Hola, quiero la promo de lanzamiento de Citaly para mi negocio")});
+  Array.prototype.forEach.call(document.querySelectorAll(".wa-pers"),function(e){e.href=wa("Hola, quiero Citaly Personalizado. Mi negocio necesita:")});
   document.getElementById("ftWa").href=wa("Hola, quiero saber más de Citaly");
   var nav=document.getElementById("nav");addEventListener("scroll",function(){nav.classList.toggle("sc",scrollY>8)},{passive:true});
   if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12});

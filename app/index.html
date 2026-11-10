@@ -214,18 +214,13 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
   </div>
 </div></section>
 
-<!-- PLAN VENCIDO -->
+<!-- CUENTA PAUSADA -->
 <section id="pay" class="screen"><div class="wrap pay">
   <a class="logo"><img src="../icon-192.png" alt="">citaly</a>
   <div class="card fade" style="margin-top:20px">
-    <h1 id="payT">Tu mensualidad está pendiente</h1>
-    <p class="mute" id="payS">Tus datos están guardados. Paga la mensualidad para seguir usando Citaly y recibir reservas.</p>
-    <div class="big" id="payP">₡12.000</div><div class="mute small">por mes · hosting, soporte y cambios incluidos</div>
-    <ul class="feat"><li>Tu página web y tu página de reservas</li><li>Agenda, clientes, ingresos y gastos</li><li>Cambios de precios y horarios cuando los necesites</li><li>Soporte por WhatsApp</li></ul>
-    <h3 style="text-align:left">Cómo pagar por SINPE Móvil</h3>
-    <ol id="payO"></ol>
-    <a class="btn wa" id="payWa" target="_blank" rel="noopener">Enviar comprobante por WhatsApp</a>
-    <p class="mute small" style="margin:10px 0 0">Te activamos en menos de 24 horas, normalmente en minutos.</p>
+    <h1 id="payT">Tu cuenta está pausada</h1>
+    <p class="mute" id="payS">Tus datos están guardados. Escríbenos por WhatsApp para reactivarla.</p>
+    <a class="btn wa" id="payWa" target="_blank" rel="noopener">Escribir a Citaly por WhatsApp</a>
   </div>
   <button class="link" id="payOut">Cerrar sesión</button>
 </div></section>
@@ -282,10 +277,11 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="look"><span class="ic">🎨</span><span class="m"><b>Logo y color</b><span>Cómo te ven tus clientes</span></span>›</button>
         <button class="set" data-s="web"><span class="ic">✨</span><span class="m"><b>Portada de mi página</b><span>Frase, promoción y precios</span></span>›</button>
         <button class="set" data-s="dom"><span class="ic">🚗</span><span class="m"><b>Servicio a domicilio</b><span id="domN">Ubicación del cliente y zonas</span></span>›</button>
+        <button class="set" id="insRow" hidden><span class="ic">📦</span><span class="m"><b>Insumos</b><span id="insN"></span></span>›</button>
         <button class="set" data-s="res"><span class="ic">📅</span><span class="m"><b>Reglas de reserva</b><span>Anticipación y días disponibles</span></span>›</button>
       </div>
       <div class="card" style="padding:4px 14px">
-        <button class="set" data-s="plan"><span class="ic">⭐</span><span class="m"><b>Mi mensualidad</b><span id="planN"></span></span>›</button>
+        <button class="set" data-s="plan"><span class="ic">⭐</span><span class="m"><b>Mi plan</b><span id="planN"></span></span>›</button>
         <a class="set" id="help" target="_blank" rel="noopener"><span class="ic">💬</span><span class="m"><b>Ayuda por WhatsApp</b><span>Te respondemos rápido</span></span>›</a>
         <button class="set" id="out"><span class="ic">🚪</span><span class="m"><b>Cerrar sesión</b><span id="em"></span></span></button>
       </div>
@@ -358,6 +354,28 @@ $("aReset").onclick=function(){var e=$("aE").value.trim();if(!/^\S+@\S+\.\S+$/.t
 $("gIn").onclick=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});$("aErr").textContent="";
   auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$("aErr").textContent=errEs(x)})};
 
+/* ---------- MÓDULOS (se encienden por negocio desde el admin) ---------- */
+function modOn(k){return !!(B&&B.mods&&B.mods[k])}
+function insSheet(){var L=(B.ins||[]).map(function(x){return Object.assign({},x)});
+  function low(x){return +x.min>0&&+x.q<=+x.min}
+  function rows(){return L.length?L.map(function(x,i){return '<div class="li" style="align-items:center;gap:8px"><span style="flex:1;min-width:0"><b>'+esc(x.n)+'</b>'+(low(x)?' <span class="pill bad">Por acabarse</span>':"")+'<br><span class="mute small">'+(+x.q||0)+" "+esc(x.u||"")+(+x.min?" · aviso en "+x.min:"")+'</span></span><button class="ib" data-m="'+i+'" aria-label="Usé uno">−</button><button class="ib" data-p="'+i+'" aria-label="Compré">+</button><button class="ib" data-e="'+i+'" aria-label="Editar">✏️</button></div>'}).join(""):'<p class="mute small">Agrega los materiales que usas y lleva la cuenta de cuánto te queda.</p>'}
+  function save(msg){return saveIns(L).then(function(){$("inL").innerHTML=rows();if(msg)toast(msg)})}
+  sheet('<h2>📦 Insumos</h2><p class="mute small" style="margin-top:-4px">Toca − cuando uses uno y + cuando compres. Te avisamos cuando algo se esté acabando.</p><div class="card" style="box-shadow:none;padding:4px 12px" id="inL">'+rows()+'</div>'
+    +'<h3 id="inH">Agregar insumo</h3><label for="inN">Nombre</label><input id="inN" maxlength="40" placeholder="Ej: Polish para vidrio"><div class="row"><div><label for="inQ">Cantidad</label><input id="inQ" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></div><div><label for="inU">Unidad</label><input id="inU" maxlength="12" placeholder="botellas"></div><div><label for="inM">Avisar en</label><input id="inM" type="number" inputmode="decimal" min="0" step="any" placeholder="1"></div></div>'
+    +'<p class="err" id="inE"></p><div class="row"><button class="btn" id="inS">Agregar</button><button class="btn danger" id="inD" hidden>Eliminar</button></div>',
+    function(){var ed=-1;
+      function form(i){ed=i;var x=i>=0?L[i]:{n:"",q:"",u:"",min:""};$("inN").value=x.n;$("inQ").value=x.q;$("inU").value=x.u||"";$("inM").value=x.min||"";$("inH").textContent=i>=0?"Editar insumo":"Agregar insumo";$("inS").textContent=i>=0?"Guardar":"Agregar";$("inD").hidden=i<0;if(i>=0)$("inN").scrollIntoView({behavior:"smooth",block:"center"})}
+      $("inL").onclick=function(e){var b=e.target.closest("button");if(!b)return;var d=b.dataset;
+        if(d.m!=null){var x=L[+d.m];x.q=Math.max(0,(+x.q||0)-1);save()}
+        if(d.p!=null){var y=L[+d.p],v=prompt("¿Cuántos "+(y.u||"")+" compraste de "+y.n+"?","1");if(v==null)return;y.q=(+y.q||0)+Math.max(0,+String(v).replace(",",".")||0);save("Existencias actualizadas ✓")}
+        if(d.e!=null)form(+d.e)};
+      $("inS").onclick=function(){var n=$("inN").value.trim();if(!n){$("inE").textContent="Escribe el nombre del insumo.";return}$("inE").textContent="";
+        var x={id:ed>=0?L[ed].id:"i"+Date.now(),n:n.slice(0,40),q:Math.max(0,+$("inQ").value||0),u:$("inU").value.trim().slice(0,12),min:Math.max(0,+$("inM").value||0)};
+        if(ed>=0)L[ed]=x;else L.push(x);save(ed>=0?"Guardado ✓":"Agregado ✓").then(function(){form(-1)})};
+      $("inD").onclick=function(){if(ed<0||!confirm("¿Eliminar "+L[ed].n+"?"))return;L.splice(ed,1);save("Eliminado").then(function(){form(-1)})}})}
+function saveIns(L){B.ins=L;render();return db.doc("biz/"+BID).set({ins:L},{merge:true}).catch(function(e){toast(errEs(e));throw e})}
+$("insRow").onclick=function(){insSheet()};
+
 /* ---------- SIN ACCESO ---------- */
 function noAcc(kind){show("noacc");var e=esc(U&&U.email||"");
   if(kind==="verify"){$("naBody").innerHTML='<h2>Confirma tu correo</h2><p class="mute">Te enviamos un correo a <b>'+e+'</b> con un enlace para confirmarlo. Ábrelo y luego toca el botón de abajo.</p><div class="row"><button class="btn" id="naOk">Ya lo confirmé</button><button class="btn alt" id="naRe">Reenviar correo</button></div>';
@@ -367,7 +385,7 @@ function noAcc(kind){show("noacc");var e=esc(U&&U.email||"");
   $("naWa").href=waUrl(C.wa,kind==="verify"?"Hola, no me llega el correo para confirmar mi cuenta de Citaly ("+(U&&U.email||"")+")":"Hola, quiero entrar a Citaly con este correo: "+(U&&U.email||""))}
 $("naOut").onclick=function(){auth.signOut()};
 function resizeImg(f,S){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var c=document.createElement("canvas"),s=Math.min(im.width,im.height);c.width=c.height=S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);var u=c.toDataURL("image/webp",.82);if(u.indexOf("image/webp")<0)u=c.toDataURL("image/jpeg",.82);ok(u)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
-function pubOf(b){return {biz:BID,web:b.web||{},name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
+function pubOf(b){return {biz:BID,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
 
 /* ---------- ARRANQUE ---------- */
 function start(fresh){var uid=BID,first=true;
@@ -384,11 +402,13 @@ function render(){if(!B)return;
   document.documentElement.style.setProperty("--acc",B.color||C.colors[0]);
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
-  var dl=daysLeft();
-  if(SUB&&SUB.status==="trial")$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba</span><b>Ver</b></div>';
-  else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trB">🔔<span style="flex:1">Tu mensualidad vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Pagar</b></div>';
+  var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
+  if(low.length)$("trial").innerHTML='<div class="banner hot" id="trB">📦<span style="flex:1">Se está acabando: <b>'+esc(low.map(function(x){return x.n}).join(", "))+'</b></span><b>Ver</b></div>';
   else $("trial").innerHTML="";
-  if($("trB"))$("trB").onclick=function(){openSet("plan")};
+  if($("trB"))$("trB").onclick=function(){insSheet()};
+  var dl=daysLeft();
+  if(false)$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba</span><b>Ver</b></div>';
+  else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trB">🔔<span style="flex:1">Tu mensualidad vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Pagar</b></div>';
   renderPay();
   var p=JOBS.filter(function(j){return j.st==="Por confirmar"}).length;$("pb").hidden=!p;$("pb").textContent=p;
   updBadges();if(VIEW==="agenda")renderAg();else if(VIEW==="clientes")renderCli();else if(VIEW==="numeros")renderNum();else renderSet()}
@@ -443,8 +463,9 @@ function msgFor(k,j){var n=first(j.cli),d=j.date?niceDay(j.date).toLowerCase()+"
 function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel||"",items:[],lines:[],date:pre.date||ymd(new Date()),time:"",dur:60,total:0,note:"",st:"Confirmada",ubic:pre.ubic||"",how:pre.how||""};
   if(nw&&pre.date&&pre.date<ymd(new Date()))j.date=ymd(new Date());
   var sub=j.sub!=null?+j.sub:Math.max(0,(+j.total||0)-(+j.fee||0)+(+j.disc||0));
-  J={nw:nw,j:j,pick:(j.lines||[]).map(function(l){return l.n}),dur:+j.dur||60};
-  var svc=(B.services||[]).map(function(s){return '<button class="chip" data-n="'+esc(s.n)+'" aria-pressed="'+(J.pick.indexOf(s.n)>=0)+'">'+(s.ic?s.ic+" ":"")+esc(s.n)+' <small>'+crc(s.p)+'</small></button>'}).join("");
+  var VH=modOn("vehiculo")?(B.veh||[]):[],vi=-1;VH.forEach(function(v,i){if(v.n===j.veh)vi=i});if(nw&&VH.length&&vi<0)vi=0;
+  J={nw:nw,j:j,pick:(j.lines||[]).map(function(l){return l.n}),dur:+j.dur||60,vi:vi};
+  var svc=svcChips();
   var cl=clients().map(function(c){return '<option value="'+esc(c.cli)+'">'}).join("");
   var showLoc=B.home||j.ubic||j.addr,qa="";
   if(!nw&&j.tel){qa+='<a class="btn sm ghost" href="tel:'+esc(telN(j.tel))+'">📞 Llamar</a>';
@@ -459,6 +480,7 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
    +(!nw&&(j.zone||j.addr)?'<p class="small" style="margin:6px 0 0">'+(j.zone?'🗺️ <b>'+esc(j.zone)+'</b> ':'')+(j.addr?'· '+esc(j.addr):'')+'</p>':"")
    +'<label for="jC">Cliente</label><input id="jC" list="jCl" value="'+esc(j.cli)+'" maxlength="60" placeholder="Nombre"><datalist id="jCl">'+cl+'</datalist>'
    +'<label for="jT">WhatsApp</label><input id="jT" inputmode="tel" value="'+esc(j.tel)+'" maxlength="15" placeholder="8888 8888">'
+   +(VH.length?'<label for="jV">Vehículo</label><select id="jV">'+(vi<0?'<option value="-1">Sin dato</option>':"")+VH.map(function(v,i){return '<option value="'+i+'"'+(i===vi?" selected":"")+'>'+esc(v.n)+(+v.x?" (+"+crc(v.x)+")":"")+'</option>'}).join("")+'</select>':"")
    +'<label>Servicios</label><div class="svcpick" id="jS">'+(svc||'<span class="mute small">Agrega servicios en Ajustes.</span>')+'</div>'
    +'<div class="row"><div><label for="jD">Día</label><input id="jD" type="date" value="'+j.date+'"></div><div><label for="jH">Hora</label><select id="jH"></select></div></div>'
    +'<div class="row"><div><label for="jDu">Duración</label><select id="jDu">'+DURS.map(function(m){return '<option value="'+m+'">'+durTxt(m)+'</option>'}).join("")+'</select></div><div><label for="jP">Precio (₡)</label><input id="jP" type="number" inputmode="numeric" min="0" step="500" value="'+(sub||"")+'"></div></div>'
@@ -476,7 +498,11 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
 function jTot(){var p=+$("jP").value||0,ds=+$("jDs").value||0,fee=+J.j.fee||0,t=Math.max(0,p-ds)+fee;
   $("jSum").innerHTML='<span>Total</span><span>'+crc(t)+'</span>';$("jSum").title=fee?"Incluye domicilio "+crc(fee):"";return t}
 function updU(){var v=$("jU").value,p=parseLoc(v);$("jUv").innerHTML=p?mapThumb(v,true):"";$("jUm").textContent=!p?"Si el cliente te mandó su ubicación por WhatsApp, cópiala y toca Pegar.":p.ll?"✓ Coordenadas: funciona con Maps, Waze y la ruta del día":p.url?"✓ Enlace de mapa guardado":"Se buscará esta dirección en el mapa"}
-function bindJob(){$("jS").onclick=function(e){var b=e.target.closest("button");if(!b)return;var n=b.dataset.n,i=J.pick.indexOf(n);if(i>=0)J.pick.splice(i,1);else J.pick.push(n);b.setAttribute("aria-pressed",i<0);
+function svcChips(){return (B.services||[]).map(function(s){return '<button class="chip" data-n="'+esc(s.n)+'" aria-pressed="'+(J.pick.indexOf(s.n)>=0)+'">'+(s.ic?s.ic+" ":"")+esc(s.n)+' <small>'+crc(sp(s))+'</small></button>'}).join("")}
+function vehX(){var v=modOn("vehiculo")&&J&&J.vi>=0?(B.veh||[])[J.vi]:null;return v?+v.x||0:0}
+function sp(s){return (+s.p||0)+(s.vx?vehX():0)}
+function bindJob(){if($("jV"))$("jV").onchange=function(){J.vi=+this.value;$("jS").innerHTML=svcChips();var L=lines();if(L.length)$("jP").value=L.reduce(function(a,l){return a+l.p},0)||"";jTot()};
+  $("jS").onclick=function(e){var b=e.target.closest("button");if(!b)return;var n=b.dataset.n,i=J.pick.indexOf(n);if(i>=0)J.pick.splice(i,1);else J.pick.push(n);b.setAttribute("aria-pressed",i<0);
     var L=lines();$("jP").value=L.reduce(function(a,l){return a+l.p},0)||"";var d=(B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).reduce(function(a,s){return a+(+s.d||0)},0);
     if(d){$("jDu").value=DURS.find(function(m){return m>=d})||480}fillHours($("jH").value);jTot()};
   $("jP").oninput=$("jDs").oninput=jTot;
@@ -489,13 +515,13 @@ function bindJob(){$("jS").onclick=function(e){var b=e.target.closest("button");
   Array.prototype.forEach.call(document.querySelectorAll("#shC [data-wa]"),function(a){var k=a.dataset.wa,j=J.j;a.href=waUrl(j.tel,msgFor(k,j));
     a.onclick=function(){if(k==="conf"&&j.st==="Por confirmar")setTimeout(function(){db.doc("biz/"+BID+"/jobs/"+j._id).update({st:"Confirmada"});toast("Marcada como confirmada")},400)}})}
 function first(n){return String(n||"").trim().split(/\s+/)[0]||""}
-function lines(){return (B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).map(function(s){return {n:s.n,p:+s.p||0}})}
+function lines(){return (B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).map(function(s){return {n:s.n,p:sp(s)}})}
 function blocks(date,time,dur){var r=[],s=tm(time),n=Math.ceil((+dur||60)/30);for(var i=0;i<n;i++)r.push(date+"_"+hm(s+i*30).replace(":",""));return r}
 function saveJob(forceSt){var c=$("jC").value.trim(),t=telN($("jT").value),d=$("jD").value,h=$("jH").value,dur=+$("jDu").value||60,st=forceSt||($("jE")?$("jE").value:"Confirmada");
   $("jErr").textContent="";if(!c){$("jErr").textContent="Escribe el nombre del cliente.";return}if(!d||!h){$("jErr").textContent="Elige el día y la hora.";return}if(t&&t.length<8){$("jErr").textContent="Revisa el WhatsApp: son 8 dígitos.";return}
   var L=lines(),old=J.j,id=old._id||String(Date.now()*100+Math.floor(Math.random()*100)),sub=Math.max(0,+$("jP").value||0),disc=Math.min(sub,Math.max(0,+$("jDs").value||0)),fee=+old.fee||0,tot=sub-disc+fee;
   var data={id:id,cli:c.slice(0,60),tel:t,items:L.length?L.map(function(l){return l.n}):(old.items||[]),lines:L.length?L:(old.lines||[]),date:d,time:h,dur:dur,sub:sub,disc:disc,fee:fee,total:tot,
-    ubic:$("jU")?$("jU").value.trim().slice(0,300):(old.ubic||""),addr:old.addr||"",zone:old.zone||"",how:$("jHow").value,note:$("jN").value.trim().slice(0,400),st:st,web:!!old.web,src:old.src||"app",at:old.at||Date.now(),upd:Date.now()};
+    veh:J.vi>=0&&modOn("vehiculo")?((B.veh||[])[J.vi]||{}).n||"":(old.veh||""),ubic:$("jU")?$("jU").value.trim().slice(0,300):(old.ubic||""),addr:old.addr||"",zone:old.zone||"",how:$("jHow").value,note:$("jN").value.trim().slice(0,400),st:st,web:!!old.web,src:old.src||"app",at:old.at||Date.now(),upd:Date.now()};
   if(st==="Lista"&&!old.doneAt)data.doneAt=Date.now();
   $("jSave").disabled=true;
   writeJob(data,old).then(function(){closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓")},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
@@ -662,7 +688,7 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
 /* ---------- AJUSTES ---------- */
 function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("wLnk").href=webLink();$("wLnkT").textContent=webLink().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
   $("svcN").textContent=(B.services||[]).length+" servicios";var on=(B.hours||[]).filter(function(h){return h.on});$("horN").textContent=on.length?on.length+" días · "+fh(on[0].a)+" a "+fh(on[0].b):"Sin horario";
-  $("planN").textContent=!SUB?"":SUB.status==="trial"?"Prueba · "+daysLeft()+" días":SUB.status==="active"?"Al día hasta el "+fdate(SUB.until):"Pausado";
+  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":"Pago único · activo";$("insRow").hidden=!modOn("insumos");if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
   $("em").textContent=U.email||"";$("domN").textContent=B.home?"Activo · "+((B.zones||[]).length?(B.zones.length+" zonas"):"sin zonas"):"Desactivado";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
 function fdate(ts){var d=ts.toDate();return d.getDate()+" de "+MN[d.getMonth()]}
 $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toast($("openT").checked?"Reservas en línea activadas":"Reservas en línea pausadas")})};
@@ -691,15 +717,17 @@ function openSet(s){
       $("kS").onclick=function(){saveBiz({logo:lg,color:col}).then(function(){closeSheet();toast("Guardado ✓")})}})}
   if(s==="res")sheet('<h2>Reglas de reserva</h2><label for="rL">¿Con cuánta anticipación mínima pueden reservar?</label><select id="rL">'+[[0,"Sin mínimo"],[1,"1 hora antes"],[2,"2 horas antes"],[4,"4 horas antes"],[12,"12 horas antes"],[24,"1 día antes"],[48,"2 días antes"]].map(function(o){return '<option value="'+o[0]+'"'+(+B.lead===o[0]?" selected":"")+'>'+o[1]+'</option>'}).join("")+'</select><label for="rA">¿Hasta cuántos días adelante?</label><select id="rA">'+[7,14,21,30,45,60,90].map(function(d){return '<option value="'+d+'"'+(+B.ahead===d?" selected":"")+'>'+d+' días</option>'}).join("")+'</select><div style="height:16px"></div><button class="btn" id="rS">Guardar</button>',
     function(){$("rS").onclick=function(){saveBiz({lead:+$("rL").value,ahead:+$("rA").value}).then(function(){closeSheet();toast("Guardado ✓")})}});
-  if(s==="plan")sheet('<h2>Mi mensualidad</h2><div class="card" style="box-shadow:none"><div class="between"><b>Citaly'+(SUB&&SUB.plan==="pro"?" PRO":"")+'</b>'+(SUB&&SUB.status==="active"?'<span class="pill ok">Al día</span>':SUB&&SUB.status==="trial"?'<span class="pill warn">Prueba</span>':'<span class="pill bad">Pendiente</span>')+'</div><div style="font:800 28px Bricolage Grotesque,sans-serif;margin-top:6px">'+crc(C.price)+'<span class="mute small" style="font-family:Figtree"> /mes</span></div><p class="mute small" style="margin:4px 0 0">'+(SUB&&SUB.until?(SUB.status==="trial"?"Tu prueba termina el ":"Pagada hasta el ")+fdate(SUB.until)+".":"")+'</p></div>'+payHtml(),null)}
+  if(s==="plan")sheet('<h2>Mi plan</h2><div class="card" style="box-shadow:none"><div class="between"><b>Citaly</b>'+(SUB&&SUB.status==="suspended"?'<span class="pill bad">Pausado</span>':'<span class="pill ok">Activo</span>')+'</div><p style="margin:8px 0 0"><b>Pago único:</b> tu sistema no tiene mensualidad.</p>'
+    +(B.mods&&Object.keys(B.mods).some(function(k){return B.mods[k]})?'<p class="mute small" style="margin:8px 0 0">Módulos activos: '+Object.keys(B.mods).filter(function(k){return B.mods[k]&&C.mods[k]}).map(function(k){return C.mods[k].ic+" "+C.mods[k].n}).join(", ")+'</p>':"")
+    +'</div><p class="mute small">¿Necesitas algo especial para tu negocio? Lo programamos y lo activamos solo para ti.</p><a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,"Hola, quiero agregar algo nuevo a mi sistema de Citaly ("+(B?B.name:"")+")")+'">Pedir algo nuevo por WhatsApp</a>',null)}
 
 function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign({},s)});
-  function rows(){return L.map(function(s,i){return '<div class="svcrow"><input value="'+esc(s.ic||"")+'" data-i="'+i+'" data-k="ic" maxlength="4" style="text-align:center;font-size:20px;padding:6px"><div><input value="'+esc(s.n)+'" data-i="'+i+'" data-k="n" maxlength="50" placeholder="Nombre del servicio"><div class="x"><input type="number" inputmode="numeric" value="'+esc(s.p)+'" data-i="'+i+'" data-k="p" placeholder="Precio ₡"><select data-i="'+i+'" data-k="d">'+[15,30,45,60,75,90,105,120,150,180,240,300,360,480].map(function(m){return '<option value="'+m+'"'+(+s.d===m?" selected":"")+'>'+durTxt(m)+'</option>'}).join("")+'</select><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div></div></div>'}).join("")}
+  function rows(){return L.map(function(s,i){return '<div class="svcrow"><input value="'+esc(s.ic||"")+'" data-i="'+i+'" data-k="ic" maxlength="4" style="text-align:center;font-size:20px;padding:6px"><div><input value="'+esc(s.n)+'" data-i="'+i+'" data-k="n" maxlength="80" placeholder="Nombre del servicio">'+(modOn("vehiculo")?'<label class="small" style="display:flex;gap:6px;align-items:center;margin:6px 0 0;font-weight:600"><input type="checkbox" data-i="'+i+'" data-k="vx"'+(s.vx?" checked":"")+' style="width:auto">🚙 El precio cambia según el vehículo</label>':"")+'<div class="x"><input type="number" inputmode="numeric" value="'+esc(s.p)+'" data-i="'+i+'" data-k="p" placeholder="Precio ₡"><select data-i="'+i+'" data-k="d">'+[15,30,45,60,75,90,105,120,150,180,240,300,360,480].map(function(m){return '<option value="'+m+'"'+(+s.d===m?" selected":"")+'>'+durTxt(m)+'</option>'}).join("")+'</select><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div></div></div>'}).join("")}
   sheet('<h2>Servicios y precios</h2><p class="mute small" style="margin-top:-4px">Esto es lo que tus clientes ven al reservar. La duración bloquea la agenda.</p><div id="sv">'+rows()+'</div><button class="btn ghost" id="svA" style="margin-top:10px">+ Agregar servicio</button><p class="err" id="svE"></p><div style="height:10px"></div><button class="btn" id="svS">Guardar servicios</button>',
-    function(){var box=$("sv");box.oninput=box.onchange=function(e){var t=e.target;if(t.dataset.k==null)return;L[+t.dataset.i][t.dataset.k]=t.dataset.k==="p"||t.dataset.k==="d"?+t.value:t.value};
+    function(){var box=$("sv");box.oninput=box.onchange=function(e){var t=e.target;if(t.dataset.k==null)return;L[+t.dataset.i][t.dataset.k]=t.dataset.k==="vx"?t.checked:t.dataset.k==="p"||t.dataset.k==="d"?+t.value:t.value};
       box.onclick=function(e){var b=e.target.closest("[data-rm]");if(!b)return;L.splice(+b.dataset.rm,1);box.innerHTML=rows()};
       $("svA").onclick=function(){L.push({id:"s"+Date.now(),n:"",p:"",d:60,ic:"✨"});box.innerHTML=rows();var ins=box.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
-      $("svS").onclick=function(){var out=L.filter(function(s){return String(s.n).trim()}).map(function(s,i){return {id:s.id||"s"+i,n:String(s.n).trim().slice(0,50),p:Math.max(0,+s.p||0),d:+s.d||60,ic:String(s.ic||"").slice(0,4)}});
+      $("svS").onclick=function(){var out=L.filter(function(s){return String(s.n).trim()}).map(function(s,i){var o={id:s.id||"s"+i,n:String(s.n).trim().slice(0,80),p:Math.max(0,+s.p||0),d:+s.d||60,ic:String(s.ic||"").slice(0,4)};if(s.vx)o.vx=true;return o});
         if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
 
 function setExtra(s){
@@ -726,11 +754,7 @@ function setExtra(s){
 /* ---------- PAGO ---------- */
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
 var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
-function payHtml(){if(PLAY)return '<p class="mute">Para pagar tu mensualidad, escríbenos a soporte.</p>';return '<h3>Pagar por SINPE Móvil</h3><ol style="padding-left:20px"><li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li></ol><a class="btn wa" target="_blank" rel="noopener" href="'+payWa()+'">Enviar comprobante por WhatsApp</a><p class="mute small">Registramos tu pago en menos de 24 horas.</p>'}
-function payWa(){return waUrl(C.wa,"Hola, ya hice el SINPE de "+crc(C.price)+" de la mensualidad de Citaly.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")+"\nAquí va el comprobante:")}
-function renderPay(){if(PLAY){$("payP").parentNode.querySelectorAll("h3,ol,.big,.feat,#payWa,.mute.small").forEach(function(e){e.hidden=true});$("payS").textContent="Tus datos están guardados. Para pagar tu mensualidad, escríbenos a soporte.";var s0=SUB&&SUB.status;$("payT").textContent=s0==="suspended"?"Tu cuenta está pausada":"Tu mensualidad está pendiente";return}$("payP").textContent=crc(C.price);
-  var s=SUB&&SUB.status;$("payT").textContent=s==="suspended"?"Tu cuenta está pausada":"Tu mensualidad está pendiente";
-  $("payO").innerHTML='<li>Haz un SINPE Móvil de <b>'+crc(C.price)+'</b> al <b>'+C.sinpe+'</b> ('+esc(C.sinpeName)+').</li><li>En el detalle escribe: <b>Citaly '+esc(B?B.name:"")+'</b></li><li>Envíanos el comprobante por WhatsApp.</li>';$("payWa").href=payWa()}
+function renderPay(){$("payWa").href=waUrl(C.wa,"Hola, mi cuenta de Citaly aparece pausada.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))}
 
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
