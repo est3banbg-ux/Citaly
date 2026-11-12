@@ -69,6 +69,12 @@
 .mgrid button small{display:block;font:600 10px Figtree,sans-serif;color:var(--mute);margin-top:1px}.mgrid button.pe{color:var(--bad)}.mgrid button.pe small{color:var(--bad)}
 .mgrid button.today{border-color:var(--acc)}.mgrid button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}.mgrid button[aria-pressed=true] small{color:#fff}.mgrid button.x{visibility:hidden}
 .dsum{margin-top:12px}.dsum .li:last-child{border-bottom:0}
+.week button em{position:absolute;top:-6px;right:-3px;min-width:19px;height:19px;border-radius:10px;background:var(--acc2);color:#fff;font:800 11px/19px Figtree,sans-serif;font-style:normal;text-align:center;padding:0 5px;box-shadow:0 0 0 2px var(--bg)}.week button em.pe{background:var(--bad)}
+.nav2{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}.nav2 b{font:700 14px Figtree,sans-serif;color:var(--mute)}.nav2 .btn{width:auto;padding:8px 12px}
+.mtg{display:flex;align-items:center;justify-content:space-between;width:100%;margin:0 0 12px;text-align:left}.mtg .gch{transition:transform .2s}.mtg[aria-expanded=true] .gch{transform:rotate(180deg)}
+.jc{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;box-shadow:var(--sh);overflow:hidden}.jc .job{border:0;box-shadow:none;border-radius:0;margin:0;background:none}
+.jc .ja{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px}.jc .ja .btn,.jc .ja select{width:auto;flex:none;padding:7px 11px;font-size:13px;min-height:34px}.jc .ja select{border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);font-weight:700}
+.jc.st-Por\ confirmar{border-color:var(--bad)}
 .wnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .wnav b{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:16px;text-transform:capitalize}
 .ib{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;cursor:pointer;display:inline-grid;place-items:center}
@@ -249,13 +255,13 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
       <div class="sq"><input id="agq" type="search" placeholder="Buscar cita, nombre o teléfono" autocomplete="off"></div>
       <div id="agr" class="sres"></div>
       <div id="pend"></div>
-      <div class="wnav"><button class="ib" id="wP" aria-label="Semana anterior">‹</button><b id="wT"></b><button class="ib" id="wN" aria-label="Semana siguiente">›</button></div>
+      <div class="nav2"><button class="btn sm alt" id="wP" aria-label="Semana anterior">‹ Semana</button><b id="wT"></b><button class="btn sm alt" id="wN" aria-label="Semana siguiente">Semana ›</button></div>
       <div class="week" id="week"></div>
+      <button class="btn alt mtg" id="moB" aria-expanded="false"><span>📅 Ver el mes completo</span><span class="gch">⌄</span></button>
+      <div id="mgW" hidden></div>
       <div class="between" style="margin:4px 0 10px"><h2 style="margin:0" id="dT"></h2><div class="row" style="flex:none;gap:6px"><button class="ib" id="shDay" aria-label="Compartir citas del día" title="Compartir citas del día">📤</button><button class="btn sm alt" id="today">Hoy</button></div></div>
       <div id="dayList"></div>
       <div id="dsum"></div>
-      <button class="btn sm alt" id="moB" style="width:100%;margin-top:12px">📆 Ver el mes completo</button>
-      <div id="mgW" hidden></div>
     </div>
 
     <div id="v-clientes" class="view" hidden>
@@ -442,16 +448,26 @@ function renderAg(){renderHero();renderMonthGrid();renderDaySum();var t=ymd(new 
   Array.prototype.forEach.call(document.querySelectorAll("#pend [data-p]"),function(b){b.onclick=function(){goJob(b.dataset.p)}});
   var pk=pend.map(function(j){return j._id}).sort().join(",");if(window.PSEEN!=null&&pk!==window.PSEEN&&pend.length){var nw=pend.filter(function(j){return (","+window.PSEEN+",").indexOf(","+j._id+",")<0})[0];if(nw)setTimeout(function(){goJob(nw._id)},300)}window.PSEEN=pk;
   var e=pd(m);e.setDate(e.getDate()+6);$("wT").textContent=pd(m).getDate()+" "+MN[pd(m).getMonth()].slice(0,3)+" – "+e.getDate()+" "+MN[e.getMonth()].slice(0,3);
-  for(var i=0;i<7;i++){var s=addD(m,i),n=dayJobs(s).filter(active).length,dots="";for(var k=0;k<Math.min(n,4);k++)dots+="<s></s>";
-    html+='<button data-d="'+s+'" class="'+(s===t?"today":"")+'" aria-pressed="'+(s===SEL)+'">'+DS[pd(s).getDay()]+'<b>'+pd(s).getDate()+'</b><i>'+dots+'</i></button>'}
+  for(var i=0;i<7;i++){var s=addD(m,i),n=dayJobs(s).filter(active).length,dots="";var pe=dayJobs(s).some(function(j){return j.st==="Por confirmar"});
+    html+='<button data-d="'+s+'" class="'+(s===t?"today":"")+'" aria-pressed="'+(s===SEL)+'">'+(n?'<em class="'+(pe?"pe":"")+'">'+n+'</em>':"")+DS[pd(s).getDay()]+'<b>'+pd(s).getDate()+'</b></button>'}
   $("week").innerHTML=html;$("dT").textContent=niceDay(SEL);
   var L=dayJobs(SEL),hrs=B.hours&&B.hours[pd(SEL).getDay()];
   if(!L.length){$("dayList").innerHTML='<div class="empty fade"><div>'+(hrs&&hrs.on?"☀️":"😴")+'</div>'+(hrs&&hrs.on?"No hay citas este día.<br>Toca <b>+ Nueva cita</b> o comparte tu link.":"Este día está cerrado según tu horario.")+'</div>';return}
   var inc=L.filter(function(j){return j.st==="Lista"}).reduce(function(a,j){return a+(+j.total||0)},0),exp=L.filter(active).reduce(function(a,j){return a+(+j.total||0)},0);
-  $("dayList").innerHTML=L.map(function(j){var end=hm(tm(j.time)+(+j.dur||60));
-    return '<div class="job fade st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join("")
+  $("dayList").innerHTML=L.map(function(j){var end=hm(tm(j.time)+(+j.dur||60)),act=active(j),o=['Por confirmar','Confirmada','Lista','No vino','Cancelada'].filter(function(x){return x!=="Por confirmar"||j.st==="Por confirmar"});
+    return '<div class="jc fade st-'+esc(j.st)+'"><div class="job st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'
+     +'<div class="ja">'+(j.tel?'<a class="btn sm alt" href="tel:'+esc(telN(j.tel))+'">📞 Llamar</a><a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor(j.st==="Por confirmar"?"conf":"rec",j)))+'">💬 '+(j.st==="Por confirmar"?"Confirmar":"Recordar")+'</a>':"")
+     +(j.tel&&B.home&&act&&j.st!=="Lista"?'<a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("go",j)))+'">🚗 En camino</a>':"")
+     +(j.tel&&j.st==="Lista"?'<a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("ty",j)))+'">⭐ Agradecer</a>':"")
+     +'<button class="btn sm alt" data-ed="'+j._id+'">Editar</button><a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(calUrl(j))+'">📅 Calendario</a>'
+     +'<select data-st="'+j._id+'" aria-label="Estado">'+o.map(function(x){return '<option'+(x===j.st?" selected":"")+'>'+x+'</option>'}).join("")+'</select><button class="btn sm alt" data-dl="'+j._id+'" style="color:var(--bad)">Borrar</button></div></div>'}).join("")
    +'<p class="mute small" style="text-align:center">'+L.filter(active).length+' citas · '+crc(exp)+' en total'+(inc?' · '+crc(inc)+' cobrado':'')+'</p>';
-  Array.prototype.forEach.call(document.querySelectorAll("#dayList .job"),function(el){el.onclick=function(){openJob(JOBS.find(function(j){return j._id===el.dataset.id}))}})}
+  var jb=function(id){return JOBS.find(function(x){return x._id===id})};
+  Array.prototype.forEach.call(document.querySelectorAll("#dayList .job"),function(el){el.onclick=function(){openJob(jb(el.dataset.id))}});
+  Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-ed]"),function(b){b.onclick=function(){openJob(jb(b.dataset.ed))}});
+  Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-st]"),function(e){e.onchange=function(){var j0=jb(e.dataset.st),d=Object.assign({},j0);delete d._id;d.id=d.id||j0._id;d.st=e.value;writeJob(d,j0).then(function(){toast(e.value==="Lista"?"¡Atendida! 💸":"Estado: "+e.value)},function(er){toast(errEs(er));renderAg()})}});
+  Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-dl]"),function(b){b.onclick=function(){var j0=jb(b.dataset.dl);if(!confirm("¿Eliminar la cita de "+(j0.cli||"este cliente")+"?"))return;var cp=Object.assign({},j0);delJob(j0).then(function(){undoToast("Cita eliminada",function(){restoreJob(cp)})},function(er){toast(errEs(er))})}});}
+function calUrl(j){var f=function(m){return String(j.date).replace(/-/g,"")+"T"+pad(Math.floor(m/60))+pad(m%60)+"00"},a=tm(j.time);return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent((B.name||"Cita")+": "+(j.cli||""))+"&dates="+f(a)+"/"+f(a+(+j.dur||60))+"&details="+encodeURIComponent((j.items||[]).join(" + ")+" · "+crc(j.total))+"&location="+encodeURIComponent(j.ubic&&parseLoc(j.ubic)?j.ubic:(j.addr||B.addr||""))}
 function goJob(id){var j=JOBS.find(function(x){return x._id===id});if(!j)return;go("agenda");SEL=j.date;MG=false;renderAg();setTimeout(function(){var el=document.querySelector('#dayList .job[data-id="'+id+'"]');if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("pcf")}},80)}
 var MG=false;
 function agSearch(){var q=$("agq").value.trim().toLowerCase(),d=q.replace(/\D/g,"");if(q.length<2){$("agr").innerHTML="";return}
@@ -459,7 +475,7 @@ function agSearch(){var q=$("agq").value.trim().toLowerCase(),d=q.replace(/\D/g,
   $("agr").innerHTML=L.length?L.map(function(j){return '<div class="job st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+pd(j.date).getDate()+'<small>'+MN[pd(j.date).getMonth()].slice(0,3)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+fh(j.time)+' · '+esc((j.items||[]).join(" + ")||"—")+'</span></div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join(""):'<p class="mute small" style="text-align:center">No encontré citas con eso.</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#agr .job"),function(el){el.onclick=function(){$("agq").value="";$("agr").innerHTML="";goJob(el.dataset.id)}})}
 $("agq").oninput=agSearch;
-function renderMonthGrid(){var w=$("mgW");$("moB").textContent=MG?"Ocultar el mes":"📆 Ver el mes completo";w.hidden=!MG;if(!MG)return;
+function renderMonthGrid(){var w=$("mgW");$("moB").setAttribute("aria-expanded",MG);$("moB").firstChild.textContent=MG?"📅 Ocultar el mes":"📅 Ver el mes completo";w.hidden=!MG;if(!MG)return;
   var d=pd(SEL),y=d.getFullYear(),m=d.getMonth(),n=new Date(y,m+1,0).getDate(),off=(new Date(y,m,1).getDay()+6)%7,t=ymd(new Date()),h='<div class="wnav" style="margin-top:12px"><button class="ib" id="mgP">‹</button><b>'+MN[m]+' '+y+'</b><button class="ib" id="mgN">›</button></div><div class="mgrid">'+["L","M","M","J","V","S","D"].map(function(x){return '<div class="h">'+x+'</div>'}).join("");
   for(var i=0;i<off;i++)h+='<button class="x" disabled></button>';
   for(var k=1;k<=n;k++){var s=y+"-"+pad(m+1)+"-"+pad(k),L=dayJobs(s),a=L.filter(active).length,p=L.some(function(j){return j.st==="Por confirmar"});h+='<button data-d="'+s+'" class="'+(s===t?"today ":"")+(p?"pe":"")+'" aria-pressed="'+(s===SEL)+'">'+k+'<small>'+(a?a+(a===1?" cita":" citas"):"·")+'</small></button>'}
