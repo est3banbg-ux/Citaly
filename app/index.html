@@ -60,6 +60,15 @@
 .week button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
 .week button i{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:2px}
 .week button i s{width:4px;height:4px;border-radius:50%;background:var(--acc2)}
+.sq{position:relative;margin-bottom:10px}.sq input{padding-left:38px}.sq:before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.7;pointer-events:none}
+.sres{margin-bottom:12px}.sres .job{margin-bottom:8px}.sres small.d{display:block;color:var(--mute);font-size:12px;font-weight:600}
+.pbtns{display:grid;gap:6px;margin-bottom:12px}.pbtns .banner{margin:0}.pbtns .banner span small{display:block;color:var(--mute);font-size:12px}
+@keyframes pcf{0%,100%{box-shadow:0 0 0 0 transparent}30%{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc2) 70%,transparent)}}.job.pcf{animation:pcf 1.6s ease 2}
+.mgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}.mgrid .h{font:700 11px Figtree,sans-serif;color:var(--mute);text-align:center;padding:2px 0}
+.mgrid button{border:1.5px solid var(--line);background:var(--card);border-radius:10px;padding:7px 0 5px;color:var(--ink);font:700 14px Figtree,sans-serif;cursor:pointer;position:relative;min-height:46px}
+.mgrid button small{display:block;font:600 10px Figtree,sans-serif;color:var(--mute);margin-top:1px}.mgrid button.pe{color:var(--bad)}.mgrid button.pe small{color:var(--bad)}
+.mgrid button.today{border-color:var(--acc)}.mgrid button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}.mgrid button[aria-pressed=true] small{color:#fff}.mgrid button.x{visibility:hidden}
+.dsum{margin-top:12px}.dsum .li:last-child{border-bottom:0}
 .wnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .wnav b{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:16px;text-transform:capitalize}
 .ib{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;cursor:pointer;display:inline-grid;place-items:center}
@@ -237,11 +246,16 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 
     <div id="v-agenda" class="view">
       <div id="hero"></div>
+      <div class="sq"><input id="agq" type="search" placeholder="Buscar cita, nombre o teléfono" autocomplete="off"></div>
+      <div id="agr" class="sres"></div>
       <div id="pend"></div>
       <div class="wnav"><button class="ib" id="wP" aria-label="Semana anterior">‹</button><b id="wT"></b><button class="ib" id="wN" aria-label="Semana siguiente">›</button></div>
       <div class="week" id="week"></div>
       <div class="between" style="margin:4px 0 10px"><h2 style="margin:0" id="dT"></h2><div class="row" style="flex:none;gap:6px"><button class="ib" id="shDay" aria-label="Compartir citas del día" title="Compartir citas del día">📤</button><button class="btn sm alt" id="today">Hoy</button></div></div>
       <div id="dayList"></div>
+      <div id="dsum"></div>
+      <button class="btn sm alt" id="moB" style="width:100%;margin-top:12px">📆 Ver el mes completo</button>
+      <div id="mgW" hidden></div>
     </div>
 
     <div id="v-clientes" class="view" hidden>
@@ -259,6 +273,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
       <div class="card"><h2>Ingresos por día</h2><div class="bars" id="bars"></div></div>
       <div class="card"><h2>Servicios más vendidos</h2><div id="top"></div></div>
       <div class="card"><h2>¿Cómo te conocieron?</h2><div id="srcs"></div></div>
+      <div class="card" id="refcard" hidden><h2>🎁 Referidos</h2><div id="refb"></div></div>
       <div class="card"><div class="between"><h2 style="margin:0">Gastos</h2><button class="btn sm alt" id="addExp">+ Agregar</button></div><div id="exps" style="margin-top:6px"></div></div>
     </div>
 
@@ -277,6 +292,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="look"><span class="ic">🎨</span><span class="m"><b>Logo y color</b><span>Cómo te ven tus clientes</span></span>›</button>
         <button class="set" data-s="web"><span class="ic">✨</span><span class="m"><b>Portada de mi página</b><span>Frase, promoción y precios</span></span>›</button>
         <button class="set" data-s="dom"><span class="ic">🚗</span><span class="m"><b>Servicio a domicilio</b><span id="domN">Ubicación del cliente y zonas</span></span>›</button>
+        <button class="set" data-s="ref"><span class="ic">🎁</span><span class="m"><b>Referidos</b><span id="refN">Premia a quien te recomienda</span></span>›</button>
         <button class="set" id="insRow" hidden><span class="ic">📦</span><span class="m"><b>Insumos</b><span id="insN"></span></span>›</button>
         <button class="set" data-s="res"><span class="ic">📅</span><span class="m"><b>Reglas de reserva</b><span>Anticipación y días disponibles</span></span>›</button>
       </div>
@@ -392,7 +408,7 @@ function start(fresh){var uid=BID,first=true;
   UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;if(first){first=false;show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));
   UNS.push(db.doc("subs/"+uid).onSnapshot(function(d){SUB=d.exists?d.data():null;if(B)show(subValid()?"main":"pay");render()},dbErr));
   UNS.push(db.collection("biz/"+uid+"/jobs").onSnapshot(function(s){JOBS=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});render()},dbErr));
-  UNS.push(db.collection("biz/"+uid+"/exp").onSnapshot(function(s){EXP=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});if(VIEW==="numeros")renderNum()},dbErr))}
+  UNS.push(db.collection("biz/"+uid+"/exp").onSnapshot(function(s){EXP=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});if(VIEW==="numeros")renderNum();else if(VIEW==="agenda")renderDaySum()},dbErr))}
 function dbErr(e){console.error(e);toast(e.code==="permission-denied"?"Sin permiso para leer los datos":"Sin conexión. Reintentando…")}
 function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until.toMillis()>Date.now()}
 function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.now())/864e5):0}
@@ -420,10 +436,11 @@ function go(v){VIEW=v;Array.prototype.forEach.call(document.querySelectorAll("na
 function monday(s){var d=pd(s),k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return ymd(d)}
 function dayJobs(s){return JOBS.filter(function(j){return j.date===s}).sort(function(a,b){return tm(a.time)-tm(b.time)})}
 function active(j){return j.st!=="Cancelada"&&j.st!=="No vino"}
-function renderAg(){renderHero();var t=ymd(new Date()),m=monday(SEL),html="";
+function renderAg(){renderHero();renderMonthGrid();renderDaySum();var t=ymd(new Date()),m=monday(SEL),html="";
   var pend=JOBS.filter(function(j){return j.st==="Por confirmar"}).sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time)});
-  $("pend").innerHTML=pend.length?'<div class="banner hot" id="pendB">🔔<span style="flex:1"><b>'+pend.length+(pend.length===1?" reserva nueva":" reservas nuevas")+'</b> por confirmar</span>Ver</div>':"";
-  if($("pendB"))$("pendB").onclick=function(){SEL=pend[0].date;renderAg();openJob(pend[0])};
+  $("pend").innerHTML=pend.length?'<div class="pbtns">'+pend.slice(0,4).map(function(j){return '<div class="banner hot" data-p="'+j._id+'">🔔<span style="flex:1"><b>'+esc(j.cli||"Reserva nueva")+'</b> por confirmar<small>'+esc(niceDay(j.date))+' · '+fh(j.time)+'</small></span>Ver</div>'}).join("")+(pend.length>4?'<p class="mute small" style="margin:0;text-align:center">y '+(pend.length-4)+' más</p>':"")+'</div>':"";
+  Array.prototype.forEach.call(document.querySelectorAll("#pend [data-p]"),function(b){b.onclick=function(){goJob(b.dataset.p)}});
+  var pk=pend.map(function(j){return j._id}).sort().join(",");if(window.PSEEN!=null&&pk!==window.PSEEN&&pend.length){var nw=pend.filter(function(j){return (","+window.PSEEN+",").indexOf(","+j._id+",")<0})[0];if(nw)setTimeout(function(){goJob(nw._id)},300)}window.PSEEN=pk;
   var e=pd(m);e.setDate(e.getDate()+6);$("wT").textContent=pd(m).getDate()+" "+MN[pd(m).getMonth()].slice(0,3)+" – "+e.getDate()+" "+MN[e.getMonth()].slice(0,3);
   for(var i=0;i<7;i++){var s=addD(m,i),n=dayJobs(s).filter(active).length,dots="";for(var k=0;k<Math.min(n,4);k++)dots+="<s></s>";
     html+='<button data-d="'+s+'" class="'+(s===t?"today":"")+'" aria-pressed="'+(s===SEL)+'">'+DS[pd(s).getDay()]+'<b>'+pd(s).getDate()+'</b><i>'+dots+'</i></button>'}
@@ -435,6 +452,24 @@ function renderAg(){renderHero();var t=ymd(new Date()),m=monday(SEL),html="";
     return '<div class="job fade st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join("")
    +'<p class="mute small" style="text-align:center">'+L.filter(active).length+' citas · '+crc(exp)+' en total'+(inc?' · '+crc(inc)+' cobrado':'')+'</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#dayList .job"),function(el){el.onclick=function(){openJob(JOBS.find(function(j){return j._id===el.dataset.id}))}})}
+function goJob(id){var j=JOBS.find(function(x){return x._id===id});if(!j)return;go("agenda");SEL=j.date;MG=false;renderAg();setTimeout(function(){var el=document.querySelector('#dayList .job[data-id="'+id+'"]');if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("pcf")}},80)}
+var MG=false;
+function agSearch(){var q=$("agq").value.trim().toLowerCase(),d=q.replace(/\D/g,"");if(q.length<2){$("agr").innerHTML="";return}
+  var L=JOBS.filter(function(j){var h=((j.cli||"")+" "+(j.items||[]).join(" ")+" "+(j.veh||"")+" "+(j.note||"")).toLowerCase();return h.indexOf(q)>=0||(d.length>=3&&String(j.tel||"").indexOf(d)>=0)}).sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)}).slice(0,12);
+  $("agr").innerHTML=L.length?L.map(function(j){return '<div class="job st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+pd(j.date).getDate()+'<small>'+MN[pd(j.date).getMonth()].slice(0,3)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+fh(j.time)+' · '+esc((j.items||[]).join(" + ")||"—")+'</span></div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join(""):'<p class="mute small" style="text-align:center">No encontré citas con eso.</p>';
+  Array.prototype.forEach.call(document.querySelectorAll("#agr .job"),function(el){el.onclick=function(){$("agq").value="";$("agr").innerHTML="";goJob(el.dataset.id)}})}
+$("agq").oninput=agSearch;
+function renderMonthGrid(){var w=$("mgW");$("moB").textContent=MG?"Ocultar el mes":"📆 Ver el mes completo";w.hidden=!MG;if(!MG)return;
+  var d=pd(SEL),y=d.getFullYear(),m=d.getMonth(),n=new Date(y,m+1,0).getDate(),off=(new Date(y,m,1).getDay()+6)%7,t=ymd(new Date()),h='<div class="wnav" style="margin-top:12px"><button class="ib" id="mgP">‹</button><b>'+MN[m]+' '+y+'</b><button class="ib" id="mgN">›</button></div><div class="mgrid">'+["L","M","M","J","V","S","D"].map(function(x){return '<div class="h">'+x+'</div>'}).join("");
+  for(var i=0;i<off;i++)h+='<button class="x" disabled></button>';
+  for(var k=1;k<=n;k++){var s=y+"-"+pad(m+1)+"-"+pad(k),L=dayJobs(s),a=L.filter(active).length,p=L.some(function(j){return j.st==="Por confirmar"});h+='<button data-d="'+s+'" class="'+(s===t?"today ":"")+(p?"pe":"")+'" aria-pressed="'+(s===SEL)+'">'+k+'<small>'+(a?a+(a===1?" cita":" citas"):"·")+'</small></button>'}
+  w.innerHTML=h+'</div>';
+  $("mgP").onclick=function(){SEL=ymd(new Date(y,m-1,1));renderAg()};$("mgN").onclick=function(){SEL=ymd(new Date(y,m+1,1));renderAg()};
+  Array.prototype.forEach.call(w.querySelectorAll("[data-d]"),function(b){b.onclick=function(){SEL=b.dataset.d;MG=false;renderAg();window.scrollTo(0,0)}})}
+$("moB").onclick=function(){MG=!MG;renderMonthGrid()};
+function renderDaySum(){var L=dayJobs(SEL).filter(active),E=EXP.filter(function(e){return e.date===SEL}),el=$("dsum");if(!L.length&&!E.length){el.innerHTML="";return}
+  var cob=L.filter(function(j){return j.st==="Lista"}).reduce(function(a,j){return a+(+j.total||0)},0),por=L.filter(function(j){return j.st!=="Lista"}).reduce(function(a,j){return a+(+j.total||0)},0),ex=E.reduce(function(a,e){return a+(+e.amt||0)},0);
+  el.innerHTML='<div class="card dsum"><h2>Cierre del día</h2><div class="li"><span>Cobrado</span><b>'+crc(cob)+'</b></div>'+(por?'<div class="li"><span>Por cobrar (aún no marcadas como atendidas)</span><b>'+crc(por)+'</b></div>':"")+(ex?'<div class="li"><span>Gastos del día</span><b>'+crc(ex)+'</b></div>':"")+'<div class="li"><span><b>Ganancia del día</b></span><b>'+crc(cob-ex)+'</b></div></div>'}
 function pill(s){var c={"Por confirmar":"warn","Confirmada":"","Lista":"ok","No vino":"bad","Cancelada":"bad"}[s]||"";return '<span class="pill '+c+'">'+esc(s||"")+'</span>'}
 $("week").onclick=function(e){var b=e.target.closest("button");if(!b)return;SEL=b.dataset.d;renderAg()};
 $("wP").onclick=function(){SEL=addD(SEL,-7);renderAg()};$("wN").onclick=function(){SEL=addD(SEL,7);renderAg()};
@@ -607,12 +642,28 @@ function openCli(c){var js=c.jobs.slice().sort(function(a,b){return (b.date+b.ti
    +(c.od?'<div class="warnbox">💤 Hace '+c.od+' meses que no viene. Un mensaje a tiempo lo puede traer de vuelta.</div>':"")
    +'<div class="stats" style="margin-top:12px"><div class="stat"><span>Visitas</span><b>'+c.n+'</b></div><div class="stat"><span>Ha gastado</span><b>'+crc(c.spent)+'</b></div></div>'
    +(c.how?'<p class="small mute" style="margin:-4px 0 10px">Nos conoció por: <b>'+esc(c.how)+'</b></p>':"")
-   +'<div class="qa" style="margin:0 0 12px">'+(c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor(c.od?"back":"hi",c)))+'">'+(c.od?"💬 Escribirle":"💬 WhatsApp")+'</a><a class="btn sm ghost" href="tel:'+esc(telN(c.tel))+'">📞 Llamar</a>':"")+'<button class="btn sm alt" id="cNew">📅 Nueva cita</button><button class="btn sm alt" id="cNote">📌 Nota</button></div>'
+   +'<div class="qa" style="margin:0 0 12px">'+(c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor(c.od?"back":"hi",c)))+'">'+(c.od?"💬 Escribirle":"💬 WhatsApp")+'</a><a class="btn sm ghost" href="tel:'+esc(telN(c.tel))+'">📞 Llamar</a>':"")+'<button class="btn sm alt" id="cNew">📅 Nueva cita</button><button class="btn sm alt" id="cNote">📌 Nota</button>'+(refOn()&&refCode(c)?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,refMsg(c)))+'">🎁 Invitar amigos</a>':"")+'</div>'
    +(c.ubic?mapThumb(c.ubic,true):"")
    +(N.length?'<h3 style="margin-top:12px">Notas</h3>'+N.map(noteRow).join(""):"")
    +'<h3 style="margin-top:12px">Historial</h3>'+js.map(function(j){return '<div class="li"><span>'+pd(j.date).getDate()+" "+MN[pd(j.date).getMonth()].slice(0,3)+" "+pd(j.date).getFullYear()+'<br><span class="mute small">'+esc((j.items||[]).join(" + ")||"—")+'</span></span><span style="text-align:right">'+crc(j.total)+'<br>'+pill(j.st)+'</span></div>'}).join(""),
    function(){$("cNew").onclick=function(){closeSheet();setTimeout(function(){openJob(null,{cli:c.cli,tel:c.tel,ubic:c.ubic,how:c.n?"Cliente que vuelve":c.how})},50)};
      $("cNote").onclick=function(){closeSheet();setTimeout(function(){openNote(null,{cli:c.cli,tel:c.tel})},50)};bindNoteRows($("shC"))})}
+
+/* ---------- REFERIDOS ---------- */
+function refOn(){return !!(B&&B.ref&&B.ref.on)}
+function refAmt(){return +(B&&B.ref&&B.ref.amt)||0}
+function refCode(c){var n=+telN(c.tel);return n?("000000"+n.toString(36)).slice(-6):""}
+function refLink(c){return link()+"?ref="+refCode(c)}
+function refWhat(){return (B.ref&&B.ref.what)||(refAmt()?crc(refAmt()):"un detalle")}
+function refMsg(c){return "Hola "+first(c.cli)+" 👋 Gracias por confiar en "+B.name+". Si le pasas este link a un amigo y reserva, te damos "+refWhat()+" cuando lo atendamos 🎁\n"+refLink(c)}
+function refList(){var A=clients(),byCode={},paid=B.refPaid||[],out={};A.forEach(function(c){var k=refCode(c);if(k)byCode[k]=c});
+  A.forEach(function(c){var js=c.jobs.slice().sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time)}),j0=js[0];if(!j0||String(j0.how||"").indexOf("Referido: ")!==0)return;var code=j0.how.slice(10).toLowerCase(),r=byCode[code];if(!r||r===c)return;
+    var o=out[code]||(out[code]={c:r,n:0,pend:[],paid:0});o.n++;var done=js.find(function(j){return j.st==="Lista"});
+    if(done){if(paid.indexOf(done._id)>=0)o.paid++;else o.pend.push({id:done._id,cli:c.cli})}});
+  return Object.keys(out).map(function(k){return out[k]}).sort(function(a,b){return b.pend.length-a.pend.length||b.n-a.n})}
+function renderRef(){var card=$("refcard");if(!refOn()){card.hidden=true;return}card.hidden=false;var L=refList();
+  $("refb").innerHTML=L.length?L.map(function(o,i){var d=o.pend.length;return '<div class="li"><span><b>'+esc(o.c.cli)+'</b><br><span class="mute small">'+o.n+(o.n===1?" amigo nuevo":" amigos nuevos")+(o.paid?" · "+o.paid+" premiado"+(o.paid===1?"":"s"):"")+'</span></span>'+(d?'<span style="text-align:right"><b>'+crc(d*refAmt())+'</b><br><button class="btn sm alt" data-rp="'+i+'">Ya le di el premio</button></span>':'<span class="mute small">Al día ✓</span>')+'</div>'}).join(""):'<p class="mute small" style="margin:0">Abre un cliente y toca "Invitar amigos". Cuando un amigo suyo reserve con su link, aparece aquí.</p>';
+  Array.prototype.forEach.call(document.querySelectorAll("[data-rp]"),function(b){b.onclick=function(){var o=L[+b.dataset.rp],ids=(B.refPaid||[]).concat(o.pend.map(function(p){return p.id}));B.refPaid=ids;db.doc("biz/"+BID).set({refPaid:ids},{merge:true}).then(function(){toast("Anotado ✓");renderRef()}).catch(dbErr)}})}
 
 /* ---------- NOTAS Y RECORDATORIOS ---------- */
 function NOTES(){return (B&&B.notes||[]).slice()}
@@ -648,7 +699,7 @@ function monthSums(y,m){var pre=y+"-"+pad(m+1),J1=JOBS.filter(function(j){return
   var E=EXP.filter(function(e){return String(e.date).indexOf(pre)===0}),ex=E.reduce(function(a,e){return a+(+e.amt||0)},0);
   return {pre:pre,J:J1,done:done,inc:inc,E:E,ex:ex,gan:inc-ex,cnt:done.length,newC:clients().filter(function(c){return c.first.indexOf(pre)===0}).length}}
 function delta(c,p,inv){if(!p&&!c)return "";if(!p)return '<em class="up">nuevo</em>';var x=Math.round((c-p)/Math.abs(p)*100),good=inv?x<=0:x>=0;return '<em class="'+(good?"up":"down")+'">'+(x>=0?"▲ +":"▼ ")+x+'%</em>'}
-function renderNum(){var y=MON.getFullYear(),m=MON.getMonth(),days=new Date(y,m+1,0).getDate();$("mT").textContent=MN[m]+" "+y;
+function renderNum(){renderRef();var y=MON.getFullYear(),m=MON.getMonth(),days=new Date(y,m+1,0).getDate();$("mT").textContent=MN[m]+" "+y;
   var c=monthSums(y,m),pv=new Date(y,m-1,1),p=monthSums(pv.getFullYear(),pv.getMonth()),pn=MN[pv.getMonth()];
   var nov=c.J.filter(function(j){return j.st==="No vino"}).length,fut=c.J.filter(function(j){return j.st==="Confirmada"||j.st==="Por confirmar"}).reduce(function(a,j){return a+(+j.total||0)},0);
   renderGoal(c,y,m);
@@ -688,7 +739,7 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
 /* ---------- AJUSTES ---------- */
 function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("wLnk").href=webLink();$("wLnkT").textContent=webLink().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
   $("svcN").textContent=(B.services||[]).length+" servicios";var on=(B.hours||[]).filter(function(h){return h.on});$("horN").textContent=on.length?on.length+" días · "+fh(on[0].a)+" a "+fh(on[0].b):"Sin horario";
-  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":"Pago único · activo";$("insRow").hidden=!modOn("insumos");if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
+  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":"Pago único · activo";$("insRow").hidden=!modOn("insumos");$("refN").textContent=refOn()?"Activo · "+crc(refAmt())+" por cada cliente nuevo":"Premia a quien te recomienda";if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
   $("em").textContent=U.email||"";$("domN").textContent=B.home?"Activo · "+((B.zones||[]).length?(B.zones.length+" zonas"):"sin zonas"):"Desactivado";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
 function fdate(ts){var d=ts.toDate();return d.getDate()+" de "+MN[d.getMonth()]}
 $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toast($("openT").checked?"Reservas en línea activadas":"Reservas en línea pausadas")})};
@@ -731,6 +782,11 @@ function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign(
         if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
 
 function setExtra(s){
+  if(s==="ref")sheet('<h2>Referidos</h2><p class="mute small" style="margin-top:-4px">Cada cliente tiene su link personal. Si un amigo suyo reserva con ese link y es atendido, tú le das un premio. Así tus clientes te traen clientes.</p>'
+    +'<div class="between" style="margin-top:6px"><div><b>Activar referidos</b><div class="mute small">Muestra "Invitar amigos" en cada cliente</div></div><label class="toggle"><input type="checkbox" id="rfOn"'+(refOn()?" checked":"")+'><span></span></label></div>'
+    +'<label for="rfA">Premio por cada cliente nuevo (₡)</label><input id="rfA" inputmode="numeric" value="'+refAmt()+'"><label for="rfT">¿Qué le das? (texto que ve el cliente)</label><input id="rfT" maxlength="60" value="'+esc(B.ref&&B.ref.what||"")+'" placeholder="Ej: ₡2.000 por SINPE o un descuento en su próxima cita">'
+    +'<div style="height:16px"></div><button class="btn" id="rfS">Guardar</button>',
+    function(){$("rfS").onclick=function(){var a=Math.max(0,Math.round(+$("rfA").value.replace(/\D/g,"")||0));saveBiz({ref:{on:$("rfOn").checked,amt:a,what:$("rfT").value.trim().slice(0,60)}}).then(function(){closeSheet();toast("Guardado ✓");render()})}});
   if(s==="web")sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente en tu página web y al reservar. Para cambiar fotos, reseñas o preguntas, escríbenos.</p>'
     +'<label for="ptT">Frase principal</label><input id="ptT" maxlength="70" value="'+esc(B.tagline||"")+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
     +'<label for="ptS">Descripción corta (opcional)</label><textarea id="ptS" maxlength="160" placeholder="Ej: Barbería en San Pedro. Reserva en 1 minuto.">'+esc(B.blurb||"")+'</textarea>'

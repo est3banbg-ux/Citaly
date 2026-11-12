@@ -86,6 +86,9 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .mylink{text-align:left;background:var(--card);border:1.5px dashed var(--acc);border-radius:16px;padding:12px 14px;margin:6px 0 12px}.mylink b{display:block}.mylink small{display:block;color:var(--mute);font-size:13px;margin:3px 0 8px}
 .ml{display:flex;gap:6px}.ml input{flex:1;min-width:0;font-size:13px;padding:9px 10px}.ml button{border:0;border-radius:10px;padding:0 14px;background:var(--acc);color:#fff;font-weight:700;cursor:pointer}
 #mc .note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 12px;text-align:left}#mc .days{margin-top:8px}#mc .hours{margin-bottom:14px}
+.wafab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(12px) scale(.9);pointer-events:none;transition:opacity .25s ease,transform .25s ease}
+.wafab svg{width:27px;height:27px}.wafab.on{opacity:.95;transform:none;pointer-events:auto}
+@media (prefers-reduced-motion:reduce){.wafab{transition:none}}
 </style>
 </head>
 <body>
@@ -158,11 +161,11 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 
   <div id="ok" class="done" hidden>
     <div class="big">🎉</div>
-    <h1>¡Tu hora quedó apartada!</h1>
+    <h1>¡Listo, tu cita quedó agendada!</h1>
     <p class="mute" id="okT"></p>
     <div class="card" style="text-align:left" id="okS"></div>
-    <a class="btn wa big" id="okWa" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
-    <p class="mute small" style="margin:6px 0 12px">Mándanos el mensaje y te respondemos por ahí mismo.</p>
+    <a class="btn wa big" id="okWa" target="_blank" rel="noopener">Avisar por WhatsApp</a>
+    <p class="mute small" style="margin:6px 0 12px">Toca el botón y manda el mensaje que ya va escrito. Así nos llega el aviso al instante y te confirmamos por ahí mismo.</p>
     <div class="mylink" id="mylink" hidden><b>🔁 ¿Necesitas cambiar o cancelar?</b><small>Guarda este link: ahí puedes cambiar el día u hora, o cancelar, hasta 12 horas antes.</small><div class="ml"><input id="mlv" readonly aria-label="Link de tu cita"><button id="mlc">Copiar</button></div></div>
     <a class="btn alt" id="okCal" target="_blank" rel="noopener">📅 Agregar a mi calendario</a>
     <button class="btn ghost" id="again" style="margin-top:8px">Reservar otra cita</button>
@@ -209,7 +212,7 @@ function tileLayer(ll){var p=ll.split(","),la=+p[0],lo=+p[1],z=16,n=Math.pow(2,z
 var PINSVG='<svg class="pin" viewBox="0 0 30 38" aria-hidden="true"><path d="M15 37C15 37 28 24.5 28 14A13 13 0 0 0 2 14C2 24.5 15 37 15 37Z" fill="#e5484d" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
 
 var slug=(new URLSearchParams(location.search).get("n")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
-var P=null,BID="",S={pick:[],day:"",t:null,step:0,ll:"",acc:0,zone:-1,how:"",veh:-1},BUSY={},T0=Date.now(),db=null,STEPS=[];
+var P=null,BID="",S={ref:(function(){try{var r=(new URLSearchParams(location.search).get("ref")||"").toLowerCase();return /^[a-z0-9]{6,12}$/.test(r)?r:""}catch(e){return ""}})(),pick:[],day:"",t:null,step:0,ll:"",acc:0,zone:-1,how:"",veh:-1},BUSY={},T0=Date.now(),db=null,STEPS=[];
 try{firebase.initializeApp(C.fb);db=firebase.firestore()}catch(e){}
 if(!slug||!db)notFound();else db.doc("pub/"+slug).get().then(function(d){if(!d.exists){notFound();return}P=d.data();BID=P.biz;
   return db.doc("subs/"+BID).get().then(function(s){var x=s.exists?s.data():null,ok=x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now();if(MCQ){openMine();return}init(ok&&P.open!==false)})}).catch(function(){notFound(true)});
@@ -307,7 +310,7 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
   var id=String(Date.now()*100+Math.floor(Math.random()*100)),tel=telN($("tel").value),L=picked().map(function(s){return {n:s.n,p:sp(s)}}),at=Date.now(),z=S.zone>=0?P.zones[S.zone]:null;
   var end=pd(S.day);end.setMinutes(tm(S.t)+dur());
   var job={id:id,cli:$("cli").value.trim().slice(0,60),tel:tel,items:L.map(function(l){return l.n}),lines:L,date:S.day,time:S.t,dur:dur(),sub:subT(),disc:0,fee:fee(),total:total(),
-    veh:vehOn()&&S.veh>=0?P.veh[S.veh].n:"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",how:S.how||"",note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
+    veh:vehOn()&&S.veh>=0?P.veh[S.veh].n:"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
   var tk=newTok();S.tk=tk;
   function mk(wt){var bt=db.batch(),jd=Object.assign({},job);if(wt)jd.tk=tk;bt.set(db.doc("biz/"+BID+"/jobs/"+id),jd);
     blocks().forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
@@ -382,6 +385,13 @@ function askCancel(){mcBox('<h2>¿Cancelar tu cita?</h2>'+mcSum()+'<p class="mut
     bt.update(db.doc("biz/"+BID+"/mine/"+MCQ),{st:"cancelada",upd:Date.now()});
     bt.commit().then(function(){MC.st="cancelada";mcBox('<h2>Tu cita quedó cancelada</h2><p class="mute">Gracias por avisar. Cuando quieras, reserva otra.</p><a class="btn big" href="?n='+slug+'&go=1">Reservar una cita nueva</a><a class="btn wa" style="margin-top:8px" target="_blank" rel="noopener" href="'+waUrl(P.wa,"¡Hola "+P.name+"! 👋 Cancelé mi cita del "+niceDay(MC.date)+", "+fh(MC.time)+". 👤 "+MC.cli)+'">Avisar por WhatsApp</a>')},
      function(){b.disabled=false;b.textContent="Sí, cancelar mi cita";$("mer").textContent="No se pudo cancelar. Si faltan menos de 12 horas, escríbenos por WhatsApp."})}}
+</script>
+<a class="wafab" id="wafab" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg></a>
+<script>
+/* WhatsApp flotante: aparece al bajar en la portada; no sale dentro de la agenda ni en "Mi cita" */
+(function(){var w=document.getElementById("wafab"),l=document.getElementById("land");if(!w||!l)return;
+function f(){var P0=window.P;if(P0&&P0.wa)w.href="https://wa.me/"+(function(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)t=t.slice(3);return t.length===8?"506"+t:t})(P0.wa)+"?text="+encodeURIComponent("Hola "+P0.name+", tengo una consulta");w.classList.toggle("on",!l.hidden&&!!w.getAttribute("href")&&window.scrollY>380)}
+addEventListener("scroll",f,{passive:true});setInterval(f,800)})();
 </script>
 </body>
 </html>
