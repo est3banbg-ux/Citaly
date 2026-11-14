@@ -23,7 +23,7 @@ var CITALY = {
   },
   sinpe: "7089-2537",    // número SINPE Móvil donde los negocios pagan (confirmar)
   sinpeName: "Esteban",  // a nombre de quién sale el SINPE (confirmar)
-  wa: "50670892537",     // WhatsApp de soporte y comprobantes
+  wa: "50661506610",     // WhatsApp de la empresa (soporte y comprobantes)
   colors: ["#6c4cf5", "#0d7a85", "#e0457b", "#1f8a4c", "#e07a20", "#2563eb", "#b3392f", "#1f2937"],
   types: {
     barberia: { n: "Barbería", ic: "💈", svc: [["Corte de cabello", 6000, 30, "✂️"], ["Corte + barba", 8000, 45, "🧔"], ["Barba", 4000, 30, "🪒"], ["Corte de niño", 5000, 30, "👦"]] },
