@@ -12,7 +12,8 @@ var CITALY = {
   admin: "est3banbg@gmail.com",
   price: 0,              // (no se usa)
   // Precio: prueba gratis → promo los primeros meses → precio del plan
-  monthly: { promo: 500, promoMonths: 3, std: 4900 },   // colones (Costa Rica). std = plan más barato
+  monthly: { promo: 500, promoMonths: 3, std: 4900 },   // colones (Costa Rica). La promo es SOLO para el plan de entrada (promoPlan)
+  promoPlan: "arranque",
   usd: { promo: 1, std: 9 },                             // dólares (resto del mundo)
   // Planes. f = funciones que trae (además de lo básico). Durante la prueba gratis se prueba todo (Nitro).
   plans: {
@@ -29,6 +30,7 @@ var CITALY = {
     ia:     { n: "Asistente con IA para WhatsApp", ic: "🤖", crc: 9900, usd: 19, soon: true, d: "Contesta tu WhatsApp como vos, da precios y agenda solo." }
   },
   // Links de pago con tarjeta (TiloPay para Costa Rica, Polar/Paddle para el resto). Vacíos = solo SINPE.
+  // Por plan también se puede poner payLink / payLinkUsd dentro de cada plan (Turbo y Nitro se pagan completos).
   payLink: "", payLinkUsd: "",
   setup: { promo: 100000, std: 150000, pers: 250000 },  // promo de lanzamiento, Standard, Personalizado
   promoCupos: 5,         // la promo es para los primeros 5 negocios

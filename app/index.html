@@ -536,7 +536,7 @@ function render(){if(!B)return;renderOnb();
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
   if(low.length)$("trial").innerHTML='<div class="banner hot" id="trB">📦<span style="flex:1">Se está acabando: <b>'+esc(low.map(function(x){return x.n}).join(", "))+'</b></span><b>Ver</b></div>';
-  else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba":dl===1?"<b>Último día</b> de prueba":"Tu prueba terminó")+" · activá a <b>"+promoTxt()+"</b>"+'</span><b>Activar</b></div>'}
+  else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba":dl===1?"<b>Último día</b> de prueba":"Tu prueba terminó")+" · activá desde <b>"+promoTxt()+"</b>"+'</span><b>Activar</b></div>'}
   else $("trial").innerHTML="";
   if($("trB"))$("trB").onclick=function(){insSheet()};
   var dl=daysLeft();
@@ -912,7 +912,7 @@ function openSet(s){
   if(FEAT[s]&&!can(s)){upsell(s);return}
   setExtra(s);
   if(s==="welcome")sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Tu cuenta está lista'+(B.owner?", "+esc(String(B.owner).split(" ")[0]):"")+'!</h2><p class="mute">Tenés <b>'+(C.trialDays||7)+' días gratis</b> para descubrir todo. Tu página de reservas ya funciona:</p><div class="linkbox">'+esc(link().replace(/^https:\/\//,""))+'</div>'
-    +'<p class="mute small">Si activás tu plan, pagás solo <b>'+crcF(C.monthly.promo)+'/mes</b> los primeros '+C.monthly.promoMonths+' meses 🔥</p></div>'
+    +'<p class="mute small">Si activás el plan '+C.plans[C.promoPlan].n+', pagás solo <b>'+(intl()?"US$"+C.usd.promo:crcF(C.monthly.promo))+'/mes</b> los primeros '+C.monthly.promoMonths+' meses 🔥</p></div>'
     +'<div class="acts"><a class="btn wa" id="wWa" target="_blank" rel="noopener">Recibir mi guía por WhatsApp</a><button class="btn" id="wGo">Empezar los primeros pasos</button></div>',
     function(){$("wWa").href=waUrl(C.wa,"¡Hola! Acabo de crear mi cuenta de Citaly 🙌\nNegocio: "+B.name+"\nMi link: "+link()+"\n¿Me ayudan a empezar?");$("wGo").onclick=function(){closeSheet();go("agenda");setTimeout(function(){var t=ONB.filter(function(x){return !onbDone(x[0])})[0];if(t&&t[3])t[3]()},350)}});
   if(s==="neg")sheet('<h2>Mi negocio</h2><label for="nN">Nombre</label><input id="nN" maxlength="50" value="'+esc(B.name)+'"><label for="nW">WhatsApp del negocio</label><input id="nW" inputmode="tel" value="'+esc(B.wa)+'"><label for="nA">Dirección o zona (opcional)</label><input id="nA" maxlength="120" value="'+esc(B.addr||"")+'" placeholder="Ej: San Pedro, 100 m norte del parque"><label>Dirección de tu link</label><div class="linkbox" style="margin:0">'+esc(link().replace(/^https:\/\//,""))+'</div><p class="mute small">Para cambiar el link, escríbenos por WhatsApp.</p><p class="err" id="nE"></p><button class="btn" id="nS">Guardar</button>',
@@ -978,24 +978,26 @@ function can(f){var need=FEAT[f];return !need||TIERS.indexOf(tier())>=TIERS.inde
 function planPrice(k){var P=C.plans[k];return intl()?"US$"+P.usd:crcF(P.crc)}
 function upsell(f){var k=FEAT[f],P=C.plans[k];sheet('<div style="text-align:center"><div style="font-size:48px">'+P.ic+'</div><h2>Esto viene en el plan '+P.n+'</h2><p class="mute">Mejorá tu plan y desbloqueá:</p></div><ul class="plist">'+P.inc.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul><button class="btn" id="upGo">Ver planes</button>',function(){$("upGo").onclick=function(){closeSheet();setTimeout(planSheet,250)}})}
 function planSheet(){var cur=tier(),trial=SUB&&SUB.status==="trial";
-  sheet('<h2>Elegí tu plan</h2><p class="mute small" style="margin-top:-4px">'+(trial?"Estás probando todo gratis. ":"")+'Los primeros '+C.monthly.promoMonths+' meses pagás solo <b>'+(intl()?"US$"+C.usd.promo:crcF(C.monthly.promo))+'/mes</b> en cualquier plan 🔥</p>'
-    +TIERS.map(function(k){var P=C.plans[k],on=!trial&&k===cur;return '<div class="pcard'+(P.pop?" pop":"")+(on?" on":"")+'"><div class="between"><b>'+P.ic+" "+P.n+'</b><span>'+(on?'<span class="pill ok">Tu plan</span>':P.pop?'<span class="pill">⭐ El más elegido</span>':'')+'</span></div><div class="pp">'+planPrice(k)+'<small>/mes</small></div><div class="mute small">'+esc(P.tag)+'</div><ul class="plist">'+P.inc.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul>'+(on?"":'<button class="btn'+(P.pop?"":" alt")+'" data-pk="'+k+'">Elegir '+P.n+'</button>')+'</div>'}).join("")
+  sheet('<h2>Elegí tu plan</h2><p class="mute small" style="margin-top:-4px">'+(trial?"Estás probando todo gratis. ":"")+(promoOk(C.promoPlan)?'🔥 Promo: el plan '+C.plans[C.promoPlan].n+' te sale a <b>'+(intl()?"US$"+C.usd.promo:crcF(C.monthly.promo))+'/mes</b> los primeros '+C.monthly.promoMonths+' meses.':'')+'</p>'
+    +TIERS.map(function(k){var P=C.plans[k],on=!trial&&k===cur;return '<div class="pcard'+(P.pop?" pop":"")+(on?" on":"")+'"><div class="between"><b>'+P.ic+" "+P.n+'</b><span>'+(on?'<span class="pill ok">Tu plan</span>':P.pop?'<span class="pill">⭐ El más elegido</span>':'')+'</span></div>'+(promoOk(k)?'<div class="pp">'+(intl()?"US$"+C.usd.promo:crcF(C.monthly.promo))+'<small>/mes x'+C.monthly.promoMonths+' meses</small></div><div class="mute small">después '+planPrice(k)+'/mes</div>':'<div class="pp">'+planPrice(k)+'<small>/mes</small></div>')+'<div class="mute small">'+esc(P.tag)+'</div><ul class="plist">'+P.inc.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul>'+(on?"":'<button class="btn'+(P.pop?"":" alt")+'" data-pk="'+k+'">Elegir '+P.n+'</button>')+'</div>'}).join("")
     +'<h3 style="margin-top:16px">Extras</h3>'+Object.keys(C.addons).map(function(k){var A=C.addons[k];return '<div class="card" style="box-shadow:none;margin-bottom:8px"><div class="between"><b>'+A.ic+" "+esc(A.n)+'</b>'+(A.soon?'<span class="pill warn">Pronto</span>':'<b>'+(intl()?"US$"+A.usd:crcF(A.crc))+'/mes</b>')+'</div><p class="mute small" style="margin:4px 0 0">'+esc(A.d)+'</p></div>'}).join(""),
     function(){Array.prototype.forEach.call(document.querySelectorAll("[data-pk]"),function(b){b.onclick=function(){closeSheet();setTimeout(function(){payInfo(b.dataset.pk)},250)}})})}
 function intl(){return !!B&&!!B.country&&B.country!=="CR"}
 function money(n){return intl()?"US$"+n:crcF(n)}
 function promoTxt(){var M=C.monthly,U2=C.usd;return (intl()?"US$"+U2.promo:crcF(M.promo))+"/mes x"+M.promoMonths+" meses"}
-function priceNow(){if(SUB&&SUB.price)return money(SUB.price);return intl()?"US$"+C.usd.promo:crcF(C.monthly.promo)}
+/* La promo es solo para el plan de entrada, y solo mientras no la haya gastado ni se haya pasado a otro plan */
+function promoOk(k){if(k&&k!==C.promoPlan)return false;if(!SUB||SUB.status==="trial")return true;return (!SUB.tier||SUB.tier===C.promoPlan)&&(+SUB.months||0)<C.monthly.promoMonths&&!SUB.leftPromo}
+function priceNow(k){k=k||tier();if(promoOk(k))return intl()?"US$"+C.usd.promo:crcF(C.monthly.promo);return planPrice(k)}
 function crcF(n){return "₡"+(+n||0).toLocaleString("es-CR")}
 function payMsg(k){return "Hola, quiero activar Citaly"+(k?" plan "+C.plans[k].n:"")+".\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")}
-function payInfo(k){k=k||(SUB&&SUB.tier)||"turbo";var P=C.plans[k],card=intl()?C.payLinkUsd:C.payLink,after=planPrice(k);
-  sheet('<div style="text-align:center"><div style="font-size:44px">🚀</div><h2>Activá Citaly '+P.n+'</h2><p class="mute">Solo <b>'+promoTxt()+'</b>. Después '+after+' al mes. Sin contrato.</p><button class="link" id="piCh">Cambiar de plan</button></div>'
+function payInfo(k){k=k||(SUB&&SUB.tier)||C.promoPlan;var P=C.plans[k],pr=promoOk(k),card=intl()?(P.payLinkUsd||(pr?C.payLinkUsd:"")):(P.payLink||(pr?C.payLink:"")),after=planPrice(k);
+  sheet('<div style="text-align:center"><div style="font-size:44px">🚀</div><h2>Activá Citaly '+P.n+'</h2><p class="mute">'+(pr?'Solo <b>'+promoTxt()+'</b>. Después '+after+' al mes.':'<b>'+after+' al mes</b>.')+' Sin contrato.</p><button class="link" id="piCh">Cambiar de plan</button></div>'
   +(card?'<a class="btn" target="_blank" rel="noopener" href="'+esc(card)+(card.indexOf("?")<0?"?":"&")+"ref="+encodeURIComponent(BID||"")+'">💳 Pagar con tarjeta</a><div style="height:8px"></div>':"")
-  +(!intl()?'<div class="card" style="box-shadow:none;margin-top:6px"><b>'+(card?"O por SINPE Móvil":"Pagá por SINPE Móvil")+'</b><p style="margin:6px 0 0">1. Enviá <b>'+priceNow()+'</b> al <b>'+esc(C.sinpe)+'</b> ('+esc(C.sinpeName)+').</p><p style="margin:6px 0 0">2. Mandanos el comprobante y activamos tu mes.</p></div>':"")
+  +(!intl()?'<div class="card" style="box-shadow:none;margin-top:6px"><b>'+(card?"O por SINPE Móvil":"Pagá por SINPE Móvil")+'</b><p style="margin:6px 0 0">1. Enviá <b>'+priceNow(k)+'</b> al <b>'+esc(C.sinpe)+'</b> ('+esc(C.sinpeName)+').</p><p style="margin:6px 0 0">2. Mandanos el comprobante y activamos tu mes.</p></div>':"")
   +'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,payMsg(k))+'">'+(intl()&&!card?"Activar por WhatsApp":"Enviar comprobante por WhatsApp")+'</a>',function(){$("piCh").onclick=function(){closeSheet();setTimeout(planSheet,250)}})}
 function renderPay(){var trial=SUB&&SUB.status==="trial";
   $("payT").textContent=trial?"Tu prueba gratis terminó":"Tu cuenta está pausada";
-  $("payS").innerHTML=trial?"Tus citas, clientes y página están guardados. Activá Citaly por solo <b>"+promoTxt()+"</b> y seguí recibiendo reservas.":"Tus datos están guardados. Escribinos por WhatsApp para reactivarla.";
+  $("payS").innerHTML=trial?"Tus citas, clientes y página están guardados. Activá el plan "+C.plans[C.promoPlan].n+" por solo <b>"+promoTxt()+"</b> y seguí recibiendo reservas.":"Tus datos están guardados. Escribinos por WhatsApp para reactivarla.";
   $("payWa").textContent=trial?"Activar mi cuenta":"Escribir a Citaly por WhatsApp";
   $("payWa").onclick=null;$("payWa").target="_blank";
   if(trial){$("payWa").removeAttribute("target");$("payWa").href="#";$("payWa").onclick=function(e){e.preventDefault();planSheet()};return}

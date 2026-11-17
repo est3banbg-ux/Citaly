@@ -152,7 +152,7 @@ footer a{color:var(--mute)}
 <div class="dark">
   <header class="c hero">
     <div>
-      <div class="badge fade"><i>PROMO</i> <span class="pPromo">₡500</span>/mes los primeros <span class="pPM">3</span> meses</div>
+      <div class="badge fade"><i>PROMO</i> Plan Arranque a <span class="pPromo">₡500</span>/mes los primeros <span class="pPM">3</span> meses</div>
       <h1 class="fade">El sistema de citas para <em>negocios de carros.</em></h1>
       <p class="lead fade">Organizá tu agenda, recibí reservas las 24 horas y que tus clientes elijan su vehículo y vean el precio exacto. Para lavacars, detailing, pulido y polarizado.</p>
       <div class="ctas fade"><a class="btn go" href="app/?nuevo=1">Prueba gratis →</a><a class="alt-link wa-demo" target="_blank" rel="noopener">o pedí que te lo configuremos</a></div>
@@ -176,7 +176,7 @@ footer a{color:var(--mute)}
     <div><b>2 min</b><span>para crear tu cuenta</span></div>
     <div><b>24/7</b><span>reservas, aunque estés trabajando</span></div>
     <div><b><span class="pTrial">7</span> días</b><span>gratis, sin tarjeta</span></div>
-    <div><b><span class="pPromo">₡500</span></b><span>al mes los primeros <span class="pPM">3</span> meses</span></div>
+    <div><b><span class="pPromo">₡500</span></b><span>al mes en plan Arranque los primeros <span class="pPM">3</span> meses</span></div>
   </div></div>
 </div>
 
@@ -245,7 +245,7 @@ footer a{color:var(--mute)}
 </section>
 
 <section class="c s rv" id="precio">
-  <div class="center"><div class="kicker">Planes</div><h2 class="t">Elegí tu plan. Probalo gratis.</h2><p class="sub"><span class="pTrial">7</span> días gratis con todo incluido. Después, los primeros <span class="pPM">3</span> meses pagás solo <b><span class="pPromo">₡500</span>/mes</b> en cualquier plan.</p>
+  <div class="center"><div class="kicker">Planes</div><h2 class="t">Elegí tu plan. Probalo gratis.</h2><p class="sub"><span class="pTrial">7</span> días gratis con todo incluido. Si elegís <b>Arranque</b>, los primeros <span class="pPM">3</span> meses pagás solo <b><span class="pPromo">₡500</span>/mes</b>.</p>
   <div class="cur" role="tablist"><button aria-selected="true" data-cur="crc">🇨🇷 Colones</button><button aria-selected="false" data-cur="usd">🌎 Dólares</button></div></div>
   <div class="plans" id="plans"></div>
   <h3 class="center" style="margin-top:36px;font-size:22px">Extras para cualquier plan</h3>
@@ -256,11 +256,11 @@ footer a{color:var(--mute)}
 <section class="c s rv" style="max-width:780px">
   <div class="center"><div class="kicker">Preguntas frecuentes</div><h2 class="t">¿Dudas?</h2></div>
   <div style="margin-top:20px">
-    <details><summary>¿Cómo funciona la prueba gratis?</summary><p>Creás tu cuenta y usás todo Citaly (plan Nitro completo) 7 días sin pagar nada y sin tarjeta. Si te sirve, elegís tu plan: los primeros 3 meses pagás ₡500 al mes y después el precio del plan, desde ₡4.900.</p></details>
-    <details><summary>¿Puedo cambiar de plan?</summary><p>Sí, cuando querás. Empezás en Arranque y subís a Turbo o Nitro cuando tu negocio lo necesite.</p></details>
+    <details><summary>¿Cómo funciona la prueba gratis?</summary><p>Creás tu cuenta y usás todo Citaly (plan Nitro completo) 7 días sin pagar nada y sin tarjeta. Después elegís tu plan. El plan Arranque tiene promo: ₡500 al mes los primeros 3 meses y luego ₡4.900. Turbo y Nitro se pagan a su precio normal.</p></details>
+    <details><summary>¿Puedo cambiar de plan?</summary><p>Sí, cuando querás. Empezás en Arranque y subís a Turbo o Nitro cuando tu negocio lo necesite. Al subir de plan pagás el precio completo del nuevo plan (la promo de ₡500 es solo para Arranque).</p></details>
     <details><summary>¿Los mensajes de WhatsApp tienen costo?</summary><p>Confirmar y recordar citas con un toque desde tu propio WhatsApp es gratis en todos los planes. Los recordatorios que salen solos usan la plataforma oficial de WhatsApp, que cobra por mensaje, por eso son un extra (y Nitro trae 150 al mes incluidos).</p></details>
     <details><summary>¿Tengo que firmar contrato?</summary><p>No. Pagás mes a mes y te salís cuando querás.</p></details>
-    <details><summary>¿Funciona en mi país?</summary><p>Sí. Citaly funciona en cualquier país de Latinoamérica, en Estados Unidos y en España. Fuera de Costa Rica pagás en dólares: US$1 al mes los primeros 3 meses y después desde US$9.</p></details>
+    <details><summary>¿Funciona en mi país?</summary><p>Sí. Citaly funciona en cualquier país de Latinoamérica, en Estados Unidos y en España. Fuera de Costa Rica pagás en dólares: el plan Arranque cuesta US$1 al mes los primeros 3 meses y después US$9.</p></details>
     <details><summary>¿Puedo cobrar distinto según el carro?</summary><p>Sí. Ponés tus tipos de vehículo (sedán, SUV, pick-up o los que usés) y el precio de cada servicio cambia según lo que elija el cliente.</p></details>
     <details><summary>¿Mis clientes tienen que descargar algo?</summary><p>No. Abren tu link desde el celular, eligen su vehículo, el servicio y la hora, y listo.</p></details>
     <details><summary>¿Y la app para mí?</summary><p>Abrís citalyapp.com/app en tu celular y tocás "Agregar a pantalla de inicio". Te queda el ícono como cualquier app.</p></details>
@@ -291,7 +291,7 @@ footer a{color:var(--mute)}
   var CUR="crc";
   function plans(){var P=C.plans,usd=CUR==="usd",pr=function(x){return usd?"US$"+x.usd:f(x.crc)},promo=usd?"US$"+C.usd.promo:f(C.monthly.promo);
     document.getElementById("plans").innerHTML=Object.keys(P).map(function(k){var p=P[k];return '<div class="plan'+(p.pop?" pop":"")+'">'+(p.pop?'<span class="rib">⭐ El más elegido</span>':'')+'<h3>'+p.ic+" "+p.n+'</h3><div class="tg">'+p.tag+'</div>'
-      +'<div class="was">Primeros '+C.monthly.promoMonths+' meses</div><div class="amt">'+promo+'<small>/mes</small></div><div class="then">después <b>'+pr(p)+'/mes</b></div>'
+      +(k===C.promoPlan?'<div class="was">Primeros '+C.monthly.promoMonths+' meses</div><div class="amt">'+promo+'<small>/mes</small></div><div class="then">después <b>'+pr(p)+'/mes</b></div>':'<div class="was">Precio mensual</div><div class="amt">'+pr(p)+'<small>/mes</small></div><div class="then">sin contrato</div>')
       +'<ul>'+p.inc.map(function(x){return "<li>"+x+"</li>"}).join("")+'</ul><a class="btn'+(p.pop?"":" ghost")+'" href="app/?nuevo=1">Probar '+p.n+' gratis</a></div>'}).join("");
     document.getElementById("addons").innerHTML=Object.keys(C.addons).map(function(k){var a=C.addons[k];return '<div class="addon"><span class="e">'+a.ic+'</span><div><b>'+a.n+'</b><p>'+a.d+'</p></div><span class="pr">'+(a.soon?'<span class="soon">PRONTO</span>':pr(a)+'/mes')+'</span></div>'}).join("")}
   Array.prototype.forEach.call(document.querySelectorAll("[data-cur]"),function(b){b.onclick=function(){CUR=b.dataset.cur;Array.prototype.forEach.call(document.querySelectorAll("[data-cur]"),function(x){x.setAttribute("aria-selected",x===b)});plans()}});
