@@ -10,11 +10,14 @@ var CITALY = {
   },
   site: "https://citalyapp.com",
   admin: "est3banbg@gmail.com",
-  price: 0,              // ya no hay mensualidad: pago único
+  price: 0,              // (no se usa)
+  // Precio de la página de venta: mensualidad con prueba gratis
+  monthly: { founder: 9900, std: 15000 },  // fundadores (precio congelado) y precio normal
+  founderCupos: 10,      // cuántos negocios entran con precio de fundador
   setup: { promo: 100000, std: 150000, pers: 250000 },  // promo de lanzamiento, Standard, Personalizado
   promoCupos: 5,         // la promo es para los primeros 5 negocios
   modFrom: 40000,        // módulos a la medida, desde
-  trialDays: 0,
+  trialDays: 30,         // días de prueba gratis
   // Módulos que se encienden por negocio desde el admin. Para agregar uno nuevo:
   // 1) se registra aquí, 2) se programa en la app/página revisando modOn(B, "clave").
   mods: {
