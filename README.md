@@ -1,6 +1,6 @@
 # Citaly
 
-Servicio llave en mano: a cada negocio le montamos su página web, su página de reservas y su app de agenda. El admin crea cada negocio desde /admin.
+Sistema de citas para negocios de carros (lavacars, detailing, pulido, polarizado). Cada negocio se registra solo desde la página ("Prueba gratis" → citalyapp.com/app/?nuevo=1) con 30 días gratis y después paga mensualidad por SINPE. El admin también puede crear negocios desde /admin y registra las mensualidades.
 
 - `index.html`: página de venta (citalyapp.com)
 - `app/`: app de cada negocio (citalyapp.com/app)
@@ -8,5 +8,5 @@ Servicio llave en mano: a cada negocio le montamos su página web, su página de
 - `r/`: página de reservas (citalyapp.com/nombre-del-negocio/reservar)
 - `demo/`: logo y fotos de la demo de GlassStudioCR
 - `admin/`: panel del admin: crear y editar negocios, quién entra (correos), web, fotos y cobros
-- `cfg.js`: precio, días de prueba, SINPE, WhatsApp y datos de Firebase
-- `firestore.rules`: reglas de seguridad (pegarlas en Firebase → Firestore → Reglas)
+- `cfg.js`: mensualidad (fundadores y normal), días de prueba, tipos de negocio con servicios de ejemplo, SINPE, WhatsApp y datos de Firebase
+- `firestore.rules`: reglas de seguridad (pegarlas en Firebase → Firestore → Reglas). Permiten que una persona con correo confirmado cree SU negocio con prueba de máximo 31 días.

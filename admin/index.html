@@ -80,7 +80,7 @@
     <div style="height:12px"></div>
     <input id="q" type="search" placeholder="Buscar negocio, correo o link">
     <div class="chips" id="f" style="margin:10px 0 12px">
-      <button class="chip" data-f="all" aria-pressed="true">Todos</button><button class="chip" data-f="active" aria-pressed="false">Activos</button><button class="chip" data-f="owe" aria-pressed="false">Con saldo</button><button class="chip" data-f="suspended" aria-pressed="false">Pausados</button><button class="chip" data-f="demo" aria-pressed="false">Demos</button>
+      <button class="chip" data-f="all" aria-pressed="true">Todos</button><button class="chip" data-f="trial" aria-pressed="false">En prueba</button><button class="chip" data-f="active" aria-pressed="false">Activos</button><button class="chip" data-f="late" aria-pressed="false">Mensualidad vencida</button><button class="chip" data-f="owe" aria-pressed="false">Con saldo</button><button class="chip" data-f="suspended" aria-pressed="false">Pausados</button><button class="chip" data-f="demo" aria-pressed="false">Demos</button>
     </div>
     <div id="list"></div>
     <div class="card"><h2>Pagos recibidos</h2><div id="pays"></div></div>
@@ -125,29 +125,36 @@ function listen(){if(listening)return;listening=true;
 function err(e){console.error(e);toast(e.code==="permission-denied"?"Sin permiso: revisa las reglas de Firestore":"Error de conexión")}
 
 /* ---------- LISTA ---------- */
-function state(s){if(!s)return "none";if(s.demo)return "demo";if(s.status==="suspended")return "suspended";return "active"}
-var PLANS={promo:{n:"Promo de lanzamiento",p:C.setup.promo},standard:{n:"Standard",p:C.setup.std},pers:{n:"Personalizado",p:C.setup.pers}};
+function state(s){if(!s)return "none";if(s.demo)return "demo";if(s.status==="suspended")return "suspended";if(s.status==="trial")return "trial";return "active"}
+function monthly(s){return !!s&&(s.plan==="trial"||s.plan==="mensual")}
+function untilMs(s){return s&&s.until&&s.until.toMillis?s.until.toMillis():0}
+function late(s){return monthly(s)&&s.status!=="suspended"&&untilMs(s)<Date.now()}
+function addMonth(ms){var d=new Date(ms);d.setMonth(d.getMonth()+1);return d.getTime()}
+var PLANS={trial:{n:"Prueba gratis "+(C.trialDays||30)+" días → mensual",p:0},mensual:{n:"Mensual",p:0},promo:{n:"Promo de lanzamiento",p:C.setup.promo},standard:{n:"Standard",p:C.setup.std},pers:{n:"Personalizado",p:C.setup.pers}};
 var FAR=function(){return TS.fromMillis(Date.now()+100*365*864e5)};
 function paidOf(id){return PAYS.filter(function(p){return p.biz===id}).reduce(function(a,p){return a+(+p.amt||0)},0)}
-function totalOf(s){return s&&!s.demo?(s.total!=null?+s.total:(PLANS[s.plan]||PLANS.standard).p):0}
-function render(){var ids=Object.keys(BIZ),now=Date.now(),c={active:0,suspended:0,demo:0,none:0},owe=0,promo=0;
-  ids.forEach(function(i){var s=SUBS[i],st=state(s);if(c[st]!=null)c[st]++;if(st!=="demo"&&st!=="none"){owe+=Math.max(0,totalOf(s)-paidOf(i));if(s.plan==="promo")promo++}});
+function totalOf(s){if(monthly(s))return 0;return s&&!s.demo?(s.total!=null?+s.total:(PLANS[s.plan]||PLANS.standard).p):0}
+function render(){var ids=Object.keys(BIZ),now=Date.now(),c={active:0,suspended:0,demo:0,none:0,trial:0},owe=0,promo=0,mrr=0,lateN=0;
+  ids.forEach(function(i){var s=SUBS[i],st=state(s);if(c[st]!=null)c[st]++;if(st!=="demo"&&st!=="none"){owe+=Math.max(0,totalOf(s)-paidOf(i));if(s.plan==="promo")promo++}
+    if(s&&s.plan==="mensual"&&st==="active"&&!late(s))mrr+=+s.price||0;if(late(s))lateN++});
   var mStart=new Date();mStart.setDate(1);mStart.setHours(0,0,0,0);
   var all=PAYS.reduce(function(a,p){return a+(+p.amt||0)},0),mon=PAYS.filter(function(p){return p.at>=mStart.getTime()}).reduce(function(a,p){return a+(+p.amt||0)},0);
   $("kpis").innerHTML='<div class="kpi big"><span>Cobrado en total</span><b>'+crc(all)+'</b></div>'
-    +k("Cobrado este mes",crc(mon))+k("Saldo por cobrar",crc(owe))+k("Negocios activos",c.active)+k("Cupos de promo usados",promo+" de "+(C.promoCupos||5))+k("Demos",c.demo);
+    +k("Cobrado este mes",crc(mon))+k("Ingreso fijo al mes",crc(mrr))+k("En prueba gratis",c.trial)+k("Mensualidad vencida",lateN)+k("Negocios activos",c.active)+k("Saldo por cobrar",crc(owe));
   var q=$("q").value.trim().toLowerCase();
-  var L=ids.map(function(i){return {id:i,s:SUBS[i]||null,b:BIZ[i]}}).filter(function(x){var st=state(x.s);if(F==="owe"){if(st==="demo"||Math.max(0,totalOf(x.s)-paidOf(x.id))<=0)return false}else if(F!=="all"&&st!==F)return false;
+  var L=ids.map(function(i){return {id:i,s:SUBS[i]||null,b:BIZ[i]}}).filter(function(x){var st=state(x.s);if(F==="late"){if(!late(x.s))return false}else if(F==="owe"){if(st==="demo"||Math.max(0,totalOf(x.s)-paidOf(x.id))<=0)return false}else if(F!=="all"&&st!==F)return false;
       return !q||[x.b.name,x.b.email,x.b.slug,x.b.wa,(x.b.team||[]).join(" ")].join(" ").toLowerCase().indexOf(q)>=0})
     .sort(function(a,b){return (b.b.created&&b.b.created.toMillis?b.b.created.toMillis():0)-(a.b.created&&a.b.created.toMillis?a.b.created.toMillis():0)});
   $("list").innerHTML=L.length?L.map(function(x){var st=state(x.s),b=x.b,s=x.s,tot=totalOf(s),paid=paidOf(x.id),due=Math.max(0,tot-paid);
-      var p=st==="demo"?'<span class="pill warn">Demo</span>':st==="suspended"?'<span class="pill bad">Pausado</span>':st==="none"?'<span class="pill bad">Sin plan</span>':due>0?'<span class="pill warn">Saldo '+crc(due)+'</span>':'<span class="pill ok">Pagado</span>';
-      var plan=s&&!s.demo&&PLANS[s.plan]?PLANS[s.plan].n:"",mods=b.mods?Object.keys(b.mods).filter(function(k){return b.mods[k]&&C.mods[k]}).map(function(k){return C.mods[k].ic}).join(""):"";
+      var dl=Math.ceil((untilMs(s)-Date.now())/864e5);
+      var p=st==="demo"?'<span class="pill warn">Demo</span>':st==="trial"?(dl>0?'<span class="pill">Prueba · '+dl+' d</span>':'<span class="pill bad">Prueba vencida</span>'):late(s)?'<span class="pill bad">Vencido</span>':s&&s.plan==="mensual"&&st==="active"?'<span class="pill ok">Al día</span>':st==="suspended"?'<span class="pill bad">Pausado</span>':st==="none"?'<span class="pill bad">Sin plan</span>':due>0?'<span class="pill warn">Saldo '+crc(due)+'</span>':'<span class="pill ok">Pagado</span>';
+      var plan=s&&s.plan==="mensual"?"Mensual "+crc(s.price||0):s&&s.plan==="trial"?"Prueba gratis"+(b.self?" (se registró solo)":""):s&&!s.demo&&PLANS[s.plan]?PLANS[s.plan].n:"",mods=b.mods?Object.keys(b.mods).filter(function(k){return b.mods[k]&&C.mods[k]}).map(function(k){return C.mods[k].ic}).join(""):"";
       return '<div class="biz"><div class="hd"><div class="av">'+(b.logo?'<img alt="" src="'+b.logo+'">':esc((b.name||"?").charAt(0)))+'</div><div class="m"><b>'+esc(b.name||"(sin nombre)")+'</b><span>'+esc(b.email||"")+((b.team||[]).length?" + "+b.team.length+" del equipo":"")+'</span><span>'+(b.slug?'citalyapp.com/'+esc(b.slug):"")+(plan?" · "+plan:"")+(mods?" · "+mods:"")+'</span></div>'+p+'</div>'
-        +(st!=="demo"&&st!=="none"?'<p class="small mute" style="margin:8px 0 0">Pagó '+crc(paid)+' de '+crc(tot)+(due?' · <b style="color:var(--bad)">debe '+crc(due)+'</b>':' · ✓ completo')+'</p>':"")
+        +(monthly(s)&&st!=="suspended"?'<p class="small mute" style="margin:8px 0 0">'+(st==="trial"?"Prueba hasta ":"Pagado hasta ")+'<b>'+fd(untilMs(s))+'</b></p>':"")
+        +(st!=="demo"&&st!=="none"&&!monthly(s)?'<p class="small mute" style="margin:8px 0 0">Pagó '+crc(paid)+' de '+crc(tot)+(due?' · <b style="color:var(--bad)">debe '+crc(due)+'</b>':' · ✓ completo')+'</p>':"")
         +'<div class="ac"><button class="btn sm" data-a="edit" data-id="'+x.id+'">✏️ Editar</button>'
         +(b.slug?'<a class="btn sm alt" target="_blank" href="../'+esc(b.slug)+'">🌐 Web</a><a class="btn sm alt" target="_blank" href="../r/?n='+esc(b.slug)+'">📅 Reservas</a>':"")
-        +(st!=="demo"?'<button class="btn sm ghost" data-a="pay" data-id="'+x.id+'">💸 Registrar pago</button>':"")
+        +(st!=="demo"?'<button class="btn sm ghost" data-a="pay" data-id="'+x.id+'">💸 '+(monthly(s)?"Registrar mensualidad":"Registrar pago")+'</button>':"")
         +(b.wa?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+waUrl(b.wa,"¡Hola! Te escribe Esteban de Citaly 👋")+'">WhatsApp</a>':"")
         +(s?(st==="suspended"?'<button class="btn sm ghost" data-a="on" data-id="'+x.id+'">Reactivar</button>':'<button class="btn sm danger" data-a="off" data-id="'+x.id+'">Pausar</button>'):"")+'</div></div>'}).join("")
     :'<div class="card mute" style="text-align:center">'+(ids.length?"Nada con ese filtro.":"Todavía no hay negocios. Toca <b>+ Nuevo negocio</b>.")+'</div>'}
@@ -157,6 +164,11 @@ $("q").oninput=render;
 $("f").onclick=function(e){var b=e.target.closest("button");if(!b)return;F=b.dataset.f;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)});render()};
 $("list").onclick=function(e){var b=e.target.closest("[data-a]");if(!b)return;var id=b.dataset.id,s=SUBS[id],bz=BIZ[id]||{},a=b.dataset.a,ref=db.doc("subs/"+id);
   if(a==="edit"){openEd(id);return}
+  if(a==="pay"&&monthly(s)){var def=+s.price||(C.monthly&&C.monthly.founder)||0,amt=prompt("¿Cuánto pagó "+(bz.name||"")+" de mensualidad?",def);if(amt==null)return;amt=+String(amt).replace(/\D/g,"")||0;if(!amt)return;
+    var base=Math.max(Date.now(),untilMs(s)),nu=addMonth(base),bt=db.batch();
+    bt.set(ref,{plan:"mensual",status:"active",price:amt,until:TS.fromMillis(nu)},{merge:true});
+    bt.set(db.collection("payments").doc(),{biz:id,name:bz.name||"",amt:amt,at:Date.now(),type:"mes",what:"Mensualidad"});
+    bt.commit().then(function(){toast("Mensualidad registrada ✓ hasta "+fd(nu));if(bz.wa&&confirm("¿Avisarle por WhatsApp?"))window.open(waUrl(bz.wa,"¡Hola! Recibimos tu pago de "+crc(amt)+" ✅ Tu Citaly queda activo hasta el "+fd(nu)+". ¡Gracias! 🙌"),"_blank")},function(x){toast(x.message)});return}
   if(a==="pay"){var due=Math.max(0,totalOf(s)-paidOf(id)),amt=prompt(due?"¿Cuánto pagó "+(bz.name||"")+"? Debe "+crc(due)+" de la instalación.":"¿Cuánto pagó "+(bz.name||"")+"? (por ejemplo, un módulo o un cambio a la medida)",due||C.modFrom);if(amt==null)return;amt=+String(amt).replace(/\D/g,"")||0;if(!amt)return;
     var what=due?"saldo":(prompt("¿Qué pagó? (ej: módulo de insumos, cambio de diseño)","Módulo")||"Extra").slice(0,60),bt=db.batch();
     if(!due&&s)bt.set(ref,{total:totalOf(s)+amt},{merge:true});
@@ -170,7 +182,7 @@ var E=null;
 function blank(){var t=C.types.otro;return {id:null,name:"",type:"",slug:"",slugOk:false,wa:"",addr:"",email:"",team:"",color:C.colors[0],logo:"",
   services:[],hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"18:00"}}),home:false,zones:[],
   tagline:"",blurb:"",promo:"",web:{faqs:[],reviews:[]},fotos:[],delFotos:[],
-  plan:"promo",total:C.setup.promo,paidNow:C.setup.promo/2,demo:false,mods:{},veh:[{n:"Sedán o hatchback",x:0},{n:"SUV o pick-up",x:5000}],extra:{}}}
+  plan:"trial",total:0,paidNow:0,demo:false,mods:{},veh:[{n:"Sedán o hatchback",x:0},{n:"SUV o pick-up",x:5000}],extra:{}}}
 function openEd(id){
   if(!id){E=blank();edRender();return}
   var b=BIZ[id],s=SUBS[id]||{};if(!b)return;$("load").hidden=false;
@@ -235,9 +247,9 @@ function edRender(){var nw=!E.id,W=E.web;$("main").hidden=true;$("ed").hidden=fa
     +Object.keys(C.mods).map(function(k){var m=C.mods[k];return '<div class="between" style="margin-top:12px;gap:12px"><div><b>'+m.ic+" "+esc(m.n)+'</b><p class="hint" style="margin:2px 0 0">'+esc(m.d)+'</p></div>'+tog("md_"+k,!!E.mods[k])+'</div>'}).join("")
     +'<div id="vehCfg"'+(E.mods.vehiculo?"":" hidden")+'><label>Tipos de vehículo y cuánto suma cada uno</label><div id="eVh"></div><button class="btn ghost" id="eVhA" style="margin-top:8px">+ Agregar tipo</button><p class="hint">En "4. Servicios" marca 🚙 los servicios que cambian de precio.</p></div>'
     +'</div>';
-  h+='<div class="card">'+sec("10. Plan y cobro","Pago único, sin mensualidad.")
-    +'<label for="pPl">Plan</label><select id="pPl">'+Object.keys(PLANS).map(function(k){return '<option value="'+k+'"'+(E.plan===k&&!E.demo?" selected":"")+'>'+PLANS[k].n+' · '+crc(PLANS[k].p)+'</option>'}).join("")+'<option value="demo"'+(E.demo?" selected":"")+'>Demo (no se cobra)</option></select>'
-    +'<div id="pMon"'+(E.demo?" hidden":"")+'><label for="pTo">Total acordado (₡)</label><input id="pTo" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.total)+'"><p class="hint">Personalizado incluye 1 módulo a la medida. Módulos extra desde '+crc(C.modFrom)+'.</p>'
+  h+='<div class="card">'+sec("10. Plan y cobro","Prueba gratis y mensualidad, o pago único.")
+    +'<label for="pPl">Plan</label><select id="pPl">'+Object.keys(PLANS).map(function(k){return '<option value="'+k+'"'+(E.plan===k&&!E.demo?" selected":"")+'>'+PLANS[k].n+(PLANS[k].p?' · '+crc(PLANS[k].p):'')+'</option>'}).join("")+'<option value="demo"'+(E.demo?" selected":"")+'>Demo (no se cobra)</option></select>'
+    +'<div id="pMon"'+(E.demo||E.plan==="trial"||E.plan==="mensual"?" hidden":"")+'><label for="pTo">Total acordado (₡)</label><input id="pTo" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.total)+'"><p class="hint">Personalizado incluye 1 módulo a la medida. Módulos extra desde '+crc(C.modFrom)+'.</p>'
     +(nw?'<label for="pSp">Pagado hoy (₡)</label><input id="pSp" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.paidNow)+'"><p class="hint">Normalmente el 50 % al empezar. El resto lo registras con "Registrar pago" al entregar.</p>':'<p class="hint">Los pagos se registran desde la lista con "Registrar pago".</p>')+'</div>'
     +'</div>';
   h+='<p class="err" id="eErr"></p><div class="savebar"><button class="btn ghost" id="eX2" style="flex:0 0 auto;width:auto">Cancelar</button><button class="btn" id="eGo">'+(nw?"Crear negocio":"Guardar cambios")+'</button></div>';
@@ -281,7 +293,7 @@ function edWire(){
   $("ePhA").onclick=function(){$("ePhF").click()};
   $("ePhF").onchange=function(){var fs=Array.prototype.slice.call(this.files,0,12-E.fotos.length);this.value="";if(!fs.length)return;toast("Preparando fotos…");
     fs.reduce(function(p,f){return p.then(function(){return fitImg(f,1200).then(function(u){E.fotos.push({img:u,cap:""})},function(){toast("Una foto no se pudo leer")})})},Promise.resolve()).then(phRows)};
-  $("pPl").onchange=function(){var v=this.value,t=PLANS[v]?PLANS[v].p:0;$("pMon").hidden=v==="demo";$("pTo").value=t;if($("pSp"))$("pSp").value=Math.round(t/2)};
+  $("pPl").onchange=function(){var v=this.value,t=PLANS[v]?PLANS[v].p:0;$("pMon").hidden=v==="demo"||v==="trial"||v==="mensual";$("pTo").value=t;if($("pSp"))$("pSp").value=Math.round(t/2)};
   Object.keys(C.mods).forEach(function(k){$("md_"+k).onchange=function(){E.mods[k]=this.checked;if(k==="vehiculo"){$("vehCfg").hidden=!this.checked;svcRows()}}});
   vehRows();listWire($("eVh"),function(){return E.veh},vehRows,["x"]);
   $("eVhA").onclick=function(){E.veh.push({n:"",x:0});vehRows()};
@@ -346,12 +358,12 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     var bt=db.batch();
     if(nw){biz.created=now;bt.set(db.doc("biz/"+bid),biz)}else bt.set(db.doc("biz/"+bid),biz,{merge:true});
     bt.set(db.doc("pub/"+E.slug),pubOf(biz,bid));
-    var sub={name:E.name,email:E.email,plan:E.plan,total:E.total,demo:E.demo,until:FAR()};
-    if(nw){sub.start=now;sub.status="active"}
+    var mon=E.plan==="trial"||E.plan==="mensual",sub=mon?{name:E.name,email:E.email,plan:E.plan,total:0,demo:false}:{name:E.name,email:E.email,plan:E.plan,total:E.total,demo:E.demo,until:FAR()};
+    if(nw){sub.start=now;sub.status=E.plan==="trial"?"trial":"active";if(mon)sub.until=TS.fromMillis(Date.now()+(E.plan==="trial"?(C.trialDays||30)*864e5:31*864e5))}
     bt.set(db.doc("subs/"+bid),sub,{merge:true});
     all.forEach(function(em){bt.set(db.doc("own/"+em),{biz:bid,rol:em===E.email?"dueño":"equipo",name:E.name})});
     (E.oldEmails||[]).forEach(function(em){if(all.indexOf(em)<0)bt.delete(db.doc("own/"+em))});
-    if(nw&&E.paidNow>0)bt.set(db.collection("payments").doc(),{biz:bid,name:E.name,amt:E.paidNow,at:Date.now(),type:"setup",plan:E.plan});
+    if(nw&&!mon&&E.paidNow>0)bt.set(db.collection("payments").doc(),{biz:bid,name:E.name,amt:E.paidNow,at:Date.now(),type:"setup",plan:E.plan});
     return bt.commit()}).then(function(){
     // fotos, una por una (cada una es un documento)
     var col="pub/"+E.slug+"/fotos",ops=E.delFotos.map(function(id){return function(){return db.doc(col+"/"+id).delete()}});

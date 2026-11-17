@@ -27,6 +27,13 @@ service cloud.firestore {
       return s.status != 'suspended' && s.until > request.time;
     }
     function str(v, max) { return v is string && v.size() <= max; }
+    // Registro por cuenta propia: cualquier persona con correo confirmado crea SU negocio (ID = su uid) con prueba gratis
+    function selfSignup(bid) {
+      return verified() && request.auth.uid == bid;
+    }
+    function reservedSlug(s) {
+      return s in ['app', 'admin', 'r', 'w', 'demo', 'www', 'api', 'citaly', 'ayuda', 'precios', 'login', 'privacidad', 'terminos', 'img'];
+    }
     // Hora de la cita en Costa Rica (UTC-6) como fecha y hora universal
     function citaTs(f, t) {
       let p = f.split('-');
@@ -50,7 +57,13 @@ service cloud.firestore {
     // Perfil público de cada negocio (lo lee la página de reservas)
     match /pub/{slug} {
       allow read: if true;
-      allow create: if isAdmin() && slug.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$');
+      allow create: if slug.matches('^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$') && (isAdmin() || (
+        !reservedSlug(slug)
+        && selfSignup(request.resource.data.biz)
+        && existsAfter(/databases/$(database)/documents/biz/$(request.auth.uid))
+        && getAfter(/databases/$(database)/documents/biz/$(request.auth.uid)).data.slug == slug
+        && !exists(/databases/$(database)/documents/biz/$(request.auth.uid))
+      ));
       allow update: if isAdmin()
         || (isOwner(resource.data.biz) && request.resource.data.biz == resource.data.biz);
       allow delete: if isAdmin();
@@ -68,10 +81,18 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Mensualidad de cada negocio: la maneja el admin
+    // Mensualidad de cada negocio: la maneja el admin. Al registrarse, el negocio crea su prueba gratis (máx. 31 días).
     match /subs/{bid} {
       allow read: if true;
       allow write: if isAdmin();
+      allow create: if selfSignup(bid)
+        && !exists(/databases/$(database)/documents/biz/$(bid))
+        && existsAfter(/databases/$(database)/documents/biz/$(bid))
+        && request.resource.data.keys().hasOnly(['name', 'email', 'plan', 'status', 'total', 'demo', 'start', 'until'])
+        && request.resource.data.plan == 'trial' && request.resource.data.status == 'trial'
+        && request.resource.data.total == 0 && request.resource.data.demo == false
+        && request.resource.data.until is timestamp
+        && request.resource.data.until <= request.time + duration.value(31, 'd');
     }
 
     // Pagos registrados por el admin
@@ -82,7 +103,14 @@ service cloud.firestore {
     // Datos privados del negocio
     match /biz/{bid} {
       allow read: if isOwner(bid) || isAdmin();
-      allow create, delete: if isAdmin();
+      allow create: if isAdmin() || (
+        selfSignup(bid)
+        && str(request.resource.data.name, 60) && str(request.resource.data.slug, 40)
+        && (!('mods' in request.resource.data) || request.resource.data.mods.keys().hasOnly(['vehiculo']))
+        && existsAfter(/databases/$(database)/documents/subs/$(bid))
+        && existsAfter(/databases/$(database)/documents/pub/$(request.resource.data.slug))
+      );
+      allow delete: if isAdmin();
       allow update: if isOwner(bid) || isAdmin();
 
       // La cita de ese espacio la está cambiando su cliente en esta misma operación
