@@ -43,7 +43,7 @@ var CITALY = {
     insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." }
   },
   sinpe: "6320-4942",    // SINPE Móvil de Citaly (personal de Esteban, separado de GlassStudioCR)
-  sinpeName: "Esteban Bolaños",  // a nombre de quién sale el SINPE
+  sinpeName: "Esteban Bolaños García",  // a nombre de quién sale el SINPE
   wa: "50661506610",     // WhatsApp de la empresa (soporte y comprobantes)
   // Países para el teléfono del registro: [código ISO, nombre, código de país, dígitos del número]
   countries: [["CR","Costa Rica","506",8],["PA","Panamá","507",8],["NI","Nicaragua","505",8],["HN","Honduras","504",8],["SV","El Salvador","503",8],["GT","Guatemala","502",8],
