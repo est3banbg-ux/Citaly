@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Citaly","url":"https://citalyapp.com","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"Sistema de citas, página web y agenda para lavacars, detailing y negocios de carros. Hecho en Costa Rica.","offers":{"@type":"Offer","price":"15000","priceCurrency":"CRC"},"publisher":{"@type":"Organization","name":"Citaly","telephone":"+506 6150 6610","sameAs":["https://www.tiktok.com/@citaly444"]}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Citaly","url":"https://citalyapp.com","applicationCategory":"BusinessApplication","operatingSystem":"Web","description":"Sistema de citas, página web y agenda para lavacars, detailing y negocios de carros. Hecho en Costa Rica.","offers":{"@type":"Offer","price":"4900","priceCurrency":"CRC"},"publisher":{"@type":"Organization","name":"Citaly","telephone":"+506 6150 6610","sameAs":["https://www.tiktok.com/@citaly444"]}}</script>
 <script src="cfg.js"></script>
 <style>
 body{overflow-x:hidden}
@@ -101,6 +101,24 @@ p.sub{color:var(--mute);font-size:18px;max-width:620px;margin:0}
 .price ul{list-style:none;padding:0;margin:18px 0;text-align:left;display:grid;gap:8px}
 .price li{padding-left:26px;position:relative}.price li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
 .price .btn{border-radius:999px;padding:15px}
+.cur{display:inline-flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin-top:18px}
+.cur button{background:none;border:0;font:700 14px Figtree,sans-serif;color:var(--mute);padding:8px 14px;border-radius:999px;cursor:pointer}.cur button[aria-selected=true]{background:var(--acc);color:#fff}
+.plans{display:grid;gap:16px;margin:26px auto 0;max-width:1060px}
+@media(min-width:900px){.plans{grid-template-columns:repeat(3,1fr);align-items:start}}
+.plan{background:var(--card);border:1.5px solid var(--line);border-radius:26px;padding:26px 22px;box-shadow:var(--sh);position:relative}
+.plan.pop{border:2px solid var(--acc);box-shadow:0 30px 60px -30px var(--acc)}
+@media(min-width:900px){.plan.pop{transform:translateY(-10px)}}
+.plan .rib{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--acc2);color:#fff;font-weight:800;font-size:13px;border-radius:999px;padding:5px 14px;white-space:nowrap}
+.plan h3{font-size:24px}.plan .tg{color:var(--mute);font-size:14px;margin-top:2px}
+.plan .was{margin-top:16px;font-size:14px;color:var(--mute)}.plan .was b{color:var(--ink)}
+.plan .amt{font:800 44px "Bricolage Grotesque",sans-serif;letter-spacing:-.04em;line-height:1;margin:4px 0}.plan .amt small{font:600 16px Figtree,sans-serif;color:var(--mute);letter-spacing:0}
+.plan .then{font-size:14px;color:var(--mute)}
+.plan ul{list-style:none;padding:0;margin:18px 0;display:grid;gap:8px}.plan li{padding-left:26px;position:relative}.plan li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.plan .btn{border-radius:999px;padding:15px}
+.addons{display:grid;gap:12px;max-width:900px;margin:16px auto 0}@media(min-width:760px){.addons{grid-template-columns:1fr 1fr}}
+.addon{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px}
+.addon .e{font-size:30px}.addon b{display:block;font-size:16px}.addon p{margin:4px 0 0;color:var(--mute);font-size:14px}.addon .pr{margin-left:auto;font-weight:800;white-space:nowrap}
+.addon .soon{background:#ffe7da;color:#9a3a00;border-radius:999px;font:800 12px Figtree,sans-serif;padding:3px 9px}
 .risk{display:flex;gap:14px;align-items:center;background:color-mix(in srgb,var(--ok) 10%,var(--card));border:1px solid color-mix(in srgb,var(--ok) 35%,var(--line));border-radius:20px;padding:16px 18px;margin:22px auto 0;max-width:900px}
 .risk span{font-size:30px}.risk b{display:block;font-size:17px}.risk p{margin:2px 0 0;color:var(--mute)}
 details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:10px}
@@ -138,7 +156,7 @@ footer a{color:var(--mute)}
       <h1 class="fade">El sistema de citas para <em>negocios de carros.</em></h1>
       <p class="lead fade">Organizá tu agenda, recibí reservas las 24 horas y que tus clientes elijan su vehículo y vean el precio exacto. Para lavacars, detailing, pulido y polarizado.</p>
       <div class="ctas fade"><a class="btn go" href="app/?nuevo=1">Prueba gratis →</a><a class="alt-link wa-demo" target="_blank" rel="noopener">o pedí que te lo configuremos</a></div>
-      <p class="small-note fade"><span class="pTrial">7</span> días gratis · Sin tarjeta · Después <span class="pPromo">₡500</span>/mes</p>
+      <p class="small-note fade"><span class="pTrial">7</span> días gratis · Sin tarjeta · Planes desde <span class="pFrom">₡4.900</span>/mes</p>
     </div>
     <div class="prod fade">
       <div class="tabs" role="tablist">
@@ -227,33 +245,22 @@ footer a{color:var(--mute)}
 </section>
 
 <section class="c s rv" id="precio">
-  <div class="center"><div class="kicker">Precio</div><h2 class="t">Menos de lo que cuesta un fresco.</h2><p class="sub">Probalo <span class="pTrial">7</span> días gratis. Si te gusta, empezás pagando casi nada.</p></div>
-  <div class="prices">
-    <div class="price">
-      <span class="rib">🔥 Promo de lanzamiento</span>
-      <h3>Citaly</h3>
-      <div class="amt"><span class="pPromo">₡500</span><small>/mes</small></div>
-      <div class="mute">los primeros <span class="pPM">3</span> meses · después <b><span class="pStdM">₡9.900</span>/mes</b></div>
-      <ul><li><span class="pTrial">7</span> días gratis, sin tarjeta</li><li>Sitio de reservas con precio por vehículo</li><li>Agenda, clientes y recordatorios</li><li>Ingresos, gastos y ganancia</li><li>Página web con tu marca</li><li>Acceso para tu equipo</li></ul>
-      <a class="btn" href="app/?nuevo=1">Crear cuenta gratis</a>
-    </div>
-    <div class="price b">
-      <h3>¿Fuera de Costa Rica?</h3>
-      <div class="amt">US$<span class="pUP">1</span><small>/mes</small></div>
-      <div class="mute">los primeros <span class="pPM">3</span> meses · después <b>US$<span class="pUS">19</span>/mes</b></div>
-      <ul><li>Funciona en toda Latinoamérica, Estados Unidos y España</li><li>Pagás con tarjeta</li><li>Mismo sistema, mismas funciones</li></ul>
-      <a class="btn ghost" href="app/?nuevo=1">Prueba gratis</a>
-    </div>
-  </div>
-  <div class="risk"><span>🛡️</span><div><b>Sin contrato y sin letra pequeña.</b><p>Al terminar la prueba decidís. Si no te sirve, no pagás nada.</p></div></div>
+  <div class="center"><div class="kicker">Planes</div><h2 class="t">Elegí tu plan. Probalo gratis.</h2><p class="sub"><span class="pTrial">7</span> días gratis con todo incluido. Después, los primeros <span class="pPM">3</span> meses pagás solo <b><span class="pPromo">₡500</span>/mes</b> en cualquier plan.</p>
+  <div class="cur" role="tablist"><button aria-selected="true" data-cur="crc">🇨🇷 Colones</button><button aria-selected="false" data-cur="usd">🌎 Dólares</button></div></div>
+  <div class="plans" id="plans"></div>
+  <h3 class="center" style="margin-top:36px;font-size:22px">Extras para cualquier plan</h3>
+  <div class="addons" id="addons"></div>
+  <div class="risk"><span>🛡️</span><div><b>Sin contrato y sin letra pequeña.</b><p>Subís o bajás de plan cuando querás. Si no te sirve, no pagás nada.</p></div></div>
 </section>
 
 <section class="c s rv" style="max-width:780px">
   <div class="center"><div class="kicker">Preguntas frecuentes</div><h2 class="t">¿Dudas?</h2></div>
   <div style="margin-top:20px">
-    <details><summary>¿Cómo funciona la prueba gratis?</summary><p>Creás tu cuenta y usás todo Citaly 7 días sin pagar nada y sin tarjeta. Si te sirve, lo activás a ₡500 al mes los primeros 3 meses y después ₡9.900 al mes.</p></details>
+    <details><summary>¿Cómo funciona la prueba gratis?</summary><p>Creás tu cuenta y usás todo Citaly (plan Nitro completo) 7 días sin pagar nada y sin tarjeta. Si te sirve, elegís tu plan: los primeros 3 meses pagás ₡500 al mes y después el precio del plan, desde ₡4.900.</p></details>
+    <details><summary>¿Puedo cambiar de plan?</summary><p>Sí, cuando querás. Empezás en Arranque y subís a Turbo o Nitro cuando tu negocio lo necesite.</p></details>
+    <details><summary>¿Los mensajes de WhatsApp tienen costo?</summary><p>Confirmar y recordar citas con un toque desde tu propio WhatsApp es gratis en todos los planes. Los recordatorios que salen solos usan la plataforma oficial de WhatsApp, que cobra por mensaje, por eso son un extra (y Nitro trae 150 al mes incluidos).</p></details>
     <details><summary>¿Tengo que firmar contrato?</summary><p>No. Pagás mes a mes y te salís cuando querás.</p></details>
-    <details><summary>¿Funciona en mi país?</summary><p>Sí. Citaly funciona en cualquier país de Latinoamérica, en Estados Unidos y en España. Fuera de Costa Rica cuesta US$1 al mes los primeros 3 meses y después US$19.</p></details>
+    <details><summary>¿Funciona en mi país?</summary><p>Sí. Citaly funciona en cualquier país de Latinoamérica, en Estados Unidos y en España. Fuera de Costa Rica pagás en dólares: US$1 al mes los primeros 3 meses y después desde US$9.</p></details>
     <details><summary>¿Puedo cobrar distinto según el carro?</summary><p>Sí. Ponés tus tipos de vehículo (sedán, SUV, pick-up o los que usés) y el precio de cada servicio cambia según lo que elija el cliente.</p></details>
     <details><summary>¿Mis clientes tienen que descargar algo?</summary><p>No. Abren tu link desde el celular, eligen su vehículo, el servicio y la hora, y listo.</p></details>
     <details><summary>¿Y la app para mí?</summary><p>Abrís citalyapp.com/app en tu celular y tocás "Agregar a pantalla de inicio". Te queda el ícono como cualquier app.</p></details>
@@ -281,7 +288,15 @@ footer a{color:var(--mute)}
 <script>
 (function(){var C=CITALY,f=function(n){return "₡"+n.toLocaleString("es-CR")},wa=function(m){return "https://wa.me/"+C.wa+"?text="+encodeURIComponent(m)};
   var set=function(sel,v){Array.prototype.forEach.call(document.querySelectorAll(sel),function(e){e.textContent=v})};
-  set(".pPromo",f(C.monthly.promo));set(".pPM",C.monthly.promoMonths);set(".pStdM",f(C.monthly.std));set(".pUP",C.usd.promo);set(".pUS",C.usd.std);set(".pTrial",C.trialDays);
+  var CUR="crc";
+  function plans(){var P=C.plans,usd=CUR==="usd",pr=function(x){return usd?"US$"+x.usd:f(x.crc)},promo=usd?"US$"+C.usd.promo:f(C.monthly.promo);
+    document.getElementById("plans").innerHTML=Object.keys(P).map(function(k){var p=P[k];return '<div class="plan'+(p.pop?" pop":"")+'">'+(p.pop?'<span class="rib">⭐ El más elegido</span>':'')+'<h3>'+p.ic+" "+p.n+'</h3><div class="tg">'+p.tag+'</div>'
+      +'<div class="was">Primeros '+C.monthly.promoMonths+' meses</div><div class="amt">'+promo+'<small>/mes</small></div><div class="then">después <b>'+pr(p)+'/mes</b></div>'
+      +'<ul>'+p.inc.map(function(x){return "<li>"+x+"</li>"}).join("")+'</ul><a class="btn'+(p.pop?"":" ghost")+'" href="app/?nuevo=1">Probar '+p.n+' gratis</a></div>'}).join("");
+    document.getElementById("addons").innerHTML=Object.keys(C.addons).map(function(k){var a=C.addons[k];return '<div class="addon"><span class="e">'+a.ic+'</span><div><b>'+a.n+'</b><p>'+a.d+'</p></div><span class="pr">'+(a.soon?'<span class="soon">PRONTO</span>':pr(a)+'/mes')+'</span></div>'}).join("")}
+  Array.prototype.forEach.call(document.querySelectorAll("[data-cur]"),function(b){b.onclick=function(){CUR=b.dataset.cur;Array.prototype.forEach.call(document.querySelectorAll("[data-cur]"),function(x){x.setAttribute("aria-selected",x===b)});plans()}});
+  plans();
+  set(".pPromo",f(C.monthly.promo));set(".pPM",C.monthly.promoMonths);set(".pStdM",f(C.monthly.std));set(".pFrom",f(C.plans.arranque.crc));set(".pTrial",C.trialDays);
   Array.prototype.forEach.call(document.querySelectorAll(".wa-demo"),function(e){e.href=wa("Hola, quiero que me ayuden a configurar Citaly. Mi negocio de carros se llama: ")});
   document.getElementById("ftWa").href=wa("Hola, quiero saber más de Citaly");
   var tabs=document.querySelectorAll(".tabs button"),ph=document.querySelectorAll(".stage .phone"),dots=document.querySelectorAll(".dots i"),cur=0,tm;

@@ -27,6 +27,12 @@
 .gbtn{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
 .gbtn svg{width:20px;height:20px}
 .reg .chips .chip{font-size:13.5px;padding:7px 11px}.btn.big{padding:16px;font-size:16px;border-radius:14px}
+/* planes */
+.pcard{border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px;background:var(--card)}
+.pcard.pop{border-color:var(--acc);box-shadow:0 14px 30px -18px var(--acc)}.pcard.on{border-color:var(--ok)}
+.pcard .pp{font:800 30px "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;margin-top:6px}.pcard .pp small{font:600 14px Figtree,sans-serif;color:var(--mute)}
+.plist{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px;font-size:14px}.plist li{padding-left:22px;position:relative}.plist li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.set .lk{font-size:11px;font-weight:800;background:var(--soft);color:var(--acc);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:middle}
 /* primeros pasos */
 .onb{background:linear-gradient(135deg,#1b1240,#3a23a8);color:#fff;border-radius:22px;padding:16px;margin-bottom:12px;position:relative;box-shadow:0 18px 40px -22px #3a23a8}
 .onb .hd{display:flex;gap:14px;align-items:center}
@@ -425,7 +431,7 @@ $("gIn").onclick=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCu
   auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$("aErr").textContent=errEs(x)})};
 
 /* ---------- MÓDULOS (se encienden por negocio desde el admin) ---------- */
-function modOn(k){return !!(B&&B.mods&&B.mods[k])}
+function modOn(k){if(k==="insumos"&&SUB&&tier()==="nitro")return true;return !!(B&&B.mods&&B.mods[k])}
 function insSheet(){var L=(B.ins||[]).map(function(x){return Object.assign({},x)});
   function low(x){return +x.min>0&&+x.q<=+x.min}
   function rows(){return L.length?L.map(function(x,i){return '<div class="li" style="align-items:center;gap:8px"><span style="flex:1;min-width:0"><b>'+esc(x.n)+'</b>'+(low(x)?' <span class="pill bad">Por acabarse</span>':"")+'<br><span class="mute small">'+(+x.q||0)+" "+esc(x.u||"")+(+x.min?" · aviso en "+x.min:"")+'</span></span><button class="ib" data-m="'+i+'" aria-label="Usé uno">−</button><button class="ib" data-p="'+i+'" aria-label="Compré">+</button><button class="ib" data-e="'+i+'" aria-label="Editar">✏️</button></div>'}).join(""):'<p class="mute small">Agrega los materiales que usas y lleva la cuenta de cuánto te queda.</p>'}
@@ -444,7 +450,7 @@ function insSheet(){var L=(B.ins||[]).map(function(x){return Object.assign({},x)
         if(ed>=0)L[ed]=x;else L.push(x);save(ed>=0?"Guardado ✓":"Agregado ✓").then(function(){form(-1)})};
       $("inD").onclick=function(){if(ed<0||!confirm("¿Eliminar "+L[ed].n+"?"))return;L.splice(ed,1);save("Eliminado").then(function(){form(-1)})}})}
 function saveIns(L){B.ins=L;render();return db.doc("biz/"+BID).set({ins:L},{merge:true}).catch(function(e){toast(errEs(e));throw e})}
-$("insRow").onclick=function(){insSheet()};
+$("insRow").onclick=function(){if(!can("insumos")){upsell("insumos");return}insSheet()};
 
 /* ---------- REGISTRO EN UN PASO: crea la cuenta y el negocio con prueba gratis ---------- */
 var RESERVED=["app","admin","r","w","demo","www","api","citaly","ayuda","precios","login","privacidad","terminos","img"];
@@ -523,6 +529,8 @@ function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.n
 
 /* ---------- RENDER GENERAL ---------- */
 function render(){if(!B)return;renderOnb();
+  Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
+  if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   document.documentElement.style.setProperty("--acc",B.color||C.colors[0]);
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
@@ -535,7 +543,7 @@ function render(){if(!B)return;renderOnb();
   if(false)$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba</span><b>Ver</b></div>';
   else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trP">🔔<span style="flex:1">Tu mensualidad vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Pagar</b></div>';
   renderPay();
-  if($("trP"))$("trP").onclick=function(){payInfo()};
+  if($("trP"))$("trP").onclick=function(){planSheet()};
   var p=JOBS.filter(function(j){return j.st==="Por confirmar"}).length;$("pb").hidden=!p;$("pb").textContent=p;
   updBadges();if(VIEW==="agenda")renderAg();else if(VIEW==="clientes")renderCli();else if(VIEW==="numeros")renderNum();else renderSet()}
 Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"),function(b){b.onclick=function(){go(b.dataset.v)}});
@@ -846,7 +854,7 @@ function renderGoal(c,y,m){var G=+B.goal||0,now=new Date(),cur=y===now.getFullYe
    +'<label for="goalIn">Mi meta de ingresos por mes (₡)</label><div class="row"><input id="goalIn" type="number" inputmode="numeric" min="0" step="10000" value="'+(G||"")+'" placeholder="Ej: 500000" style="flex:2"><button class="btn sm alt" id="gSv" style="flex:1">Guardar</button></div></div>';
   var pr=$("gpr");requestAnimationFrame(function(){requestAnimationFrame(function(){pr.style.strokeDashoffset=Cc*(1-pct)})});
   $("gSv").onclick=function(){var v=Math.max(0,+$("goalIn").value||0);db.doc("biz/"+BID).set({goal:v},{merge:true}).then(function(){B.goal=v;toast(v?"Meta guardada 🎯":"Meta quitada");renderNum()},function(e){toast(errEs(e))})}}
-$("addExp").onclick=function(){openExp(null)};
+$("addExp").onclick=function(){if(!can("gastos")){upsell("gastos");return}openExp(null)};
 function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Materiales"};
   sheet('<h2>'+(nw?"Nuevo gasto":"Gasto")+'</h2><label for="eD">¿En qué?</label><input id="eD" maxlength="60" value="'+esc(e.desc)+'" placeholder="Ej: Productos, gasolina, alquiler">'
    +'<div class="row"><div><label for="eA">Monto (₡)</label><input id="eA" type="number" inputmode="numeric" min="0" value="'+esc(e.amt)+'"></div><div><label for="eF">Fecha</label><input id="eF" type="date" value="'+e.date+'"></div></div>'
@@ -859,7 +867,7 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
 /* ---------- AJUSTES ---------- */
 function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("wLnk").href=webLink();$("wLnkT").textContent=webLink().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
   $("svcN").textContent=(B.services||[]).length+" servicios";var on=(B.hours||[]).filter(function(h){return h.on});$("horN").textContent=on.length?on.length+" días · "+fh(on[0].a)+" a "+fh(on[0].b):"Sin horario";
-  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":"Pago único · activo";$("insRow").hidden=!modOn("insumos");$("refN").textContent=refOn()?"Activo · "+crc(refAmt())+" por cada cliente nuevo":"Premia a quien te recomienda";if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
+  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;$("insRow").hidden=!modOn("insumos")&&tier()!=="nitro";$("refN").textContent=refOn()?"Activo · "+crc(refAmt())+" por cada cliente nuevo":"Premia a quien te recomienda";if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
   $("em").textContent=U.email||"";$("domN").textContent=B.home?"Activo · "+((B.zones||[]).length?(B.zones.length+" zonas"):"sin zonas"):"Desactivado";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
 function fdate(ts){var d=ts.toDate();return d.getDate()+" de "+MN[d.getMonth()]}
 $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toast($("openT").checked?"Reservas en línea activadas":"Reservas en línea pausadas")})};
@@ -900,6 +908,8 @@ function saveBiz(p){var ok=p.hours?"hor":p.services?"svc":(p.logo!=null||p.color
 Array.prototype.forEach.call(document.querySelectorAll("[data-s]"),function(b){b.onclick=function(){openSet(b.dataset.s)}});
 $("out").onclick=$("payOut").onclick=function(){if(confirm("¿Cerrar sesión?"))auth.signOut()};
 function openSet(s){
+  if(s==="plan"){planSheet();return}
+  if(FEAT[s]&&!can(s)){upsell(s);return}
   setExtra(s);
   if(s==="welcome")sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Tu cuenta está lista'+(B.owner?", "+esc(String(B.owner).split(" ")[0]):"")+'!</h2><p class="mute">Tenés <b>'+(C.trialDays||7)+' días gratis</b> para descubrir todo. Tu página de reservas ya funciona:</p><div class="linkbox">'+esc(link().replace(/^https:\/\//,""))+'</div>'
     +'<p class="mute small">Si activás tu plan, pagás solo <b>'+crcF(C.monthly.promo)+'/mes</b> los primeros '+C.monthly.promoMonths+' meses 🔥</p></div>'
@@ -929,7 +939,8 @@ function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign(
       box.onclick=function(e){var b=e.target.closest("[data-rm]");if(!b)return;L.splice(+b.dataset.rm,1);box.innerHTML=rows()};
       $("svA").onclick=function(){L.push({id:"s"+Date.now(),n:"",p:"",d:60,ic:"✨"});box.innerHTML=rows();var ins=box.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
       $("svS").onclick=function(){var out=L.filter(function(s){return String(s.n).trim()}).map(function(s,i){var o={id:s.id||"s"+i,n:String(s.n).trim().slice(0,80),p:Math.max(0,+s.p||0),d:+s.d||60,ic:String(s.ic||"").slice(0,4)};if(s.vx)o.vx=true;return o});
-        if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
+        if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}
+        var mx=C.plans[tier()].svcMax;if(out.length>mx){closeSheet();setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:44px">⚡</div><h2>Tu plan permite '+mx+' servicios</h2><p class="mute">Con Turbo tenés servicios ilimitados, página web completa y más.</p></div><button class="btn" id="upGo">Ver planes</button>',function(){$("upGo").onclick=function(){closeSheet();setTimeout(planSheet,250)}})},250);return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
 
 function setExtra(s){
   if(s==="ref")sheet('<h2>Referidos</h2><p class="mute small" style="margin-top:-4px">Cada cliente tiene su link personal. Si un amigo suyo reserva con ese link y es atendido, tú le das un premio. Así tus clientes te traen clientes.</p>'
@@ -960,23 +971,34 @@ function setExtra(s){
 /* ---------- PAGO ---------- */
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
 var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
+/* ---------- PLANES ---------- */
+var TIERS=["arranque","turbo","nitro"],FEAT={web:"turbo",dom:"turbo",ref:"turbo",gastos:"turbo",insumos:"nitro"};
+function tier(){if(!SUB)return "arranque";if(SUB.status==="trial")return "nitro";if(SUB.tier&&C.plans[SUB.tier])return SUB.tier;return SUB.plan==="mensual"?"arranque":"nitro"}
+function can(f){var need=FEAT[f];return !need||TIERS.indexOf(tier())>=TIERS.indexOf(need)}
+function planPrice(k){var P=C.plans[k];return intl()?"US$"+P.usd:crcF(P.crc)}
+function upsell(f){var k=FEAT[f],P=C.plans[k];sheet('<div style="text-align:center"><div style="font-size:48px">'+P.ic+'</div><h2>Esto viene en el plan '+P.n+'</h2><p class="mute">Mejorá tu plan y desbloqueá:</p></div><ul class="plist">'+P.inc.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul><button class="btn" id="upGo">Ver planes</button>',function(){$("upGo").onclick=function(){closeSheet();setTimeout(planSheet,250)}})}
+function planSheet(){var cur=tier(),trial=SUB&&SUB.status==="trial";
+  sheet('<h2>Elegí tu plan</h2><p class="mute small" style="margin-top:-4px">'+(trial?"Estás probando todo gratis. ":"")+'Los primeros '+C.monthly.promoMonths+' meses pagás solo <b>'+(intl()?"US$"+C.usd.promo:crcF(C.monthly.promo))+'/mes</b> en cualquier plan 🔥</p>'
+    +TIERS.map(function(k){var P=C.plans[k],on=!trial&&k===cur;return '<div class="pcard'+(P.pop?" pop":"")+(on?" on":"")+'"><div class="between"><b>'+P.ic+" "+P.n+'</b><span>'+(on?'<span class="pill ok">Tu plan</span>':P.pop?'<span class="pill">⭐ El más elegido</span>':'')+'</span></div><div class="pp">'+planPrice(k)+'<small>/mes</small></div><div class="mute small">'+esc(P.tag)+'</div><ul class="plist">'+P.inc.map(function(x){return "<li>"+esc(x)+"</li>"}).join("")+'</ul>'+(on?"":'<button class="btn'+(P.pop?"":" alt")+'" data-pk="'+k+'">Elegir '+P.n+'</button>')+'</div>'}).join("")
+    +'<h3 style="margin-top:16px">Extras</h3>'+Object.keys(C.addons).map(function(k){var A=C.addons[k];return '<div class="card" style="box-shadow:none;margin-bottom:8px"><div class="between"><b>'+A.ic+" "+esc(A.n)+'</b>'+(A.soon?'<span class="pill warn">Pronto</span>':'<b>'+(intl()?"US$"+A.usd:crcF(A.crc))+'/mes</b>')+'</div><p class="mute small" style="margin:4px 0 0">'+esc(A.d)+'</p></div>'}).join(""),
+    function(){Array.prototype.forEach.call(document.querySelectorAll("[data-pk]"),function(b){b.onclick=function(){closeSheet();setTimeout(function(){payInfo(b.dataset.pk)},250)}})})}
 function intl(){return !!B&&!!B.country&&B.country!=="CR"}
 function money(n){return intl()?"US$"+n:crcF(n)}
 function promoTxt(){var M=C.monthly,U2=C.usd;return (intl()?"US$"+U2.promo:crcF(M.promo))+"/mes x"+M.promoMonths+" meses"}
 function priceNow(){if(SUB&&SUB.price)return money(SUB.price);return intl()?"US$"+C.usd.promo:crcF(C.monthly.promo)}
 function crcF(n){return "₡"+(+n||0).toLocaleString("es-CR")}
-function payMsg(){return "Hola, quiero activar Citaly para mi negocio.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")}
-function payInfo(){var card=intl()?C.payLinkUsd:C.payLink,after=intl()?"US$"+C.usd.std:crcF(C.monthly.std);
-  sheet('<div style="text-align:center"><div style="font-size:44px">🚀</div><h2>Activá tu Citaly</h2><p class="mute">Solo <b>'+promoTxt()+'</b>. Después '+after+' al mes. Sin contrato.</p></div>'
+function payMsg(k){return "Hola, quiero activar Citaly"+(k?" plan "+C.plans[k].n:"")+".\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")}
+function payInfo(k){k=k||(SUB&&SUB.tier)||"turbo";var P=C.plans[k],card=intl()?C.payLinkUsd:C.payLink,after=planPrice(k);
+  sheet('<div style="text-align:center"><div style="font-size:44px">🚀</div><h2>Activá Citaly '+P.n+'</h2><p class="mute">Solo <b>'+promoTxt()+'</b>. Después '+after+' al mes. Sin contrato.</p><button class="link" id="piCh">Cambiar de plan</button></div>'
   +(card?'<a class="btn" target="_blank" rel="noopener" href="'+esc(card)+(card.indexOf("?")<0?"?":"&")+"ref="+encodeURIComponent(BID||"")+'">💳 Pagar con tarjeta</a><div style="height:8px"></div>':"")
   +(!intl()?'<div class="card" style="box-shadow:none;margin-top:6px"><b>'+(card?"O por SINPE Móvil":"Pagá por SINPE Móvil")+'</b><p style="margin:6px 0 0">1. Enviá <b>'+priceNow()+'</b> al <b>'+esc(C.sinpe)+'</b> ('+esc(C.sinpeName)+').</p><p style="margin:6px 0 0">2. Mandanos el comprobante y activamos tu mes.</p></div>':"")
-  +'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,payMsg())+'">'+(intl()&&!card?"Activar por WhatsApp":"Enviar comprobante por WhatsApp")+'</a>')}
+  +'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,payMsg(k))+'">'+(intl()&&!card?"Activar por WhatsApp":"Enviar comprobante por WhatsApp")+'</a>',function(){$("piCh").onclick=function(){closeSheet();setTimeout(planSheet,250)}})}
 function renderPay(){var trial=SUB&&SUB.status==="trial";
   $("payT").textContent=trial?"Tu prueba gratis terminó":"Tu cuenta está pausada";
   $("payS").innerHTML=trial?"Tus citas, clientes y página están guardados. Activá Citaly por solo <b>"+promoTxt()+"</b> y seguí recibiendo reservas.":"Tus datos están guardados. Escribinos por WhatsApp para reactivarla.";
   $("payWa").textContent=trial?"Activar mi cuenta":"Escribir a Citaly por WhatsApp";
   $("payWa").onclick=null;$("payWa").target="_blank";
-  if(trial){$("payWa").removeAttribute("target");$("payWa").href="#";$("payWa").onclick=function(e){e.preventDefault();payInfo()};return}
+  if(trial){$("payWa").removeAttribute("target");$("payWa").href="#";$("payWa").onclick=function(e){e.preventDefault();planSheet()};return}
   $("payWa").href=waUrl(C.wa,trial?payMsg():"Hola, mi cuenta de Citaly aparece pausada.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))}
 
 /* ---------- PWA ---------- */

@@ -11,9 +11,23 @@ var CITALY = {
   site: "https://citalyapp.com",
   admin: "est3banbg@gmail.com",
   price: 0,              // (no se usa)
-  // Precio: prueba gratis → promo los primeros meses → precio normal
-  monthly: { promo: 500, promoMonths: 3, std: 9900, founder: 500 },   // colones (Costa Rica)
-  usd: { promo: 1, std: 19 },                                          // dólares (resto del mundo)
+  // Precio: prueba gratis → promo los primeros meses → precio del plan
+  monthly: { promo: 500, promoMonths: 3, std: 4900 },   // colones (Costa Rica). std = plan más barato
+  usd: { promo: 1, std: 9 },                             // dólares (resto del mundo)
+  // Planes. f = funciones que trae (además de lo básico). Durante la prueba gratis se prueba todo (Nitro).
+  plans: {
+    arranque: { n: "Arranque", ic: "🚗", crc: 4900, usd: 9, staff: 1, svcMax: 10, tag: "Para el que trabaja solo",
+      inc: ["Sitio de reservas 24/7 con precio por vehículo", "Agenda por día y semana", "Hasta 10 servicios", "Clientes e historial de cada carro", "Confirmaciones y recordatorios por WhatsApp con un toque", "Ingresos del mes", "Tu logo y tu color"], f: [] },
+    turbo:    { n: "Turbo", ic: "⚡", crc: 9900, usd: 19, staff: 5, svcMax: 40, tag: "Para negocios con equipo", pop: true,
+      inc: ["Todo lo de Arranque", "Hasta 5 personas en tu equipo", "Servicios ilimitados", "Página web completa con fotos y reseñas", "Servicio a domicilio con zonas y costo", "Gastos y ganancia real del mes", "Referidos: tus clientes te traen clientes"], f: ["web", "dom", "ref", "gastos"] },
+    nitro:    { n: "Nitro", ic: "🚀", crc: 19900, usd: 35, staff: 99, svcMax: 200, tag: "Para crecer en serio",
+      inc: ["Todo lo de Turbo", "Equipo ilimitado", "Control de insumos", "150 recordatorios automáticos por WhatsApp al mes", "Tu propio dominio (tunegocio.com) conectado", "Soporte prioritario por WhatsApp"], f: ["web", "dom", "ref", "gastos", "insumos", "dominio", "waauto", "prioridad"] }
+  },
+  // Extras que se suman a cualquier plan
+  addons: {
+    waauto: { n: "Recordatorios automáticos por WhatsApp", ic: "📲", crc: 2900, usd: 5, d: "150 mensajes al mes que salen solos: confirmación y recordatorio antes de la cita." },
+    ia:     { n: "Asistente con IA para WhatsApp", ic: "🤖", crc: 9900, usd: 19, soon: true, d: "Contesta tu WhatsApp como vos, da precios y agenda solo." }
+  },
   // Links de pago con tarjeta (TiloPay para Costa Rica, Polar/Paddle para el resto). Vacíos = solo SINPE.
   payLink: "", payLinkUsd: "",
   setup: { promo: 100000, std: 150000, pers: 250000 },  // promo de lanzamiento, Standard, Personalizado
