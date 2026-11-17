@@ -105,7 +105,7 @@ function tm(s){var p=String(s||"0:0").split(":");return +p[0]*60+ +p[1]}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
 function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2600)}
 function telN(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
-function waUrl(t,m){t=telN(t);return "https://wa.me/"+(t.length===8?"506"+t:t)+(m?"?text="+encodeURIComponent(m):"")}
+function waUrl(t,m){t=telN(t);return "https://api.whatsapp.com/send?phone="+(t.length===8?"506"+t:t)+(m?"&text="+encodeURIComponent(m):"")}
 function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function emails(t){return String(t||"").toLowerCase().split(/[\s,;]+/).map(function(x){return x.trim()}).filter(function(x){return /^\S+@\S+\.\S+$/.test(x)})}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}

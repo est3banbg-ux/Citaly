@@ -391,7 +391,7 @@ function crc(n){n=Math.round(n||0);return (n<0?"-":"")+"₡"+Math.abs(n).toLocal
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function telN(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
 function waNum(t){t=telN(t);return t.length===8?"506"+t:t}
-function waUrl(t,msg){return "https://wa.me/"+waNum(t)+(msg?"?text="+encodeURIComponent(msg):"")}
+function waUrl(t,msg){return "https://api.whatsapp.com/send?phone="+waNum(t)+(msg?"&text="+encodeURIComponent(msg):"")}
 function niceDay(s){var t=ymd(new Date());return (s===t?"Hoy, ":s===addD(t,1)?"Mañana, ":s===addD(t,-1)?"Ayer, ":"")+DN[pd(s).getDay()]+" "+pd(s).getDate()+" de "+MN[pd(s).getMonth()]}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return (h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":"")||"0 min"}
 function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
@@ -739,7 +739,7 @@ function renderHero(){var t=ymd(new Date()),n=new Date(),nowM=n.getHours()*60+n.
   if($("hNotes"))$("hNotes").onclick=function(){go("clientes")}}
 function shareDay(){var L=dayJobs(SEL).filter(active);if(!L.length){toast("No hay citas este día");return}
   var t="📅 "+B.name+" · "+niceDay(SEL)+"\n\n"+L.map(function(j){return "• "+fh(j.time)+" · "+j.cli+((j.items||[]).length?" · "+j.items.join(" + "):"")+(j.tel?" · "+j.tel:"")+(locOf(j)?"\n   📍 "+gmaps(locOf(j)):"")}).join("\n");
-  if(navigator.share)navigator.share({text:t}).catch(function(){});else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank")}
+  if(navigator.share)navigator.share({text:t}).catch(function(){});else window.open("https://api.whatsapp.com/send?text="+encodeURIComponent(t),"_blank")}
 
 function fillHours(cur){var d=$("jD").value,h=B.hours&&B.hours[pd(d).getDay()],a=h&&h.on?tm(h.a):tm("07:00"),z=h&&h.on?tm(h.b):tm("20:00"),o="",dur=+$("jDu").value||60;
   if(cur&&(tm(cur)<a||tm(cur)>=z)){a=Math.min(a,tm(cur));z=Math.max(z,tm(cur)+30)}

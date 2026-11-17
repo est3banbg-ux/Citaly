@@ -195,7 +195,7 @@ function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){retur
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return (h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":"")}
 function niceDay(s){var t=ymd(new Date()),m=ymd(new Date(Date.now()+864e5));return (s===t?"hoy, ":s===m?"mañana, ":"")+DN[pd(s).getDay()]+" "+pd(s).getDate()+" de "+MN[pd(s).getMonth()]}
 function telN(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
-function waUrl(t,msg){t=telN(t);return "https://wa.me/"+(t.length===8?"506"+t:t)+(msg?"?text="+encodeURIComponent(msg):"")}
+function waUrl(t,msg){t=telN(t);return "https://api.whatsapp.com/send?phone="+(t.length===8?"506"+t:t)+(msg?"&text="+encodeURIComponent(msg):"")}
 
 /* mapa (igual que GlassStudioCR) */
 function hs(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -390,7 +390,7 @@ function askCancel(){mcBox('<h2>¿Cancelar tu cita?</h2>'+mcSum()+'<p class="mut
 <script>
 /* WhatsApp flotante: aparece al bajar en la portada; no sale dentro de la agenda ni en "Mi cita" */
 (function(){var w=document.getElementById("wafab"),l=document.getElementById("land");if(!w||!l)return;
-function f(){var P0=window.P;if(P0&&P0.wa)w.href="https://wa.me/"+(function(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)t=t.slice(3);return t.length===8?"506"+t:t})(P0.wa)+"?text="+encodeURIComponent("Hola "+P0.name+", tengo una consulta");w.classList.toggle("on",!l.hidden&&!!w.getAttribute("href")&&window.scrollY>380)}
+function f(){var P0=window.P;if(P0&&P0.wa)w.href="https://api.whatsapp.com/send?phone="+(function(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)t=t.slice(3);return t.length===8?"506"+t:t})(P0.wa)+"&text="+encodeURIComponent("Hola "+P0.name+", tengo una consulta");w.classList.toggle("on",!l.hidden&&!!w.getAttribute("href")&&window.scrollY>380)}
 addEventListener("scroll",f,{passive:true});setInterval(f,800)})();
 </script>
 </body>

@@ -286,7 +286,7 @@ footer a{color:var(--mute)}
 <div class="dockc" id="dock"><a class="btn" href="app/?nuevo=1">Prueba gratis →</a></div>
 
 <script>
-(function(){var C=CITALY,f=function(n){return "₡"+n.toLocaleString("es-CR")},wa=function(m){return "https://wa.me/"+C.wa+"?text="+encodeURIComponent(m)};
+(function(){var C=CITALY,f=function(n){return "₡"+n.toLocaleString("es-CR")},wa=function(m){return "https://api.whatsapp.com/send?phone="+C.wa+"&text="+encodeURIComponent(m)};
   var set=function(sel,v){Array.prototype.forEach.call(document.querySelectorAll(sel),function(e){e.textContent=v})};
   var CUR="crc";
   function plans(){var P=C.plans,usd=CUR==="usd",pr=function(x){return usd?"US$"+x.usd:f(x.crc)},promo=usd?"US$"+C.usd.promo:f(C.monthly.promo);

@@ -134,7 +134,7 @@ function tm(s){var p=String(s||"0:0").split(":");return +p[0]*60+ +p[1]}
 function fh(s){var m=tm(s),h=Math.floor(m/60),mi=m%60;return (h%12||12)+(mi?":"+(mi<10?"0":"")+mi:"")+" "+(h<12?"am":"pm")}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
 function waNum(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)return t;return t.length===8?"506"+t:t}
-function waUrl(t,m){return "https://wa.me/"+waNum(t)+(m?"?text="+encodeURIComponent(m):"")}
+function waUrl(t,m){return "https://api.whatsapp.com/send?phone="+waNum(t)+(m?"&text="+encodeURIComponent(m):"")}
 function img(u){u=String(u||"");return /^data:image\/(png|jpe?g|webp|gif);base64,/.test(u)||/^https:\/\//.test(u)?u:""}
 function url(u){u=String(u||"").trim();if(!u)return "";if(!/^https?:\/\//i.test(u))u="https://"+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:""}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
