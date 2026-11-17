@@ -26,6 +26,28 @@
 .hero p{margin:10px auto 0;max-width:330px}
 .gbtn{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
 .gbtn svg{width:20px;height:20px}
+.reg .chips .chip{font-size:13.5px;padding:7px 11px}.btn.big{padding:16px;font-size:16px;border-radius:14px}
+/* primeros pasos */
+.onb{background:linear-gradient(135deg,#1b1240,#3a23a8);color:#fff;border-radius:22px;padding:16px;margin-bottom:12px;position:relative;box-shadow:0 18px 40px -22px #3a23a8}
+.onb .hd{display:flex;gap:14px;align-items:center}
+.onb .ring{position:relative;width:62px;height:62px;flex:none}.onb .ring svg{width:62px;height:62px;transform:rotate(-90deg)}
+.onb .ring circle{fill:none;stroke-width:6}.onb .ring .bg{stroke:rgba(255,255,255,.15)}.onb .ring .fg{stroke:#7ef0b0;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)}
+.onb .ring b{position:absolute;inset:0;display:grid;place-items:center;font:800 17px "Bricolage Grotesque",sans-serif}
+.onb h2{margin:0;font-size:19px;color:#fff}.onb .sub{opacity:.75;font-size:13.5px}
+.onb .x{position:absolute;top:8px;right:10px;background:none;border:0;color:#fff;opacity:.6;font-size:20px;cursor:pointer;padding:6px}
+.onb .tk{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 12px;margin-top:8px;transition:background .2s}
+.onb .tk.nx{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
+.onb .tk .ck{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.45);flex:none;display:grid;place-items:center;font-size:13px;font-weight:800}
+.onb .tk.ok .ck{background:#4cc782;border-color:#4cc782;animation:popck .4s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popck{from{transform:scale(.3)}}
+.onb .tk span{flex:1;font-weight:600;font-size:14.5px;line-height:1.25}.onb .tk span small{display:block;font-weight:400;opacity:.7;font-size:12.5px}
+.onb .tk.ok span{text-decoration:line-through;opacity:.55}
+.onb .tk button{background:#fff;color:#3a23a8;border:0;border-radius:999px;font:800 13px Figtree,sans-serif;padding:8px 13px;cursor:pointer;flex:none}
+.onb .tk:not(.nx) button{background:rgba(255,255,255,.16);color:#fff}
+.onb .more{background:none;border:0;color:#fff;opacity:.75;font:700 13px Figtree,sans-serif;margin-top:8px;cursor:pointer;padding:4px 0}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:120;overflow:hidden}
+.confetti i{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;animation:fall 1.6s cubic-bezier(.25,.6,.4,1) forwards}
+@keyframes fall{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.9}}
 .or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:16px 0 4px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
 .link{background:none;border:0;color:var(--acc);font:600 14px Figtree,sans-serif;cursor:pointer;padding:6px 0}
 /* onboarding */
@@ -213,33 +235,31 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
       <button class="link" id="aReset">Olvidé mi contraseña</button>
     </div>
   </div>
-  <p class="mute small" style="text-align:center" id="aHint">¿Primera vez? Entrá con Google o creá tu contraseña y armamos tu negocio en 2 minutos. <b><span id="aTrial">30</span> días gratis.</b></p>
+  <p class="mute small" style="text-align:center" id="aHint">¿No tenés cuenta? <button class="link" id="aNewAcc"><b>Creá tu cuenta gratis</b></button> · <span id="aTrial">7</span> días de prueba.</p>
   <p class="mute small" style="text-align:center">Al continuar aceptas los <a href="../terminos.html" target="_blank">Términos</a> y la <a href="../privacidad.html" target="_blank">Privacidad</a>.</p>
 </div></section>
 
-<!-- REGISTRO: CREAR MI NEGOCIO -->
-<section id="signup" class="screen"><div class="wrap" style="padding-top:24px">
-  <a class="logo"><img src="../icon-192.png" alt="">citaly</a>
-  <div class="card fade" style="margin-top:16px">
-    <span class="pill ok">🎁 <span class="suDays">30</span> días gratis · sin tarjeta</span>
-    <h1 style="margin-top:12px">Creá tu negocio</h1>
-    <p class="mute" style="margin-top:6px">En 2 minutos tenés tu página de reservas funcionando.</p>
+<!-- REGISTRO: CREAR CUENTA Y NEGOCIO EN UN PASO -->
+<section id="signup" class="screen"><div class="wrap" style="padding-top:20px">
+  <div style="text-align:center"><a class="logo" href="../"><img src="../icon-192.png" alt="">citaly</a></div>
+  <div class="card fade reg" style="margin-top:14px">
+    <h1 style="text-align:center">¡Ordená tu negocio con Citaly!</h1>
+    <p class="mute" style="text-align:center;margin:6px 0 0">Probalo gratis por <b class="suDays">7</b> días. Sin tarjeta.</p>
+    <div id="suG"><div style="height:14px"></div><button class="btn gbtn" id="suGoo"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button><div class="or">o con tu correo</div></div>
+    <label>¿Qué tipo de negocio tenés?</label><div class="chips" id="suT"></div>
     <label for="suN">Nombre del negocio</label><input id="suN" maxlength="60" placeholder="Ej: Brillo Total Detailing" autocomplete="organization">
-    <label>Tipo de negocio</label><div class="chips" id="suT"></div>
-    <label for="suW">WhatsApp del negocio</label><input id="suW" inputmode="tel" maxlength="15" placeholder="8888 8888">
-    <label for="suS">Tu link de reservas</label>
-    <div class="row" style="gap:0"><span class="mute" style="flex:none;padding-right:4px">citalyapp.com/</span><input id="suS" maxlength="40" placeholder="tu-negocio" autocapitalize="off"></div>
-    <p class="small" id="suSm" style="margin:6px 0 0"></p>
+    <label for="suP">Tu nombre y apellido</label><input id="suP" maxlength="60" placeholder="Ej: Carlos Mora" autocomplete="name">
+    <div id="suMail"><label for="suE">Tu correo</label><input id="suE" type="email" inputmode="email" autocomplete="email" placeholder="tucorreo@gmail.com"></div>
+    <label for="suW">WhatsApp del negocio</label>
+    <div class="row" style="gap:8px"><select id="suC" style="flex:0 0 112px" aria-label="País"></select><input id="suW" inputmode="tel" maxlength="15" placeholder="8888 8888" autocomplete="tel-national"></div>
+    <div id="suPw"><label for="suK">Creá tu contraseña</label><input id="suK" type="password" minlength="6" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
     <p class="err" id="suErr"></p>
     <div style="height:14px"></div>
-    <button class="btn" id="suGo">Crear mi negocio gratis</button>
-    <p class="mute small" style="margin:10px 0 0;text-align:center">Te cargamos servicios de ejemplo con precios. Los cambiás cuando querás.</p>
+    <button class="btn big" id="suGo">Crear cuenta gratis</button>
+    <p class="mute small" style="margin:10px 0 0;text-align:center">Al crear tu cuenta aceptás los <a href="../terminos.html" target="_blank">Términos</a> y la <a href="../privacidad.html" target="_blank">Privacidad</a>.</p>
   </div>
-  <div class="card" style="box-shadow:none">
-    <p class="mute small" style="margin:0">¿Te agregaron al equipo de un negocio que ya usa Citaly? Pedile al dueño que nos escriba para darte acceso con <b id="suEm"></b>.</p>
-    <div style="height:10px"></div>
-    <div class="row"><a class="btn alt sm" id="suWa" target="_blank" rel="noopener">Ayuda por WhatsApp</a><button class="btn ghost sm" id="suOut">Usar otro correo</button></div>
-  </div>
+  <p class="mute small" style="text-align:center" id="suHave">¿Ya tenés cuenta? <button class="link" id="suLogin">Entrar</button></p>
+  <p class="mute small" style="text-align:center" id="suTeam" hidden>Entraste como <b id="suEm"></b>. ¿Te agregaron al equipo de un negocio? <a id="suWa" target="_blank" rel="noopener">Escribinos</a> · <button class="link" id="suOut">Usar otro correo</button></p>
 </div></section>
 
 <!-- SIN ACCESO / VERIFICAR CORREO -->
@@ -276,6 +296,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     <div id="trial"></div>
 
     <div id="v-agenda" class="view">
+      <div id="onb"></div>
       <div id="hero"></div>
       <div class="sq"><input id="agq" type="search" placeholder="Buscar cita, nombre o teléfono" autocomplete="off"></div>
       <div id="agr" class="sres"></div>
@@ -378,21 +399,21 @@ function errEs(e){var c=e&&e.code||"";return ERR[c]!=null?ERR[c]:"Algo salió ma
 /* ---------- FIREBASE ---------- */
 try{firebase.initializeApp(C.fb);auth=firebase.auth();db=firebase.firestore()}catch(e){document.body.innerHTML='<div class="wrap"><div class="card">No se pudo cargar Citaly. Revisa tu conexión y recarga.</div></div>'}
 if(auth)auth.getRedirectResult().catch(function(e){var m=errEs(e);if(m){show("auth");$("aErr").textContent=m}});
-if(auth)auth.onAuthStateChanged(function(u){stop();U=u;if(!u){show("auth");return}enter(u)});
+var NUEVO=/[?&]nuevo=1/.test(location.search),CREATING=false;
+if(auth)auth.onAuthStateChanged(function(u){if(CREATING)return;stop();U=u;if(!u){if(NUEVO)signup();else show("auth");return}enter(u)});
 /* Busca el negocio de esta persona: el suyo propio (cuentas viejas) o el que el admin le asignó en own/{correo} */
 function enter(u){U=u;show("load");
   var pw=(u.providerData||[]).some(function(p){return p.providerId==="password"});
-  if(pw&&!u.emailVerified){noAcc("verify");return}
   db.doc("biz/"+u.uid).get().then(function(d){if(d.exists){BID=u.uid;start();return}
-    if(!u.email){noAcc();return}
+    if(!u.email||(pw&&!u.emailVerified)){signup();return}
     return db.doc("own/"+u.email.toLowerCase()).get().then(function(o){if(!o.exists||!o.data().biz){signup();return}BID=o.data().biz;start()})
   }).catch(function(e){console.error(e);show("auth");$("aErr").textContent=errEs(e)})}
 function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];BID=null;B=null;SUB=null;JOBS=[];EXP=[]}
 
 /* ---------- ACCESO ---------- */
 var aNew=false;
-if(/[?&]nuevo=1/.test(location.search)){setTimeout(function(){if(!aNew&&$("aMode"))$("aMode").click()},0)}
-if($("aTrial"))$("aTrial").textContent=C.trialDays||30;
+if($("aTrial"))$("aTrial").textContent=C.trialDays||7;
+$("aNewAcc").onclick=function(){NUEVO=true;signup()};
 $("aMode").onclick=function(){aNew=!aNew;$("aGo").textContent=aNew?"Crear contraseña":"Entrar";this.textContent=aNew?"Ya tengo contraseña":"Primera vez: crear contraseña";$("aP").autocomplete=aNew?"new-password":"current-password";$("aErr").textContent=""};
 $("aGo").onclick=function(){var e=$("aE").value.trim(),p=$("aP").value,b=this;$("aErr").textContent="";
   if(!/^\S+@\S+\.\S+$/.test(e)){$("aErr").textContent="Escribe tu correo.";return}if(p.length<6){$("aErr").textContent="La contraseña necesita al menos 6 caracteres.";return}
@@ -425,45 +446,59 @@ function insSheet(){var L=(B.ins||[]).map(function(x){return Object.assign({},x)
 function saveIns(L){B.ins=L;render();return db.doc("biz/"+BID).set({ins:L},{merge:true}).catch(function(e){toast(errEs(e));throw e})}
 $("insRow").onclick=function(){insSheet()};
 
-/* ---------- REGISTRO: el negocio se crea solo, con prueba gratis ---------- */
+/* ---------- REGISTRO EN UN PASO: crea la cuenta y el negocio con prueba gratis ---------- */
 var RESERVED=["app","admin","r","w","demo","www","api","citaly","ayuda","precios","login","privacidad","terminos","img"];
-var SU={type:"",slugEd:false,ok:false,t:null};
-function signup(){show("signup");$("suEm").textContent=U&&U.email||"";$("suWa").href=waUrl(C.wa,"Hola, necesito ayuda para entrar a Citaly con "+(U&&U.email||""));
-  Array.prototype.forEach.call(document.querySelectorAll(".suDays"),function(e){e.textContent=C.trialDays||30});
+var SU={type:""};
+function signup(){show("signup");var inn=!!U;
+  $("suG").hidden=inn;$("suMail").hidden=inn;$("suPw").hidden=inn;$("suHave").hidden=inn;$("suTeam").hidden=!inn;
+  if(inn){$("suEm").textContent=U.email||"";$("suWa").href=waUrl(C.wa,"Hola, necesito ayuda para entrar a Citaly con "+(U.email||""));if(U.displayName&&!$("suP").value)$("suP").value=U.displayName}
+  Array.prototype.forEach.call(document.querySelectorAll(".suDays"),function(e){e.textContent=C.trialDays||7});
   var order=["lavacar","detailing","pulido","polarizado","taller","autos","otro"];
-  $("suT").innerHTML=order.filter(function(k){return C.types[k]}).map(function(k){var t=C.types[k];return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(SU.type===k)+'">'+(t.ic||"")+" "+esc(t.n)+'</button>'}).join("")}
+  $("suT").innerHTML=order.filter(function(k){return C.types[k]}).map(function(k){var t=C.types[k];return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(SU.type===k)+'">'+(t.ic||"")+" "+esc(t.n)+'</button>'}).join("");
+  if(!$("suC").options.length){var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+    var guess=/Costa_Rica/.test(tz)?"CR":/Panama/.test(tz)?"PA":/Mexico|Monterrey|Cancun|Tijuana|Merida|Chihuahua/.test(tz)?"MX":/Bogota/.test(tz)?"CO":/Lima/.test(tz)?"PE":/Santiago/.test(tz)?"CL":/Guayaquil/.test(tz)?"EC":/Santo_Domingo/.test(tz)?"DO":/Puerto_Rico/.test(tz)?"PR":/Buenos_Aires|Argentina/.test(tz)?"AR":/Guatemala/.test(tz)?"GT":/Salvador/.test(tz)?"SV":/Tegucigalpa/.test(tz)?"HN":/Managua/.test(tz)?"NI":/Madrid/.test(tz)?"ES":/Caracas/.test(tz)?"VE":/Montevideo/.test(tz)?"UY":/Asuncion/.test(tz)?"PY":/La_Paz/.test(tz)?"BO":/America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix)/.test(tz)?"US":"CR";
+    $("suC").innerHTML=C.countries.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===guess?" selected":"")+'>'+flag(c[0])+" +"+c[2]+'</option>'}).join("");suPh()}}
+function flag(cc){return String.fromCodePoint.apply(null,cc.split("").map(function(c){return 127397+c.charCodeAt(0)}))}
+function suCountry(){var v=$("suC").value;return C.countries.filter(function(c){return c[0]===v})[0]||C.countries[0]}
+function suPh(){var c=suCountry();$("suW").placeholder=c[3]===8?"8888 8888":c[3]===9?"912 345 678":"55 1234 5678"}
+$("suC").onchange=suPh;
 $("suT").onclick=function(e){var b=e.target.closest("button");if(!b)return;SU.type=b.dataset.k;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)})};
-$("suN").oninput=function(){if(!SU.slugEd){$("suS").value=slugify(this.value);suCheck()}};
-$("suS").oninput=function(){SU.slugEd=true;var v=slugify(this.value);if(v!==this.value)this.value=v;suCheck()};
-function suCheck(){var s=$("suS").value,m=$("suSm");SU.ok=false;clearTimeout(SU.t);m.style.color="";
-  if(!s){m.textContent="";return}
-  if(!/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(s)){m.textContent="Usá entre 3 y 40 letras, números o guiones.";m.style.color="var(--bad)";return}
-  if(RESERVED.indexOf(s)>=0){m.textContent="Ese nombre está reservado. Probá otro.";m.style.color="var(--bad)";return}
-  m.textContent="Revisando…";SU.t=setTimeout(function(){db.doc("pub/"+s).get().then(function(d){if($("suS").value!==s)return;
-    if(d.exists){m.textContent="✗ Ya lo usa otro negocio. Probá otro.";m.style.color="var(--bad)";return}
-    SU.ok=true;m.textContent="✓ Disponible: citalyapp.com/"+s;m.style.color="var(--ok)"},function(){m.textContent="No se pudo revisar. Revisá tu internet.";m.style.color="var(--bad)"})},400)}
+$("suLogin").onclick=function(){NUEVO=false;show("auth")};
 $("suOut").onclick=function(){auth.signOut()};
-$("suGo").onclick=function(){var n=$("suN").value.trim(),w=telN($("suW").value),sl=$("suS").value,e=$("suErr"),btn=this;e.textContent="";
+$("suGoo").onclick=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});$("suErr").textContent="";
+  auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$("suErr").textContent=errEs(x)})};
+function freeSlug(base){base=base||"mi-negocio";if(base.length<3)base=base+"-cr";if(RESERVED.indexOf(base)>=0)base=base+"-1";
+  var tries=[base];for(var i=2;i<8;i++)tries.push(base.slice(0,36)+"-"+i);tries.push(base.slice(0,30)+"-"+Math.random().toString(36).slice(2,7));
+  return tries.reduce(function(p,sl){return p.then(function(found){if(found)return found;return db.doc("pub/"+sl).get().then(function(d){return d.exists?null:sl})})},Promise.resolve(null))}
+function createBiz(f){var t=C.types[f.type],car=!!t.car,uid=U.uid,now=firebase.firestore.FieldValue.serverTimestamp();
+  return freeSlug(slugify(f.name)).then(function(sl){if(!sl)throw {code:"x/slug"};
+    var services=t.svc.map(function(x,i){var o={id:"s"+(i+1),n:x[0],p:x[1],d:x[2],ic:x[3]||""};if(car&&x[4])o.vx=true;return o});
+    var biz={name:f.name.slice(0,60),type:f.type,wa:f.wa,addr:"",slug:sl,color:C.colors[0],logo:"",services:services,
+      hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"17:00"}}),home:false,zones:[],tagline:"",blurb:"",promo:"",
+      web:{faqs:[],reviews:[]},email:(U.email||"").toLowerCase(),team:[],mods:car?{vehiculo:true}:{},
+      veh:car?[{n:"Sedán o hatchback",x:0},{n:"SUV",x:5000},{n:"Pick-up o 4x4",x:8000}]:[],
+      open:true,ahead:21,lead:2,showPrices:true,askHow:true,self:true,owner:f.owner.slice(0,60),country:f.cc,onb:{cuenta:true},created:now};
+    BID=uid;var pub=pubOf(biz);BID=null;
+    var until=firebase.firestore.Timestamp.fromMillis(Date.now()+(C.trialDays||7)*864e5);
+    var bt=db.batch();
+    bt.set(db.doc("biz/"+uid),biz);
+    bt.set(db.doc("pub/"+sl),pub);
+    bt.set(db.doc("subs/"+uid),{name:biz.name,email:biz.email,plan:"trial",status:"trial",total:0,demo:false,start:now,until:until});
+    return bt.commit()})}
+$("suGo").onclick=function(){var e=$("suErr"),btn=this,c=suCountry(),n=$("suN").value.trim(),own=$("suP").value.trim(),w=String($("suW").value).replace(/\D/g,""),inn=!!U,em=$("suE").value.trim(),pw=$("suK").value;e.textContent="";
+  if(!SU.type){e.textContent="Elegí qué tipo de negocio tenés.";return}
   if(n.length<2){e.textContent="Escribí el nombre de tu negocio.";$("suN").focus();return}
-  if(!SU.type){e.textContent="Elegí tu tipo de negocio.";return}
-  if(w.length!==8){e.textContent="Escribí el WhatsApp del negocio (8 dígitos).";$("suW").focus();return}
-  if(!SU.ok){e.textContent="Elegí un link disponible.";$("suS").focus();return}
-  var t=C.types[SU.type],car=!!t.car,uid=U.uid,now=firebase.firestore.FieldValue.serverTimestamp();
-  var services=t.svc.map(function(x,i){var o={id:"s"+(i+1),n:x[0],p:x[1],d:x[2],ic:x[3]||""};if(car&&x[4])o.vx=true;return o});
-  var biz={name:n.slice(0,60),type:SU.type,wa:w,addr:"",slug:sl,color:C.colors[0],logo:"",services:services,
-    hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"17:00"}}),home:false,zones:[],tagline:"",blurb:"",promo:"",
-    web:{faqs:[],reviews:[]},email:(U.email||"").toLowerCase(),team:[],mods:car?{vehiculo:true}:{},
-    veh:car?[{n:"Sedán o hatchback",x:0},{n:"SUV",x:5000},{n:"Pick-up o 4x4",x:8000}]:[],
-    open:true,ahead:21,lead:2,showPrices:true,askHow:true,self:true,created:now};
-  BID=uid;var pub=pubOf(biz);BID=null;
-  var until=firebase.firestore.Timestamp.fromMillis(Date.now()+(C.trialDays||30)*864e5);
-  btn.disabled=true;btn.textContent="Creando tu negocio…";
-  var bt=db.batch();
-  bt.set(db.doc("biz/"+uid),biz);
-  bt.set(db.doc("pub/"+sl),pub);
-  bt.set(db.doc("subs/"+uid),{name:biz.name,email:biz.email,plan:"trial",status:"trial",total:0,demo:false,start:now,until:until});
-  bt.commit().then(function(){BID=uid;start(true)},function(x){console.error(x);btn.disabled=false;btn.textContent="Crear mi negocio gratis";
-    e.textContent=x.code==="permission-denied"?"No se pudo crear. Puede que ese link ya esté en uso; probá otro o escribinos por WhatsApp.":errEs(x)})};
+  if(own.length<3){e.textContent="Escribí tu nombre y apellido.";$("suP").focus();return}
+  if(!inn&&!/^\S+@\S+\.\S+$/.test(em)){e.textContent="Escribí tu correo.";$("suE").focus();return}
+  if(w.indexOf(c[2])===0&&w.length===c[2].length+c[3])w=w.slice(c[2].length);
+  if(w.length!==c[3]){e.textContent="El WhatsApp de "+c[1]+" tiene "+c[3]+" dígitos.";$("suW").focus();return}
+  if(!inn&&pw.length<6){e.textContent="La contraseña necesita al menos 6 caracteres.";$("suK").focus();return}
+  var wa=c[0]==="CR"?w:c[2]+w,f={type:SU.type,name:n,owner:own,wa:wa,cc:c[0]};
+  btn.disabled=true;btn.textContent="Creando tu cuenta…";CREATING=true;
+  var step=inn?Promise.resolve(U):auth.createUserWithEmailAndPassword(em,pw).then(function(r){U=r.user;r.user.updateProfile({displayName:own}).catch(function(){});r.user.sendEmailVerification().catch(function(){});return r.user});
+  step.then(function(){return createBiz(f)}).then(function(){CREATING=false;stop();BID=U.uid;start(true)},function(x){console.error(x);CREATING=false;btn.disabled=false;btn.textContent="Crear cuenta gratis";
+    e.textContent=x.code==="auth/email-already-in-use"?"Ese correo ya tiene cuenta. Tocá «Entrar» abajo.":x.code==="permission-denied"?"No se pudo crear el negocio. Escribinos por WhatsApp y te ayudamos.":errEs(x);
+    if(x.code==="auth/email-already-in-use")$("suHave").hidden=false})};
 
 /* ---------- SIN ACCESO ---------- */
 function noAcc(kind){show("noacc");var e=esc(U&&U.email||"");
@@ -487,13 +522,13 @@ function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until
 function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.now())/864e5):0}
 
 /* ---------- RENDER GENERAL ---------- */
-function render(){if(!B)return;
+function render(){if(!B)return;renderOnb();
   document.documentElement.style.setProperty("--acc",B.color||C.colors[0]);
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
   if(low.length)$("trial").innerHTML='<div class="banner hot" id="trB">📦<span style="flex:1">Se está acabando: <b>'+esc(low.map(function(x){return x.n}).join(", "))+'</b></span><b>Ver</b></div>';
-  else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba gratis":dl===1?"<b>Último día</b> de prueba gratis":"Tu prueba gratis terminó")+'</span><b>Activar</b></div>'}
+  else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba":dl===1?"<b>Último día</b> de prueba":"Tu prueba terminó")+" · activá a <b>"+promoTxt()+"</b>"+'</span><b>Activar</b></div>'}
   else $("trial").innerHTML="";
   if($("trB"))$("trB").onclick=function(){insSheet()};
   var dl=daysLeft();
@@ -831,15 +866,45 @@ $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toas
 $("lCopy").onclick=function(){copy(link())};
 $("lShare").onclick=$("shareTop").onclick=function(){share()};
 function copy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast("Link copiado ✓")},function(){prompt("Copia tu link:",t)})}
-function share(){var t="¡Reserva tu cita en "+B.name+" en segundos! 📅";if(navigator.share)navigator.share({title:B.name,text:t,url:link()}).catch(function(){});else copy(link())}
-function saveBiz(p){Object.keys(p).forEach(function(k){B[k]=p[k]});var bt=db.batch();bt.set(db.doc("biz/"+BID),p,{merge:true});bt.set(db.doc("pub/"+B.slug),pubOf(B));return bt.commit().catch(function(e){toast(errEs(e));throw e})}
+function share(){markOnb("share");var t="¡Reserva tu cita en "+B.name+" en segundos! 📅";if(navigator.share)navigator.share({title:B.name,text:t,url:link()}).catch(function(){});else copy(link())}
+/* ---------- PRIMEROS PASOS ---------- */
+var ONB=[["cuenta","Creá tu cuenta","¡Ya está!",null],["hor","Configurá tu horario","Los días y horas que atendés",function(){openSet("hor")}],
+  ["svc","Revisá tus servicios y precios","Lo que tus clientes ven al reservar",function(){openSet("svc")}],["look","Poné tu logo y tu color","Para que tu página se vea tuya",function(){openSet("look")}],
+  ["prueba","Hacé una reserva de prueba","Mirá lo que ve tu cliente",function(){window.open(link(),"_blank");setTimeout(function(){toast("Cuando reserves, la cita te aparece aquí 👇")},800)}],
+  ["share","Compartí tu link de reservas","En WhatsApp, Instagram y TikTok",function(){share()}]];
+var onbAll=false;
+function onbDone(k){var o=B&&B.onb||{};if(k==="cuenta")return true;if(k==="prueba")return !!o.prueba||JOBS.some(function(j){return j.web});return !!o[k]}
+function renderOnb(){var box=$("onb");if(!box)return;var o=B.onb||{};
+  if(!B.self&&!B.onb||o.hide||o.done){box.innerHTML="";return}
+  if(!o.prueba&&JOBS.some(function(j){return j.web}))markOnb("prueba");
+  var n=ONB.filter(function(t){return onbDone(t[0])}).length,T=ONB.length,C2=2*Math.PI*26,nx=-1;
+  ONB.forEach(function(t,i){if(nx<0&&!onbDone(t[0]))nx=i});
+  var list=ONB.map(function(t,i){var d=onbDone(t[0]);return {i:i,d:d,h:'<div class="tk'+(d?" ok":"")+(i===nx?" nx":"")+'"><div class="ck">'+(d?"✓":"")+'</div><span>'+t[1]+'<small>'+t[2]+'</small></span>'+(!d&&t[3]?'<button data-onb="'+i+'">'+(i===nx?"Iniciar":"Ir")+'</button>':"")+'</div>'}});
+  var show=onbAll?list:list.filter(function(x){return x.i===nx||(!x.d&&x.i===nx+1)});
+  box.innerHTML='<div class="onb fade"><button class="x" id="onbX" aria-label="Ocultar">×</button><div class="hd"><div class="ring"><svg viewBox="0 0 62 62"><circle class="bg" cx="31" cy="31" r="26"/><circle class="fg" cx="31" cy="31" r="26" stroke-dasharray="'+C2+'" stroke-dashoffset="'+(C2*(1-n/T))+'"/></svg><b>'+n+'/'+T+'</b></div><div><h2>Primeros pasos</h2><div class="sub">'+(n===T?"¡Todo listo! 🎉":"Completaste "+n+" de "+T+" · te faltan "+(T-n)+(T-n===1?" paso":" pasos"))+'</div></div></div>'
+    +show.map(function(x){return x.h}).join("")+'<button class="more" id="onbM">'+(onbAll?"Ver menos ▲":"Ver todos los pasos ▼")+'</button></div>';
+  box.querySelectorAll("[data-onb]").forEach(function(b){b.onclick=function(){ONB[+b.dataset.onb][3]()}});
+  $("onbM").onclick=function(){onbAll=!onbAll;renderOnb()};
+  $("onbX").onclick=function(){if(confirm("¿Ocultar los primeros pasos? Siempre podés configurar todo desde Ajustes.")){B.onb=Object.assign({},o,{hide:true});db.doc("biz/"+BID).set({onb:{hide:true}},{merge:true});renderOnb()}}}
+function markOnb(k){if(!B||!BID||onbDone(k)&&k!=="prueba"&&k!=="share")return;if(B.onb&&B.onb[k])return;B.onb=Object.assign({},B.onb||{});B.onb[k]=true;
+  var u={};u[k]=true;db.doc("biz/"+BID).set({onb:u},{merge:true}).catch(function(){});setTimeout(function(){cheer(k)},400)}
+function cheer(k){var n=ONB.filter(function(t){return onbDone(t[0])}).length;confetti();renderOnb();
+  if(n===ONB.length){B.onb.done=true;db.doc("biz/"+BID).set({onb:{done:true}},{merge:true}).catch(function(){});
+    sheet('<div style="text-align:center"><div style="font-size:56px">🏆</div><h2>¡Tu negocio está listo!</h2><p class="mute">Ya tenés todo configurado. Ahora compartí tu link y dejá que las reservas lleguen solas.</p></div><button class="btn" id="cOk">¡Vamos!</button>',function(){$("cOk").onclick=closeSheet})}
+  else toast("¡Paso completado! "+n+" de "+ONB.length+" ✓")}
+function confetti(){if(matchMedia("(prefers-reduced-motion:reduce)").matches)return;var w=document.createElement("div"),cs=["#7b5cff","#ff8a5b","#4cc782","#ffd166","#e0457b","#2563eb"];w.className="confetti";
+  for(var i=0;i<46;i++){var e=document.createElement("i");e.style.left=Math.random()*100+"%";e.style.background=cs[i%cs.length];e.style.setProperty("--dx",(Math.random()*160-80)+"px");e.style.setProperty("--r",(Math.random()*720-360)+"deg");e.style.animationDelay=(Math.random()*.25)+"s";w.appendChild(e)}
+  document.body.appendChild(w);setTimeout(function(){w.remove()},2200)}
+function saveBiz(p){var ok=p.hours?"hor":p.services?"svc":(p.logo!=null||p.color)?"look":null;if(ok&&!(B.onb&&B.onb[ok])){p.onb=Object.assign({},B.onb||{});p.onb[ok]=true;setTimeout(function(){cheer(ok)},500)}
+  Object.keys(p).forEach(function(k){B[k]=p[k]});var bt=db.batch();bt.set(db.doc("biz/"+BID),p,{merge:true});bt.set(db.doc("pub/"+B.slug),pubOf(B));return bt.commit().catch(function(e){toast(errEs(e));throw e})}
 Array.prototype.forEach.call(document.querySelectorAll("[data-s]"),function(b){b.onclick=function(){openSet(b.dataset.s)}});
 $("out").onclick=$("payOut").onclick=function(){if(confirm("¿Cerrar sesión?"))auth.signOut()};
 function openSet(s){
   setExtra(s);
-  if(s==="welcome")sheet('<div style="text-align:center"><div style="font-size:48px">🎉</div><h2>¡Bienvenido a Citaly!</h2><p class="mute">Tu negocio ya tiene su página de reservas:</p><div class="linkbox">'+esc(link().replace(/^https:\/\//,""))+'</div></div>'
-    +'<ol style="padding-left:20px"><li>Revisa tus <b>servicios y precios</b> en Ajustes.</li><li>Comparte tu link en WhatsApp, Instagram y Facebook.</li><li>Cuando alguien reserve, te sale aquí para confirmarle.</li></ol><div class="acts"><button class="btn alt" id="wSvc">Ver servicios</button><button class="btn" id="wSh">Compartir link</button></div>',
-    function(){$("wSvc").onclick=function(){closeSheet();go("ajustes");setTimeout(function(){openSet("svc")},300)};$("wSh").onclick=share});
+  if(s==="welcome")sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Tu cuenta está lista'+(B.owner?", "+esc(String(B.owner).split(" ")[0]):"")+'!</h2><p class="mute">Tenés <b>'+(C.trialDays||7)+' días gratis</b> para descubrir todo. Tu página de reservas ya funciona:</p><div class="linkbox">'+esc(link().replace(/^https:\/\//,""))+'</div>'
+    +'<p class="mute small">Si activás tu plan, pagás solo <b>'+crcF(C.monthly.promo)+'/mes</b> los primeros '+C.monthly.promoMonths+' meses 🔥</p></div>'
+    +'<div class="acts"><a class="btn wa" id="wWa" target="_blank" rel="noopener">Recibir mi guía por WhatsApp</a><button class="btn" id="wGo">Empezar los primeros pasos</button></div>',
+    function(){$("wWa").href=waUrl(C.wa,"¡Hola! Acabo de crear mi cuenta de Citaly 🙌\nNegocio: "+B.name+"\nMi link: "+link()+"\n¿Me ayudan a empezar?");$("wGo").onclick=function(){closeSheet();go("agenda");setTimeout(function(){var t=ONB.filter(function(x){return !onbDone(x[0])})[0];if(t&&t[3])t[3]()},350)}});
   if(s==="neg")sheet('<h2>Mi negocio</h2><label for="nN">Nombre</label><input id="nN" maxlength="50" value="'+esc(B.name)+'"><label for="nW">WhatsApp del negocio</label><input id="nW" inputmode="tel" value="'+esc(B.wa)+'"><label for="nA">Dirección o zona (opcional)</label><input id="nA" maxlength="120" value="'+esc(B.addr||"")+'" placeholder="Ej: San Pedro, 100 m norte del parque"><label>Dirección de tu link</label><div class="linkbox" style="margin:0">'+esc(link().replace(/^https:\/\//,""))+'</div><p class="mute small">Para cambiar el link, escríbenos por WhatsApp.</p><p class="err" id="nE"></p><button class="btn" id="nS">Guardar</button>',
     function(){$("nS").onclick=function(){var n=$("nN").value.trim(),w=telN($("nW").value);if(n.length<2||w.length<8){$("nE").textContent="Revisa el nombre y el WhatsApp.";return}saveBiz({name:n,wa:w,addr:$("nA").value.trim()}).then(function(){closeSheet();toast("Guardado ✓")})}});
   if(s==="svc")svcSheet();
@@ -895,16 +960,23 @@ function setExtra(s){
 /* ---------- PAGO ---------- */
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
 var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
-function priceNow(){var M=C.monthly||{};return SUB&&SUB.price?+SUB.price:(M.founder||M.std||0)}
+function intl(){return !!B&&!!B.country&&B.country!=="CR"}
+function money(n){return intl()?"US$"+n:crcF(n)}
+function promoTxt(){var M=C.monthly,U2=C.usd;return (intl()?"US$"+U2.promo:crcF(M.promo))+"/mes x"+M.promoMonths+" meses"}
+function priceNow(){if(SUB&&SUB.price)return money(SUB.price);return intl()?"US$"+C.usd.promo:crcF(C.monthly.promo)}
 function crcF(n){return "₡"+(+n||0).toLocaleString("es-CR")}
 function payMsg(){return "Hola, quiero activar Citaly para mi negocio.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")}
-function payInfo(){sheet('<h2>Activá tu cuenta</h2><p class="mute">Seguí usando Citaly por <b>'+crcF(priceNow())+' al mes</b>. Sin contrato.</p>'
-  +'<div class="card" style="box-shadow:none"><p style="margin:0">1. Hacé un SINPE Móvil de <b>'+crcF(priceNow())+'</b> al <b>'+esc(C.sinpe)+'</b> ('+esc(C.sinpeName)+').</p><p style="margin:8px 0 0">2. Mandanos el comprobante por WhatsApp y activamos tu mes.</p></div>'
-  +'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,payMsg())+'">Enviar comprobante por WhatsApp</a>')}
+function payInfo(){var card=intl()?C.payLinkUsd:C.payLink,after=intl()?"US$"+C.usd.std:crcF(C.monthly.std);
+  sheet('<div style="text-align:center"><div style="font-size:44px">🚀</div><h2>Activá tu Citaly</h2><p class="mute">Solo <b>'+promoTxt()+'</b>. Después '+after+' al mes. Sin contrato.</p></div>'
+  +(card?'<a class="btn" target="_blank" rel="noopener" href="'+esc(card)+(card.indexOf("?")<0?"?":"&")+"ref="+encodeURIComponent(BID||"")+'">💳 Pagar con tarjeta</a><div style="height:8px"></div>':"")
+  +(!intl()?'<div class="card" style="box-shadow:none;margin-top:6px"><b>'+(card?"O por SINPE Móvil":"Pagá por SINPE Móvil")+'</b><p style="margin:6px 0 0">1. Enviá <b>'+priceNow()+'</b> al <b>'+esc(C.sinpe)+'</b> ('+esc(C.sinpeName)+').</p><p style="margin:6px 0 0">2. Mandanos el comprobante y activamos tu mes.</p></div>':"")
+  +'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,payMsg())+'">'+(intl()&&!card?"Activar por WhatsApp":"Enviar comprobante por WhatsApp")+'</a>')}
 function renderPay(){var trial=SUB&&SUB.status==="trial";
   $("payT").textContent=trial?"Tu prueba gratis terminó":"Tu cuenta está pausada";
-  $("payS").innerHTML=trial?"Tus citas, clientes y página están guardados. Para seguir usando Citaly hacé un SINPE Móvil de <b>"+crcF(priceNow())+"</b> al <b>"+esc(C.sinpe)+"</b> ("+esc(C.sinpeName)+") y mandanos el comprobante.":"Tus datos están guardados. Escribinos por WhatsApp para reactivarla.";
-  $("payWa").textContent=trial?"Enviar comprobante por WhatsApp":"Escribir a Citaly por WhatsApp";
+  $("payS").innerHTML=trial?"Tus citas, clientes y página están guardados. Activá Citaly por solo <b>"+promoTxt()+"</b> y seguí recibiendo reservas.":"Tus datos están guardados. Escribinos por WhatsApp para reactivarla.";
+  $("payWa").textContent=trial?"Activar mi cuenta":"Escribir a Citaly por WhatsApp";
+  $("payWa").onclick=null;$("payWa").target="_blank";
+  if(trial){$("payWa").removeAttribute("target");$("payWa").href="#";$("payWa").onclick=function(e){e.preventDefault();payInfo()};return}
   $("payWa").href=waUrl(C.wa,trial?payMsg():"Hola, mi cuenta de Citaly aparece pausada.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))}
 
 /* ---------- PWA ---------- */

@@ -1,6 +1,7 @@
 rules_version = '2';
 // Citaly — reglas de seguridad de Firestore
-// Citaly 2.0: el admin crea cada negocio (biz/{id}) y registra quién entra a él en own/{correo}.
+// Citaly 2.0: el admin crea negocios (biz/{id}) y registra quién entra en own/{correo}.
+// Además, cada persona puede registrarse sola: su negocio usa su uid como ID (biz/{uid}) con prueba gratis.
 // Los negocios viejos usan como ID el uid de su dueño y siguen funcionando.
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -27,9 +28,9 @@ service cloud.firestore {
       return s.status != 'suspended' && s.until > request.time;
     }
     function str(v, max) { return v is string && v.size() <= max; }
-    // Registro por cuenta propia: cualquier persona con correo confirmado crea SU negocio (ID = su uid) con prueba gratis
+    // Registro por cuenta propia: cualquier persona con sesión crea SU negocio (ID = su uid) con prueba gratis
     function selfSignup(bid) {
-      return verified() && request.auth.uid == bid;
+      return signedIn() && request.auth.uid == bid;
     }
     function reservedSlug(s) {
       return s in ['app', 'admin', 'r', 'w', 'demo', 'www', 'api', 'citaly', 'ayuda', 'precios', 'login', 'privacidad', 'terminos', 'img'];

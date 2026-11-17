@@ -1,6 +1,6 @@
 # Citaly
 
-Sistema de citas para negocios de carros (lavacars, detailing, pulido, polarizado). Cada negocio se registra solo desde la página ("Prueba gratis" → citalyapp.com/app/?nuevo=1) con 30 días gratis y después paga mensualidad por SINPE. El admin también puede crear negocios desde /admin y registra las mensualidades.
+Sistema de citas para negocios de carros (lavacars, detailing, pulido, polarizado). Cada negocio se registra solo desde la página ("Prueba gratis" → citalyapp.com/app/?nuevo=1) con 7 días gratis, luego promo de ₡500/mes los primeros 3 meses y después ₡9.900/mes (US$1 y US$19 fuera de Costa Rica). Paga con SINPE o con tarjeta (links en cfg.js). El admin también puede crear negocios desde /admin y registra las mensualidades.
 
 - `index.html`: página de venta (citalyapp.com)
 - `app/`: app de cada negocio (citalyapp.com/app)

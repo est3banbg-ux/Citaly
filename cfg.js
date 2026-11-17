@@ -11,13 +11,15 @@ var CITALY = {
   site: "https://citalyapp.com",
   admin: "est3banbg@gmail.com",
   price: 0,              // (no se usa)
-  // Precio de la página de venta: mensualidad con prueba gratis
-  monthly: { founder: 9900, std: 15000 },  // fundadores (precio congelado) y precio normal
-  founderCupos: 10,      // cuántos negocios entran con precio de fundador
+  // Precio: prueba gratis → promo los primeros meses → precio normal
+  monthly: { promo: 500, promoMonths: 3, std: 9900, founder: 500 },   // colones (Costa Rica)
+  usd: { promo: 1, std: 19 },                                          // dólares (resto del mundo)
+  // Links de pago con tarjeta (TiloPay para Costa Rica, Polar/Paddle para el resto). Vacíos = solo SINPE.
+  payLink: "", payLinkUsd: "",
   setup: { promo: 100000, std: 150000, pers: 250000 },  // promo de lanzamiento, Standard, Personalizado
   promoCupos: 5,         // la promo es para los primeros 5 negocios
   modFrom: 40000,        // módulos a la medida, desde
-  trialDays: 30,         // días de prueba gratis
+  trialDays: 7,          // días de prueba gratis
   // Módulos que se encienden por negocio desde el admin. Para agregar uno nuevo:
   // 1) se registra aquí, 2) se programa en la app/página revisando modOn(B, "clave").
   mods: {
@@ -27,6 +29,10 @@ var CITALY = {
   sinpe: "7089-2537",    // número SINPE Móvil donde los negocios pagan (confirmar)
   sinpeName: "Esteban",  // a nombre de quién sale el SINPE (confirmar)
   wa: "50661506610",     // WhatsApp de la empresa (soporte y comprobantes)
+  // Países para el teléfono del registro: [código ISO, nombre, código de país, dígitos del número]
+  countries: [["CR","Costa Rica","506",8],["PA","Panamá","507",8],["NI","Nicaragua","505",8],["HN","Honduras","504",8],["SV","El Salvador","503",8],["GT","Guatemala","502",8],
+    ["MX","México","52",10],["CO","Colombia","57",10],["PE","Perú","51",9],["CL","Chile","56",9],["EC","Ecuador","593",9],["DO","Rep. Dominicana","1",10],["PR","Puerto Rico","1",10],
+    ["AR","Argentina","54",10],["UY","Uruguay","598",8],["PY","Paraguay","595",9],["BO","Bolivia","591",8],["VE","Venezuela","58",10],["US","Estados Unidos","1",10],["ES","España","34",9]],
   colors: ["#6c4cf5", "#0d7a85", "#e0457b", "#1f8a4c", "#e07a20", "#2563eb", "#b3392f", "#1f2937"],
   // Tipos de negocio. car: true = negocio de carros (se activa precio por vehículo).
   // Cada servicio: [nombre, precio, minutos, ícono, 1 si el precio cambia según el vehículo]
