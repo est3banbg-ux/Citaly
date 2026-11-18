@@ -518,6 +518,9 @@ function resizeImg(f,S){return new Promise(function(ok,ko){var r=new FileReader(
 function pubOf(b){return {biz:BID,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
 
 /* ---------- ARRANQUE ---------- */
+var PAGO_OK=/[?&]pago=ok/.test(location.search);
+function pagoOk(){if(!PAGO_OK)return;PAGO_OK=false;try{history.replaceState(null,"",location.pathname)}catch(e){}
+  setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Gracias por tu pago!</h2><p class="mute">Recibimos tu suscripción. En unos minutos activamos tu plan y te avisamos por WhatsApp.</p></div><a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,"¡Hola! Acabo de pagar Citaly con tarjeta 💳\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))+'">Avisar a Citaly por WhatsApp</a>')},900)}
 function start(fresh){var uid=BID,first=true;
   UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;if(first){first=false;show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));
   UNS.push(db.doc("subs/"+uid).onSnapshot(function(d){SUB=d.exists?d.data():null;if(B)show(subValid()?"main":"pay");render()},dbErr));
@@ -528,7 +531,7 @@ function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until
 function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.now())/864e5):0}
 
 /* ---------- RENDER GENERAL ---------- */
-function render(){if(!B)return;renderOnb();
+function render(){if(!B)return;renderOnb();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   document.documentElement.style.setProperty("--acc",B.color||C.colors[0]);
@@ -990,9 +993,9 @@ function promoOk(k){if(k&&k!==C.promoPlan)return false;if(!SUB||SUB.status==="tr
 function priceNow(k){k=k||tier();if(promoOk(k))return intl()?"US$"+C.usd.promo:crcF(C.monthly.promo);return planPrice(k)}
 function crcF(n){return "₡"+(+n||0).toLocaleString("es-CR")}
 function payMsg(k){return "Hola, quiero activar Citaly"+(k?" plan "+C.plans[k].n:"")+".\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||"")}
-function payInfo(k){k=k||(SUB&&SUB.tier)||C.promoPlan;var P=C.plans[k],pr=promoOk(k),card=intl()?(P.payLinkUsd||(pr?C.payLinkUsd:"")):(P.payLink||(pr?C.payLink:"")),after=planPrice(k);
+function payInfo(k){k=k||(SUB&&SUB.tier)||C.promoPlan;var P=C.plans[k],pr=promoOk(k),card=P.payLink||"",after=planPrice(k);
   sheet('<div style="text-align:center"><div style="font-size:44px">🚀</div><h2>Activá Citaly '+P.n+'</h2><p class="mute">'+(pr?'Solo <b>'+promoTxt()+'</b>. Después '+after+' al mes.':'<b>'+after+' al mes</b>.')+' Sin contrato.</p><button class="link" id="piCh">Cambiar de plan</button></div>'
-  +(card?'<a class="btn" target="_blank" rel="noopener" href="'+esc(card)+(card.indexOf("?")<0?"?":"&")+"ref="+encodeURIComponent(BID||"")+'">💳 Pagar con tarjeta</a><div style="height:8px"></div>':"")
+  +(card?'<a class="btn" target="_blank" rel="noopener" href="'+esc(card)+(card.indexOf("?")<0?"?":"&")+"customer_email="+encodeURIComponent(U&&U.email||"")+'">💳 Pagar con tarjeta · US$'+(pr?C.usd.promo:P.usd)+'/mes</a><p class="mute small" style="text-align:center;margin:6px 0 10px">Pago seguro con Polar. Se cobra solo cada mes y cancelás cuando querás.</p>':"")
   +(!intl()?'<div class="card" style="box-shadow:none;margin-top:6px"><b>'+(card?"O por SINPE Móvil":"Pagá por SINPE Móvil")+'</b><p style="margin:6px 0 0">1. Enviá <b>'+priceNow(k)+'</b> al <b>'+esc(C.sinpe)+'</b> ('+esc(C.sinpeName)+').</p><p style="margin:6px 0 0">2. Mandanos el comprobante y activamos tu mes.</p></div>':"")
   +'<a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,payMsg(k))+'">'+(intl()&&!card?"Activar por WhatsApp":"Enviar comprobante por WhatsApp")+'</a>',function(){$("piCh").onclick=function(){closeSheet();setTimeout(planSheet,250)}})}
 function renderPay(){var trial=SUB&&SUB.status==="trial";

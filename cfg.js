@@ -18,11 +18,11 @@ var CITALY = {
   // Planes. f = funciones que trae (además de lo básico). Durante la prueba gratis se prueba todo (Nitro).
   plans: {
     arranque: { n: "Arranque", ic: "🚗", crc: 4900, usd: 9, staff: 1, svcMax: 10, tag: "Para el que trabaja solo",
-      inc: ["Sitio de reservas 24/7 con precio por vehículo", "Agenda por día y semana", "Hasta 10 servicios", "Clientes e historial de cada carro", "Confirmaciones y recordatorios por WhatsApp con un toque", "Ingresos del mes", "Tu logo y tu color"], f: [] },
+      inc: ["Sitio de reservas 24/7 con precio por vehículo", "Agenda por día y semana", "Hasta 10 servicios", "Clientes e historial de cada carro", "Confirmaciones y recordatorios por WhatsApp con un toque", "Ingresos del mes", "Tu logo y tu color"], f: [], payLink: "https://buy.polar.sh/polar_cl_NjvP37NPL5omZAhM3EQ1Ow5qhQD0RXHWhlHmH3q9qTY" },
     turbo:    { n: "Turbo", ic: "⚡", crc: 9900, usd: 19, staff: 5, svcMax: 40, tag: "Para negocios con equipo", pop: true,
-      inc: ["Todo lo de Arranque", "Hasta 5 personas en tu equipo", "Servicios ilimitados", "Página web completa con fotos y reseñas", "Servicio a domicilio con zonas y costo", "Gastos y ganancia real del mes", "Referidos: tus clientes te traen clientes"], f: ["web", "dom", "ref", "gastos"] },
+      inc: ["Todo lo de Arranque", "Hasta 5 personas en tu equipo", "Servicios ilimitados", "Página web completa con fotos y reseñas", "Servicio a domicilio con zonas y costo", "Gastos y ganancia real del mes", "Referidos: tus clientes te traen clientes"], f: ["web", "dom", "ref", "gastos"], payLink: "https://buy.polar.sh/polar_cl_atZMWBzWIS2DtqhBXLPuojzpCsRKXxuKshL7Q4KUjCV" },
     nitro:    { n: "Nitro", ic: "🚀", crc: 19900, usd: 35, staff: 99, svcMax: 200, tag: "Para crecer en serio",
-      inc: ["Todo lo de Turbo", "Equipo ilimitado", "Control de insumos", "150 recordatorios automáticos por WhatsApp al mes", "Tu propio dominio (tunegocio.com) conectado", "Soporte prioritario por WhatsApp"], f: ["web", "dom", "ref", "gastos", "insumos", "dominio", "waauto", "prioridad"] }
+      inc: ["Todo lo de Turbo", "Equipo ilimitado", "Control de insumos", "150 recordatorios automáticos por WhatsApp al mes", "Tu propio dominio (tunegocio.com) conectado", "Soporte prioritario por WhatsApp"], f: ["web", "dom", "ref", "gastos", "insumos", "dominio", "waauto", "prioridad"], payLink: "https://buy.polar.sh/polar_cl_Q2c2h9RLBPjF9UbGOHCY12n18JjVW6yBt5rgQ36XOEJ" }
   },
   // Extras que se suman a cualquier plan
   addons: {
@@ -30,7 +30,8 @@ var CITALY = {
     ia:     { n: "Asistente con IA para WhatsApp", ic: "🤖", crc: 9900, usd: 19, soon: true, d: "Contesta tu WhatsApp como vos, da precios y agenda solo." }
   },
   // Links de pago con tarjeta (TiloPay para Costa Rica, Polar/Paddle para el resto). Vacíos = solo SINPE.
-  // Por plan también se puede poner payLink / payLinkUsd dentro de cada plan (Turbo y Nitro se pagan completos).
+  // Pago con tarjeta: cada plan tiene su payLink de Polar (cobra en USD, para Costa Rica y el resto del mundo).
+  // El link de Arranque ya trae el descuento de la promo (US$1 x 3 meses, 1 vez por cliente).
   payLink: "", payLinkUsd: "",
   setup: { promo: 100000, std: 150000, pers: 250000 },  // promo de lanzamiento, Standard, Personalizado
   promoCupos: 5,         // la promo es para los primeros 5 negocios
