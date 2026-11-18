@@ -10,9 +10,16 @@ const b64u = (s) => (typeof s === "string" ? btoa(s) : b64(s)).replace(/=/g, "")
 async function verify(req, body, secret) {
   const id = req.headers.get("webhook-id"), ts = req.headers.get("webhook-timestamp"), sig = req.headers.get("webhook-signature") || "";
   if (!id || !ts || Math.abs(Date.now() / 1000 - +ts) > 300) return false;
-  const key = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
-  const mac = b64(await crypto.subtle.sign("HMAC", key, enc.encode(`${id}.${ts}.${body}`)));
-  return sig.split(" ").some((s) => s.split(",")[1] === mac);
+  secret = (secret || "").trim();
+  const keys = [enc.encode(secret)];
+  try { keys.push(Uint8Array.from(atob(secret.replace(/^whsec_/, "")), (c) => c.charCodeAt(0))); } catch (e) {}
+  const sigs = sig.split(" ").map((s) => s.split(",")[1]);
+  for (const k of keys) {
+    const key = await crypto.subtle.importKey("raw", k, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const mac = b64(await crypto.subtle.sign("HMAC", key, enc.encode(`${id}.${ts}.${body}`)));
+    if (sigs.includes(mac)) return true;
+  }
+  return false;
 }
 async function token(env) {
   const now = Math.floor(Date.now() / 1000);
