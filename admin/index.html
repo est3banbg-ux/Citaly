@@ -127,7 +127,7 @@ function waUrl(t,m){t=telN(t);var mob=/Android|iPhone|iPad|iPod/i.test(navigator
 function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function emails(t){return String(t||"").toLowerCase().split(/[\s,;]+/).map(function(x){return x.trim()}).filter(function(x){return /^\S+@\S+\.\S+$/.test(x)})}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
-firebase.initializeApp(C.fb);var auth=firebase.auth(),db=firebase.firestore(),TS=firebase.firestore.Timestamp;
+var FA=firebase.initializeApp(C.fb,"admin");var auth=FA.auth(),db=FA.firestore(),TS=firebase.firestore.Timestamp;
 
 auth.onAuthStateChanged(function(u){$("load").hidden=true;$("out").hidden=!u;
   if(!u){$("login").hidden=false;$("main").hidden=true;$("ed").hidden=true;return}
@@ -425,6 +425,6 @@ function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Ca
   Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
     .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
-<script src="extra.js?v=3"></script>
+<script src="extra.js?v=4"></script>
 </body>
 </html>
