@@ -57,7 +57,10 @@ export default {
     const name = String((o.product && o.product.name) || "").toLowerCase();
     const tier = Object.keys(TIERS).find((t) => name.includes(t)) || "arranque";
     const usd = (o.net_amount != null ? o.net_amount : o.amount || 0) / 100, tk = await token(env);
-    const bid = email && (await find(env, tk, email));
+    const md = Object.assign({}, (o.subscription && o.subscription.metadata) || {}, (o.checkout && o.checkout.metadata) || {}, o.metadata || {});
+    const ref = String(md.reference_id || md.ref || "").replace(/[^A-Za-z0-9_-]/g, "");
+    let bid = ref && (await get(env, tk, "subs/" + ref)) ? ref : null; // 1° por el id que manda la app
+    if (!bid && email) bid = await find(env, tk, email); // 2° por correo
     const amt = Math.round(usd * 520); // aprox. en colones, solo para el reporte
     const pay = { name: V(email || "?"), amt: V(amt), usd: V(usd), at: V(Date.now()), type: V("mes"), what: V("Polar · " + name), src: V("polar") };
     if (bid) pay.biz = V(bid);
