@@ -185,6 +185,11 @@ service cloud.firestore {
       match /exp/{eid} {
         allow read, write: if isOwner(bid);
       }
+
+      // El admin puede ver y borrar todo lo de un negocio (para eliminar cuentas)
+      match /{col}/{docId} {
+        allow read, write: if isAdmin();
+      }
     }
   }
 }

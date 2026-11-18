@@ -158,7 +158,7 @@ function decorate(){var cards=document.querySelectorAll("#list .biz");Array.prot
   ex.innerHTML=((a.tags||[]).length?'<div>'+a.tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>'}).join("")+'</div>':"")+(a.note?'<p class="note">📝 '+esc(a.note)+'</p>':"");
   ac.parentNode.insertBefore(ex,ac);
   var s=SUBS[id],h='<button class="btn sm ghost" data-x="note" data-id="'+id+'">📝 Nota</button><button class="btn sm ghost" data-x="tag" data-id="'+id+'">🏷️ Etiquetas</button>'
-    +(s&&!s.demo?'<button class="btn sm ghost" data-x="pf" data-id="'+id+'">📆 Plan / fecha</button>':"")+'<button class="btn sm ghost" data-x="msg" data-id="'+id+'">💬 Mensajes</button>';
+    +(s&&!s.demo?'<button class="btn sm ghost" data-x="pf" data-id="'+id+'">📆 Plan / fecha</button>':"")+'<button class="btn sm ghost" data-x="msg" data-id="'+id+'">💬 Mensajes</button><button class="btn sm danger" data-x="del" data-id="'+id+'">🗑️ Eliminar</button>';
   ac.insertAdjacentHTML("beforeend",h)})}
 function saveAdm(id,o){return db.doc("adm/"+id).set(o,{merge:true}).then(function(){toast("Guardado ✓")},function(er){toast(er.message)})}
 function parseDate(v){v=String(v||"").trim();var m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)||null,d;
@@ -166,6 +166,7 @@ function parseDate(v){v=String(v||"").trim();var m=v.match(/^(\d{4})-(\d{1,2})-(
   return isNaN(d.getTime())?0:d.getTime()}
 $("list").addEventListener("click",function(e){var x=e.target.closest("[data-x]");if(!x)return;var k=x.getAttribute("data-x"),id=x.getAttribute("data-id"),b=BIZ[id]||{},a=ADM[id]||{},s=SUBS[id];
   if(k==="msg"){openMsgs(id);return}
+  if(k==="del"){delBiz(id);return}
   if(k==="note"){var v=prompt("Nota privada sobre "+(b.name||"este negocio")+" (solo la ves vos)",a.note||"");if(v!=null)saveAdm(id,{note:v.trim().slice(0,300)});return}
   if(k==="tag"){var t=prompt("Etiquetas separadas por coma (ej: lavacar, vip, moroso)",(a.tags||[]).join(", "));if(t==null)return;
     saveAdm(id,{tags:t.split(",").map(function(z){return z.trim().toLowerCase().slice(0,20)}).filter(Boolean).slice(0,8)});return}
@@ -175,11 +176,31 @@ $("list").addEventListener("click",function(e){var x=e.target.closest("[data-x]"
     var o={tier:tk};if(f.trim()){var t2=parseDate(f);if(!t2){toast("Fecha no válida");return}o.until=TS.fromMillis(t2)}
     db.doc("subs/"+id).set(o,{merge:true}).then(function(){toast("Plan actualizado ✓")},function(er){toast(er.message)})}});
 
+/* ---------- eliminar negocios (y todas sus demos) ---------- */
+function wipeCol(path){return db.collection(path).get().then(function(s){var ds=s.docs.slice(),run=function(){if(!ds.length)return Promise.resolve();var bt=db.batch();ds.splice(0,400).forEach(function(d){bt.delete(d.ref||db.doc(path+"/"+d.id))});return bt.commit().then(run)};return run()})}
+function wipe(id){var b=BIZ[id]||{},slug=b.slug,subs=["jobs","slots","holds","mine","exp"],mails=[];
+  [b.email].concat(b.team||[]).forEach(function(m){m=String(m||"").toLowerCase();if(m&&mails.indexOf(m)<0)mails.push(m)});
+  return Promise.all(subs.map(function(c){return wipeCol("biz/"+id+"/"+c)}))
+   .then(function(){return slug?wipeCol("pub/"+slug+"/fotos"):0})
+   .then(function(){return Promise.all(mails.map(function(m){return db.doc("own/"+m).get().then(function(d){return d.exists&&d.data().biz===id?db.doc("own/"+m).delete():0})}))})
+   .then(function(){var bt=db.batch();if(slug)bt.delete(db.doc("pub/"+slug));bt.delete(db.doc("subs/"+id));bt.delete(db.doc("adm/"+id));bt.delete(db.doc("biz/"+id));return bt.commit()})}
+function delBiz(id){var b=BIZ[id]||{},nm=b.name||"este negocio";
+  var v=prompt("Vas a ELIMINAR "+nm+" con sus citas, clientes y página. No se puede deshacer.\nLos pagos registrados se conservan para tu reporte.\n\nEscribí BORRAR para confirmar:");
+  if(v==null)return;if(v.trim().toUpperCase()!=="BORRAR"){toast("No se eliminó (escribí BORRAR)");return}
+  toast("Eliminando…");wipe(id).then(function(){toast("Eliminado ✓")},function(e){toast("No se pudo: "+e.message)})}
+function delDemos(){var ids=rowsOf().filter(function(x){return x.s&&x.s.demo}).map(function(x){return x.id});
+  if(!ids.length){toast("No hay demos");return}
+  var v=prompt("Vas a ELIMINAR "+ids.length+" cuenta"+(ids.length===1?"":"s")+" demo con todos sus datos. No se puede deshacer.\n\nEscribí BORRAR para confirmar:");
+  if(v==null)return;if(v.trim().toUpperCase()!=="BORRAR"){toast("No se eliminó (escribí BORRAR)");return}
+  toast("Eliminando "+ids.length+"…");ids.reduce(function(p,id){return p.then(function(){return wipe(id)})},Promise.resolve()).then(function(){toast("Demos eliminadas ✓")},function(e){toast("No se pudo: "+e.message)})}
+function demoBar(){var l=$("list");if(!l||document.getElementById("demoBar"))return;if(F!=="demo")return;
+  var d=document.createElement("button");d.id="demoBar";d.className="btn danger";d.style.marginBottom="10px";d.textContent="🗑️ Eliminar todas las demos";d.onclick=delDemos;l.parentNode.insertBefore(d,l)}
+
 /* ---------- enganche con el script principal ---------- */
 var _listen=listen,_render=render,_rp=renderPays;
 listen=function(){var fresh=!listening;_listen();if(!fresh)return;
   db.collection("adm").onSnapshot(function(s){ADM={};s.forEach(function(d){ADM[d.id]=d.data()});render()},function(e){console.error(e)});
   db.collection("leads").onSnapshot(function(s){LEADS=s.docs.map(function(d){var x=d.data();x.id=d.id;return x});renderTab()},function(e){console.error(e)})};
-render=function(){_render();decorate();renderTab()};
+render=function(){_render();var o=document.getElementById('demoBar');if(o&&F!=='demo')o.remove();decorate();demoBar();renderTab()};
 renderPays=function(){_rp();renderTab()};
 })();
