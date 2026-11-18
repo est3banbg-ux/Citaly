@@ -129,7 +129,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .sheet{position:fixed;inset:0;z-index:50;display:none}
 .sheet.on{display:block}
 .sheet .bd{position:absolute;inset:0;background:rgba(10,8,20,.5);animation:fadein .2s both}
-.sheet .pn{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--card);border-radius:24px 24px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));max-width:600px;margin:0 auto;animation:up .28s cubic-bezier(.2,.8,.3,1) both}
+.sheet .pn{position:absolute;left:0;right:0;bottom:0;max-height:92vh;max-height:calc(100dvh - 28px);overscroll-behavior:contain;overflow:auto;background:var(--card);border-radius:24px 24px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom,0px));max-width:600px;margin:0 auto;animation:up .28s cubic-bezier(.2,.8,.3,1) both}
 .sheet .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
 @keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 @keyframes fadein{from{opacity:0}}
