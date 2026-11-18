@@ -113,7 +113,7 @@ p.sub{color:var(--mute);font-size:18px;max-width:620px;margin:0}
 .plan .was{margin-top:16px;font-size:14px;color:var(--mute)}.plan .was b{color:var(--ink)}
 .plan .amt{font:800 44px "Bricolage Grotesque",sans-serif;letter-spacing:-.04em;line-height:1;margin:4px 0}.plan .amt small{font:600 16px Figtree,sans-serif;color:var(--mute);letter-spacing:0}
 .plan .then{font-size:14px;color:var(--mute)}
-.plan ul{list-style:none;padding:0;margin:18px 0;display:grid;gap:8px}.plan li{padding-left:26px;position:relative}.plan li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.plan ul{list-style:none;padding:0;margin:18px 0;display:grid;gap:8px}.plan li{padding-left:26px;position:relative}.plan li.soon{opacity:.75}.plan li.soon:before{content:"⏳"}.plan li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
 .plan .btn{border-radius:999px;padding:15px}
 .addons{display:grid;gap:12px;max-width:900px;margin:16px auto 0}@media(min-width:760px){.addons{grid-template-columns:1fr 1fr}}
 .addon{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px}
@@ -292,7 +292,7 @@ footer a{color:var(--mute)}
   function plans(){var P=C.plans,usd=CUR==="usd",pr=function(x){return usd?"US$"+x.usd:f(x.crc)},promo=usd?"US$"+C.usd.promo:f(C.monthly.promo);
     document.getElementById("plans").innerHTML=Object.keys(P).map(function(k){var p=P[k];return '<div class="plan'+(p.pop?" pop":"")+'">'+(p.pop?'<span class="rib">⭐ El más elegido</span>':'')+'<h3>'+p.ic+" "+p.n+'</h3><div class="tg">'+p.tag+'</div>'
       +(k===C.promoPlan?'<div class="was">Primeros '+C.monthly.promoMonths+' meses</div><div class="amt">'+promo+'<small>/mes</small></div><div class="then">después <b>'+pr(p)+'/mes</b></div>':'<div class="was">Precio mensual</div><div class="amt">'+pr(p)+'<small>/mes</small></div><div class="then">sin contrato</div>')
-      +'<ul>'+p.inc.map(function(x){return /pr[oó]ximamente/i.test(x)?'<li style="opacity:.75">⏳ '+x+"</li>":"<li>"+x+"</li>"}).join("")+'</ul><a class="btn'+(p.pop?"":" ghost")+'" href="app/?nuevo=1">Probar '+p.n+' gratis</a></div>'}).join("");
+      +'<ul>'+p.inc.map(function(x){return /pr[oó]ximamente/i.test(x)?'<li class="soon">'+x+"</li>":"<li>"+x+"</li>"}).join("")+'</ul><a class="btn'+(p.pop?"":" ghost")+'" href="app/?nuevo=1">Probar '+p.n+' gratis</a></div>'}).join("");
     document.getElementById("addons").innerHTML=Object.keys(C.addons).map(function(k){var a=C.addons[k];return '<div class="addon"><span class="e">'+a.ic+'</span><div><b>'+a.n+'</b><p>'+a.d+'</p></div><span class="pr">'+(a.soon?'<span class="soon">PRONTO</span>':pr(a)+'/mes')+'</span></div>'}).join("")}
   Array.prototype.forEach.call(document.querySelectorAll("[data-cur]"),function(b){b.onclick=function(){CUR=b.dataset.cur;Array.prototype.forEach.call(document.querySelectorAll("[data-cur]"),function(x){x.setAttribute("aria-selected",x===b)});plans()}});
   plans();
