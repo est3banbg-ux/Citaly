@@ -101,6 +101,16 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // Notas, etiquetas y meta: solo el admin (el cliente nunca los ve)
+    match /adm/{aid} {
+      allow read, write: if isAdmin();
+    }
+
+    // Prospectos de ventas: solo el admin
+    match /leads/{lid} {
+      allow read, write: if isAdmin();
+    }
+
     // Datos privados del negocio
     match /biz/{bid} {
       allow read: if isOwner(bid) || isAdmin();

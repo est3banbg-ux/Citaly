@@ -1,0 +1,15 @@
+# Webhook de Polar (activa el plan solo cuando alguien paga con tarjeta)
+
+Es opcional: sin esto, registrás el pago a mano en el panel (botón Cobrar).
+
+1. Firebase → Configuración del proyecto → Cuentas de servicio → "Generar nueva clave privada". Se baja un .json. No lo compartas.
+2. Cloudflare (gratis) → Workers → Crear → pegá el contenido de `worker.js` → Implementar.
+3. En el Worker → Configuración → Variables y secretos (tipo Secreto):
+   - `FB_PROJECT` = citaly-cb101
+   - `FB_CLIENT_EMAIL` = el `client_email` del .json
+   - `FB_PRIVATE_KEY` = el `private_key` del .json (completo)
+   - `POLAR_WEBHOOK_SECRET` = lo de abajo (paso 4)
+4. Polar → Settings → Webhooks → Add endpoint → URL del Worker, evento `order.paid`. Copiá el "secret" y pegalo en el paso 3.
+5. Probá con una compra de prueba: el negocio debe pasar a "Al día" y aparecer el pago.
+
+El plan se detecta por el nombre del producto en Polar (debe contener Arranque, Turbo o Nitro) y el cliente por su correo: tiene que ser el mismo con el que entra a Citaly. Si no coincide, el pago queda en Cobros → "Pagos de Polar sin cuenta".

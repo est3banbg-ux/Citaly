@@ -63,6 +63,20 @@
 .savebar{position:sticky;bottom:0;z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 0 calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px}
 .demo{display:flex;gap:10px;align-items:center;background:color-mix(in srgb,var(--acc2) 14%,var(--card));border:1px dashed color-mix(in srgb,var(--acc2) 50%,var(--line));border-radius:14px;padding:11px 13px;margin-bottom:14px;font-size:14px}
 .demo .btn{flex:none}
+#tabs{margin:0 0 12px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}#tabs .chip{white-space:nowrap;flex:none}
+.sec3{margin:16px 0 6px;font:700 15px "Bricolage Grotesque",sans-serif}
+.row2{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}.row2:last-child{border-bottom:0}
+.row2 .m{min-width:0;flex:1}.row2 .m b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row2 .m span{font-size:13px;color:var(--mute)}
+.row2 .bt{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#6c4cf5,#4b2fd6);border-radius:99px}
+.bars .br{display:grid;grid-template-columns:44px 1fr 86px;gap:8px;align-items:center;font-size:13px;margin:7px 0}
+.tag{display:inline-block;background:var(--soft);border-radius:99px;padding:2px 9px;font-size:12px;font-weight:600;margin:4px 4px 0 0}
+.note{font-size:13px;color:var(--mute);margin:8px 0 0;white-space:pre-wrap}
+.shOv{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+.shOv .sh{background:var(--card);border-radius:22px 22px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;max-height:84vh;overflow:auto}
+.shOv .sh .btn{width:100%;margin-top:8px;justify-content:flex-start;text-align:left}
+.funnel .fr{margin:10px 0}.funnel .fr div{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 </style>
 </head>
 <body>
@@ -76,6 +90,8 @@
 
   <div id="main" hidden>
     <div class="kpis" id="kpis"></div>
+    <div class="chips" id="tabs"><button class="chip" data-t="neg" aria-pressed="true">Negocios</button><button class="chip" data-t="cob" aria-pressed="false">Cobros</button><button class="chip" data-t="met" aria-pressed="false">Métricas</button><button class="chip" data-t="pro" aria-pressed="false">Prospectos</button><button class="chip" data-t="rep" aria-pressed="false">Reporte</button></div>
+    <div id="t-neg">
     <button class="btn" id="newB">+ Nuevo negocio</button>
     <div style="height:12px"></div>
     <input id="q" type="search" placeholder="Buscar negocio, correo o link">
@@ -84,6 +100,8 @@
     </div>
     <div id="list"></div>
     <div class="card"><h2>Pagos recibidos</h2><div id="pays"></div></div>
+    </div>
+    <div id="t-cob" hidden></div><div id="t-met" hidden></div><div id="t-pro" hidden></div><div id="t-rep" hidden></div>
   </div>
 
   <div id="ed" class="ed" hidden></div>
@@ -143,7 +161,7 @@ function render(){var ids=Object.keys(BIZ),now=Date.now(),c={active:0,suspended:
     +k("Cobrado este mes",crc(mon))+k("Ingreso fijo al mes",crc(mrr))+k("En prueba gratis",c.trial)+k("Mensualidad vencida",lateN)+k("Negocios activos",c.active)+k("Saldo por cobrar",crc(owe));
   var q=$("q").value.trim().toLowerCase();
   var L=ids.map(function(i){return {id:i,s:SUBS[i]||null,b:BIZ[i]}}).filter(function(x){var st=state(x.s);if(F==="late"){if(!late(x.s))return false}else if(F==="owe"){if(st==="demo"||Math.max(0,totalOf(x.s)-paidOf(x.id))<=0)return false}else if(F!=="all"&&st!==F)return false;
-      return !q||[x.b.name,x.b.email,x.b.slug,x.b.wa,(x.b.team||[]).join(" ")].join(" ").toLowerCase().indexOf(q)>=0})
+      return !q||[x.b.name,x.b.email,x.b.slug,x.b.wa,(x.b.team||[]).join(" "),(typeof ADM!=="undefined"&&ADM[x.id]?(ADM[x.id].tags||[]).join(" ")+" "+(ADM[x.id].note||""):"")].join(" ").toLowerCase().indexOf(q)>=0})
     .sort(function(a,b){return (b.b.created&&b.b.created.toMillis?b.b.created.toMillis():0)-(a.b.created&&a.b.created.toMillis?a.b.created.toMillis():0)});
   $("list").innerHTML=L.length?L.map(function(x){var st=state(x.s),b=x.b,s=x.s,tot=totalOf(s),paid=paidOf(x.id),due=Math.max(0,tot-paid);
       var dl=Math.ceil((untilMs(s)-Date.now())/864e5);
@@ -407,5 +425,6 @@ function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Ca
   Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
     .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
+<script src="extra.js?v=1"></script>
 </body>
 </html>
