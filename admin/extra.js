@@ -26,6 +26,11 @@ function stepsDone(b){var o=(b&&b.onb)||{};return STEPS.filter(function(k){retur
 function csv(rows){return "﻿"+rows.map(function(r){return r.map(function(v){v=String(v==null?"":v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(";")}).join("\r\n")}
 function download(name,text){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/csv;charset=utf-8"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
 
+/* abrir WhatsApp: en el celular con el esquema de la app (un toque, sin pasar por la página web) */
+function goWa(u){if(u.indexOf("whatsapp://")===0)location.href=u;else window.open(u,"_blank")}
+function askWa(wa,msg){var o=sheet("Avisarle por WhatsApp",'<p class="mute small" style="margin:0 0 10px">Se abre WhatsApp con el mensaje listo para enviar.</p><a class="btn wa" id="waGo" href="'+esc(waUrl(wa,msg))+'">💬 Abrir WhatsApp</a><button class="btn alt" data-x="1">Ahora no</button>');
+  o.querySelector("#waGo").addEventListener("click",function(){setTimeout(function(){o.remove()},400)})}
+
 /* ---------- mensajes de WhatsApp listos ---------- */
 function msgs(b,s){var n=first(b),nm=b.name||"tu negocio",hi="¡Hola"+(n?" "+n:"")+"! 👋 ",u=s?untilMs(s):0,f=u?fd(u):"",
   pay="SINPE Móvil al "+C.sinpe+" a nombre de "+C.sinpeName+", o con tarjeta desde tu app en Planes",m=s?expect(s):C.monthly.promo;
@@ -39,7 +44,7 @@ function msgs(b,s){var n=first(b),nm=b.name||"tu negocio",hi="¡Hola"+(n?" "+n:"
    ["🔄 Reactivar",hi+"Vi que tu Citaly de "+nm+" está pausado. ¿Querés que lo reactivemos? Te ayudo con lo que necesités."]]}
 function openMsgs(id){var b=BIZ[id],s=SUBS[id];if(!b)return;if(!b.wa){toast("Este negocio no tiene WhatsApp guardado");return}
   var L=msgs(b,s),o=sheet("Mensajes para "+esc(b.name||"")+"",L.map(function(m,i){return '<button class="btn alt" data-i="'+i+'">'+m[0]+'</button>'}).join(""));
-  o.addEventListener("click",function(e){var x=e.target.closest("[data-i]");if(!x)return;window.open(waUrl(b.wa,L[+x.getAttribute("data-i")][1]),"_blank");o.remove()})}
+  o.addEventListener("click",function(e){var x=e.target.closest("[data-i]");if(!x)return;goWa(waUrl(b.wa,L[+x.getAttribute("data-i")][1]));o.remove()})}
 
 /* ---------- pestañas ---------- */
 var TABS={neg:"Negocios",cob:"Cobros",met:"Métricas",pro:"Prospectos",rep:"Reporte"};
@@ -124,7 +129,7 @@ $("t-pro").onclick=function(e){var f=e.target.closest("[data-f2]");if(f){LF=f.ge
   if(k==="add"){var n=$("lN").value.trim();if(!n){toast("Escribí el nombre del negocio");return}var w=$("lW").value.trim();
     db.collection("leads").add({name:n.slice(0,60),wa:w,note:$("lT").value.trim().slice(0,120),st:"nuevo",at:Date.now(),upd:Date.now()}).then(function(){toast("Prospecto guardado ✓")},function(er){toast(er.message)});return}
   if(!l)return;
-  if(k==="wa"){window.open(waUrl(l.wa,pitch(l)),"_blank");if(l.st==="nuevo")setLead(id,{st:"escrito"});return}
+  if(k==="wa"){goWa(waUrl(l.wa,pitch(l)));if(l.st==="nuevo")setLead(id,{st:"escrito"});return}
   if(k==="next"){var i=ST.indexOf(l.st||"nuevo");setLead(id,{st:i>=3?"cerrado":ST[i+1]});return}
   if(k==="st"){var o=sheet("Estado de "+esc(l.name||""),ST.map(function(s){return '<button class="btn alt" data-s="'+s+'">'+STN[s]+'</button>'}).join(""));
     o.addEventListener("click",function(ev){var y=ev.target.closest("[data-s]");if(!y)return;setLead(id,{st:y.getAttribute("data-s")});o.remove()});return}

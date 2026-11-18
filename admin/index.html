@@ -123,7 +123,7 @@ function tm(s){var p=String(s||"0:0").split(":");return +p[0]*60+ +p[1]}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
 function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},2600)}
 function telN(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
-function waUrl(t,m){t=telN(t);return "https://api.whatsapp.com/send?phone="+(t.length===8?"506"+t:t)+(m?"&text="+encodeURIComponent(m):"")}
+function waUrl(t,m){t=telN(t);var mob=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);return (mob?"whatsapp://send":"https://api.whatsapp.com/send")+"?phone="+(t.length===8?"506"+t:t)+(m?"&text="+encodeURIComponent(m):"")}
 function slugify(s){return String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40)}
 function emails(t){return String(t||"").toLowerCase().split(/[\s,;]+/).map(function(x){return x.trim()}).filter(function(x){return /^\S+@\S+\.\S+$/.test(x)})}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
@@ -187,12 +187,12 @@ $("list").onclick=function(e){var b=e.target.closest("[data-a]");if(!b)return;va
     var base=s.demo?Date.now():Math.max(Date.now(),untilMs(s)),nu=addMonth(base),bt=db.batch();
     bt.set(ref,{plan:"mensual",demo:false,tier:tk,status:"active",price:amt,months:mo+1,leftPromo:left,until:TS.fromMillis(nu)},{merge:true});
     bt.set(db.collection("payments").doc(),{biz:id,name:bz.name||"",amt:amt,at:Date.now(),type:"mes",what:"Mensualidad"});
-    bt.commit().then(function(){toast("Mensualidad registrada ✓ hasta "+fd(nu));if(bz.wa&&confirm("¿Avisarle por WhatsApp?"))window.open(waUrl(bz.wa,"¡Hola! Recibimos tu pago de "+crc(amt)+" ✅ Tu Citaly queda activo hasta el "+fd(nu)+". ¡Gracias! 🙌"),"_blank")},function(x){toast(x.message)});return}
+    bt.commit().then(function(){toast("Mensualidad registrada ✓ hasta "+fd(nu));if(bz.wa)askWa(bz.wa,"¡Hola! Recibimos tu pago de "+crc(amt)+" ✅ Tu Citaly queda activo hasta el "+fd(nu)+". ¡Gracias! 🙌")},function(x){toast(x.message)});return}
   if(a==="pay"){var due=Math.max(0,totalOf(s)-paidOf(id)),amt=prompt(due?"¿Cuánto pagó "+(bz.name||"")+"? Debe "+crc(due)+" de la instalación.":"¿Cuánto pagó "+(bz.name||"")+"? (por ejemplo, un módulo o un cambio a la medida)",due||C.modFrom);if(amt==null)return;amt=+String(amt).replace(/\D/g,"")||0;if(!amt)return;
     var what=due?"saldo":(prompt("¿Qué pagó? (ej: módulo de insumos, cambio de diseño)","Módulo")||"Extra").slice(0,60),bt=db.batch();
     if(!due&&s)bt.set(ref,{total:totalOf(s)+amt},{merge:true});
     bt.set(db.collection("payments").doc(),{biz:id,name:bz.name||"",amt:amt,at:Date.now(),type:due?"saldo":"extra",what:due?"Saldo de la instalación":what});
-    bt.commit().then(function(){toast("Pago registrado ✓");if(bz.wa&&confirm("¿Avisarle por WhatsApp que recibiste el pago?"))window.open(waUrl(bz.wa,"¡Hola! Recibimos tu pago de "+crc(amt)+" ✅ ¡Muchas gracias! 🙌 — Citaly"),"_blank")},function(x){toast(x.message)})}
+    bt.commit().then(function(){toast("Pago registrado ✓");if(bz.wa)askWa(bz.wa,"¡Hola! Recibimos tu pago de "+crc(amt)+" ✅ ¡Muchas gracias! 🙌 — Citaly")},function(x){toast(x.message)})}
   if(a==="off"&&confirm("¿Pausar a "+(bz.name||"este negocio")+"? Su página dejará de recibir reservas."))ref.update({status:"suspended"}).then(function(){toast("Pausado")});
   if(a==="on")ref.update({status:"active"}).then(function(){toast("Reactivado")})};
 
@@ -425,6 +425,6 @@ function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Ca
   Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
     .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
-<script src="extra.js?v=2"></script>
+<script src="extra.js?v=3"></script>
 </body>
 </html>
