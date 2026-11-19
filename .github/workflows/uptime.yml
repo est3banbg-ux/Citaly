@@ -1,0 +1,23 @@
+# Revisa cada 30 minutos que Citaly esté arriba. Si algo falla, GitHub te manda un correo automáticamente.
+name: Uptime Citaly
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Revisar páginas principales
+        run: |
+          fail=0
+          for u in "https://citalyapp.com/" "https://citalyapp.com/app/" "https://citalyapp.com/r/" "https://citalyapp.com/w/" "https://citalyapp.com/cfg.js"; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$u" || echo 000)
+            echo "$u -> $code"
+            if [ "$code" != "200" ]; then fail=1; fi
+          done
+          # Firebase (Auth + Firestore) responde
+          code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "https://firestore.googleapis.com/" || echo 000)
+          echo "firestore -> $code"
+          if [ "$code" = "000" ]; then fail=1; fi
+          exit $fail
