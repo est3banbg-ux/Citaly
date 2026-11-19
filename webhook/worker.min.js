@@ -93,9 +93,10 @@ async function ia(req, env) {
   if (!idToken) return jr(req, { error: "sesion" }, 401);
   if (mode !== "desc" && mode !== "faq" && text.length < 3) return jr(req, { error: "vacio" }, 400);
   const u = await fbUser(idToken, env);
-  if (!u || !u.emailVerified) return jr(req, { error: "sesion" }, 401);
+  if (!u) return jr(req, { error: "sesion" }, 401);
   const tk = await token(env), email = String(u.email || "").toLowerCase();
-  let bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : await find(env, tk, email);
+  // dueño: su negocio usa su uid (sirve con Facebook aunque no traiga correo verificado); equipo: por correo verificado
+  let bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : u.emailVerified && email ? await find(env, tk, email) : null;
   const s = bid && (await get(env, tk, "subs/" + bid));
   if (!s) return jr(req, { error: "plan" }, 403);
   const until = s.until && s.until.timestampValue ? Date.parse(s.until.timestampValue) : 0, st = (s.status || {}).stringValue || "", t = (s.tier || {}).stringValue || "";
@@ -146,8 +147,8 @@ async function push(req, env) {
   let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
   const ev = ["new", "chg", "test"].includes(b.ev) ? b.ev : "";
   if (ev === "test") {
-    const u = await fbUser(clip(b.idToken, 4000), env); if (!u || !u.emailVerified) return jr(req, { error: "sesion" }, 401);
-    const tk = await token(env), bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : await find(env, tk, String(u.email || "").toLowerCase());
+    const u = await fbUser(clip(b.idToken, 4000), env); if (!u) return jr(req, { error: "sesion" }, 401);
+    const tk = await token(env), bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : u.emailVerified && u.email ? await find(env, tk, String(u.email).toLowerCase()) : null;
     if (!bid) return jr(req, { error: "negocio" }, 404);
     const n = await sendPush(env, bid, "🔔 Avisos activados", "Así te va a llegar cada reserva nueva de tus clientes.", "/app/");
     return jr(req, { ok: true, n });

@@ -241,12 +241,14 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
   </div>
   <div class="card fade">
     <button class="btn gbtn" id="gIn"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar con Google</button>
+    <button class="btn gbtn" id="fIn" style="margin-top:8px"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/><path fill="#fff" d="M16.7 15.5l.5-3.5h-3.4V9.8c0-1 .5-1.9 2-1.9h1.5v-3s-1.4-.2-2.7-.2c-2.7 0-4.5 1.7-4.5 4.7V12h-3v3.5h3v8.4a12 12 0 0 0 3.7 0v-8.4h2.9z"/></svg>Entrar con Facebook</button>
     <div class="or">o con tu correo</div>
     <label for="aE">Correo</label><input id="aE" type="email" autocomplete="email" inputmode="email">
     <label for="aP">Contraseña</label><input id="aP" type="password" autocomplete="current-password" minlength="6">
     <p class="err" id="aErr"></p>
     <div style="height:12px"></div>
     <button class="btn" id="aGo">Entrar</button>
+    <button class="btn ghost" id="aLink" style="margin-top:8px">📧 Entrar sin contraseña (te mando un link)</button>
     <div class="between" style="margin-top:8px">
       <button class="link" id="aMode">Primera vez: crear contraseña</button>
       <button class="link" id="aReset">Olvidé mi contraseña</button>
@@ -262,7 +264,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
   <div class="card fade reg" style="margin-top:14px">
     <h1 style="text-align:center">¡Ordená tu negocio con Citaly!</h1>
     <p class="mute" style="text-align:center;margin:6px 0 0">Probalo gratis por <b class="suDays">7</b> días. Sin tarjeta.</p>
-    <div id="suG"><div style="height:14px"></div><button class="btn gbtn" id="suGoo"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button><div class="or">o con tu correo</div></div>
+    <div id="suG"><div style="height:14px"></div><button class="btn gbtn" id="suGoo"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continuar con Google</button><button class="btn gbtn" id="suFb" style="margin-top:8px"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/><path fill="#fff" d="M16.7 15.5l.5-3.5h-3.4V9.8c0-1 .5-1.9 2-1.9h1.5v-3s-1.4-.2-2.7-.2c-2.7 0-4.5 1.7-4.5 4.7V12h-3v3.5h3v8.4a12 12 0 0 0 3.7 0v-8.4h2.9z"/></svg>Continuar con Facebook</button><div class="or">o con tu correo</div></div>
     <label>¿Qué tipo de negocio tenés?</label><div class="chips" id="suT"></div>
     <label for="suN">Nombre del negocio</label><input id="suN" maxlength="60" placeholder="Ej: Brillo Total Detailing" autocomplete="organization">
     <label for="suP">Tu nombre y apellido</label><input id="suP" maxlength="60" placeholder="Ej: Carlos Mora" autocomplete="name">
@@ -428,7 +430,7 @@ function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTi
 function show(id){Array.prototype.forEach.call(document.querySelectorAll(".screen"),function(s){s.classList.toggle("on",s.id===id)});window.scrollTo(0,0)}
 function link(){return C.site+"/"+(B&&B.slug||"")+"/reservar"}
 function webLink(){return C.site+"/"+(B&&B.slug||"")}
-var ERR={"auth/invalid-email":"Ese correo no es válido.","auth/user-not-found":"No hay una cuenta con ese correo.","auth/wrong-password":"La contraseña no es correcta.","auth/invalid-credential":"El correo o la contraseña no son correctos.","auth/email-already-in-use":"Ya existe una cuenta con ese correo. Toca Entrar.","auth/weak-password":"La contraseña necesita al menos 6 caracteres.","auth/too-many-requests":"Demasiados intentos. Espera un momento.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/network-request-failed":"Sin conexión. Revisa tu internet.","auth/unauthorized-domain":"Este sitio todavía no está autorizado en Firebase.","permission-denied":"No tienes permiso para hacer eso.","unavailable":"Sin conexión. Revisa tu internet."};
+var ERR={"auth/account-exists-with-different-credential":"Ese correo ya tiene cuenta con otra forma de entrar (por ejemplo Google o contraseña). Entra con esa.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/user-cancelled":"","auth/operation-not-allowed":"Esta forma de entrar todavía no está activada. Usa Google o tu correo.","auth/invalid-action-code":"Ese link ya se usó o venció. Pide uno nuevo.","auth/missing-or-invalid-nonce":"Intenta otra vez.","auth/invalid-email":"Ese correo no es válido.","auth/user-not-found":"No hay una cuenta con ese correo.","auth/wrong-password":"La contraseña no es correcta.","auth/invalid-credential":"El correo o la contraseña no son correctos.","auth/email-already-in-use":"Ya existe una cuenta con ese correo. Toca Entrar.","auth/weak-password":"La contraseña necesita al menos 6 caracteres.","auth/too-many-requests":"Demasiados intentos. Espera un momento.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/network-request-failed":"Sin conexión. Revisa tu internet.","auth/unauthorized-domain":"Este sitio todavía no está autorizado en Firebase.","permission-denied":"No tienes permiso para hacer eso.","unavailable":"Sin conexión. Revisa tu internet."};
 function errEs(e){var c=e&&e.code||"";return ERR[c]!=null?ERR[c]:"Algo salió mal. Intenta otra vez."}
 
 /* ---------- FIREBASE ---------- */
@@ -531,6 +533,19 @@ $("suC").onchange=suPh;
 $("suT").onclick=function(e){var b=e.target.closest("button");if(!b)return;SU.type=b.dataset.k;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)})};
 $("suLogin").onclick=function(){NUEVO=false;show("auth")};
 $("suOut").onclick=function(){auth.signOut()};
+/* Entrar con Facebook (popup; si el navegador lo bloquea, por redirección) */
+function fbIn(errEl){var p=new firebase.auth.FacebookAuthProvider();p.addScope("email");p.setCustomParameters({display:"popup"});$(errEl).textContent="";
+  auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$(errEl).textContent=errEs(x)})}
+$("suFb").onclick=function(){fbIn("suErr")};if(!C.fbLogin){$("suFb").hidden=true;$("fIn").hidden=true}$("fIn").onclick=function(){fbIn("aErr")};
+/* Entrar sin contraseña: Firebase manda un link al correo; al abrirlo, entra directo */
+$("aLink").onclick=function(){var e=$("aE").value.trim(),b=this;if(!/^\S+@\S+\.\S+$/.test(e)){$("aErr").textContent="Escribe tu correo arriba y vuelve a tocar aquí.";$("aE").focus();return}
+  b.disabled=true;auth.sendSignInLinkToEmail(e,{url:location.origin+location.pathname+"?link=1",handleCodeInApp:true}).then(function(){try{localStorage.setItem("citaly_eml",e)}catch(x){}$("aErr").textContent="";
+    sheet('<div style="text-align:center"><div style="font-size:54px">📬</div><h2>Revisa tu correo</h2><p class="mute">Te mandamos un link a <b>'+esc(e)+'</b>. Ábrelo en este mismo celular y entras directo, sin contraseña.</p><p class="mute small">¿No llegó? Revisa la carpeta de spam o promociones.</p></div><button class="btn" id="lkOk">Entendido</button>',function(){$("lkOk").onclick=closeSheet})},
+    function(x){$("aErr").textContent=errEs(x)}).finally(function(){b.disabled=false})};
+(function(){try{if(!auth||!auth.isSignInWithEmailLink(location.href))return}catch(x){return}
+  var e="";try{e=localStorage.getItem("citaly_eml")||""}catch(x){}
+  if(!e)e=prompt("Para terminar de entrar, confirma tu correo:")||"";
+  if(!e)return;auth.signInWithEmailLink(e.trim(),location.href).then(function(){try{localStorage.removeItem("citaly_eml");history.replaceState(null,"",location.pathname)}catch(x){}},function(x){show("auth");$("aErr").textContent=x.code==="auth/invalid-action-code"?"Ese link ya se usó o venció. Pide uno nuevo.":errEs(x)})})();
 $("suGoo").onclick=function(){var p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:"select_account"});$("suErr").textContent="";
   auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$("suErr").textContent=errEs(x)})};
 function freeSlug(base){base=base||"mi-negocio";if(base.length<3)base=base+"-cr";if(RESERVED.indexOf(base)>=0)base=base+"-1";
