@@ -314,6 +314,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
       <div class="between" style="margin:4px 0 10px"><h2 style="margin:0" id="dT"></h2><div class="row" style="flex:none;gap:6px"><button class="ib" id="shDay" aria-label="Compartir citas del día" title="Compartir citas del día">📤</button><button class="btn sm alt" id="today">Hoy</button></div></div>
       <div id="dayList"></div>
       <div id="dsum"></div>
+      <div id="cdBox"></div>
     </div>
 
     <div id="v-clientes" class="view" hidden>
@@ -547,7 +548,7 @@ function noAcc(kind){show("noacc");var e=esc(U&&U.email||"");
   $("naWa").href=waUrl(C.wa,kind==="verify"?"Hola, no me llega el correo para confirmar mi cuenta de Citaly ("+(U&&U.email||"")+")":"Hola, quiero entrar a Citaly con este correo: "+(U&&U.email||""))}
 $("naOut").onclick=function(){auth.signOut()};
 function resizeImg(f,S){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var c=document.createElement("canvas"),s=Math.min(im.width,im.height);c.width=c.height=S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);var u=c.toDataURL("image/webp",.82);if(u.indexOf("image/webp")<0)u=c.toDataURL("image/jpeg",.82);ok(u)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
-function pubOf(b){return {biz:BID,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
+function pubOf(b){return {biz:BID,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[],cierre:b.cierre||{}}}
 
 /* ---------- ARRANQUE ---------- */
 var PAGO_OK=/[?&]pago=ok/.test(location.search);
@@ -589,7 +590,7 @@ function go(v){VIEW=v;Array.prototype.forEach.call(document.querySelectorAll("na
 function monday(s){var d=pd(s),k=(d.getDay()+6)%7;d.setDate(d.getDate()-k);return ymd(d)}
 function dayJobs(s){return JOBS.filter(function(j){return j.date===s}).sort(function(a,b){return tm(a.time)-tm(b.time)})}
 function active(j){return j.st!=="Cancelada"&&j.st!=="No vino"}
-function renderAg(){renderHero();renderMonthGrid();renderDaySum();var t=ymd(new Date()),m=monday(SEL),html="";
+function renderAg(){renderHero();renderMonthGrid();renderDaySum();renderCierre();var t=ymd(new Date()),m=monday(SEL),html="";
   var pend=JOBS.filter(function(j){return j.st==="Por confirmar"}).sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time)});
   $("pend").innerHTML=pend.length?'<div class="pbtns">'+pend.slice(0,4).map(function(j){return '<div class="banner hot" data-p="'+j._id+'">🔔<span style="flex:1"><b>'+esc(j.cli||"Reserva nueva")+'</b> por confirmar<small>'+esc(niceDay(j.date))+' · '+fh(j.time)+'</small></span>Ver</div>'}).join("")+(pend.length>4?'<p class="mute small" style="margin:0;text-align:center">y '+(pend.length-4)+' más</p>':"")+'</div>':"";
   Array.prototype.forEach.call(document.querySelectorAll("#pend [data-p]"),function(b){b.onclick=function(){goJob(b.dataset.p)}});
@@ -630,6 +631,15 @@ function renderMonthGrid(){var w=$("mgW");$("moB").setAttribute("aria-expanded",
   $("mgP").onclick=function(){SEL=ymd(new Date(y,m-1,1));renderAg()};$("mgN").onclick=function(){SEL=ymd(new Date(y,m+1,1));renderAg()};
   Array.prototype.forEach.call(w.querySelectorAll("[data-d]"),function(b){b.onclick=function(){SEL=b.dataset.d;MG=false;renderAg();window.scrollTo(0,0)}})}
 $("moB").onclick=function(){MG=!MG;renderMonthGrid()};
+function cierreDe(d){var c=(B&&B.cierre||{})[d];return c==null?null:+c}
+function renderCierre(){var el=$("cdBox");if(!el||!B)return;var c=cierreDe(SEL),t=ymd(new Date());
+  if(SEL<t){el.innerHTML="";return}
+  el.innerHTML='<button class="btn sm '+(c!=null?"alt":"ghost")+'" id="cdGo" style="margin:10px 0 0;width:100%">'+(c!=null?"🔒 Cerrado para reservas en línea"+(c===0?"":" desde las "+fh(pad(c)+":00"))+" · Cambiar":"🔒 Cerrar este día para reservas en línea")+'</button>';
+  $("cdGo").onclick=function(){var op='<option value="0">Todo el día</option>';for(var k=7;k<=17;k++)op+='<option value="'+k+'"'+(c===k?" selected":"")+'>Desde las '+fh(pad(k)+":00")+'</option>';
+    sheet('<h2>🔒 '+esc(niceDay(SEL))+'</h2><p class="mute small" style="margin-top:-4px">Tus clientes ya no podrán reservar en línea ese día. Las citas que ya tenés siguen igual y vos podés seguir agendando a mano.</p><label for="cdH">¿Desde qué hora ya no se agenda?</label><select id="cdH">'+op+'</select><button class="btn" id="cdS" style="margin-top:12px">Cerrar el día</button>'+(c!=null?'<button class="btn alt" id="cdO" style="margin-top:8px">Abrir este día</button>':"")+'<p class="err" id="cdE"></p>',
+      function(){function save(h){var m={};Object.keys(B.cierre||{}).forEach(function(d){if(d>=t)m[d]=B.cierre[d]});if(h==null)delete m[SEL];else m[SEL]=h;
+          saveBiz({cierre:m}).then(function(){closeSheet();toast(h==null?"Día abierto otra vez ✓":"Día cerrado ✓ ya no se agenda en línea")},function(e){$("cdE").textContent=errEs(e)})}
+        $("cdS").onclick=function(){save(+$("cdH").value)};if($("cdO"))$("cdO").onclick=function(){save(null)}})}}
 function renderDaySum(){var L=dayJobs(SEL).filter(active),E=EXP.filter(function(e){return e.date===SEL}),el=$("dsum");if(!L.length&&!E.length){el.innerHTML="";return}
   var cob=L.filter(function(j){return j.st==="Lista"}).reduce(function(a,j){return a+(+j.total||0)},0),por=L.filter(function(j){return j.st!=="Lista"}).reduce(function(a,j){return a+(+j.total||0)},0),ex=E.reduce(function(a,e){return a+(+e.amt||0)},0);
   el.innerHTML='<div class="card dsum"><h2>Cierre del día</h2><div class="li"><span>Cobrado</span><b>'+crc(cob)+'</b></div>'+(por?'<div class="li"><span>Por cobrar (aún no marcadas como atendidas)</span><b>'+crc(por)+'</b></div>':"")+(ex?'<div class="li"><span>Gastos del día</span><b>'+crc(ex)+'</b></div>':"")+'<div class="li"><span><b>Ganancia del día</b></span><b>'+crc(cob-ex)+'</b></div></div>'}
