@@ -280,6 +280,46 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 }
 @keyframes pop{from{transform:translate(-50%,-47%) scale(.97);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 @media (min-width:1500px){#v-agenda{grid-template-columns:minmax(0,1fr) 450px}}
+
+/* ===== Buscador, atajos y asistente IA ===== */
+nav.tabs .sbtn,nav.tabs .side{display:none}
+#srTop,#aiTop{display:inline-grid}
+.srch{position:fixed;inset:0;z-index:70}.srch[hidden]{display:none}
+.srch .sbd{position:absolute;inset:0;background:rgba(10,8,20,.55);animation:fadein .15s both}
+.srch .spn{position:absolute;left:50%;top:12vh;transform:translateX(-50%);width:min(580px,92vw);background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 30px 80px -20px rgba(0,0,0,.55);overflow:hidden;animation:fadein .18s both}
+.srch .sin{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.srch .sin input{border:0;background:none;box-shadow:none;font-size:17px;padding:6px 0;flex:1;outline:0;color:var(--ink)}
+.srch kbd,nav.tabs kbd{font:700 11px Figtree,sans-serif;color:var(--mute);border:1px solid var(--line);border-radius:6px;padding:2px 6px;background:var(--bg)}
+.srch .sl{max-height:min(56vh,430px);overflow:auto;padding:8px}
+.srch .si{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-radius:12px;padding:10px 12px;cursor:pointer;color:var(--ink);font:inherit}
+.srch .si.on{background:var(--soft)}
+.srch .si .ic{width:36px;height:36px;border-radius:11px;background:var(--soft);display:grid;place-items:center;font-size:18px;flex:none}.srch .si.on .ic{background:var(--card)}
+.srch .si .m{flex:1;min-width:0}.srch .si b{display:block;font-size:15px}.srch .si .m span{font-size:13px;color:var(--mute);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.srch .sempty{padding:26px 14px;text-align:center;color:var(--mute);font-size:14px}
+@media (min-width:1024px){
+  #srTop,#aiTop{display:none}
+  nav.tabs .sbtn{display:flex}nav.tabs .side{display:flex;flex-direction:column;gap:2px;margin-top:10px;flex:1;overflow:auto;padding-bottom:70px}
+  nav.tabs{overflow:hidden}
+  nav.tabs:before{padding-bottom:14px}
+  nav.tabs .sQ{align-items:center;gap:10px;width:100%;margin:0 0 12px;padding:11px 14px;border:1.5px solid var(--line);border-radius:14px;background:var(--bg);color:var(--mute);font:600 14px Figtree,sans-serif;cursor:pointer;text-align:left}
+  nav.tabs .sQ kbd{margin-left:auto;white-space:nowrap}nav.tabs .sQ{white-space:nowrap}nav.tabs .sQ:hover{border-color:var(--acc);color:var(--ink)}
+  nav.tabs .side .sbtn{align-items:center;gap:12px;background:none;border:0;border-radius:12px;padding:10px 14px;color:var(--ink);font:600 14px Figtree,sans-serif;cursor:pointer;text-align:left;width:100%}
+  nav.tabs .side .sbtn span{width:28px;display:inline-grid;place-items:center;font-size:17px}
+  nav.tabs .side .sbtn:hover{background:var(--soft);color:var(--acc)}
+  nav.tabs .side .sbtn.ai{display:grid;grid-template-columns:34px 1fr;column-gap:10px;align-items:center;margin:2px 0 14px;padding:12px 14px;background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#120c2e));color:#fff;box-shadow:0 10px 24px -10px var(--acc)}
+  nav.tabs .side .sbtn.ai:hover{color:#fff;transform:translateY(-1px)}
+  nav.tabs .side .sbtn.ai span{grid-row:1/3;width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.18);font-size:18px}
+  nav.tabs .side .sbtn.ai b{font-size:15px}nav.tabs .side .sbtn.ai small{font-size:12px;font-weight:600;opacity:.85}
+  nav.tabs .side .sh{font:800 11px Figtree,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:6px 14px 6px}
+  /* Ajustes en fichas */
+  #v-ajustes>.card:nth-child(2){grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;background:none;border:0;box-shadow:none}
+  #v-ajustes>.card:nth-child(2) .set{font-size:0;flex-direction:column;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--sh);transition:transform .15s,border-color .15s,box-shadow .15s}
+  #v-ajustes>.card:nth-child(2) .set:last-child{border-bottom:1px solid var(--line)}
+  #v-ajustes>.card:nth-child(2) .set:hover{transform:translateY(-3px);border-color:var(--acc);border-radius:16px;box-shadow:0 14px 30px -14px var(--acc);background:var(--card)}
+  #v-ajustes>.card:nth-child(2) .set .ic{width:42px;height:42px;font-size:21px}
+  #v-ajustes>.card:nth-child(2) .set:hover .ic{background:var(--acc);filter:saturate(1.1)}
+  #v-ajustes>.card:nth-child(2) .set .m b{font-size:15px}
+}
 </style>
 </head>
 <body>
@@ -363,7 +403,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     <div class="top">
       <div class="av" id="av"></div>
       <div style="flex:1;min-width:0"><div class="mute small" id="hi">Hola</div><h1 id="bn"></h1></div>
-      <button class="ib" id="shareTop" aria-label="Compartir link de reservas">↗</button>
+      <button class="ib" id="srTop" aria-label="Buscar">🔍</button><button class="ib" id="aiTop" data-s="ia" aria-label="Asistente IA">✨</button><button class="ib" id="shareTop" aria-label="Compartir link de reservas">↗</button>
     </div>
     <div id="trial"></div>
 
@@ -442,14 +482,25 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     </div>
   </div>
   <button class="fab" id="fab"><span style="font-size:20px;line-height:1">+</span> Nueva cita</button>
-  <nav class="tabs"><div>
+  <nav class="tabs"><button class="sbtn sQ" id="sQ" type="button"><span>🔍</span>Buscar<kbd>Ctrl K</kbd></button><div>
     <button data-v="agenda" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Agenda<span class="badge" id="pb" hidden></span></button>
     <button data-v="clientes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6M16 4a4 4 0 0 1 0 8M22 21c0-3-2-5-4-5.5"/></svg>Clientes<span class="badge" id="nb" hidden></span></button>
     <button data-v="numeros"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Números</button>
     <button data-v="ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Ajustes</button>
+  </div><div class="side">
+    <button class="sbtn ai" data-s="ia" type="button"><span>✨</span><b>Asistente IA</b><small>Te arma textos y respuestas</small></button>
+    <div class="sh">Atajos</div>
+    <button class="sbtn" data-s="svc" type="button"><span>🧾</span>Servicios y precios</button>
+    <button class="sbtn" data-s="hor" type="button"><span>🕘</span>Horario</button>
+    <button class="sbtn" data-s="fot" type="button"><span>📸</span>Fotos de mis trabajos</button>
+    <button class="sbtn" data-s="web" type="button"><span>✨</span>Portada de mi página</button>
+    <button class="sbtn" data-s="gcal" type="button"><span>📅</span>Google Calendar</button>
+    <button class="sbtn" data-s="ntf" type="button"><span>🔔</span>Avisos al celular</button>
+    <button class="sbtn" id="sCopy" type="button"><span>🔗</span>Copiar mi link</button>
   </div></nav>
 </section>
 
+<div id="srch" class="srch" hidden><div class="sbd" id="srBd"></div><div class="spn"><div class="sin"><span>🔍</span><input id="srI" type="text" placeholder="¿Qué necesitás? Ej: horario, fotos, calendario…" autocomplete="off"><kbd>Esc</kbd></div><div id="srL" class="sl"></div></div></div>
 <div class="sheet" id="sh"><div class="bd" id="shBd"></div><div class="pn"><div class="grab"></div><div id="shC"></div></div></div>
 <div class="toast" id="toast"></div>
 
@@ -1469,6 +1520,37 @@ function renderPay(){var trial=SUB&&SUB.status==="trial";
 
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
+
+/* ===== Buscador y atajos ===== */
+(function(){
+  var AL={svc:"precios servicios catalogo lista cobrar",hor:"horario horas abrir cerrar dias atencion",gcal:"calendario google agenda sincronizar",ntf:"notificaciones avisos alertas sonido celular push",fot:"fotos galeria trabajos antes despues imagenes",ia:"inteligencia artificial asistente textos redactar",dep:"adelanto sinpe pago deposito reserva",mode:"oscuro claro modo tema apariencia noche",web:"portada frase promocion pagina web",neg:"negocio nombre whatsapp direccion telefono",look:"logo color marca",est:"estilo diseno pagina",rev:"resenas opiniones estrellas google",faq:"preguntas frecuentes dudas",dom:"domicilio zonas ubicacion",ref:"referidos recomendar premio",plan:"plan precio suscripcion pagar",help:"ayuda soporte contacto",res:"reglas anticipacion dias reservar",stp:"pasos como funciona",why:"por que elegirte garantia"};
+  var el=$("srch"),inp=$("srI"),list=$("srL"),items=[],cur=0,shown=[];
+  function norm(t){return String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
+  function build(){items=[];
+    items.push({t:"Nueva cita",s:"Agendar a un cliente",ic:"➕",k:"nueva cita agendar agregar",f:function(){$("fab").click()}});
+    items.push({t:"Copiar mi link de reservas",s:"Para mandarlo a tus clientes",ic:"🔗",k:"link reservas copiar compartir enlace",f:function(){go("ajustes");setTimeout(function(){$("lCopy").click()},50)}});
+    Array.prototype.forEach.call(document.querySelectorAll("nav.tabs div button[data-v]"),function(b){var n=b.textContent.replace(/\d+$/,"").trim();items.push({t:n,s:"Ir a la sección",ic:"📂",k:n+" "+({agenda:"citas calendario dia semana",clientes:"clientes contactos notas recordatorios",numeros:"numeros ingresos gastos ganancias estadisticas meta",ajustes:"ajustes configuracion opciones"}[b.dataset.v]||""),f:function(){b.click()}})});
+    Array.prototype.forEach.call(document.querySelectorAll("#v-ajustes .set"),function(b){var tb=b.querySelector(".m b"),sp=b.querySelector(".m span:not(.lk)");if(!tb)return;var t=tb.cloneNode(true);Array.prototype.forEach.call(t.querySelectorAll(".lk"),function(x){x.remove()});var ic=b.querySelector(".ic");
+      items.push({t:t.textContent.trim(),s:sp?sp.textContent.trim():"",ic:ic?ic.textContent:"⚙️",k:(AL[b.dataset.s]||""),f:function(){go("ajustes");b.click()},hide:b.hidden})});
+    items=items.filter(function(i){return !i.hide})}
+  function draw(q){var w=norm(q).split(/\s+/).filter(Boolean);
+    shown=items.filter(function(i){var h=norm(i.t+" "+i.s+" "+i.k);return w.every(function(x){return h.indexOf(x)>-1})});
+    if(!w.length)shown=shown.slice(0,9);cur=0;
+    list.innerHTML=shown.length?shown.map(function(i,n){return '<button type="button" class="si'+(n===0?' on':'')+'" data-i="'+n+'"><span class="ic">'+esc(i.ic)+'</span><span class="m"><b>'+esc(i.t)+'</b><span>'+esc(i.s)+'</span></span><kbd>↵</kbd></button>'}).join(""):'<div class="sempty">No encontré «'+esc(q)+'». Probá con otra palabra, o escribile al <b>Asistente IA</b> ✨</div>';
+    Array.prototype.forEach.call(list.querySelectorAll(".si"),function(b){b.onclick=function(){pick(+b.dataset.i)};b.onmousemove=function(){mark(+b.dataset.i)}})}
+  function mark(n){cur=n;Array.prototype.forEach.call(list.querySelectorAll(".si"),function(b,i){b.classList.toggle("on",i===n)})}
+  function pick(n){var it=shown[n];if(!it)return;close();setTimeout(it.f,60)}
+  function open(){build();el.hidden=false;inp.value="";draw("");setTimeout(function(){inp.focus()},30)}
+  function close(){el.hidden=true}
+  inp.oninput=function(){draw(inp.value)};
+  inp.onkeydown=function(e){if(e.key==="ArrowDown"){e.preventDefault();mark(Math.min(cur+1,shown.length-1));var a=list.querySelector(".si.on");if(a)a.scrollIntoView({block:"nearest"})}else if(e.key==="ArrowUp"){e.preventDefault();mark(Math.max(cur-1,0));var b=list.querySelector(".si.on");if(b)b.scrollIntoView({block:"nearest"})}else if(e.key==="Enter"){e.preventDefault();pick(cur)}else if(e.key==="Escape"){close()}};
+  $("srBd").onclick=close;$("sQ").onclick=open;$("srTop").onclick=open;
+  $("sCopy").onclick=function(){$("lCopy").click()};
+  document.addEventListener("keydown",function(e){var t=(e.target&&e.target.tagName)||"",ed=/INPUT|TEXTAREA|SELECT/.test(t)||(e.target&&e.target.isContentEditable);
+    if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){if($("main").classList.contains("on")){e.preventDefault();el.hidden?open():close()}}
+    else if(e.key==="/"&&!ed&&$("main").classList.contains("on")&&el.hidden){e.preventDefault();open()}
+    else if(e.key==="Escape"&&!el.hidden)close()});
+})();
 </script>
 </body>
 </html>
