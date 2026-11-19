@@ -100,7 +100,9 @@ service cloud.firestore {
 
     // Mensualidad de cada negocio: la maneja el admin. Al registrarse, el negocio crea su prueba gratis (máx. 31 días).
     match /subs/{bid} {
-      allow read: if true;
+      // Las páginas públicas leen un negocio a la vez (estado y vencimiento); listar todos es solo del admin
+      allow get: if true;
+      allow list: if isAdmin();
       allow write: if isAdmin();
       allow create: if selfSignup(bid)
         && !exists(/databases/$(database)/documents/biz/$(bid))

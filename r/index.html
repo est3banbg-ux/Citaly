@@ -29,9 +29,9 @@
 .svc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:13px;margin-bottom:9px;cursor:pointer;color:var(--ink);font:inherit;transition:all .15s;box-shadow:var(--sh)}
 .svc .ic{width:46px;height:46px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:23px;flex:none}
 .svc .m{flex:1}.svc .m b{display:block}.svc .m span{font-size:13px;color:var(--mute)}
-.svc .ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:#fff;font-weight:800;font-size:14px;flex:none;transition:all .15s}
+.svc .ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:transparent;font-weight:800;font-size:14px;flex:none;transition:all .15s}
 .svc[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,var(--card))}
-.svc[aria-pressed=true] .ck{background:var(--acc);border-color:var(--acc)}
+.svc[aria-pressed=true] .ck{background:var(--acc);border-color:var(--acc);color:#fff}
 .days{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
 .days::-webkit-scrollbar{display:none}
 .days button{flex:none;width:64px;border:2px solid var(--line);background:var(--card);border-radius:16px;padding:9px 0;cursor:pointer;color:var(--ink);font:600 12px Figtree,sans-serif;scroll-snap-align:start;text-transform:capitalize}
@@ -290,8 +290,9 @@ function loadBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P
 function freeStarts(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0)return [];var a=tm(h.a),z=tm(h.b),d=dur(),out=[],now=new Date(),min=now.getHours()*60+now.getMinutes()+(+P.lead||0)*60,today=ymd(now);
   var dayOff=Math.round((pd(day)-pd(today))/864e5);
   for(var m=a;m+d<=z;m+=30){if(ci!=null&&m>=ci*60)continue;if(dayOff*1440+m<min)continue;var ok=true;for(var k=0;k<d;k+=30)if(BUSY[day+"_"+hm(m+k).replace(":","")]){ok=false;break}if(ok)out.push(hm(m))}return out}
+function closedDay(s){var h=(P.hours||[])[pd(s).getDay()];return !h||!h.on||(P.cierre||{})[s]===0}
 function renderDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeStarts(s).length;if(f&&!first)first=s;
-    h+='<button data-d="'+s+'" aria-pressed="'+(s===S.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):"lleno")+'</button>'}
+    h+='<button data-d="'+s+'" aria-pressed="'+(s===S.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
   $("days").innerHTML=h;if(!S.day||!freeStarts(S.day).length){S.day=first;S.t=null}
   Array.prototype.forEach.call($("days").children,function(b){b.setAttribute("aria-pressed",b.dataset.d===S.day)});
   var sel=$("days").querySelector('[aria-pressed="true"]');if(sel)sel.scrollIntoView({inline:"center",block:"nearest"});renderHours()}
@@ -385,7 +386,7 @@ function startMove(){MS={day:"",t:null};mcBox('<h2>Elige el nuevo día</h2><p cl
 function loadMBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P.ahead||21));
   db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};sn.forEach(function(d){if(String((d.data()||{}).job)!==String(MC.job))BUSY[d.id]=1});renderMDays()},function(){BUSY={};renderMDays()})}
 function renderMDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeFor(s).length;if(f&&!first)first=s;
-    h+='<button data-d="'+s+'" aria-pressed="'+(s===MS.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):"lleno")+'</button>'}
+    h+='<button data-d="'+s+'" aria-pressed="'+(s===MS.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
   $("mdays").innerHTML=h;if(!MS.day)MS.day=first;Array.prototype.forEach.call($("mdays").children,function(b){b.setAttribute("aria-pressed",b.dataset.d===MS.day);b.onclick=function(){if(b.disabled)return;MS.day=b.dataset.d;MS.t=null;renderMDays()}});
   var L=MS.day?freeFor(MS.day):[];$("mhrs").innerHTML=L.map(function(t){return '<button data-t="'+t+'" aria-pressed="'+(t===MS.t)+'">'+fh(t)+'</button>'}).join("");
   $("mhe").innerHTML=MS.day?"":'<div class="note">No hay espacios libres en los próximos días. Escríbenos por WhatsApp.</div>';
