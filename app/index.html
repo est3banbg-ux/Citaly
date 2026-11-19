@@ -664,7 +664,7 @@ $("suOut").onclick=function(){auth.signOut()};
 /* Entrar con Facebook (popup; si el navegador lo bloquea, por redirección) */
 function fbIn(errEl){var p=new firebase.auth.FacebookAuthProvider();p.addScope("email");p.setCustomParameters({display:"popup"});$(errEl).textContent="";
   auth.signInWithPopup(p).catch(function(x){if(x.code==="auth/popup-blocked"||x.code==="auth/operation-not-supported-in-this-environment")return auth.signInWithRedirect(p);$(errEl).textContent=errEs(x)})}
-$("suFb").onclick=function(){fbIn("suErr")};if(!C.fbLogin&&!/[?&]fb=1/.test(location.search)){$("suFb").hidden=true;$("fIn").hidden=true}$("fIn").onclick=function(){fbIn("aErr")};
+$("suFb").onclick=function(){fbIn("suErr")};if((!C.fbLogin||/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent))&&!/[?&]fb=1/.test(location.search)){$("suFb").hidden=true;$("fIn").hidden=true}$("fIn").onclick=function(){fbIn("aErr")};
 /* Entrar sin contraseña: Firebase manda un link al correo; al abrirlo, entra directo */
 $("aLink").onclick=function(){var e=$("aE").value.trim(),b=this;if(!/^\S+@\S+\.\S+$/.test(e)){$("aErr").textContent="Escribe tu correo arriba y vuelve a tocar aquí.";$("aE").focus();return}
   b.disabled=true;auth.sendSignInLinkToEmail(e,{url:location.origin+location.pathname+"?link=1",handleCodeInApp:true}).then(function(){try{localStorage.setItem("citaly_eml",e)}catch(x){}$("aErr").textContent="";
