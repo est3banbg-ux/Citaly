@@ -148,7 +148,7 @@ try{firebase.initializeApp(C.fb);db=firebase.firestore()}catch(e){}
 if(!slug||!db)nf();else db.doc("pub/"+slug).get().then(function(d){if(!d.exists){nf();return}P=d.data();
   return Promise.all([
     db.doc("subs/"+P.biz).get().then(function(s){var x=s.exists?s.data():null;OPEN=!!(x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now()&&P.open!==false)}).catch(function(){OPEN=P.open!==false}),
-    db.collection("pub/"+slug+"/fotos").orderBy("i").limit(12).get().then(function(s){FOTOS=s.docs.map(function(x){return x.data()}).filter(function(f){return img(f.img)})}).catch(function(){FOTOS=[]})
+    db.collection("pub/"+slug+"/fotos").orderBy("i").limit(Math.min(12,(P.cap&&+P.cap.fot)||12)).get().then(function(s){FOTOS=s.docs.map(function(x){return x.data()}).filter(function(f){return img(f.img)})}).catch(function(){FOTOS=[]})
   ]).then(render)}).catch(function(e){console.error(e);nf(true)});
 function nf(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
 
