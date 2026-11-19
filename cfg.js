@@ -378,5 +378,29 @@ var CITALY = {
     spa:      { n: "Spa y masajes", ic: "🧖", svc: [["Masaje relajante", 25000, 60, "💆"], ["Limpieza facial", 22000, 60, "🧖"], ["Masaje descontracturante", 30000, 90, "🙌"]] },
     salud:    { n: "Consultorio", ic: "🩺", svc: [["Consulta", 25000, 30, "🩺"], ["Control", 15000, 30, "📋"]] },
     otro:     { n: "Otro", ic: "📅", svc: [["Cita", 10000, 60, "📅"]] }
+  },
+  /* Fotos de portada listas por tipo de negocio (Unsplash, licencia libre para uso comercial).
+     El dueño puede cambiarla o quitarla en la app; si sube fotos propias, en su web manda la suya. */
+  covers: {
+    detailing:  ["1780558852670-3f49298ecc1f", "1771491237218-cbd4a707497e"],
+    lavacar:    ["1761312834165-c27d037b3a6b", "1762933855598-273a51b47649"],
+    pulido:     ["1632823469850-2f77dd9c7f93", "1631856507219-d1f3465b4884", "1616761879141-f485e5fed5df"],
+    polarizado: ["1758376316871-96e1feea03f4", "1768853143263-72d7e744bbc2"],
+    autos:      ["1575844611398-2a68400b437c", "1607860108855-64acf2078ed9"],
+    taller:     ["1727893119356-1702fe921cf9", "1632733711679-529326f6db12"],
+    barberia:   ["1585747860715-2ba37e788b70", "1621605815971-fbc98d665033"],
+    salon:      ["1600948836101-f9ffda59d250", "1580618672591-eb180b1a973f"],
+    unas:       ["1522337660859-02fbefca4702", "1632345031435-8727f6897d53"],
+    spa:        ["1600334089648-b0d9d3028eb2", "1544161515-4ab6ce6db874"],
+    salud:      ["1629909613654-28e377c37b09", "1758691462878-6edc3d3da1be"],
+    otro:       ["1790976158663-ccc651ef9805", "1783099779469-5b02ae272c09"]
+  },
+  coverUrl: function (id, w) { return /^https:/.test(id) ? id : "https://images.unsplash.com/photo-" + id + "?w=" + (w || 1200) + "&q=70&auto=format&fit=crop"; },
+  /* Portada de un negocio: "none" = sin foto; un id o link elegido; si no eligió nada, la primera de su tipo */
+  coverOf: function (type, cover, w) {
+    if (cover === "none") return "";
+    var all = [].concat.apply([], Object.keys(this.covers).map(function (k) { return this.covers[k]; }, this));
+    if (cover && all.indexOf(cover) >= 0) return this.coverUrl(cover, w);
+    return this.coverUrl((this.covers[type] || this.covers.otro)[0], w);
   }
 };

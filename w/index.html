@@ -174,7 +174,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
   var bookBtn=function(cls,txt){return OPEN?'<a class="btn '+cls+'" href="'+bookUrl()+'">'+(txt||"Reservar mi cita")+'</a>':'<a class="btn '+cls+'" target="_blank" rel="noopener" href="'+waUrl(P.wa,"Hola "+name+", quiero agendar una cita")+'">Agendar por WhatsApp</a>'};
   var hs=hoursSummary(H),now=openNow(H),feats=lines(W.feats);
   if(!feats.length)feats=[P.home?"Vamos donde estés":(P.addr?P.addr:""),OPEN?"Reserva en línea en 1 minuto":"",  "Confirmación por WhatsApp"].filter(Boolean);
-  var vehOn=!!(P.mods&&P.mods.vehiculo&&(P.veh||[]).length),hero1=FOTOS[0],svcs=P.services||[],showP=P.showPrices!==false,revs=(W.reviews||[]).filter(function(r){return r&&r.t}),faqs=(W.faqs||[]).filter(function(f){return f&&f.q&&f.a}),zones=P.zones||[];
+  var vehOn=!!(P.mods&&P.mods.vehiculo&&(P.veh||[]).length),hero1=FOTOS[0],cov=C.coverOf?C.coverOf(P.type,(P.web||{}).cover,1200):"",svcs=P.services||[],showP=P.showPrices!==false,revs=(W.reviews||[]).filter(function(r){return r&&r.t}),faqs=(W.faqs||[]).filter(function(f){return f&&f.q&&f.a}),zones=P.zones||[];
   var nav=[];if(svcs.length)nav.push(["servicios","Servicios"]);if(FOTOS.length)nav.push(["trabajos","Trabajos"]);if(revs.length)nav.push(["resenas","Reseñas"]);if(faqs.length)nav.push(["preguntas","Preguntas"]);nav.push(["contacto","Contacto"]);
   var h='';
   h+='<header class="nav"><div class="c"><a class="brand" href="#top"><span class="lg">'+lg+'</span><span>'+esc(name)+'</span></a><nav class="links">'+nav.map(function(n){return '<a href="#'+n[0]+'">'+n[1]+'</a>'}).join("")+'</nav>'+bookBtn("", OPEN?"Reservar":"")+'</div></header>';
@@ -186,7 +186,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
     +(P.promo?'<div class="promo"><span>🎁</span><div><b>'+esc(P.promo)+'</b>'+(W.promoNote?'<small>'+esc(W.promoNote)+'</small>':"")+'</div></div>':"")
     +'<div class="ctas">'+bookBtn("light big")+'<a class="btn glass" target="_blank" rel="noopener" href="'+wa+'">'+WA_SVG+' WhatsApp</a></div>'
     +(feats.length?'<div class="feats">'+feats.map(function(f){return '<span>'+esc(f)+'</span>'}).join("")+'</div>':"")
-    +'</div><div>'+(hero1?'<div class="shot"><img alt="'+esc(hero1.cap||name)+'" src="'+img(hero1.img)+'">'+(hero1.cap?'<span class="cap">'+esc(hero1.cap)+'</span>':"")+'</div>':'<div class="bigl">'+lg+'</div>')+'</div></div></section>';
+    +'</div><div>'+(hero1?'<div class="shot"><img alt="'+esc(hero1.cap||name)+'" src="'+img(hero1.img)+'">'+(hero1.cap?'<span class="cap">'+esc(hero1.cap)+'</span>':"")+'</div>':cov?'<div class="shot"><img alt="" src="'+cov+'" onerror="this.parentNode.outerHTML=\'<div class=bigl>\'+document.getElementById(\'lgT\').innerHTML+\'</div>\'"></div><template id="lgT">'+lg+'</template>':'<div class="bigl">'+lg+'</div>')+'</div></div></section>';
   // cómo funciona (3 pasos) y por qué elegirnos
   var stp=(W.steps||[]).filter(function(x){return x&&x.q&&x.a}),why=(W.why||[]).filter(function(x){return x&&x.q&&x.a});
   if(!stp.length&&OPEN&&W.hideSteps!==true)stp=STEPS0.map(function(x){return {q:x[0],a:x[1]}});

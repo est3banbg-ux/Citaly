@@ -216,6 +216,9 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .nt .m{flex:1;min-width:0}.nt .m b{display:block;font-weight:600}.nt .m span{font-size:12.5px;color:var(--mute)}
 .zrow{display:grid;grid-template-columns:1fr 100px 36px;gap:7px;margin-bottom:7px}.zrow input{padding:9px 10px}
 .toast.act{pointer-events:auto}.toast .ub{background:none;border:0;color:var(--acc2);font:800 14px Figtree,sans-serif;margin-left:8px;cursor:pointer;padding:4px}
+.cvBig{aspect-ratio:16/8;border-radius:16px;overflow:hidden;background:var(--soft);display:grid;place-items:center;color:var(--mute)}.cvBig img{width:100%;height:100%;object-fit:cover}
+.cvL{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}.cvL button{flex:none;width:84px;height:56px;border-radius:12px;overflow:hidden;border:2px solid transparent;padding:0;background:var(--soft);cursor:pointer;font-size:12px;color:var(--mute);line-height:1.1}
+.cvL button img{width:100%;height:100%;object-fit:cover;display:block}.cvL button[aria-pressed=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
 </style>
 </head>
 <body>
@@ -949,12 +952,13 @@ $("lShare").onclick=$("shareTop").onclick=function(){share()};
 function copy(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast("Link copiado ✓")},function(){prompt("Copia tu link:",t)})}
 function share(){markOnb("share");var t="¡Reserva tu cita en "+B.name+" en segundos! 📅";if(navigator.share)navigator.share({title:B.name,text:t,url:link()}).catch(function(){});else copy(link())}
 /* ---------- PRIMEROS PASOS ---------- */
-var ONB=[["cuenta","Creá tu cuenta","¡Ya está!",null],["hor","Configurá tu horario","Los días y horas que atendés",function(){openSet("hor")}],
-  ["svc","Revisá tus servicios y precios","Lo que tus clientes ven al reservar",function(){openSet("svc")}],["look","Poné tu logo y tu color","Para que tu página se vea tuya",function(){openSet("look")}],
+var ONB=[["cuenta","Creá tu cuenta","¡Ya está!",null],["ia","Armá tu página con IA","Textos y preguntas listos en 1 minuto",function(){iaSheet("all")}],
+  ["svc","Revisá tus servicios y precios","Lo que tus clientes ven al reservar",function(){openSet("svc")}],["hor","Configurá tu horario","Los días y horas que atendés",function(){openSet("hor")}],
+  ["look","Poné tu logo y tu color","Para que tu página se vea tuya",function(){openSet("look")}],
   ["prueba","Hacé una reserva de prueba","Mirá lo que ve tu cliente",function(){window.open(link(),"_blank");setTimeout(function(){toast("Cuando reserves, la cita te aparece aquí 👇")},800)}],
   ["share","Compartí tu link de reservas","En WhatsApp, Instagram y TikTok",function(){share()}]];
 var onbAll=false;
-function onbDone(k){var o=B&&B.onb||{};if(k==="cuenta")return true;if(k==="prueba")return !!o.prueba||JOBS.some(function(j){return j.web});return !!o[k]}
+function onbDone(k){var o=B&&B.onb||{};if(k==="cuenta")return true;if(k==="ia"&&(!C.iaUrl||!can("ia")))return true;if(k==="prueba")return !!o.prueba||JOBS.some(function(j){return j.web});return !!o[k]}
 function renderOnb(){var box=$("onb");if(!box)return;var o=B.onb||{};
   if(!B.self&&!B.onb||o.hide||o.done){box.innerHTML="";return}
   if(!o.prueba&&JOBS.some(function(j){return j.web}))markOnb("prueba");
@@ -1029,18 +1033,34 @@ function ntfSheet(){var t=B.ntf||"";
   draw()}
 /* ---------- Asistente con IA (límite diario por plan; corre en el servidor de Citaly) ---------- */
 var IA_MAX={turbo:5,nitro:30};
-function iaSheet(){
+function iaSheet(auto){
   if(!C.iaUrl){sheet('<div style="text-align:center"><div style="font-size:48px">✨</div><h2>Asistente con IA</h2><p class="mute">Se activa muy pronto. Te va a escribir los textos de tu página y las respuestas a tus clientes.</p></div>');return}
   var left=null,mode="",busy=false;
   function ctx(){return {name:B.name,type:(C.types[B.type]||{}).n||"",services:(B.services||[]).map(function(x){return x.n})}}
   function lim2(){return SUB&&SUB.status==="trial"?10:(IA_MAX[tier()]||0)}
   function home(){$("iaB").innerHTML='<p class="mute small" style="margin-top:-4px">Hoy te quedan <b>'+(left==null?lim2():left)+'</b> usos. Se renuevan cada día.</p>'
+    +'<button class="set" data-m="all" style="border:1.5px solid var(--acc);border-radius:14px;padding:12px;margin-bottom:6px"><span class="ic">🚀</span><span class="m"><b>Armar mi página completa</b><span>Frase, descripción y preguntas frecuentes en un toque</span></span>›</button>'
     +'<button class="set" data-m="desc"><span class="ic">✍️</span><span class="m"><b>Mejorar mi portada</b><span>Frase y descripción de tu página web</span></span>›</button>'
     +'<button class="set" data-m="faq"><span class="ic">❓</span><span class="m"><b>Crear preguntas frecuentes</b><span>5 preguntas con respuesta, listas para tu web</span></span>›</button>'
     +'<button class="set" data-m="resp"><span class="ic">💬</span><span class="m"><b>Responder a un cliente</b><span>Pega su mensaje y te armo la respuesta</span></span>›</button>'
     +'<button class="set" data-m="libre"><span class="ic">💡</span><span class="m"><b>Pedir otra cosa</b><span>Ideas de promos, textos, publicaciones</span></span>›</button>'
     +'<p class="err" id="iaE"></p>';
-    $("iaB").onclick=function(e){var b=e.target.closest("[data-m]");if(!b)return;mode=b.dataset.m;if(mode==="desc"||mode==="faq")run("");else ask()}}
+    $("iaB").onclick=function(e){var b=e.target.closest("[data-m]");if(!b)return;mode=b.dataset.m;if(mode==="all")runAll();else if(mode==="desc"||mode==="faq")run("");else ask()}}
+  function call(m){return auth.currentUser.getIdToken().then(function(t){return fetch(C.iaUrl,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:t,mode:m,text:"",ctx:ctx()})})}).then(function(r){return r.json().catch(function(){return {error:"ia"}})}).then(function(j){if(j.left!=null)left=j.left;return j})}
+  function errTxt(j){return j.error==="limite"?"Llegaste al límite de hoy. Mañana se renueva, o sube de plan para tener más usos.":j.error==="plan"?"Tu plan actual no incluye el asistente.":"No se pudo en este momento. Intenta de nuevo."}
+  function runAll(){if(busy)return;busy=true;var d=null,f=null;
+    $("iaB").innerHTML='<div style="text-align:center;padding:30px 0" class="mute"><div class="spin"></div><p id="iaSt">Escribiendo tu portada… (1 de 2)</p></div>';
+    call("desc").then(function(j){if(!j.ok)throw j;d=parse(j.text);if($("iaSt"))$("iaSt").textContent="Creando tus preguntas frecuentes… (2 de 2)";return call("faq")}).then(function(j){if(!j.ok)throw j;f=parse(j.text);busy=false;
+      f=Array.isArray(f)?f.filter(function(x){return x&&x.q&&x.a}).slice(0,lim("faq")):[];
+      if(!d||!d.blurb){home();$("iaE").textContent=errTxt({});return}
+      $("iaB").innerHTML='<p class="mute small" style="margin-top:-4px">Así quedaría tu página. Revísalo: después puedes cambiar cualquier cosa. Te quedan <b>'+(left==null?"":left)+'</b> usos hoy.</p>'
+        +'<div class="card" style="box-shadow:none"><div class="mute small">Portada</div><b>'+esc(d.tagline||"")+'</b><p style="margin:6px 0 0">'+esc(d.blurb)+'</p></div>'
+        +(f.length?'<div class="mute small" style="margin:12px 0 4px">Preguntas frecuentes</div>'+f.map(function(x){return '<div class="card" style="box-shadow:none;margin:6px 0"><b>'+esc(x.q)+'</b><p style="margin:4px 0 0" class="mute">'+esc(x.a)+'</p></div>'}).join(""):"")
+        +'<button class="btn" id="iaAll">Usar todo en mi página</button><button class="link" id="iaBk" style="margin-top:8px">Volver</button>';
+      $("iaBk").onclick=home;
+      $("iaAll").onclick=function(){$("iaAll").disabled=true;var w=Object.assign({},B.web||{});if(f.length)w.faqs=f.map(function(x){return {q:String(x.q).slice(0,120),a:String(x.a).slice(0,400)}});
+        saveBiz({tagline:String(d.tagline||"").slice(0,80),blurb:String(d.blurb||"").slice(0,300),web:w}).then(function(){markOnb("ia");closeSheet();confetti();toast("¡Tu página quedó lista! ✓")})}
+    }).catch(function(j){busy=false;home();$("iaE").textContent=j&&j.error?errTxt(j):"Sin conexión. Revisa tu internet."})}
   function ask(){$("iaB").innerHTML='<label>'+(mode==="resp"?"Mensaje del cliente":"¿Qué necesitas?")+'</label><textarea id="iaT" rows="4" maxlength="500" placeholder="'+(mode==="resp"?"Pega aquí lo que te escribió":"Ej: ideas para una promo de fin de mes")+'"></textarea><p class="err" id="iaE"></p><button class="btn" id="iaGo">Pedir a la IA</button><button class="link" id="iaBk" style="margin-top:8px">Volver</button>';
     $("iaGo").onclick=function(){run($("iaT").value)};$("iaBk").onclick=home}
   function run(text){if(busy)return;busy=true;$("iaB").innerHTML='<div style="text-align:center;padding:30px 0" class="mute"><div class="spin"></div><p>Escribiendo…</p></div>';
@@ -1059,7 +1079,7 @@ function iaSheet(){
     if($("iaAp"))$("iaAp").onclick=function(){$("iaAp").disabled=true;
       if(mode==="desc")saveBiz({tagline:String(o.tagline||"").slice(0,80),blurb:String(o.blurb||"").slice(0,300)}).then(function(){closeSheet();toast("Portada actualizada ✓")});
       else{var w=Object.assign({},B.web||{}),cur=(w.faqs||[]).slice();o.forEach(function(x){if(cur.length<lim("faq"))cur.push({q:String(x.q).slice(0,120),a:String(x.a).slice(0,400)})});w.faqs=cur;saveBiz({web:w}).then(function(){closeSheet();toast("Preguntas agregadas ✓")})}}}
-  sheet('<h2>✨ Asistente con IA</h2><div id="iaB"></div>',home)}
+  sheet('<h2>✨ Asistente con IA</h2><div id="iaB"></div>',function(){home();if(auto==="all")runAll()})}
 /* ---------- Estilos de la página web y de reservas ---------- */
 var ESTILOS=[
   {k:"glass",n:"Premium oscuro",d:"El de GlassStudioCR: fondo oscuro y letras que resaltan.",bg:"#07161f",ink:"#eaf6f5",ac:null},
@@ -1075,24 +1095,36 @@ function estSheet(){
 /* ---------- Contenido de la página web: fotos, reseñas y preguntas (lo edita el dueño) ---------- */
 function fitImg(f,S){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,S/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
   var enc=function(q){var u=c.toDataURL("image/webp",q);return u.indexOf("image/webp")<0?c.toDataURL("image/jpeg",q):u},q=.82,u=enc(q);while(u.length>600000&&q>.4){q-=.12;u=enc(q)}ok(u)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
+/* Une dos fotos (antes arriba, después abajo) en una sola imagen cuadrada con etiquetas */
+function baImg(a,b){function ld(f){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){ok(im)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
+  return Promise.all([ld(a),ld(b)]).then(function(ims){var S=1200,H=S/2,c=document.createElement("canvas");c.width=S;c.height=S;var x=c.getContext("2d");
+    ims.forEach(function(im,i){var k=Math.max(S/im.width,H/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(0,i*H,S,H);x.clip();x.drawImage(im,(S-w)/2,i*H+(H-h)/2,w,h);x.restore();
+      var t=i?"DESPUÉS":"ANTES";x.font="800 46px system-ui,sans-serif";var tw=x.measureText(t).width;x.fillStyle=i?"rgba(31,138,76,.92)":"rgba(0,0,0,.72)";x.beginPath();var y=i*H+H-94;x.roundRect?x.roundRect(24,y,tw+40,70,18):x.rect(24,y,tw+40,70);x.fill();x.fillStyle="#fff";x.fillText(t,44,y+52)});
+    x.fillStyle="#fff";x.fillRect(0,H-3,S,6);
+    var q=.82,u=c.toDataURL("image/jpeg",q);while(u.length>600000&&q>.4){q-=.12;u=c.toDataURL("image/jpeg",q)}return u})}
 function fotSheet(){
   
-  var col="pub/"+B.slug+"/fotos",E=[],del=[],busy=false,MX=lim("fot");
+  var col="pub/"+B.slug+"/fotos",E=[],del=[],busy=false,MX=lim("fot"),dirty=false;
   function draw(){var el=$("fotB");if(!el)return;
     el.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+E.map(function(f,i){return '<div style="position:relative"><img alt="" src="'+f.img+'" style="width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;display:block"><span style="position:absolute;left:6px;top:6px;background:rgba(0,0,0,.6);color:#fff;border-radius:8px;padding:1px 7px;font-size:12px;font-weight:700">'+(i+1)+'</span><div style="position:absolute;right:6px;top:6px;display:flex;gap:4px">'+(i?'<button class="ib" data-up="'+i+'" aria-label="Mover antes" style="background:rgba(0,0,0,.6);color:#fff;border-radius:8px;width:28px;height:28px">◀</button>':"")+'<button class="ib" data-rm="'+i+'" aria-label="Quitar" style="background:rgba(0,0,0,.6);color:#fff;border-radius:8px;width:28px;height:28px">✕</button></div><input data-c="'+i+'" maxlength="60" value="'+esc(f.cap||"")+'" placeholder="Texto (opcional)" style="margin-top:6px"></div>'}).join("")+'</div>'
-      +(E.length?"":'<p class="mute">Todavía no subiste fotos.</p>')+(E.length<MX?'<button class="btn ghost" id="fotA" style="margin-top:10px">+ Subir fotos</button>':'<p class="mute small">Llegaste al máximo de '+MX+' fotos de tu plan.'+(MX<12?' <button class="link" id="fotU">Subir de plan</button>':"")+'</p>')+'<input type="file" id="fotF" accept="image/*" multiple hidden><p class="err" id="fotE"></p><button class="btn" id="fotS">Guardar fotos</button>';
-    el.oninput=function(e){var t=e.target;if(t.dataset.c!=null)E[+t.dataset.c].cap=t.value};
+      +(E.length?"":'<div class="card" style="box-shadow:none;text-align:center"><div style="font-size:34px">📸</div><b>Tu primera foto vende por ti</b><p class="mute small" style="margin:6px 0 0">Sube fotos de tus mejores trabajos. Las de <b>antes y después</b> son las que más convencen. Puedes elegir varias a la vez.</p></div>')
+      +(E.length<MX?'<div class="row" style="margin-top:10px"><button class="btn ghost" id="fotA">+ Subir fotos</button>'+(E.length<MX?'<button class="btn ghost" id="fotBA">🔀 Antes y después</button>':"")+'</div>':'<p class="mute small">Llegaste al máximo de '+MX+' fotos de tu plan.'+(MX<12?' <button class="link" id="fotU">Subir de plan</button>':"")+'</p>')+'<input type="file" id="fotF" accept="image/*" multiple hidden><input type="file" id="fotG" accept="image/*" multiple hidden><p class="err" id="fotE"></p><button class="btn" id="fotS"'+(dirty?"":" hidden")+'>Guardar cambios</button>';
+    el.oninput=function(e){var t=e.target;if(t.dataset.c!=null){E[+t.dataset.c].cap=t.value;if(!dirty){dirty=true;$("fotS").hidden=false}}};
     el.onclick=function(e){var r=e.target.closest("[data-rm]"),u=e.target.closest("[data-up]");
-      if(r){var f=E.splice(+r.dataset.rm,1)[0];if(f.id)del.push(f.id);draw()}
-      else if(u){var i=+u.dataset.up,t=E[i-1];E[i-1]=E[i];E[i]=t;draw()}};
+      if(r){var f=E.splice(+r.dataset.rm,1)[0];if(f.id)del.push(f.id);dirty=true;draw()}
+      else if(u){var i=+u.dataset.up,t=E[i-1];E[i-1]=E[i];E[i]=t;dirty=true;draw()}};
     if($("fotA"))$("fotA").onclick=function(){$("fotF").click()};
+    if($("fotBA"))$("fotBA").onclick=function(){toast("Elige 2 fotos: primero la de antes y luego la de después");setTimeout(function(){$("fotG").click()},300)};
+    $("fotG").onchange=function(){var fs=Array.prototype.slice.call(this.files,0,2);this.value="";if(fs.length<2){$("fotE").textContent="Elige 2 fotos juntas: la de antes y la de después.";return}
+      $("fotE").textContent="Uniendo tus fotos…";baImg(fs[0],fs[1]).then(function(u){E.push({img:u,cap:"Antes y después"});save(true)},function(){$("fotE").textContent="No se pudieron unir. Prueba con otras fotos."})};
     if($("fotU"))$("fotU").onclick=function(){closeSheet();setTimeout(planSheet,250)};
     $("fotF").onchange=function(){var fs=Array.prototype.slice.call(this.files,0,MX-E.length);this.value="";if(!fs.length)return;$("fotE").textContent="Preparando fotos…";
-      fs.reduce(function(p,f){return p.then(function(){return fitImg(f,1200).then(function(u){E.push({img:u,cap:""})},function(){})})},Promise.resolve()).then(draw)};
-    $("fotS").onclick=function(){if(busy)return;busy=true;$("fotS").disabled=true;$("fotE").textContent="Guardando…";
+      fs.reduce(function(p,f){return p.then(function(){return fitImg(f,1200).then(function(u){E.push({img:u,cap:""})},function(){})})},Promise.resolve()).then(function(){save(true)})};
+    $("fotS").onclick=function(){save(false)}}
+  function save(stay){if(busy)return;busy=true;if($("fotS"))$("fotS").disabled=true;$("fotE").textContent="Guardando…";
       var ops=del.map(function(id){return function(){return db.doc(col+"/"+id).delete()}});
       E.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;return ref.set({img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i})})});
-      ops.reduce(function(p,op){return p.then(op)},Promise.resolve()).then(function(){busy=false;closeSheet();toast("Fotos guardadas ✓ ya se ven en tu página")},function(e){busy=false;console.error(e);if($("fotS"))$("fotS").disabled=false;$("fotE").textContent=errEs(e)})}}
+      ops.reduce(function(p,op){return p.then(op)},Promise.resolve()).then(function(){busy=false;del=[];dirty=false;if(stay){draw();toast("Fotos guardadas ✓ ya se ven en tu página")}else{closeSheet();toast("Cambios guardados ✓")}},function(e){busy=false;console.error(e);draw();$("fotE").textContent=errEs(e)})}
   sheet('<h2>📸 Fotos de tus trabajos</h2><p class="mute small" style="margin-top:-4px">Salen en tu página web. La primera es la portada. Tu plan permite hasta '+MX+'.</p><div id="fotB" class="mute">Cargando…</div>',function(){
     db.collection(col).orderBy("i").get().then(function(q){E=q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||""}});draw()},function(e){console.error(e);$("fotB").textContent="No se pudieron cargar las fotos. Intenta otra vez."})})}
 var LISTS={
@@ -1131,14 +1163,20 @@ function setExtra(s){
     +'<label for="rfA">Premio por cada cliente nuevo (₡)</label><input id="rfA" inputmode="numeric" value="'+refAmt()+'"><label for="rfT">¿Qué le das? (texto que ve el cliente)</label><input id="rfT" maxlength="60" value="'+esc(B.ref&&B.ref.what||"")+'" placeholder="Ej: ₡2.000 por SINPE o un descuento en su próxima cita">'
     +'<div style="height:16px"></div><button class="btn" id="rfS">Guardar</button>',
     function(){$("rfS").onclick=function(){var a=Math.max(0,Math.round(+$("rfA").value.replace(/\D/g,"")||0));saveBiz({ref:{on:$("rfOn").checked,amt:a,what:$("rfT").value.trim().slice(0,60)}}).then(function(){closeSheet();toast("Guardado ✓");render()})}});
-  if(s==="web")sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente en tu página web y al reservar. Las fotos, reseñas y preguntas se cambian en las opciones de abajo.</p>'
+  if(s==="web"){var CV=(B.web||{}).cover||"",mine=(C.covers[B.type]||C.covers.otro),oth=[];Object.keys(C.covers).forEach(function(k){if(C.covers[k]!==mine)oth=oth.concat(C.covers[k])});
+    function cvH(){var cur=C.coverOf(B.type,CV,600);return '<div class="cvBig">'+(cur?'<img alt="" src="'+cur+'">':'<span>Sin foto de portada</span>')+'</div><div class="cvL">'
+      +mine.concat(oth).map(function(id){var on=CV?CV===id:id===mine[0];return '<button data-cv="'+id+'" aria-pressed="'+on+'"><img alt="" loading="lazy" src="'+C.coverUrl(id,240)+'"></button>'}).join("")
+      +'<button data-cv="none" aria-pressed="'+(CV==="none")+'" class="cvN">Sin<br>foto</button></div>'}
+    sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente en tu página web y al reservar. Las fotos, reseñas y preguntas se cambian en las opciones de abajo.</p>'
+    +'<label>Foto de portada</label><p class="mute small" style="margin:-2px 0 8px">Ya te pusimos una de ejemplo. Elige otra o, cuando subas fotos de tus trabajos, tu web muestra la tuya.</p><div id="cvW">'+cvH()+'</div>'
     +'<label for="ptT">Frase principal</label><input id="ptT" maxlength="70" value="'+esc(B.tagline||"")+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
     +'<label for="ptS">Descripción corta (opcional)</label><textarea id="ptS" maxlength="160" placeholder="Ej: Barbería en San Pedro. Reserva en 1 minuto.">'+esc(B.blurb||"")+'</textarea>'
     +'<label for="ptP">Promoción (opcional)</label><input id="ptP" maxlength="90" value="'+esc(B.promo||"")+'" placeholder="Ej: 10% de descuento en tu primera cita">'
     +'<div class="between" style="margin-top:14px"><div><b>Mostrar lista de precios</b><div class="mute small">En la portada, antes de reservar</div></div><label class="toggle"><input type="checkbox" id="ptSp"'+(B.showPrices!==false?" checked":"")+'><span></span></label></div>'
     +'<div class="between" style="margin-top:14px"><div><b>Preguntar "¿Cómo nos conociste?"</b><div class="mute small">Para saber qué te trae clientes</div></div><label class="toggle"><input type="checkbox" id="ptH"'+(B.askHow!==false?" checked":"")+'><span></span></label></div>'
     +'<div style="height:16px"></div><div class="row"><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(webLink())+'">Ver mi página</a><button class="btn" id="ptSv">Guardar</button></div>',
-    function(){$("ptSv").onclick=function(){saveBiz({tagline:$("ptT").value.trim(),blurb:$("ptS").value.trim(),promo:$("ptP").value.trim(),showPrices:$("ptSp").checked,askHow:$("ptH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}});
+    function(){$("cvW").onclick=function(e){var b=e.target.closest("[data-cv]");if(!b)return;CV=b.dataset.cv===mine[0]?"":b.dataset.cv;$("cvW").innerHTML=cvH()};
+      $("ptSv").onclick=function(){saveBiz({web:Object.assign({},B.web||{},{cover:CV}),tagline:$("ptT").value.trim(),blurb:$("ptS").value.trim(),promo:$("ptP").value.trim(),showPrices:$("ptSp").checked,askHow:$("ptH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}})}
   if(s==="dom"){var Z=(B.zones||[]).map(function(z){return {n:z.n,fee:z.fee}});
     function zr(){return Z.map(function(z,i){return '<div class="zrow"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(z.n)+'" placeholder="Zona (ej: Heredia centro)"><input data-i="'+i+'" data-k="fee" type="number" inputmode="numeric" min="0" step="500" value="'+(z.fee||"")+'" placeholder="₡ extra"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div>'}).join("")}
     sheet('<h2>Servicio a domicilio</h2><div class="between"><div><b>Voy donde está el cliente</b><div class="mute small">La página le pide su ubicación al reservar</div></div><label class="toggle"><input type="checkbox" id="dH"'+(B.home?" checked":"")+'><span></span></label></div>'

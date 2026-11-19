@@ -20,6 +20,9 @@
 .head{text-align:center;padding:22px 0 8px}
 .head .lg{width:84px;height:84px;border-radius:24px;margin:0 auto 12px;background:var(--acc);color:#fff;display:grid;place-items:center;font:800 36px "Bricolage Grotesque",sans-serif;overflow:hidden;box-shadow:0 14px 34px -14px var(--acc)}
 .head .lg img{width:100%;height:100%;object-fit:cover}
+.cov{margin:12px 0 -46px;border-radius:22px;overflow:hidden;aspect-ratio:16/8;background:var(--line)}
+.cov img{width:100%;height:100%;object-fit:cover;display:block}
+.cov+.head{padding-top:0}.cov+.head .lg{position:relative;border:4px solid var(--bg)}
 .head h1{font-size:28px}
 .head p{margin:6px 0 0}
 .head .links{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
@@ -100,6 +103,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 
   <!-- PORTADA -->
   <div id="land" hidden>
+    <div class="cov fade" id="cov" hidden></div>
     <div class="head fade">
       <div class="lg" id="lg"></div>
       <div class="bn" id="nm"></div>
@@ -224,6 +228,7 @@ function notFound(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf")
 function init(open){$("load").hidden=true;$("land").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];
   document.title=P.name+" · Reserva tu cita";document.documentElement.style.setProperty("--acc",col);document.querySelector('meta[name=theme-color]').content=col;
   var lg=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
+  var cv=C.coverOf?C.coverOf(P.type,(P.web||{}).cover,900):"";if(cv){$("cov").innerHTML='<img alt="" src="'+cv+'" onerror="this.parentNode.hidden=true">';$("cov").hidden=false}
   $("nm").textContent=P.name;$("nm2").textContent=P.name;$("tg").textContent=P.tagline||"Reserva tu cita en segundos";$("bl").textContent=P.blurb||P.addr||"";
   if(P.promo){$("pm").hidden=false;$("pmT").textContent=P.promo}
   $("toWeb").href="/"+slug;$("toWeb").textContent="🌐 Ver más de "+P.name;
