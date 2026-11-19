@@ -17,6 +17,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script src="../cfg.js"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
@@ -570,9 +571,10 @@ var PAGO_OK=/[?&]pago=ok/.test(location.search);
 function pagoOk(){if(!PAGO_OK)return;PAGO_OK=false;try{history.replaceState(null,"",location.pathname)}catch(e){}
   setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Gracias por tu pago!</h2><p class="mute">Recibimos tu suscripción. En unos minutos activamos tu plan y te avisamos por WhatsApp.</p></div><a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,"¡Hola! Acabo de pagar Citaly con tarjeta 💳\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))+'">Avisar a Citaly por WhatsApp</a>')},900)}
 function start(fresh){var uid=BID,first=true;
-  UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;syncPub();if(first){first=false;show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));
+  UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;syncPub();if(first){first=false;setTimeout(pushRefresh,2500);show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));
   UNS.push(db.doc("subs/"+uid).onSnapshot(function(d){SUB=d.exists?d.data():null;syncPub();if(B)show(subValid()?"main":"pay");render()},dbErr));
-  UNS.push(db.collection("biz/"+uid+"/jobs").onSnapshot(function(s){JOBS=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});render()},dbErr));
+  UNS.push(db.collection("biz/"+uid+"/jobs").onSnapshot(function(s){JOBS=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});render();
+    var cq=(location.search.match(/[?&]cita=([\w-]+)/)||[])[1];if(cq){var cj=JOBS.filter(function(x){return x._id===cq})[0];if(cj){try{history.replaceState(null,"",location.pathname)}catch(e){}setTimeout(function(){openJob(cj)},300)}}},dbErr));
   UNS.push(db.collection("biz/"+uid+"/exp").onSnapshot(function(s){EXP=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});if(VIEW==="numeros")renderNum();else if(VIEW==="agenda")renderDaySum()},dbErr))}
 function dbErr(e){console.error(e);toast(e.code==="permission-denied"?"Sin permiso para leer los datos":"Sin conexión. Reintentando…")}
 function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until.toMillis()>Date.now()}
@@ -1026,10 +1028,31 @@ function depSheet(){var d=B.dep||{};
       $("addS").disabled=true;saveBiz({dep:o}).then(function(){closeSheet();toast("Adelanto activado ✓")},function(e){$("addS").disabled=false;$("addE").textContent=errEs(e)})};
     $("addX").onclick=function(){saveBiz({dep:null}).then(function(){closeSheet();toast("Adelanto quitado")})}})}
 function telDigits(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
-function ntfSheet(){var t=B.ntf||"";
-  function draw(){sheet('<h2>🔔 Avisos de reservas nuevas</h2><p class="mute small" style="margin-top:-4px">Te suena el celular apenas alguien reserva. Es gratis y usa la app <b>ntfy</b>.</p>'+(t?'<div class="card" style="box-shadow:none"><b>Tu canal:</b><br><code style="word-break:break-all">'+esc(t)+'</code></div><ol class="small" style="padding-left:18px;line-height:1.6"><li>Instala la app <b>ntfy</b> (gratis, Android y iPhone).</li><li>Toca «+» y escribe el nombre de tu canal tal cual.</li><li>Listo: cada reserva nueva te llega como notificación.</li></ol><button class="btn ghost" id="ntnO">Quitar avisos</button>':'<button class="btn" id="ntnA">Activar avisos</button>'),function(){
-    if($("ntnA"))$("ntnA").onclick=function(){var a=new Uint8Array(9),c="abcdefghijkmnpqrstuvwxyz23456789";crypto.getRandomValues(a);t="citaly-"+Array.prototype.map.call(a,function(x){return c[x%c.length]}).join("");$("ntnA").disabled=true;saveBiz({ntf:t}).then(draw,function(){t="";$("ntnA").disabled=false})};
-    if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
+/* ---------- Avisos en el celular (Firebase Cloud Messaging) ---------- */
+function pushOk(){return "Notification" in window&&"serviceWorker" in navigator&&"PushManager" in window&&!!(firebase.messaging&&firebase.messaging.isSupported&&firebase.messaging.isSupported())}
+function pushId(t){return t.slice(-60).replace(/[^\w-]/g,"_")}
+function pushReg(){return navigator.serviceWorker.register("sw.js").then(function(){return navigator.serviceWorker.ready}).then(function(reg){
+  return firebase.messaging().getToken({serviceWorkerRegistration:reg,vapidKey:C.vapid||undefined})}).then(function(t){if(!t)throw new Error("sin token");
+  try{localStorage.setItem("citaly_push",t)}catch(e){}
+  var dev=/iPhone|iPad/.test(navigator.userAgent)?"iPhone":/Android/.test(navigator.userAgent)?"Android":"Computadora";
+  return db.doc("biz/"+BID+"/push/"+pushId(t)).set({t:t,d:dev,at:Date.now()}).then(function(){return t})})}
+/* Al abrir la app, si ya tenía avisos, renueva el token (cambian cada cierto tiempo) */
+function pushRefresh(){try{if(pushOk()&&Notification.permission==="granted"&&localStorage.getItem("citaly_push"))pushReg().catch(function(){})}catch(e){}}
+function pushTest(){return auth.currentUser.getIdToken().then(function(t){return fetch(C.pushUrl,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ev:"test",idToken:t})})}).then(function(r){return r.json()})}
+function ntfSheet(){var t=B.ntf||"",ios=/iPhone|iPad/.test(navigator.userAgent),standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
+  function on(){try{return Notification.permission==="granted"&&!!localStorage.getItem("citaly_push")}catch(e){return false}}
+  function draw(){var h='<h2>🔔 Avisos de reservas</h2><p class="mute small" style="margin-top:-4px">Te suena el celular cuando alguien reserva, cancela o cambia su cita, aunque tengas la app cerrada.</p>';
+    if(!pushOk()){h+=ios&&!standalone?'<div class="card" style="box-shadow:none"><b>En iPhone, primero instala la app:</b><ol class="small" style="padding-left:18px;line-height:1.6;margin:6px 0 0"><li>Abre citalyapp.com/app en <b>Safari</b>.</li><li>Toca <b>Compartir</b> ⬆️ y luego <b>Agregar a inicio</b>.</li><li>Abre Citaly desde el ícono y vuelve aquí.</li></ol></div>':'<div class="card" style="box-shadow:none">Este navegador no permite avisos. Abre la app en <b>Chrome</b> (Android) o instálala en tu pantalla de inicio.</div>'}
+    else if(Notification.permission==="denied")h+='<div class="card" style="box-shadow:none"><b>Bloqueaste los avisos.</b><p class="mute small" style="margin:6px 0 0">Ve a los ajustes del navegador → Notificaciones → permite citalyapp.com, y vuelve a tocar el botón.</p></div><button class="btn" id="pnA" style="margin-top:12px">Intentar de nuevo</button>';
+    else if(on())h+='<div class="card" style="box-shadow:none;text-align:center"><div style="font-size:36px">✅</div><b>Avisos activados en este celular</b><p class="mute small" style="margin:6px 0 0">Si usas otro celular o compu, entra ahí y actívalos también.</p></div><button class="btn ghost" id="pnT" style="margin-top:12px">Mandarme un aviso de prueba</button>';
+    else h+='<button class="btn big" id="pnA">🔔 Activar avisos en este celular</button><p class="mute small" style="text-align:center">Te va a preguntar si permites notificaciones: toca <b>Permitir</b>.</p>';
+    h+='<p class="err" id="pnE"></p>';
+    if(t)h+='<details style="margin-top:14px"><summary class="mute small">Avisos por la app ntfy (opción vieja)</summary><p class="small">Tu canal: <code style="word-break:break-all">'+esc(t)+'</code></p><button class="btn ghost sm" id="ntnO">Quitar avisos de ntfy</button></details>';
+    sheet(h,function(){
+      if($("pnA"))$("pnA").onclick=function(){var b=this;b.disabled=true;b.textContent="Activando…";
+        Notification.requestPermission().then(function(p){if(p!=="granted")throw new Error("permiso");return pushReg()}).then(function(){toast("Avisos activados ✓");return pushTest()}).then(draw,function(e){console.error(e);draw();if($("pnE"))$("pnE").textContent=e&&e.message==="permiso"?"No diste permiso. Toca el botón otra vez y elige «Permitir».":"No se pudo activar. Revisa tu internet e intenta de nuevo."})};
+      if($("pnT"))$("pnT").onclick=function(){var b=this;b.disabled=true;pushTest().then(function(j){b.disabled=false;toast(j&&j.n?"Listo, te debería sonar el celular 🔔":"No encontramos tu celular. Toca «Activar» de nuevo.")},function(){b.disabled=false;toast("Sin conexión")})};
+      if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
   draw()}
 /* ---------- Asistente con IA (límite diario por plan; corre en el servidor de Citaly) ---------- */
 var IA_MAX={turbo:5,nitro:30};

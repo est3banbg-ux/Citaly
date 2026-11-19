@@ -43,7 +43,8 @@ var CITALY = {
     vehiculo: { n: "Precio según tipo de vehículo", ic: "🚙", d: "El cliente elige su vehículo al reservar y los servicios marcados cambian de precio según el tipo." },
     insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." }
   },
-  iaUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/ia",   // URL del Worker + "/ia" (ej: https://xxxx.workers.dev/ia). Vacío = el asistente dice "muy pronto"
+  iaUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/ia",
+  pushUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/push",   // URL del Worker + "/ia" (ej: https://xxxx.workers.dev/ia). Vacío = el asistente dice "muy pronto"
   sinpe: "6320-4942",    // SINPE Móvil de Citaly (personal de Esteban, separado de GlassStudioCR)
   sinpeName: "Esteban Bolaños García",  // a nombre de quién sale el SINPE
   wa: "50661506610",     // WhatsApp de la empresa (soporte y comprobantes)

@@ -1,7 +1,8 @@
 /* Citaly · webhook de Polar → activa el plan solo.
    Cloudflare Worker. Variables (secretos): POLAR_WEBHOOK_SECRET, FB_PROJECT (citaly-cb101),
    FB_CLIENT_EMAIL, FB_PRIVATE_KEY (de la cuenta de servicio de Firebase). Guía: LEEME.md
-   Asistente con IA (ruta /ia): además ANTHROPIC_API_KEY (secreto). */
+   Asistente con IA (ruta /ia): además ANTHROPIC_API_KEY (secreto).
+   Avisos al celular (ruta /push): usa la misma cuenta de servicio (Firebase Cloud Messaging). */
 const TIERS = { arranque: 4900, turbo: 9900, nitro: 19900 };
 const PROMO = { plan: "arranque", price: 500, months: 3 };
 const enc = new TextEncoder();
@@ -22,10 +23,10 @@ async function verify(req, body, secret) {
   }
   return false;
 }
-async function token(env) {
+async function token(env, scope) {
   const now = Math.floor(Date.now() / 1000);
   const head = b64u(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claim = b64u(JSON.stringify({ iss: env.FB_CLIENT_EMAIL, scope: "https://www.googleapis.com/auth/datastore", aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3000 }));
+  const claim = b64u(JSON.stringify({ iss: env.FB_CLIENT_EMAIL, scope: scope || "https://www.googleapis.com/auth/datastore", aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3000 }));
   const pem = env.FB_PRIVATE_KEY.replace(/\\n/g, "\n").replace(/-----[^-]+-----/g, "").replace(/\s/g, "");
   const key = await crypto.subtle.importKey("pkcs8", Uint8Array.from(atob(pem), (c) => c.charCodeAt(0)), { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["sign"]);
   const sig = b64u(await crypto.subtle.sign("RSASSA-PKCS1-v1_5", key, enc.encode(`${head}.${claim}`)));
@@ -102,9 +103,69 @@ async function ia(req, env) {
   return jr(req, { ok: true, text: out, max, left: max - used - 1 });
 }
 
+/* ---------- Avisos al celular del dueño (POST /push) ----------
+   La página de reservas avisa "hay una cita nueva / cambiada"; el Worker revisa en Firestore que sea real y reciente,
+   arma el texto y lo manda por Firebase Cloud Messaging a los celulares que el dueño activó. */
+const sv = (f, k) => (f && f[k] && (f[k].stringValue || f[k].integerValue || f[k].timestampValue)) || "";
+const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+const DIAS = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+function cuando(date, time) {
+  const [y, m, d] = String(date).split("-").map(Number); if (!y) return "";
+  const [h, mi] = String(time || "0:0").split(":").map(Number), dt = new Date(Date.UTC(y, m - 1, d));
+  const hh = h % 12 || 12, ap = h < 12 ? "am" : "pm";
+  return `${DIAS[dt.getUTCDay()]} ${d} ${MESES[m - 1]}, ${hh}${mi ? ":" + String(mi).padStart(2, "0") : ""} ${ap}`;
+}
+async function sendPush(env, bid, title, body, url) {
+  const tk = await token(env), r = await fetch(`${fs(env)}/biz/${bid}/push?pageSize=20`, { headers: { authorization: "Bearer " + tk } });
+  const docs = r.ok ? ((await r.json()).documents || []) : [];
+  if (!docs.length) return 0;
+  const mt = await token(env, "https://www.googleapis.com/auth/firebase.messaging");
+  let n = 0;
+  for (const d of docs) {
+    const t = sv(d.fields, "t"); if (!t) continue;
+    const res = await fetch(`https://fcm.googleapis.com/v1/projects/${env.FB_PROJECT}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + mt, "content-type": "application/json" },
+      body: JSON.stringify({ message: { token: t, data: { title, body, url: url || "/app/" }, webpush: { headers: { Urgency: "high", TTL: "86400" } } } }) });
+    if (res.ok) n++;
+    else if (res.status === 404 || res.status === 400) await fetch(`https://firestore.googleapis.com/v1/${d.name}`, { method: "DELETE", headers: { authorization: "Bearer " + tk } }); // celular que ya no existe
+  }
+  return n;
+}
+async function push(req, env) {
+  let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
+  const ev = ["new", "chg", "test"].includes(b.ev) ? b.ev : "";
+  if (ev === "test") {
+    const u = await fbUser(clip(b.idToken, 4000), env); if (!u || !u.emailVerified) return jr(req, { error: "sesion" }, 401);
+    const tk = await token(env), bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : await find(env, tk, String(u.email || "").toLowerCase());
+    if (!bid) return jr(req, { error: "negocio" }, 404);
+    const n = await sendPush(env, bid, "🔔 Avisos activados", "Así te va a llegar cada reserva nueva de tus clientes.", "/app/");
+    return jr(req, { ok: true, n });
+  }
+  const bid = clip(b.biz, 60).replace(/[^\w-]/g, ""), jid = clip(b.job, 30).replace(/[^\w-]/g, "");
+  if (!ev || !bid || !jid) return jr(req, { error: "datos" }, 400);
+  const tk = await token(env), path = `biz/${bid}/jobs/${jid}`, j = await get(env, tk, path);
+  if (!j) return jr(req, { error: "cita" }, 404);
+  const now = Date.now(), F = (k) => sv(j, k);
+  const who = F("cli").split(" ")[0] || "Un cliente", items = ((j.items || {}).arrayValue || {}).values || [], what = items.map((x) => x.stringValue).filter(Boolean).join(" + ");
+  let title, body;
+  if (ev === "new") {
+    if (!(j.web || {}).booleanValue || F("pushN") || Math.abs(now - +F("at")) > 15 * 60e3) return jr(req, { ok: false });
+    title = "📅 Nueva reserva"; body = `${who} · ${cuando(F("date"), F("time"))}${what ? " · " + what : ""}`;
+    await patch(env, tk, path, { pushN: V(now) });
+  } else {
+    const ca = Date.parse(F("chgAt")) || 0, chg = F("chg");
+    if (!ca || now - ca > 15 * 60e3 || F("pushC") === F("chgAt")) return jr(req, { ok: false });
+    title = chg === "cancelada" ? "❌ Cita cancelada" : "🔄 Cita cambiada";
+    body = chg === "cancelada" ? `${who} canceló su cita del ${cuando(F("date"), F("time"))}` : `${who} la pasó para el ${cuando(F("date"), F("time"))}`;
+    await patch(env, tk, path, { pushC: V(F("chgAt")) });
+  }
+  const n = await sendPush(env, bid, title, body, "/app/?cita=" + jid);
+  return jr(req, { ok: true, n });
+}
+
 export default {
   async fetch(req, env) {
     const path = new URL(req.url).pathname;
+    if (path === "/push") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? push(req, env) : new Response("ok");
     if (path === "/ia") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ia(req, env) : new Response("ok");
     if (req.method !== "POST") return new Response("ok");
     const body = await req.text();

@@ -200,6 +200,11 @@ service cloud.firestore {
         allow delete: if isOwner(bid);
       }
 
+      // Celulares del dueño que reciben avisos (token de notificaciones)
+      match /push/{pid} {
+        allow read, write: if isOwner(bid);
+      }
+
       match /exp/{eid} {
         allow read, write: if isOwner(bid);
       }
