@@ -76,10 +76,26 @@ service cloud.firestore {
       }
     }
 
-    // Quién entra a cada negocio: own/{correo} = { biz, rol }. Solo lo maneja el admin.
+    // Quién entra a cada negocio: own/{correo} = { biz, rol }.
+    // El admin maneja todo. El dueño de un negocio puede agregar y quitar personas de SU equipo (rol "equipo").
+    function ownsBiz(bid) {
+      return signedIn() && (request.auth.uid == bid
+        || (verified()
+            && exists(/databases/$(database)/documents/own/$(myEmail()))
+            && get(/databases/$(database)/documents/own/$(myEmail())).data.biz == bid
+            && get(/databases/$(database)/documents/own/$(myEmail())).data.rol == 'dueño'));
+    }
     match /own/{email} {
       allow read: if isAdmin() || (verified() && myEmail() == email);
-      allow write: if isAdmin();
+      allow create: if isAdmin() || (verified()
+        && request.resource.data.keys().hasOnly(['biz', 'rol', 'name'])
+        && request.resource.data.rol == 'equipo'
+        && email == email.lower()
+        && email.matches('^[^@ ]+@[^@ ]+[.][^@ ]+$')
+        && email != myEmail()
+        && ownsBiz(request.resource.data.biz));
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (verified() && resource.data.rol == 'equipo' && ownsBiz(resource.data.biz));
     }
 
     // Mensualidad de cada negocio: la maneja el admin. Al registrarse, el negocio crea su prueba gratis (máx. 31 días).

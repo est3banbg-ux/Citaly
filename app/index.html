@@ -351,6 +351,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="web"><span class="ic">✨</span><span class="m"><b>Portada de mi página</b><span>Frase, promoción y precios</span></span>›</button>
         <button class="set" data-s="dom"><span class="ic">🚗</span><span class="m"><b>Servicio a domicilio</b><span id="domN">Ubicación del cliente y zonas</span></span>›</button>
         <button class="set" data-s="ref"><span class="ic">🎁</span><span class="m"><b>Referidos</b><span id="refN">Premia a quien te recomienda</span></span>›</button>
+        <button class="set" id="teamRow"><span class="ic">👥</span><span class="m"><b>Equipo</b><span id="teamN">Que otras personas vean tu agenda</span></span>›</button>
         <button class="set" id="insRow" hidden><span class="ic">📦</span><span class="m"><b>Insumos</b><span id="insN"></span></span>›</button>
         <button class="set" data-s="res"><span class="ic">📅</span><span class="m"><b>Reglas de reserva</b><span>Anticipación y días disponibles</span></span>›</button>
       </div>
@@ -378,7 +379,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 var $=function(i){return document.getElementById(i)};
 var C=CITALY,DN=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],DS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"],MN=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 var STS=["Por confirmar","Confirmada","Lista","No vino","Cancelada"];
-var U=null,BID=null,B=null,SUB=null,JOBS=[],EXP=[],UNS=[],VIEW="agenda",SEL=ymd(new Date()),MON=new Date();MON.setDate(1);
+var ROL="dueño",U=null,BID=null,B=null,SUB=null,JOBS=[],EXP=[],UNS=[],VIEW="agenda",SEL=ymd(new Date()),MON=new Date();MON.setDate(1);
 var db,auth;
 function pad(n){return n<10?"0"+n:""+n}
 function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
@@ -410,9 +411,9 @@ if(auth)auth.onAuthStateChanged(function(u){if(CREATING)return;stop();U=u;if(!u)
 /* Busca el negocio de esta persona: el suyo propio (cuentas viejas) o el que el admin le asignó en own/{correo} */
 function enter(u){U=u;show("load");
   var pw=(u.providerData||[]).some(function(p){return p.providerId==="password"});
-  db.doc("biz/"+u.uid).get().then(function(d){if(d.exists){BID=u.uid;start();return}
+  ROL="dueño";db.doc("biz/"+u.uid).get().then(function(d){if(d.exists){BID=u.uid;start();return}
     if(!u.email||(pw&&!u.emailVerified)){signup();return}
-    return db.doc("own/"+u.email.toLowerCase()).get().then(function(o){if(!o.exists||!o.data().biz){signup();return}BID=o.data().biz;start()})
+    return db.doc("own/"+u.email.toLowerCase()).get().then(function(o){if(!o.exists||!o.data().biz){signup();return}BID=o.data().biz;ROL=o.data().rol||"equipo";start()})
   }).catch(function(e){console.error(e);show("auth");$("aErr").textContent=errEs(e)})}
 function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];BID=null;B=null;SUB=null;JOBS=[];EXP=[]}
 
@@ -450,6 +451,37 @@ function insSheet(){var L=(B.ins||[]).map(function(x){return Object.assign({},x)
         if(ed>=0)L[ed]=x;else L.push(x);save(ed>=0?"Guardado ✓":"Agregado ✓").then(function(){form(-1)})};
       $("inD").onclick=function(){if(ed<0||!confirm("¿Eliminar "+L[ed].n+"?"))return;L.splice(ed,1);save("Eliminado").then(function(){form(-1)})}})}
 function saveIns(L){B.ins=L;render();return db.doc("biz/"+BID).set({ins:L},{merge:true}).catch(function(e){toast(errEs(e));throw e})}
+/* ---------- Equipo: el dueño agrega o quita personas por correo ---------- */
+function teamMax(){return Math.max(0,((C.plans[tier()]||{}).staff||1)-1)}
+function teamSheet(){
+  if(ROL==="equipo"){toast("Solo el dueño del negocio maneja el equipo");return}
+  if(teamMax()<1){upsell("team");return}
+  var mx=teamMax(),busy=false;
+  function view(){var T=(B.team||[]).slice(),full=T.length>=mx;
+    $("shC").innerHTML='<h2>👥 Equipo</h2><p class="mute">Cada persona entra a <b>citalyapp.com/app</b> con su correo (con Google o creando su propia contraseña) y ve la agenda de tu negocio.</p>'
+      +'<p class="mute small">Plan '+esc(C.plans[tier()].n)+': vos y '+(mx>=50?"las personas que necesités":mx+(mx===1?" persona más":" personas más"))+'.</p>'
+      +(T.length?'<div class="card" style="padding:4px 14px">'+T.map(function(e,i){return '<div class="set" style="cursor:default"><span class="ic">👤</span><span class="m"><b style="word-break:break-all">'+esc(e)+'</b></span><button class="link" data-rm="'+i+'">Quitar</button></div>'}).join("")+'</div>':'<p class="mute">Todavía no agregaste a nadie.</p>')
+      +(full?'<p class="mute small">Llegaste al límite de tu plan. Con Nitro el equipo es ilimitado.</p>':'<label for="tmE">Correo de la persona</label><input id="tmE" type="email" inputmode="email" autocomplete="off" placeholder="nombre@gmail.com"><p class="err" id="tmErr"></p><button class="btn" id="tmAdd">Agregar al equipo</button>')
+      +(T.length?'<a class="btn wa" id="tmWa" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(teamMsg())+'">Avisarles por WhatsApp</a>':"");
+    var add=$("tmAdd");if(add)add.onclick=doAdd;
+    Array.prototype.forEach.call(document.querySelectorAll("[data-rm]"),function(b){b.onclick=function(){doRm(+b.getAttribute("data-rm"))}})}
+  function teamMsg(){return "¡Hola! Te agregué al equipo de "+(B.name||"mi negocio")+" en Citaly. Entrá a https://citalyapp.com/app con este correo (con Google o creando tu contraseña) y vas a ver la agenda."}
+  function doAdd(){if(busy)return;var em=($("tmE").value||"").trim().toLowerCase(),e=$("tmErr");e.textContent="";
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){e.textContent="Escribí un correo válido.";return}
+    if(em===((U&&U.email)||"").toLowerCase()){e.textContent="Ese es tu correo: ya tenés acceso.";return}
+    var T=(B.team||[]).slice();if(T.indexOf(em)>=0){e.textContent="Esa persona ya está en tu equipo.";return}
+    if(T.length>=mx){e.textContent="Llegaste al límite de tu plan.";return}
+    busy=true;var bt=db.batch();
+    bt.set(db.doc("own/"+em),{biz:BID,rol:"equipo",name:""});
+    bt.update(db.doc("biz/"+BID),{team:firebase.firestore.FieldValue.arrayUnion(em)});
+    bt.commit().then(function(){busy=false;B.team=T.concat([em]);toast("Agregada ✓");view()},function(x){busy=false;console.error(x);e.textContent=x&&x.code==="permission-denied"?"Ese correo ya está en otro negocio o no se pudo agregar.":errEs(x)})}
+  function doRm(i){if(busy)return;var T=(B.team||[]).slice(),em=T[i];if(!em||!confirm("¿Quitar a "+em+" del equipo? Ya no podrá entrar a tu negocio."))return;
+    busy=true;var bt=db.batch();
+    bt.delete(db.doc("own/"+em));
+    bt.update(db.doc("biz/"+BID),{team:firebase.firestore.FieldValue.arrayRemove(em)});
+    bt.commit().then(function(){busy=false;B.team=T.filter(function(x){return x!==em});toast("Quitada");view()},function(x){busy=false;console.error(x);toast(errEs(x))})}
+  sheet("",view)}
+$("teamRow").onclick=teamSheet;
 $("insRow").onclick=function(){if(!can("insumos")){upsell("insumos");return}insSheet()};
 
 /* ---------- REGISTRO EN UN PASO: crea la cuenta y el negocio con prueba gratis ---------- */
@@ -870,7 +902,7 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
 /* ---------- AJUSTES ---------- */
 function renderSet(){$("lnk").textContent=link().replace(/^https:\/\//,"");$("wLnk").href=webLink();$("wLnkT").textContent=webLink().replace(/^https:\/\//,"");$("openT").checked=B.open!==false;$("openTxt").textContent=B.open!==false?"Tus clientes pueden reservar":"Pausadas: el link muestra tu WhatsApp";
   $("svcN").textContent=(B.services||[]).length+" servicios";var on=(B.hours||[]).filter(function(h){return h.on});$("horN").textContent=on.length?on.length+" días · "+fh(on[0].a)+" a "+fh(on[0].b):"Sin horario";
-  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;$("insRow").hidden=!modOn("insumos")&&tier()!=="nitro";$("refN").textContent=refOn()?"Activo · "+crc(refAmt())+" por cada cliente nuevo":"Premia a quien te recomienda";if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
+  $("planN").textContent=SUB&&SUB.status==="suspended"?"Pausado":SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;$("insRow").hidden=!modOn("insumos")&&tier()!=="nitro";$("teamRow").hidden=ROL==="equipo";$("teamN").textContent=(B.team&&B.team.length)?B.team.length+(B.team.length===1?" persona":" personas"):"Que otras personas vean tu agenda";$("refN").textContent=refOn()?"Activo · "+crc(refAmt())+" por cada cliente nuevo":"Premia a quien te recomienda";if(modOn("insumos")){var lw=(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}).length;$("insN").textContent=(B.ins||[]).length+" insumos"+(lw?" · "+lw+" por acabarse":"")}
   $("em").textContent=U.email||"";$("domN").textContent=B.home?"Activo · "+((B.zones||[]).length?(B.zones.length+" zonas"):"sin zonas"):"Desactivado";$("help").href=waUrl(C.wa,"Hola, necesito ayuda con Citaly ("+B.name+")")}
 function fdate(ts){var d=ts.toDate();return d.getDate()+" de "+MN[d.getMonth()]}
 $("openT").onchange=function(){saveBiz({open:this.checked}).then(function(){toast($("openT").checked?"Reservas en línea activadas":"Reservas en línea pausadas")})};
@@ -975,7 +1007,7 @@ function setExtra(s){
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
 var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
 /* ---------- PLANES ---------- */
-var TIERS=["arranque","turbo","nitro"],FEAT={web:"turbo",dom:"turbo",ref:"turbo",gastos:"turbo",insumos:"nitro"};
+var TIERS=["arranque","turbo","nitro"],FEAT={team:"turbo",web:"turbo",dom:"turbo",ref:"turbo",gastos:"turbo",insumos:"nitro"};
 function tier(){if(!SUB)return "arranque";if(SUB.status==="trial")return "nitro";if(SUB.tier&&C.plans[SUB.tier])return SUB.tier;return SUB.plan==="mensual"?"arranque":"nitro"}
 function can(f){var need=FEAT[f];return !need||TIERS.indexOf(tier())>=TIERS.indexOf(need)}
 function planPrice(k){var P=C.plans[k];return intl()?"US$"+P.usd:crcF(P.crc)}
