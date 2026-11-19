@@ -666,11 +666,19 @@ var J=null;
 var HOW=["Instagram / Facebook","WhatsApp","Recomendación","Google","Pasaba por ahí","Cliente que vuelve","Otro"];
 var DURS=[15,30,45,60,75,90,105,120,150,180,240,300,360,480];
 function locOf(j){return j&&(j.ubic||"")||""}
+/* Traslados: tiempo estimado entre citas a domicilio (distancia en línea recta x1.35, ~35 km/h en ciudad) */
+function llOf(j){var m=String(locOf(j)).match(/(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/);return m?{la:+m[1],lo:+m[2]}:null}
+function kmLL(a,b){var R=6371,r=Math.PI/180,dl=(b.la-a.la)*r,dn=(b.lo-a.lo)*r,x=Math.sin(dl/2)*Math.sin(dl/2)+Math.cos(a.la*r)*Math.cos(b.la*r)*Math.sin(dn/2)*Math.sin(dn/2);return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
+function travelMinLL(a,b){var d=kmLL(a,b)*1.35;return d<1.5?5:Math.max(5,Math.round(d/35*60/5)*5)}
+function prevJob(j){var L=dayJobs(j.date).filter(function(x){return active(x)&&x.id!==j.id&&tm(x.time)<tm(j.time)&&llOf(x)});return L.length?L[L.length-1]:null}
+function legMin(j){var a=prevJob(j),b=llOf(j);return a&&b?travelMinLL(llOf(a),b):null}
+function etaFor(j){var m=legMin(j);return m?Math.max(10,m):20}
 function msgFor(k,j){var n=first(j.cli),d=j.date?niceDay(j.date).toLowerCase()+" a las "+fh(j.time):"",it=(j.items||[]).length?"\n\n"+j.items.join(" + "):"";
   if(k==="conf")return "¡Hola "+n+"! 👋 Te confirmamos tu cita en "+B.name+" el "+d+"."+it+(B.addr&&!B.home?"\n📍 "+B.addr:"")+"\n\n¡Te esperamos!";
   if(k==="rec")return "¡Hola "+n+"! 👋 Te recordamos tu cita en "+B.name+" el "+d+"."+it+(B.addr&&!B.home?"\n📍 "+B.addr:"")+"\n\n¡Te esperamos!";
   if(k==="rev")return "¡Hola "+n+"! Gracias por confiar en "+B.name+" 🙌\n\nSi algo no te quedó perfecto, avísame y lo arreglamos.\n\nY si quedaste contento, ¿nos ayudas con una reseña en Google? Es 1 minuto y nos ayuda muchísimo a que más gente nos encuentre ⭐\n"+B.rev+"\n\n¡Muchas gracias!";
-  if(k==="go")return "¡Hola "+n+"! 👋 Te escribo de "+B.name+". Ya voy en camino a tu cita, llego en unos 20 minutos. ¡Nos vemos!";
+  if(k==="go")return "¡Hola "+n+"! 👋 Te escribo de "+B.name+". Ya voy en camino a tu cita, llego en unos "+etaFor(j)+" minutos. ¡Nos vemos!";
+  if(k==="loc")return "¡Hola "+n+"! 👋 Te escribo de "+B.name+" por tu cita ("+d+"). Para llegar sin perder tiempo, ¿me compartes tu ubicación? En este chat toca el clip 📎 → Ubicación → «Enviar tu ubicación actual». ¡Gracias!";
   if(k==="ty")return "¡Muchas gracias por tu visita, "+n+"! 🙌 Fue un gusto atenderte en "+B.name+".\n\nCuando quieras volver, reservas aquí en segundos: "+link();
   if(k==="back"&&j.due)return "¡Hola "+n+"! 👋 Te escribo de "+B.name+". Hace unos "+j.due.m+(j.due.m===1?" mes":" meses")+" te hicimos «"+j.due.n+"» y ya es buen momento de repetirlo para que todo siga como nuevo.\n\n¿Te agendamos? Reserva aquí en segundos: "+link();
   if(k==="back")return "¡Hola "+n+"! 👋 Hace tiempo no te vemos en "+B.name+". ¿Te agendamos una cita?\n\nPuedes reservar aquí: "+link();
@@ -780,7 +788,7 @@ function routeUrl(L){var P=L.map(function(j){var p=parseLoc(locOf(j));return !p?
 /* ---------- INICIO DEL DÍA ---------- */
 function renderHero(){var t=ymd(new Date()),n=new Date(),nowM=n.getHours()*60+n.getMinutes(),T=dayJobs(t).filter(active),done=T.filter(function(j){return j.st==="Lista"}).length;
   var nx=T.filter(function(j){return j.st!=="Lista"}).find(function(j){return tm(j.time)+(+j.dur||60)>nowM})||null,big="",line="",sub="";
-  if(nx){var mn=tm(nx.time)-nowM;line="Próxima: "+esc(nx.cli)+" a las "+fh(nx.time);big=mn<=0?(mn>-30?"Es ahora":"Atrasada "+(Math.floor(-mn/60)?Math.floor(-mn/60)+" h ":"")+(-mn%60)+" min"):mn<60?"En "+mn+" min":"En "+Math.floor(mn/60)+" h"+(mn%60?" "+mn%60+" min":"");sub=esc((nx.items||[]).join(" + "))}
+  if(nx){var mn=tm(nx.time)-nowM;line="Próxima: "+esc(nx.cli)+" a las "+fh(nx.time);big=mn<=0?(mn>-30?"Es ahora":"Atrasada "+(Math.floor(-mn/60)?Math.floor(-mn/60)+" h ":"")+(-mn%60)+" min"):mn<60?"En "+mn+" min":"En "+Math.floor(mn/60)+" h"+(mn%60?" "+mn%60+" min":"");sub=esc((nx.items||[]).join(" + "));var lm=B.home?legMin(nx):null;if(lm){var pv=prevJob(nx),gap=tm(nx.time)-(tm(pv.time)+(+pv.dur||60));sub+="<br>🚗 ~"+lm+" min de traslado desde "+esc(first(pv.cli))+(gap<lm?" · ⚠️ vas justo de tiempo":"")}}
   else if(T.length&&done===T.length){line="Terminaste las citas de hoy";big="¡Buen trabajo! 🎉"}
   else if(T.length){line="Ya pasaron las citas de hoy";big="Márcalas como atendidas";sub="Así tus números quedan al día"}
   else{line="No tienes citas hoy";big="Día libre ☀️";sub="Buen momento para escribirle a clientes que hace rato no vienen"}
@@ -789,7 +797,7 @@ function renderHero(){var t=ymd(new Date()),n=new Date(),nowM=n.getHours()*60+n.
    +(nx&&locOf(nx)?mapThumb(locOf(nx),true):'')
    +(T.length?'<div class="hbar"><i id="hb"></i></div><div class="hs">'+done+' de '+T.length+' atendidas · '+crc(money)+'</div>':'')
    +(due?'<button class="hnote" id="hNotes">📌 '+due+(due===1?" recordatorio pendiente":" recordatorios pendientes")+'</button>':'')
-   +((nx&&(locOf(nx)||(B.home&&nx.tel)))||ru?'<div class="hrow">'+(nx&&locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(gmaps(locOf(nx)))+'">📍 Cómo llegar</a>':'')+(B.home&&nx&&nx.tel?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("go",nx)))+'">🚗 Voy en camino</a>':'')+(ru?'<a target="_blank" rel="noopener" href="'+esc(ru)+'">🗺️ Ruta del día</a>':'')+'</div>':'')+'</div>';
+   +((nx&&(locOf(nx)||(B.home&&nx.tel)))||ru?'<div class="hrow">'+(nx&&locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(gmaps(locOf(nx)))+'">📍 Cómo llegar</a>':'')+(B.home&&nx&&nx.tel?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("go",nx)))+'">🚗 Voy en camino</a>':'')+(B.home&&nx&&nx.tel&&!locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("loc",nx)))+'">📍 Pedir ubicación</a>':'')+(ru?'<a target="_blank" rel="noopener" href="'+esc(ru)+'">🗺️ Ruta del día</a>':'')+'</div>':'')+'</div>';
   var hb=$("hb");if(hb)requestAnimationFrame(function(){requestAnimationFrame(function(){hb.style.width=(T.length?done/T.length*100:0)+"%"})});
   if($("hNotes"))$("hNotes").onclick=function(){go("clientes")}}
 function shareDay(){var L=dayJobs(SEL).filter(active);if(!L.length){toast("No hay citas este día");return}
