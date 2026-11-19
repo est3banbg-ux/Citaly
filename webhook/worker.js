@@ -1,6 +1,7 @@
 /* Citaly · webhook de Polar → activa el plan solo.
    Cloudflare Worker. Variables (secretos): POLAR_WEBHOOK_SECRET, FB_PROJECT (citaly-cb101),
-   FB_CLIENT_EMAIL, FB_PRIVATE_KEY (de la cuenta de servicio de Firebase). Guía: LEEME.md */
+   FB_CLIENT_EMAIL, FB_PRIVATE_KEY (de la cuenta de servicio de Firebase). Guía: LEEME.md
+   Asistente con IA (ruta /ia): además ANTHROPIC_API_KEY (secreto) y FB_API_KEY (la apiKey pública de Firebase, de cfg.js). */
 const TIERS = { arranque: 4900, turbo: 9900, nitro: 19900 };
 const PROMO = { plan: "arranque", price: 500, months: 3 };
 const enc = new TextEncoder();
@@ -46,8 +47,53 @@ async function patch(env, tk, path, fields) {
 }
 function addMonth(ms) { const d = new Date(ms); d.setMonth(d.getMonth() + 1); return d.getTime(); }
 
+/* ---------- Asistente con IA para los negocios (POST /ia) ---------- */
+const IA_LIM = { turbo: 5, nitro: 30, trial: 10 }; // usos por día
+const ORIGINS = ["https://citalyapp.com", "https://www.citalyapp.com", "https://est3banbg-ux.github.io"];
+const cors = (req) => { const o = req.headers.get("origin") || ""; return { "access-control-allow-origin": ORIGINS.includes(o) ? o : ORIGINS[0], "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS", vary: "origin" }; };
+const jr = (req, obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json", ...cors(req) } });
+const clip = (x, n) => String(x == null ? "" : x).replace(/[\u0000-\u001f]/g, " ").trim().slice(0, n);
+const GUARD = "Eres el asistente de un negocio pequeño de Costa Rica que usa Citaly. Solo ayudas con la página web del negocio, sus servicios, textos de WhatsApp y respuestas a clientes. Si piden algo que no tenga que ver con eso (tareas, código, política, otros temas), responde en una frase que solo puedes ayudar con el negocio. Escribe en español de Costa Rica, trato de tú, cercano y profesional, sin inventar precios, garantías ni datos que no te dieron. Sé breve.";
+function iaPrompt(mode, ctx) {
+  const info = `Negocio: ${ctx.name}${ctx.type ? " (" + ctx.type + ")" : ""}.${ctx.services.length ? " Servicios: " + ctx.services.join(", ") + "." : ""}`;
+  if (mode === "desc") return GUARD + " " + info + ' Mejora la frase de portada (máx. 8 palabras) y la descripción corta (máx. 25 palabras) de su página. Responde SOLO con JSON válido: {"tagline":"...","blurb":"..."}';
+  if (mode === "faq") return GUARD + " " + info + ' Crea 5 preguntas frecuentes con respuesta corta (máx. 35 palabras cada una) que harían sus clientes. No inventes políticas: si no sabes algo (garantía, precios), da una respuesta neutral. Responde SOLO con JSON válido: [{"q":"...","a":"..."}]';
+  if (mode === "resp") return GUARD + " " + info + " Redacta una respuesta lista para enviar por WhatsApp al mensaje del cliente. Máximo 60 palabras.";
+  return GUARD + " " + info;
+}
+async function ia(req, env) {
+  if (!env.ANTHROPIC_API_KEY || !env.FB_API_KEY) return jr(req, { error: "no_config" }, 503);
+  let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
+  const idToken = clip(b.idToken, 4000), mode = ["desc", "faq", "resp", "libre"].includes(b.mode) ? b.mode : "libre", text = clip(b.text, 500);
+  if (!idToken) return jr(req, { error: "sesion" }, 401);
+  if (mode !== "desc" && mode !== "faq" && text.length < 3) return jr(req, { error: "vacio" }, 400);
+  const lk = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" + env.FB_API_KEY, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken }) });
+  const u = lk.ok ? ((await lk.json()).users || [])[0] : null;
+  if (!u || !u.emailVerified) return jr(req, { error: "sesion" }, 401);
+  const tk = await token(env), email = String(u.email || "").toLowerCase();
+  let bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : await find(env, tk, email);
+  const s = bid && (await get(env, tk, "subs/" + bid));
+  if (!s) return jr(req, { error: "plan" }, 403);
+  const until = s.until && s.until.timestampValue ? Date.parse(s.until.timestampValue) : 0, st = (s.status || {}).stringValue || "", t = (s.tier || {}).stringValue || "";
+  if (st === "suspended" || until < Date.now()) return jr(req, { error: "plan" }, 403);
+  const max = st === "trial" ? IA_LIM.trial : IA_LIM[t] || 0;
+  if (!max) return jr(req, { error: "plan" }, 403);
+  const day = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10), path = "ia/" + bid + "_" + day;
+  const used = +((((await get(env, tk, path)) || {}).n || {}).integerValue || 0);
+  if (used >= max) return jr(req, { error: "limite", max, left: 0 }, 429);
+  await patch(env, tk, path, { n: V(used + 1), biz: V(bid) }); // se cuenta antes de llamar a la IA
+  const c = b.ctx || {}, ctx = { name: clip(c.name, 60) || "el negocio", type: clip(c.type, 40), services: (Array.isArray(c.services) ? c.services : []).slice(0, 8).map((x) => clip(x, 40)).filter(Boolean) };
+  const msg = text || (mode === "desc" ? "Mejora los textos de mi página." : "Crea las preguntas frecuentes.");
+  const r = await fetch("https://api.anthropic.com/v1/messages", { method: "POST", headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" }, body: JSON.stringify({ model: env.IA_MODEL || "claude-haiku-5-5", max_tokens: 600, system: iaPrompt(mode, ctx), messages: [{ role: "user", content: msg }] }) });
+  if (!r.ok) { await patch(env, tk, path, { n: V(used) }); return jr(req, { error: "ia" }, 502); }
+  const out = ((await r.json()).content || []).map((x) => x.text || "").join("").trim();
+  return jr(req, { ok: true, text: out, max, left: max - used - 1 });
+}
+
 export default {
   async fetch(req, env) {
+    const path = new URL(req.url).pathname;
+    if (path === "/ia") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ia(req, env) : new Response("ok");
     if (req.method !== "POST") return new Response("ok");
     const body = await req.text();
     if (!(await verify(req, body, env.POLAR_WEBHOOK_SECRET))) return new Response("firma inválida", { status: 401 });

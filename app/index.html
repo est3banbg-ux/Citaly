@@ -350,6 +350,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="hor"><span class="ic">🕘</span><span class="m"><b>Horario</b><span id="horN"></span></span>›</button>
         <button class="set" data-s="look"><span class="ic">🎨</span><span class="m"><b>Logo y color</b><span>Cómo te ven tus clientes</span></span>›</button>
         <button class="set" data-s="web"><span class="ic">✨</span><span class="m"><b>Portada de mi página</b><span>Frase, promoción y precios</span></span>›</button>
+        <button class="set" data-s="ia"><span class="ic">✨</span><span class="m"><b>Asistente con IA</b><span>Te escribe los textos de tu página y tus respuestas</span></span>›</button>
         <button class="set" data-s="est"><span class="ic">🎨</span><span class="m"><b>Estilo de tu página</b><span id="estN">Elige cómo se ve tu web y tus reservas</span></span>›</button>
         <button class="set" data-s="stp"><span class="ic">🧭</span><span class="m"><b>Pasos "así funciona"</b><span>Explica cómo reservar, en 3 pasos</span></span>›</button>
         <button class="set" data-s="why"><span class="ic">🛡️</span><span class="m"><b>Por qué elegirte</b><span>Garantía, calidad, lo que te hace distinto</span></span>›</button>
@@ -992,6 +993,7 @@ function openSet(s){
   if(s==="svc")svcSheet();
   if(s==="fot")fotSheet();
   if(s==="est")estSheet();
+  if(s==="ia")iaSheet();
   if(s==="stp")listEd(LISTS.stp);
   if(s==="why")listEd(LISTS.why);
   if(s==="dep")depSheet();
@@ -1025,6 +1027,39 @@ function ntfSheet(){var t=B.ntf||"";
     if($("ntnA"))$("ntnA").onclick=function(){var a=new Uint8Array(9),c="abcdefghijkmnpqrstuvwxyz23456789";crypto.getRandomValues(a);t="citaly-"+Array.prototype.map.call(a,function(x){return c[x%c.length]}).join("");$("ntnA").disabled=true;saveBiz({ntf:t}).then(draw,function(){t="";$("ntnA").disabled=false})};
     if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
   draw()}
+/* ---------- Asistente con IA (límite diario por plan; corre en el servidor de Citaly) ---------- */
+var IA_MAX={turbo:5,nitro:30};
+function iaSheet(){
+  if(!C.iaUrl){sheet('<div style="text-align:center"><div style="font-size:48px">✨</div><h2>Asistente con IA</h2><p class="mute">Se activa muy pronto. Te va a escribir los textos de tu página y las respuestas a tus clientes.</p></div>');return}
+  var left=null,mode="",busy=false;
+  function ctx(){return {name:B.name,type:(C.types[B.type]||{}).n||"",services:(B.services||[]).map(function(x){return x.n})}}
+  function lim2(){return SUB&&SUB.status==="trial"?10:(IA_MAX[tier()]||0)}
+  function home(){$("iaB").innerHTML='<p class="mute small" style="margin-top:-4px">Hoy te quedan <b>'+(left==null?lim2():left)+'</b> usos. Se renuevan cada día.</p>'
+    +'<button class="set" data-m="desc"><span class="ic">✍️</span><span class="m"><b>Mejorar mi portada</b><span>Frase y descripción de tu página web</span></span>›</button>'
+    +'<button class="set" data-m="faq"><span class="ic">❓</span><span class="m"><b>Crear preguntas frecuentes</b><span>5 preguntas con respuesta, listas para tu web</span></span>›</button>'
+    +'<button class="set" data-m="resp"><span class="ic">💬</span><span class="m"><b>Responder a un cliente</b><span>Pega su mensaje y te armo la respuesta</span></span>›</button>'
+    +'<button class="set" data-m="libre"><span class="ic">💡</span><span class="m"><b>Pedir otra cosa</b><span>Ideas de promos, textos, publicaciones</span></span>›</button>'
+    +'<p class="err" id="iaE"></p>';
+    $("iaB").onclick=function(e){var b=e.target.closest("[data-m]");if(!b)return;mode=b.dataset.m;if(mode==="desc"||mode==="faq")run("");else ask()}}
+  function ask(){$("iaB").innerHTML='<label>'+(mode==="resp"?"Mensaje del cliente":"¿Qué necesitas?")+'</label><textarea id="iaT" rows="4" maxlength="500" placeholder="'+(mode==="resp"?"Pega aquí lo que te escribió":"Ej: ideas para una promo de fin de mes")+'"></textarea><p class="err" id="iaE"></p><button class="btn" id="iaGo">Pedir a la IA</button><button class="link" id="iaBk" style="margin-top:8px">Volver</button>';
+    $("iaGo").onclick=function(){run($("iaT").value)};$("iaBk").onclick=home}
+  function run(text){if(busy)return;busy=true;$("iaB").innerHTML='<div style="text-align:center;padding:30px 0" class="mute"><div class="spin"></div><p>Escribiendo…</p></div>';
+    auth.currentUser.getIdToken().then(function(t){return fetch(C.iaUrl,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:t,mode:mode,text:text,ctx:ctx()})})}).then(function(r){return r.json().catch(function(){return {error:"ia"}})}).then(function(j){busy=false;
+      if(j.left!=null)left=j.left;
+      if(!j.ok){var m=j.error==="limite"?"Llegaste al límite de hoy. Mañana se renueva, o sube de plan para tener más usos.":j.error==="plan"?"Tu plan actual no incluye el asistente.":j.error==="vacio"?"Escribe qué necesitas.":"No se pudo en este momento. Intenta de nuevo.";home();$("iaE").textContent=m;return}
+      show(j.text)},function(){busy=false;home();$("iaE").textContent="Sin conexión. Revisa tu internet."})}
+  function parse(t){try{var m=t.match(/[\[{][\s\S]*[\]}]/);return JSON.parse(m?m[0]:t)}catch(e){return null}}
+  function show(t){var o=mode==="desc"||mode==="faq"?parse(t):null,h='';
+    if(mode==="desc"&&o&&o.blurb){h='<div class="card" style="box-shadow:none"><b>'+esc(o.tagline||"")+'</b><p style="margin:6px 0 0">'+esc(o.blurb)+'</p></div><button class="btn" id="iaAp">Usar en mi página</button>'}
+    else if(mode==="faq"&&Array.isArray(o)&&o.length){o=o.filter(function(x){return x&&x.q&&x.a}).slice(0,5);h=o.map(function(x){return '<div class="card" style="box-shadow:none;margin:8px 0"><b>'+esc(x.q)+'</b><p style="margin:4px 0 0" class="mute">'+esc(x.a)+'</p></div>'}).join("")+'<button class="btn" id="iaAp">Agregar a mis preguntas</button>'}
+    else{h='<div class="card" style="box-shadow:none;white-space:pre-wrap">'+esc(t)+'</div><button class="btn" id="iaCp">Copiar</button>';o=null}
+    $("iaB").innerHTML='<p class="mute small" style="margin-top:-4px">Revísalo antes de usarlo: es una sugerencia y puedes cambiarlo. Te quedan <b>'+(left==null?"":left)+'</b> usos hoy.</p>'+h+'<button class="link" id="iaBk" style="margin-top:8px">Volver</button>';
+    $("iaBk").onclick=home;
+    if($("iaCp"))$("iaCp").onclick=function(){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast("Copiado ✓")},function(){toast("Mantén presionado el texto para copiarlo")})};
+    if($("iaAp"))$("iaAp").onclick=function(){$("iaAp").disabled=true;
+      if(mode==="desc")saveBiz({tagline:String(o.tagline||"").slice(0,80),blurb:String(o.blurb||"").slice(0,300)}).then(function(){closeSheet();toast("Portada actualizada ✓")});
+      else{var w=Object.assign({},B.web||{}),cur=(w.faqs||[]).slice();o.forEach(function(x){if(cur.length<lim("faq"))cur.push({q:String(x.q).slice(0,120),a:String(x.a).slice(0,400)})});w.faqs=cur;saveBiz({web:w}).then(function(){closeSheet();toast("Preguntas agregadas ✓")})}}}
+  sheet('<h2>✨ Asistente con IA</h2><div id="iaB"></div>',home)}
 /* ---------- Estilos de la página web y de reservas ---------- */
 var ESTILOS=[
   {k:"glass",n:"Premium oscuro",d:"El de GlassStudioCR: fondo oscuro y letras que resaltan.",bg:"#07161f",ink:"#eaf6f5",ac:null},
@@ -1120,7 +1155,7 @@ function setExtra(s){
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */
 var PLAY=(function(){try{if(/[?&]twa=1/.test(location.search)||document.referrer.indexOf("android-app://")===0)localStorage.setItem("citaly_play","1");return localStorage.getItem("citaly_play")==="1"}catch(e){return /[?&]twa=1/.test(location.search)}})();
 /* ---------- PLANES ---------- */
-var TIERS=["arranque","turbo","nitro"],FEAT={team:"turbo",stp:"turbo",why:"turbo",dep:"turbo",renov:"turbo",dom:"turbo",ref:"turbo",gastos:"turbo",insumos:"nitro"},
+var TIERS=["arranque","turbo","nitro"],FEAT={ia:"turbo",team:"turbo",stp:"turbo",why:"turbo",dep:"turbo",renov:"turbo",dom:"turbo",ref:"turbo",gastos:"turbo",insumos:"nitro"},
   LIMS={fot:[3,8,12],rev:[3,8,12],faq:[3,8,12]},EST_MIN={"":"arranque",glass:"turbo",fresco:"turbo",atrevido:"nitro",elegante:"nitro"};
 function lim(k){return (LIMS[k]||[99,99,99])[TIERS.indexOf(tier())]}
 function estOk(e){return TIERS.indexOf(tier())>=TIERS.indexOf(EST_MIN[e||""]||"arranque")}

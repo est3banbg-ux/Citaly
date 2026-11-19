@@ -13,3 +13,18 @@ Es opcional: sin esto, registrás el pago a mano en el panel (botón Cobrar).
 5. Probá con una compra de prueba: el negocio debe pasar a "Al día" y aparecer el pago.
 
 El plan se detecta por el nombre del producto en Polar (debe contener Arranque, Turbo o Nitro) y el cliente por su correo: tiene que ser el mismo con el que entra a Citaly. Si no coincide, el pago queda en Cobros → "Pagos de Polar sin cuenta".
+
+
+---
+## Asistente con IA (ruta /ia del mismo Worker)
+Lo usan los clientes en la app (Ajustes → Asistente con IA). Límite por día: Turbo 5, Nitro 30, prueba gratis 10; Arranque no.
+
+1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar.
+2. En el Worker → Variables y secretos agrega:
+   - `ANTHROPIC_API_KEY` (Secreto) = tu llave de la consola de Anthropic. Ponla un límite de gasto mensual en la consola.
+   - `FB_API_KEY` (Texto) = la `apiKey` que aparece en `cfg.js` (es pública).
+   - Opcional `IA_MODEL` (Texto) para cambiar el modelo (por defecto `claude-haiku-5-5`, el más barato).
+3. En `cfg.js` completa `iaUrl` con la dirección del Worker terminada en `/ia`.
+4. Prueba: entra a la app con un negocio Turbo/Nitro → Ajustes → Asistente con IA → "Mejorar mi portada".
+
+Cada uso queda contado en la colección `ia` de Firestore (negocio + día). Si se pasa del gasto, baja los límites en `IA_LIM` del worker.
