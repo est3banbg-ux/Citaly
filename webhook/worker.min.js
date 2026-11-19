@@ -1,7 +1,7 @@
 /* Citaly · webhook de Polar → activa el plan solo.
    Cloudflare Worker. Variables (secretos): POLAR_WEBHOOK_SECRET, FB_PROJECT (citaly-cb101),
    FB_CLIENT_EMAIL, FB_PRIVATE_KEY (de la cuenta de servicio de Firebase). Guía: LEEME.md
-   Asistente con IA (ruta /ia): además ANTHROPIC_API_KEY (secreto) y FB_API_KEY (la apiKey pública de Firebase, de cfg.js). */
+   Asistente con IA (ruta /ia): además ANTHROPIC_API_KEY (secreto). */
 const TIERS = { arranque: 4900, turbo: 9900, nitro: 19900 };
 const PROMO = { plan: "arranque", price: 500, months: 3 };
 const enc = new TextEncoder();
@@ -61,14 +61,26 @@ function iaPrompt(mode, ctx) {
   if (mode === "resp") return GUARD + " " + info + " Redacta una respuesta lista para enviar por WhatsApp al mensaje del cliente. Máximo 60 palabras.";
   return GUARD + " " + info;
 }
+let JWKS = null, JWKS_AT = 0;
+const unb64u = (x) => Uint8Array.from(atob(x.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(x.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+async function fbUser(idToken, env) { // verifica el token de Firebase con las llaves públicas de Google (sin usar la apiKey)
+  try {
+    const [h, p, sg] = idToken.split("."), dec = new TextDecoder();
+    const head = JSON.parse(dec.decode(unb64u(h))), pay = JSON.parse(dec.decode(unb64u(p))), now = Date.now() / 1000;
+    if (head.alg !== "RS256" || pay.aud !== env.FB_PROJECT || pay.iss !== "https://securetoken.google.com/" + env.FB_PROJECT || !pay.sub || pay.exp < now || pay.iat > now + 300) return null;
+    if (!JWKS || Date.now() - JWKS_AT > 3600e3) { JWKS = (await (await fetch("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")).json()).keys; JWKS_AT = Date.now(); }
+    const jwk = JWKS.find((k) => k.kid === head.kid); if (!jwk) return null;
+    const key = await crypto.subtle.importKey("jwk", jwk, { name: "RSASSA-PKCS1-v1_5", hash: "SHA-256" }, false, ["verify"]);
+    return (await crypto.subtle.verify("RSASSA-PKCS1-v1_5", key, unb64u(sg), new TextEncoder().encode(h + "." + p))) ? { localId: pay.sub, email: pay.email, emailVerified: !!pay.email_verified } : null;
+  } catch (e) { return null; }
+}
 async function ia(req, env) {
-  if (!env.ANTHROPIC_API_KEY || !env.FB_API_KEY) return jr(req, { error: "no_config" }, 503);
+  if (!env.ANTHROPIC_API_KEY || !env.FB_PROJECT) return jr(req, { error: "no_config" }, 503);
   let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
   const idToken = clip(b.idToken, 4000), mode = ["desc", "faq", "resp", "libre"].includes(b.mode) ? b.mode : "libre", text = clip(b.text, 500);
   if (!idToken) return jr(req, { error: "sesion" }, 401);
   if (mode !== "desc" && mode !== "faq" && text.length < 3) return jr(req, { error: "vacio" }, 400);
-  const lk = await fetch("https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=" + env.FB_API_KEY, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ idToken }) });
-  const u = lk.ok ? ((await lk.json()).users || [])[0] : null;
+  const u = await fbUser(idToken, env);
   if (!u || !u.emailVerified) return jr(req, { error: "sesion" }, 401);
   const tk = await token(env), email = String(u.email || "").toLowerCase();
   let bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : await find(env, tk, email);

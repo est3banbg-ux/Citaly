@@ -22,7 +22,7 @@ Lo usan los clientes en la app (Ajustes → Asistente con IA). Límite por día:
 1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar.
 2. En el Worker → Variables y secretos agrega:
    - `ANTHROPIC_API_KEY` (Secreto) = tu llave de la consola de Anthropic. Ponla un límite de gasto mensual en la consola.
-   - `FB_API_KEY` (Texto) = la `apiKey` que aparece en `cfg.js` (es pública).
+   - (`FB_API_KEY` ya no hace falta)
    - Opcional `IA_MODEL` (Texto) para cambiar el modelo (por defecto `claude-haiku-5-5`, el más barato).
 3. En `cfg.js` completa `iaUrl` con la dirección del Worker terminada en `/ia`.
 4. Prueba: entra a la app con un negocio Turbo/Nitro → Ajustes → Asistente con IA → "Mejorar mi portada".
