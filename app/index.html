@@ -494,7 +494,7 @@ html.thx *,html.thx *:before,html.thx *:after{transition:background-color .4s,bo
         <button class="set" data-s="dep"><span class="ic">💸</span><span class="m"><b>Adelanto por SINPE</b><span id="depN">Para asegurar la hora del cliente</span></span>›</button>
         <button class="set" data-s="gcal"><span class="ic">📅</span><span class="m"><b>Google Calendar</b><span>Tus citas aparecen solas en tu calendario</span></span>›</button>
         <button class="set" data-s="mode"><span class="ic">🌓</span><span class="m"><b>Apariencia</b><span>Modo claro, oscuro o automático</span></span>›</button>
-        <button class="set" data-s="ntf"><span class="ic">🔔</span><span class="m"><b>Avisos de reservas nuevas</b><span id="ntfN">Que te suene el celular</span></span>›</button>
+        <button class="set" data-s="ntf"><span class="ic">🔔</span><span class="m"><b>Avisos de reservas nuevas</b><span id="ntfN">Te llegan al celular y a la compu</span></span>›</button>
         <button class="set" data-s="fot"><span class="ic">📸</span><span class="m"><b>Fotos de mis trabajos</b><span id="fotN">Se ven en tu página web</span></span>›</button>
         <button class="set" data-s="rev"><span class="ic">⭐</span><span class="m"><b>Reseñas de clientes</b><span id="revN">Lo que dicen de ti</span></span>›</button>
         <button class="set" data-s="faq"><span class="ic">❓</span><span class="m"><b>Preguntas frecuentes</b><span id="faqN">Responde antes de que pregunten</span></span>›</button>
@@ -1267,6 +1267,13 @@ function gcalSheet(){var k=B.ics||"";
   function gen(){var a=new Uint8Array(18),c="abcdefghijkmnpqrstuvwxyz23456789";crypto.getRandomValues(a);k=Array.prototype.map.call(a,function(x){return c[x%c.length]}).join("");saveBiz({ics:k}).then(draw)}
   draw()}
 /* ---------- Avisos en el celular (Firebase Cloud Messaging) ---------- */
+var IS_MOB=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent),DEVN=/iPhone|iPad/.test(navigator.userAgent)?"este iPhone":/Android/.test(navigator.userAgent)?"este celular":"esta computadora";
+function braveCard(){return '<div class="card" style="box-shadow:none;text-align:left;margin:10px 0 0"><b>🦁 Brave trae apagados los avisos de Google</b><p class="small mute" style="margin:6px 0">Por privacidad, Brave viene con ese servicio desactivado, y sin él no puede recibir avisos. Se arregla en 1 minuto:</p><ol class="small" style="padding-left:18px;line-height:1.7;margin:0"><li>Abre una pestaña nueva y pega esta dirección:<div style="display:flex;gap:6px;margin:4px 0"><input readonly value="brave://settings/privacy" onclick="this.select()" style="flex:1"><button type="button" class="btn sm alt" data-cpb="brave://settings/privacy" style="width:auto">Copiar</button></div></li><li>Busca <b>«Usar servicios de Google para mensajes push»</b> (en inglés: <i>Use Google Services for Push Messaging</i>) y <b>actívalo</b>.</li><li><b>Cierra Brave por completo</b> y vuelve a abrirlo. Sin esto no toma el cambio.</li><li>Vuelve a Citaly y toca <b>Activar avisos</b>.</li></ol></div>'}
+function bindBrave(root){Array.prototype.forEach.call((root||document).querySelectorAll("[data-cpb]"),function(b){b.onclick=function(){try{navigator.clipboard.writeText(b.dataset.cpb).then(function(){toast("Copiado ✓ pégalo en una pestaña nueva")})}catch(e){toast("Selecciona el texto y copia")}}})}
+function pushFailUi(e){var el=$("pnE");if(!el)return;if(e&&e.message==="permiso"){el.textContent="No diste permiso. Toca el botón otra vez y elige «Permitir».";return}
+  var m=((e&&e.code)||"")+" "+((e&&e.message)||"")+" "+((e&&e.name)||"");
+  if(navigator.brave&&/push service|abort|subscribe|registration failed|messaging\//i.test(m)){el.className="";el.innerHTML=braveCard();bindBrave(el);return}
+  el.textContent=navigator.onLine===false?"No hay internet. Revísalo e intenta de nuevo.":"No se pudo activar en este navegador ("+((e&&(e.code||e.name))||"error")+"). Cierra y abre el navegador, y vuelve a tocar el botón."}
 function pushOk(){return "Notification" in window&&"serviceWorker" in navigator&&"PushManager" in window&&!!(firebase.messaging&&firebase.messaging.isSupported&&firebase.messaging.isSupported())}
 function pushId(t){return t.slice(-60).replace(/[^\w-]/g,"_")}
 function pushReg(){return navigator.serviceWorker.register("sw.js").then(function(){return navigator.serviceWorker.ready}).then(function(reg){
@@ -1283,9 +1290,9 @@ var PH={st:"",at:0};
 function pushHealth(){var box=$("pbn");if(!box||!B||ROL!=="dueño"&&ROL!=="equipo")return;
   function show(st){PH.st=st;var snooze=0;try{snooze=+localStorage.getItem("citaly_pbz")||0}catch(e){}
     if(!st||st==="ok"||Date.now()<snooze){box.innerHTML="";return}
-    var T={off:["🔕","Activa los avisos","Te suena el celular cuando alguien reserva, cancela o cambia su cita.","Activar"],
+    var T={off:["🔕","Activa los avisos",(IS_MOB?"Te suena el celular cuando alguien reserva, cancela o cambia su cita.":"Te llega un aviso cuando alguien reserva, cancela o cambia su cita."),"Activar"],
       blocked:["🔕","Bloqueaste los avisos","Así no te enteras de las reservas nuevas. Se arregla en 1 minuto.","Arreglarlo"],
-      fail:["⚠️","Tus avisos no te están llegando","Tu celular los está bloqueando para ahorrar batería. Se arregla en 1 minuto.","Arreglarlo"],
+      fail:["⚠️","Tus avisos no te están llegando",(IS_MOB?"Tu celular los está bloqueando para ahorrar batería. Se arregla en 1 minuto.":"Tu navegador o Windows los está bloqueando. Se arregla en 1 minuto."),"Arreglarlo"],
       nosup:["📲","Instala Citaly en tu celular","Para recibir avisos de reservas, agrega la app a tu pantalla de inicio.","Ver cómo"]}[st];
     box.innerHTML='<div class="banner pbn fade"><span style="font-size:22px">'+T[0]+'</span><span style="flex:1"><b>'+T[1]+'</b><small>'+T[2]+'</small></span><span style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><button class="btn sm" id="pbGo">'+T[3]+'</button><button class="link small" id="pbX">Ahora no</button></span></div>';
     $("pbGo").onclick=function(){if(st==="off"||st==="nosup")openSet("ntf");else fixPush()};
@@ -1306,6 +1313,10 @@ function fixPush(){var ua=navigator.userAgent,nav=navigator.brave?"Brave":/Samsu
     motorola:["🔋","Quita el ahorro de batería","1. Mantén presionado el ícono de <b>"+nav+"</b> → <b>Información de la app</b>.<br>2. Toca <b>Batería</b> → <b>Sin restricciones</b>."],
     otro:["🔋","Quita el ahorro de batería","1. Mantén presionado el ícono de <b>"+nav+"</b> → <b>Información de la app</b>.<br>2. Busca <b>Batería</b> y elige <b>Sin restricciones</b> (o desactiva «optimizar»)."]};
   function build(){S=[];
+    if(mk==="pc"){if(nav==="Brave")S.push(["🦁","Activa los avisos de Google en Brave","1. Abre una pestaña nueva y pega: <b>brave://settings/privacy</b><br>2. Activa <b>«Usar servicios de Google para mensajes push»</b>.<br>3. <b>Cierra Brave por completo</b> y ábrelo otra vez."]);
+      if(blocked)S.push(["🔓","Permite los avisos de Citaly","1. Toca el <b>candado 🔒</b> junto a la dirección, arriba.<br>2. <b>Notificaciones</b> → <b>Permitir</b>."]);
+      S.push(["🪟","Revisa Windows","1. Abre <b>Configuración</b> → <b>Sistema</b> → <b>Notificaciones</b>.<br>2. Deja <b>Notificaciones</b> encendido y apaga <b>No molestar</b>.<br>3. Baja a la lista y verifica que <b>"+nav+"</b> esté encendido."]);
+      S.push(["✅","Probemos que funcione","Toca el botón y espera unos segundos: te tiene que salir un aviso en la esquina de la pantalla."]);return}
     if(blocked)S.push(["🔓","Permite los avisos de Citaly","1. Toca el <b>candado 🔒</b> junto a la dirección, arriba.<br>2. <b>Permisos</b> o <b>Notificaciones</b> → <b>Permitir</b>.<br><br>Si no ves el candado: ajustes de <b>"+nav+"</b> → <b>Configuración de sitios</b> → <b>Notificaciones</b> → <b>citalyapp.com</b> → <b>Permitir</b>."]);
     S.push(BAT[mk]);
     S.push(["🔔","Que suene con el celular bloqueado","1. Vuelve a <b>Información de la app</b> de <b>"+nav+"</b> → <b>Notificaciones</b>.<br>2. Activa <b>Sonido</b>, <b>Pantalla de bloqueo</b> y <b>Notificaciones flotantes</b> (o «banner»).<br>3. Si hay categorías, abre la de <b>sitios</b> y activa lo mismo."]);
@@ -1315,32 +1326,33 @@ function fixPush(){var ua=navigator.userAgent,nav=navigator.brave?"Brave":/Samsu
   function draw(){var x=S[i],last=i===S.length-1;
     sheet('<div class="fxp"><div class="mute small">Paso '+(i+1)+' de '+S.length+'</div><div class="fxb"><i style="width:'+Math.round((i+1)/S.length*100)+'%"></i></div><div style="font-size:54px;text-align:center;margin:14px 0 4px">'+x[0]+'</div><h2 style="text-align:center">'+x[1]+'</h2><p style="line-height:1.65">'+x[2]+'</p>'
       +(last?'<button class="btn big" id="fxT">🔔 Mandarme un aviso de prueba</button><p class="mute small" id="fxR" style="text-align:center"></p>':'<button class="btn big" id="fxN">Listo, siguiente →</button>')
-      +'<button class="link" id="fxB" style="margin-top:8px">← '+(i?"Atrás":"Cambiar de celular")+'</button></div>',function(){
-      if($("fxN"))$("fxN").onclick=function(){i++;draw()};$("fxB").onclick=function(){if(i){i--;draw()}else pick()};
-      if($("fxT"))$("fxT").onclick=function(){var b=this,t0=Date.now(),pid=localStorage.getItem("citaly_pid");b.disabled=true;$("fxR").textContent="Enviando… ahora bloquea el celular 📴";
+      +'<button class="link" id="fxB" style="margin-top:8px">← '+(i?"Atrás":mk==="pc"?"Cerrar":"Cambiar de celular")+'</button></div>',function(){
+      if($("fxN"))$("fxN").onclick=function(){i++;draw()};$("fxB").onclick=function(){if(i){i--;draw()}else if(mk==="pc")closeSheet();else pick()};
+      if($("fxT"))$("fxT").onclick=function(){var b=this,t0=Date.now(),pid=localStorage.getItem("citaly_pid");b.disabled=true;$("fxR").textContent=mk==="pc"?"Enviando… mira la esquina de la pantalla 👀":"Enviando… ahora bloquea el celular 📴";
         (Notification.permission==="granted"&&pid?Promise.resolve():Notification.requestPermission().then(function(p){if(p!=="granted")throw 0;return pushReg()})).then(pushTest).then(function(){
           var tries=0;(function chk(){db.doc("biz/"+BID+"/push/"+(localStorage.getItem("citaly_pid")||pid)).get().then(function(d){var a=d.exists&&+d.data().lastAck||0;
             if(a>=t0){sheet('<div style="text-align:center"><div style="font-size:60px">🎉</div><h2>¡Listo, tus avisos funcionan!</h2><p class="mute">Ya no te vas a perder ninguna reserva.</p></div><button class="btn" id="fxOk">Perfecto</button>',function(){$("fxOk").onclick=function(){closeSheet();pushHealth()}});confetti();return}
             if(++tries<10)setTimeout(chk,3000);else{b.disabled=false;b.textContent="Probar otra vez";$("fxR").innerHTML="Todavía no llegó. Revisa los pasos o <a class=\"link\" target=\"_blank\" rel=\"noopener\" href=\""+esc(waUrl(C.wa,"Hola Esteban, no me llegan los avisos de Citaly ("+B.name+"). Celular: "+mk+", navegador: "+nav))+"\">escríbenos por WhatsApp</a> y te ayudamos."}})})()},
           function(){b.disabled=false;$("fxR").textContent="Primero permite los avisos (paso 1)."})}})}
   try{mk=localStorage.getItem("citaly_mk")||""}catch(e){}
+  if(!IS_MOB){mk="pc";build();draw();return}
   if(mk&&BAT[mk]){build();draw()}else pick()}
 document.addEventListener("visibilitychange",function(){if(!document.hidden&&B)setTimeout(pushHealth,800)});
 /* Guía para que el celular no bloquee los avisos (ahorro de batería y sonido según la marca) */
-function batGuide(){return '<p class="mute small" style="margin-top:12px;text-align:center">¿No te suena con el celular bloqueado? Toca <b>No me suenan los avisos</b> y te guiamos según tu celular.</p>'}
+function batGuide(){if(!IS_MOB)return '<p class="mute small" style="margin-top:12px;text-align:center">¿No te aparece el aviso? Toca <b>No me llegan los avisos</b> y te guiamos.</p>';return '<p class="mute small" style="margin-top:12px;text-align:center">¿No te suena con el celular bloqueado? Toca <b>No me suenan los avisos</b> y te guiamos según tu celular.</p>'}
 function ntfSheet(){var t=B.ntf||"",ios=/iPhone|iPad/.test(navigator.userAgent),standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
   function on(){try{return Notification.permission==="granted"&&!!localStorage.getItem("citaly_push")}catch(e){return false}}
-  function draw(){var h='<h2>🔔 Avisos de reservas</h2><p class="mute small" style="margin-top:-4px">Te suena el celular cuando alguien reserva, cancela o cambia su cita, aunque tengas la app cerrada.</p>';
+  function draw(){var h='<h2>🔔 Avisos de reservas</h2><p class="mute small" style="margin-top:-4px">'+(IS_MOB?'Te suena el celular':'Te llega un aviso con sonido')+' cuando alguien reserva, cancela o cambia su cita'+(IS_MOB?', aunque tengas la app cerrada.':', mientras tengas el navegador abierto (puede estar en segundo plano).')+'</p>';
     if(!pushOk()){h+=ios&&!standalone?'<div class="card" style="box-shadow:none"><b>En iPhone, primero instala la app:</b><ol class="small" style="padding-left:18px;line-height:1.6;margin:6px 0 0"><li>Abre citalyapp.com/app en <b>Safari</b>.</li><li>Toca <b>Compartir</b> ⬆️ y luego <b>Agregar a inicio</b>.</li><li>Abre Citaly desde el ícono y vuelve aquí.</li></ol></div>':'<div class="card" style="box-shadow:none">Este navegador no permite avisos. Abre la app en <b>Chrome</b> (Android) o instálala en tu pantalla de inicio.</div>'}
     else if(Notification.permission==="denied")h+='<div class="card" style="box-shadow:none"><b>Bloqueaste los avisos.</b><p class="mute small" style="margin:6px 0 0">Ve a los ajustes del navegador → Notificaciones → permite citalyapp.com, y vuelve a tocar el botón.</p></div><button class="btn" id="pnF" style="margin-top:12px">Ayúdame a arreglarlo</button>';
-    else if(on())h+='<div class="card" style="box-shadow:none;text-align:center"><div style="font-size:36px">✅</div><b>Avisos activados en este celular</b><p class="mute small" style="margin:6px 0 0">Si usas otro celular o compu, entra ahí y actívalos también.</p></div><button class="btn ghost" id="pnT" style="margin-top:12px">Mandarme un aviso de prueba</button><button class="btn alt" id="pnF" style="margin-top:8px">🛠️ No me suenan los avisos</button>'+batGuide();
-    else h+='<button class="btn big" id="pnA">🔔 Activar avisos en este celular</button><p class="mute small" style="text-align:center">Te va a preguntar si permites notificaciones: toca <b>Permitir</b>.</p>';
+    else if(on())h+='<div class="card" style="box-shadow:none;text-align:center"><div style="font-size:36px">✅</div><b>Avisos activados en '+DEVN+'</b><p class="mute small" style="margin:6px 0 0">Si usas otro celular o compu, entra ahí y actívalos también.</p></div><button class="btn ghost" id="pnT" style="margin-top:12px">Mandarme un aviso de prueba</button><button class="btn alt" id="pnF" style="margin-top:8px">🛠️ '+(IS_MOB?'No me suenan los avisos':'No me llegan los avisos')+'</button>'+batGuide();
+    else h+=(navigator.brave&&!IS_MOB?'<details class="card" style="box-shadow:none;margin-bottom:10px"><summary><b>🦁 ¿Usas Brave? Haz esto primero</b></summary>'+braveCard()+'</details>':'')+'<button class="btn big" id="pnA">🔔 Activar avisos en '+DEVN+'</button><p class="mute small" style="text-align:center">Te va a preguntar si permites notificaciones: toca <b>Permitir</b>.</p>';
     h+='<p class="err" id="pnE"></p>';
     if(t)h+='<details style="margin-top:14px"><summary class="mute small">Avisos por la app ntfy (opción vieja)</summary><p class="small">Tu canal: <code style="word-break:break-all">'+esc(t)+'</code></p><button class="btn ghost sm" id="ntnO">Quitar avisos de ntfy</button></details>';
-    sheet(h,function(){
+    sheet(h,function(){bindBrave($("shC"));
       if($("pnA"))$("pnA").onclick=function(){var b=this;b.disabled=true;b.textContent="Activando…";
-        Notification.requestPermission().then(function(p){if(p!=="granted")throw new Error("permiso");return pushReg()}).then(function(){toast("Avisos activados ✓");return pushTest()}).then(draw,function(e){console.error(e);draw();if($("pnE"))$("pnE").textContent=e&&e.message==="permiso"?"No diste permiso. Toca el botón otra vez y elige «Permitir».":"No se pudo activar. Revisa tu internet e intenta de nuevo."})};
-      if($("pnT"))$("pnT").onclick=function(){var b=this;b.disabled=true;pushTest().then(function(j){b.disabled=false;toast(j&&j.n?"Listo, te debería sonar el celular 🔔":"No encontramos tu celular. Toca «Activar» de nuevo.")},function(){b.disabled=false;toast("Sin conexión")})};
+        Notification.requestPermission().then(function(p){if(p!=="granted")throw new Error("permiso");return pushReg()}).then(function(){toast("Avisos activados ✓");return pushTest()}).then(draw,function(e){console.error(e);draw();pushFailUi(e)})};
+      if($("pnT"))$("pnT").onclick=function(){var b=this;b.disabled=true;pushTest().then(function(j){b.disabled=false;toast(j&&j.n?(IS_MOB?"Listo, te debería sonar el celular 🔔":"Listo, mira la esquina de la pantalla 🔔"):"No encontramos este dispositivo. Toca «Activar» de nuevo.")},function(){b.disabled=false;toast("Sin conexión")})};
       if($("pnF"))$("pnF").onclick=function(){fixPush()};
       if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
   draw()}
