@@ -1,0 +1,106 @@
+/* Estilos de la página web y de reservas. Se activan con <html data-th="..."> (lo elige el dueño en la app).
+   Sin data-th = "Clásico" (claro u oscuro según el celular). Todos usan el color de marca (--acc) del negocio. */
+.hl,.dim{font:inherit}
+.sec-steps .stp{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--sh)}
+.sec-steps .stp i{flex:none;width:38px;height:38px;border-radius:50%;background:var(--acc);color:var(--accink);display:grid;place-items:center;font:800 17px "Bricolage Grotesque",sans-serif;font-style:normal}
+.sec-steps .stp b{display:block;font-size:17px;line-height:1.25}.sec-steps .stp span{color:var(--mute);font-size:15px;display:block;margin-top:3px}
+.sec-why .wy{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--sh)}
+.sec-why .wy b{display:block;font-size:17px;margin-bottom:4px}.sec-why .wy span{color:var(--mute);font-size:15px}
+
+/* ===== GLASS: oscuro premium (el de GlassStudioCR) ===== */
+html[data-th=glass]{--hi:color-mix(in srgb,var(--acc) 50%,#fff);--bg:color-mix(in srgb,var(--acc) 7%,#04111a);--card:color-mix(in srgb,var(--acc) 10%,#08161f);--ink:#eaf6f5;--mute:#9dbdbd;--line:color-mix(in srgb,var(--acc) 24%,#0a1c25);--soft:color-mix(in srgb,var(--acc) 16%,#0a1a22);--sh:none;--accink:#04131a;color-scheme:dark}
+html[data-th=glass] .nav{background:color-mix(in srgb,var(--bg) 85%,transparent)}
+html[data-th=glass] .hero{background:radial-gradient(70% 60% at 50% 0%,color-mix(in srgb,var(--acc) 26%,transparent),transparent 70%),var(--bg);color:var(--ink)}
+html[data-th=glass] .hero .c{grid-template-columns:1fr!important;text-align:center;justify-items:center}
+html[data-th=glass] .hero h1{font-size:clamp(40px,8.5vw,84px);line-height:1.02;letter-spacing:-.045em;max-width:15ch;margin-left:auto;margin-right:auto}
+html[data-th=glass] .hero p.lead{margin-left:auto;margin-right:auto}
+html[data-th=glass] .hero .ctas,html[data-th=glass] .hero .feats{justify-content:center}
+html[data-th=glass] .hero .shot{max-width:640px;width:100%}
+html[data-th=glass] .dim{color:#6f9396}
+html[data-th=glass] h1 .dim,html[data-th=glass] h2 .dim{display:block}
+html[data-th=glass] h1 .dim{font-size:.62em;margin-bottom:.12em}
+html[data-th=glass] .hl{position:relative;display:inline-block;padding:0 .14em;margin:.04em 0;white-space:nowrap;color:var(--ink)}
+html[data-th=glass] .hl::before{content:"";position:absolute;inset:-.02em -.02em .04em;border:2px solid var(--hi);border-radius:6px;background:color-mix(in srgb,var(--hi) 10%,transparent);box-shadow:0 0 24px color-mix(in srgb,var(--hi) 20%,transparent) inset}
+html[data-th=glass] .hl>span{position:relative}
+html[data-th=glass] .kick{color:var(--hi)}
+html[data-th=glass] .badge{background:var(--soft);border-color:var(--line);color:var(--ink)}
+html[data-th=glass] .btn.light,html[data-th=glass] .final .btn.light{background:#f5b52e;color:#1b1300}
+html[data-th=glass] .btn.glass{color:var(--ink);border-color:var(--line);background:var(--soft)}
+html[data-th=glass] .promo{background:var(--soft);border-color:var(--hi)}
+html[data-th=glass] section.s.alt{background:color-mix(in srgb,var(--bg) 70%,#000)}
+html[data-th=glass] .final{background:radial-gradient(90% 120% at 50% 0%,color-mix(in srgb,var(--acc) 30%,transparent),transparent 70%),var(--card);border:1px solid var(--line)}
+html[data-th=glass] .svc .ic,html[data-th=glass] .contact .ic{background:var(--soft)}
+html[data-th=glass] .svc .p small,html[data-th=glass] .zones span b,html[data-th=glass] summary:after,html[data-th=glass] .hours .li.today{color:var(--hi)}
+html[data-th=glass] .sec-steps .stp i{background:var(--hi);color:#04131a}
+html[data-th=glass] .dock{background:color-mix(in srgb,var(--bg) 90%,transparent)}
+
+/* ===== ATREVIDO: colores fuertes y bordes gruesos ===== */
+html[data-th=atrevido]{--bg:#fffbea;--card:#fff;--ink:#111;--mute:#4b4b4b;--line:#111;--soft:#ffe45c;--sh:4px 4px 0 #111;--accink:#fff;color-scheme:light}
+html[data-th=atrevido] h1,html[data-th=atrevido] h2,html[data-th=atrevido] h3{text-transform:uppercase;letter-spacing:-.01em}
+html[data-th=atrevido] .nav{background:#fffbea;border-bottom:3px solid #111}
+html[data-th=atrevido] .lg{border:2.5px solid #111;border-radius:8px;background:var(--acc)}
+html[data-th=atrevido] .hero{background:#ffe45c;color:#111;border-bottom:3px solid #111}
+html[data-th=atrevido] .hero h1{font-weight:800;line-height:.98}
+html[data-th=atrevido] .hl{background:#111;color:#ffe45c;padding:0 .18em;display:inline-block;transform:rotate(-1.2deg)}
+html[data-th=atrevido] .badge{background:#fff;border:2.5px solid #111;color:#111}
+html[data-th=atrevido] .promo{background:#fff;border:2.5px solid #111;border-style:solid;box-shadow:var(--sh)}
+html[data-th=atrevido] .btn{border-radius:8px;border:2.5px solid #111;box-shadow:var(--sh);background:#111;color:#fff;text-transform:uppercase;letter-spacing:.02em}
+html[data-th=atrevido] .btn:active{transform:translate(3px,3px);box-shadow:none}
+html[data-th=atrevido] .btn.light{background:var(--acc);color:var(--accink)}
+html[data-th=atrevido] .btn.glass,html[data-th=atrevido] .btn.ghost,html[data-th=atrevido] .btn.alt{background:#fff;color:#111;border-color:#111}
+html[data-th=atrevido] .btn.wa{background:#25d366;color:#111}
+html[data-th=atrevido] .shot,html[data-th=atrevido] .bigl{border:3px solid #111;border-radius:10px;box-shadow:6px 6px 0 #111;background:#fff}
+html[data-th=atrevido] .svc,html[data-th=atrevido] .rev,html[data-th=atrevido] details,html[data-th=atrevido] .contact a,html[data-th=atrevido] .contact div,html[data-th=atrevido] .sec-steps .stp,html[data-th=atrevido] .sec-why .wy,html[data-th=atrevido] .card{border:2.5px solid #111;border-radius:10px;box-shadow:var(--sh)}
+html[data-th=atrevido] .svc .ic{background:#ffe45c;border:2px solid #111;border-radius:8px}
+html[data-th=atrevido] section.s.alt{background:#fff;border-color:#111;border-width:3px 0}
+html[data-th=atrevido] .kick{color:#111;background:#ffe45c;display:inline-block;padding:2px 8px;border:2px solid #111}
+html[data-th=atrevido] .gal button{border:2.5px solid #111;border-radius:10px}
+html[data-th=atrevido] .zones span,html[data-th=atrevido] .socials a{border:2px solid #111;background:#fff}
+html[data-th=atrevido] .final{background:var(--acc);color:var(--accink);border:3px solid #111;box-shadow:8px 8px 0 #111;border-radius:12px}
+html[data-th=atrevido] .sec-steps .stp i{background:#111;color:#ffe45c;border-radius:8px}
+html[data-th=atrevido] .dock{background:#fffbea;border-top:3px solid #111}
+
+/* ===== ELEGANTE: crema y letra con serifa ===== */
+html[data-th=elegante]{--bg:#faf6ef;--card:#fffdf8;--ink:#2b2420;--mute:#7b6f64;--line:#e6dccd;--soft:#f2e9db;--sh:none;--accink:#fff;color-scheme:light}
+html[data-th=elegante] h1,html[data-th=elegante] h2,html[data-th=elegante] h3,html[data-th=elegante] .brand,html[data-th=elegante] .svc .p{font-family:Fraunces,Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.01em}
+html[data-th=elegante] .nav{background:color-mix(in srgb,#faf6ef 92%,transparent)}
+html[data-th=elegante] .lg{border-radius:50%}
+html[data-th=elegante] .hero{background:linear-gradient(180deg,color-mix(in srgb,var(--acc) 9%,#faf6ef),#faf6ef);color:var(--ink);border-bottom:1px solid var(--line)}
+html[data-th=elegante] .hero .c{grid-template-columns:1fr!important;text-align:center;justify-items:center}
+html[data-th=elegante] .hero h1{font-size:clamp(38px,7vw,68px);font-weight:500;max-width:16ch;line-height:1.05}
+html[data-th=elegante] .hero p.lead{margin-left:auto;margin-right:auto}
+html[data-th=elegante] .hero .ctas,html[data-th=elegante] .hero .feats{justify-content:center}
+html[data-th=elegante] .hero .shot{max-width:620px;width:100%;border-radius:200px 200px 16px 16px;aspect-ratio:4/4.2}
+html[data-th=elegante] .hl{font-style:italic;color:var(--acc)}
+html[data-th=elegante] .badge,html[data-th=elegante] .promo{background:#fff;border:1px solid var(--line);color:var(--ink)}
+html[data-th=elegante] .promo{border-style:solid}
+html[data-th=elegante] .feats span:before{color:var(--acc)}
+html[data-th=elegante] .btn{border-radius:999px;letter-spacing:.02em}
+html[data-th=elegante] .btn.light{background:var(--acc);color:var(--accink)}
+html[data-th=elegante] .btn.glass{background:transparent;color:var(--ink);border-color:var(--ink)}
+html[data-th=elegante] .kick{color:var(--acc);letter-spacing:.2em;font-weight:700}
+html[data-th=elegante] h2.t{font-weight:500}
+html[data-th=elegante] section.s.alt{background:var(--soft);border:0}
+html[data-th=elegante] .svc,html[data-th=elegante] .rev,html[data-th=elegante] details,html[data-th=elegante] .sec-steps .stp,html[data-th=elegante] .sec-why .wy{border-radius:14px}
+html[data-th=elegante] .svc .ic{background:var(--soft);border-radius:50%}
+html[data-th=elegante] .gal button{border-radius:14px}
+html[data-th=elegante] .final{background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+html[data-th=elegante] .final .btn.light{background:var(--acc);color:var(--accink)}
+html[data-th=elegante] .sec-steps .stp i{background:transparent;color:var(--acc);border:1px solid var(--acc);font-family:Fraunces,Georgia,serif;font-weight:500}
+
+/* ===== FRESCO: claro, redondeado y alegre ===== */
+html[data-th=fresco]{--bg:color-mix(in srgb,var(--acc) 5%,#fff);--card:#fff;--ink:#16202a;--mute:#5d6b78;--line:color-mix(in srgb,var(--acc) 16%,#e8edf2);--soft:color-mix(in srgb,var(--acc) 12%,#fff);--sh:0 10px 30px -14px color-mix(in srgb,var(--acc) 40%,transparent);--accink:#fff;color-scheme:light}
+html[data-th=fresco] .hero{background:radial-gradient(60% 80% at 90% 10%,color-mix(in srgb,var(--acc) 28%,transparent),transparent 70%),radial-gradient(50% 60% at 0% 100%,color-mix(in srgb,var(--acc2,#ff8a5b) 22%,transparent),transparent 70%),var(--bg);color:var(--ink)}
+html[data-th=fresco] .hl{color:var(--acc);background:linear-gradient(transparent 62%,color-mix(in srgb,var(--acc) 22%,transparent) 62%)}
+html[data-th=fresco] .badge{background:#fff;border:1px solid var(--line);color:var(--ink)}
+html[data-th=fresco] .promo{background:#fff;border:2px dashed var(--acc)}
+html[data-th=fresco] .btn{border-radius:999px}
+html[data-th=fresco] .btn.light{background:var(--acc);color:var(--accink);box-shadow:0 10px 24px -10px var(--acc)}
+html[data-th=fresco] .btn.glass{background:#fff;color:var(--ink);border-color:var(--line)}
+html[data-th=fresco] .shot,html[data-th=fresco] .bigl{border-radius:32px;border:6px solid #fff;box-shadow:var(--sh)}
+html[data-th=fresco] .svc,html[data-th=fresco] .rev,html[data-th=fresco] details,html[data-th=fresco] .contact a,html[data-th=fresco] .contact div,html[data-th=fresco] .sec-steps .stp,html[data-th=fresco] .sec-why .wy{border-radius:24px;border-color:var(--line)}
+html[data-th=fresco] .svc .ic{border-radius:50%;background:var(--soft)}
+html[data-th=fresco] .gal button{border-radius:24px}
+html[data-th=fresco] section.s.alt{background:var(--soft);border:0}
+html[data-th=fresco] .final{border-radius:34px;background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#ff8a5b))}
+html[data-th=fresco] .sec-steps .stp i{border-radius:14px}

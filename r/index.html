@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
+<link rel="stylesheet" href="../themes.css?v=1">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="../cfg.js"></script>
@@ -219,7 +221,7 @@ if(!slug||!db)notFound();else db.doc("pub/"+slug).get().then(function(d){if(!d.e
   return db.doc("subs/"+BID).get().then(function(s){var x=s.exists?s.data():null,ok=x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now();if(MCQ){openMine();return}init(ok&&P.open!==false)})}).catch(function(){notFound(true)});
 function notFound(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
 
-function init(open){$("load").hidden=true;$("land").hidden=false;var col=P.color||C.colors[0];
+function init(open){$("load").hidden=true;$("land").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];
   document.title=P.name+" · Reserva tu cita";document.documentElement.style.setProperty("--acc",col);document.querySelector('meta[name=theme-color]').content=col;
   var lg=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
   $("nm").textContent=P.name;$("nm2").textContent=P.name;$("tg").textContent=P.tagline||"Reserva tu cita en segundos";$("bl").textContent=P.blurb||P.addr||"";
@@ -362,7 +364,7 @@ function myLink(tk){return location.origin+location.pathname+"?n="+slug+"&cita="
 function atMs(f,t){var d=pd(f);d.setMinutes(tm(t));return d.getTime()}
 function mcBox(h){$("mcb").innerHTML=h;window.scrollTo(0,0)}
 function mcWa(t){return waUrl(P.wa,t||"¡Hola "+P.name+"! 👋 Quiero hacer un cambio en mi cita"+(MC?" del "+niceDay(MC.date)+", "+fh(MC.time):""))}
-function openMine(){$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
+function openMine(){$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
   $("lg3").innerHTML=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("nm3").textContent=P.name;
   db.doc("biz/"+BID+"/mine/"+MCQ).get().then(function(d){if(!d.exists){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p><a class="btn wa" target="_blank" rel="noopener" href="'+mcWa("¡Hola "+P.name+"! 👋 Tengo una consulta sobre mi cita")+'">Escribir por WhatsApp</a>');return}MC=d.data();renderMine()},
    function(){mcBox('<h2>No se pudo cargar tu cita</h2><p class="mute">Revisa tu internet y vuelve a intentar.</p><a class="btn alt" href="">Reintentar</a>')})}
