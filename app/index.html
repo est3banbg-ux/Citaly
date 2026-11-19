@@ -269,10 +269,8 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
   #v-numeros .bars{height:140px}
   /* Ajustes */
   #v-ajustes{display:grid;grid-template-columns:420px minmax(0,1fr);gap:0 24px;align-items:start}
-  #v-ajustes>.card:nth-child(1){grid-column:1;grid-row:1}
-  #v-ajustes>.card:nth-child(3){grid-column:1;grid-row:2}
-  #v-ajustes>.card:nth-child(2){grid-column:2;grid-row:1 / span 3;display:grid;grid-template-columns:1fr 1fr;column-gap:26px;align-content:start}
-  #v-ajustes>.card:nth-child(2) .set:last-child{border-bottom:1px solid var(--line)}
+      #v-ajustes>.card:nth-child(3){display:grid;grid-template-columns:1fr 1fr;column-gap:26px;align-content:start}
+  #v-ajustes>.card:nth-child(3) .set:last-child{border-bottom:1px solid var(--line)}
   .set:hover{background:var(--soft);border-radius:12px}
   /* Ventanas: centradas en vez de bajar desde abajo */
   .sheet .pn{top:50%;bottom:auto;left:50%;right:auto;transform:translate(-50%,-50%);width:min(680px,92vw);max-height:calc(100dvh - 60px);border-radius:24px;padding:22px 26px 26px;animation:pop .22s cubic-bezier(.2,.8,.3,1) both}
@@ -312,13 +310,44 @@ nav.tabs .sbtn,nav.tabs .side{display:none}
   nav.tabs .side .sbtn.ai b{font-size:15px}nav.tabs .side .sbtn.ai small{font-size:12px;font-weight:600;opacity:.85}
   nav.tabs .side .sh{font:800 11px Figtree,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:6px 14px 6px}
   /* Ajustes en fichas */
-  #v-ajustes>.card:nth-child(2){grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;background:none;border:0;box-shadow:none}
-  #v-ajustes>.card:nth-child(2) .set{font-size:0;flex-direction:column;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--sh);transition:transform .15s,border-color .15s,box-shadow .15s}
-  #v-ajustes>.card:nth-child(2) .set:last-child{border-bottom:1px solid var(--line)}
-  #v-ajustes>.card:nth-child(2) .set:hover{transform:translateY(-3px);border-color:var(--acc);border-radius:16px;box-shadow:0 14px 30px -14px var(--acc);background:var(--card)}
-  #v-ajustes>.card:nth-child(2) .set .ic{width:42px;height:42px;font-size:21px}
-  #v-ajustes>.card:nth-child(2) .set:hover .ic{background:var(--acc);filter:saturate(1.1)}
-  #v-ajustes>.card:nth-child(2) .set .m b{font-size:15px}
+  #v-ajustes>.card:nth-child(3){grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0;background:none;border:0;box-shadow:none}
+  #v-ajustes>.card:nth-child(3) .set{font-size:0;flex-direction:column;align-items:flex-start;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--sh);transition:transform .15s,border-color .15s,box-shadow .15s}
+  #v-ajustes>.card:nth-child(3) .set:last-child{border-bottom:1px solid var(--line)}
+  #v-ajustes>.card:nth-child(3) .set:hover{transform:translateY(-3px);border-color:var(--acc);border-radius:16px;box-shadow:0 14px 30px -14px var(--acc);background:var(--card)}
+  #v-ajustes>.card:nth-child(3) .set .ic{width:42px;height:42px;font-size:21px}
+  #v-ajustes>.card:nth-child(3) .set:hover .ic{background:var(--acc);filter:saturate(1.1)}
+  #v-ajustes>.card:nth-child(3) .set .m b{font-size:15px}
+}
+
+/* ===== Atajos y colores ===== */
+.set{position:relative}
+.set .fv{font-size:17px;line-height:1;color:var(--mute);cursor:pointer;padding:6px;margin:-6px 0 -6px 6px;border-radius:8px;flex:none;order:5}
+.set .fv:hover{color:var(--acc2);background:var(--soft)}.set .fv.on{color:#f2b134}
+.favbar{margin-bottom:12px}.fbh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fe{border:0;background:var(--soft);color:var(--acc);font:700 12px Figtree,sans-serif;border-radius:999px;padding:5px 11px;cursor:pointer}
+.fbr{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}.fbr::-webkit-scrollbar{display:none}
+.fch{flex:none;display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 13px;font:700 13px Figtree,sans-serif;cursor:pointer;box-shadow:var(--sh)}
+.fch:active{transform:scale(.96)}.fch span{font-size:17px}
+.fvr{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.fvr .ic{width:34px;height:34px;border-radius:10px;background:var(--soft);display:grid;place-items:center;font-size:17px;flex:none}.fvr b{flex:1;font-size:14px}
+.fva{display:flex;gap:4px;flex:none}.fva button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:9px;min-width:34px;height:34px;font:700 12px Figtree,sans-serif;cursor:pointer}.fva button:disabled{opacity:.3}.fva .ad{padding:0 10px;color:var(--acc);border-color:var(--acc)}
+.thg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.thb{display:grid;grid-template-columns:30px 1fr;column-gap:10px;align-items:center;text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:10px 12px;cursor:pointer;transition:transform .15s,border-color .15s}
+.thb i{grid-row:1/3;width:30px;height:30px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35),0 2px 8px -2px rgba(0,0,0,.35)}
+.thb b{font-size:14px}.thb small{font-size:12px;color:var(--mute)}
+.thb:hover{transform:translateY(-2px)}.thb[aria-pressed=true]{border-color:var(--acc);background:var(--soft)}
+html.thx *,html.thx *:before,html.thx *:after{transition:background-color .4s,border-color .4s,color .4s,box-shadow .4s!important}
+.sempty2{padding:8px 14px;font-size:13px;color:var(--mute)}
+@media (min-width:1024px){
+  .favbar{display:none}
+  nav.tabs .side .sh{display:flex;flex-direction:row;align-items:center;justify-content:space-between}
+  nav.tabs .side .sh .fe{padding:3px 9px;font-size:11px}
+  nav.tabs .side #favS{display:flex;flex-direction:column;gap:2px}
+  #v-ajustes>.card:nth-child(2){grid-column:1;grid-row:1}
+  #v-ajustes>.card:nth-child(4){grid-column:1;grid-row:2}
+  #v-ajustes>.card:nth-child(3){grid-column:2;grid-row:1 / span 3}
+  #v-ajustes>.card:nth-child(3) .set .fv{position:absolute;top:10px;right:10px;margin:0;opacity:0;transition:opacity .15s;font-size:18px}
+  #v-ajustes>.card:nth-child(3) .set:hover .fv,#v-ajustes>.card:nth-child(3) .set .fv.on{opacity:1}
+  .thg{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
@@ -444,6 +473,7 @@ nav.tabs .sbtn,nav.tabs .side{display:none}
     </div>
 
     <div id="v-ajustes" class="view" hidden>
+      <div class="favbar" id="favBar"></div>
       <div class="card">
         <h2>Tu link de reservas</h2>
         <div class="linkbox" id="lnk"></div>
@@ -489,14 +519,8 @@ nav.tabs .sbtn,nav.tabs .side{display:none}
     <button data-v="ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Ajustes</button>
   </div><div class="side">
     <button class="sbtn ai" data-s="ia" type="button"><span>✨</span><b>Asistente IA</b><small>Te arma textos y respuestas</small></button>
-    <div class="sh">Atajos</div>
-    <button class="sbtn" data-s="svc" type="button"><span>🧾</span>Servicios y precios</button>
-    <button class="sbtn" data-s="hor" type="button"><span>🕘</span>Horario</button>
-    <button class="sbtn" data-s="fot" type="button"><span>📸</span>Fotos de mis trabajos</button>
-    <button class="sbtn" data-s="web" type="button"><span>✨</span>Portada de mi página</button>
-    <button class="sbtn" data-s="gcal" type="button"><span>📅</span>Google Calendar</button>
-    <button class="sbtn" data-s="ntf" type="button"><span>🔔</span>Avisos al celular</button>
-    <button class="sbtn" id="sCopy" type="button"><span>🔗</span>Copiar mi link</button>
+    <div class="sh"><span>Atajos</span><button type="button" class="fe" id="favEd">✏️ Editar</button></div>
+    <div id="favS"></div>
   </div></nav>
 </section>
 
@@ -505,7 +529,7 @@ nav.tabs .sbtn,nav.tabs .side{display:none}
 <div class="toast" id="toast"></div>
 
 <script>
-function setMode(m){try{if(m==="light"||m==="dark"){localStorage.setItem("citaly_mode",m);document.documentElement.setAttribute("data-mode",m)}else{localStorage.removeItem("citaly_mode");document.documentElement.removeAttribute("data-mode")}}catch(e){}}
+function setMode(m){try{if(m==="light"||m==="dark"){localStorage.setItem("citaly_mode",m);document.documentElement.setAttribute("data-mode",m)}else{localStorage.removeItem("citaly_mode");document.documentElement.removeAttribute("data-mode")}}catch(e){}if(typeof applyTheme==="function")applyTheme()}
 function isDark(){var m=document.documentElement.getAttribute("data-mode");return m?m==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
 function modeLink(){return document.documentElement.hasAttribute("data-th")?"":' · <button class="link small" onclick="setMode(isDark()?\'light\':\'dark\');this.textContent=isDark()?\'☀️ Modo claro\':\'🌙 Modo oscuro\'" style="font-size:inherit">'+(isDark()?"☀️ Modo claro":"🌙 Modo oscuro")+'</button>'}
 
@@ -717,7 +741,7 @@ function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.n
 function render(){if(!B)return;renderOnb();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
-  document.documentElement.style.setProperty("--acc",B.color||C.colors[0]);
+  if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();renderFavs();
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
@@ -1183,7 +1207,7 @@ function openSet(s){
   if(s==="stp")listEd(LISTS.stp);
   if(s==="why")listEd(LISTS.why);
   if(s==="dep")depSheet();
-  if(s==="mode"){var cur=localStorage.getItem("citaly_mode")||"auto";sheet('<h2>🌓 Apariencia</h2><p class="mute small" style="margin-top:-4px">Elige cómo quieres ver la app. Automático sigue lo que tenga tu celular.</p><div class="chips" id="mdC" style="margin-top:6px">'+[["auto","📱 Automático"],["light","☀️ Claro"],["dark","🌙 Oscuro"]].map(function(o){return '<button class="chip" data-md="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>',function(){$("mdC").onclick=function(e){var b=e.target.closest("[data-md]");if(!b)return;setMode(b.dataset.md);Array.prototype.forEach.call($("mdC").children,function(x){x.setAttribute("aria-pressed",x===b)})}})}
+  if(s==="mode"){var cur=localStorage.getItem("citaly_mode")||"auto",ct=curTheme();sheet('<h2>🎨 Apariencia</h2><p class="mute small" style="margin-top:-4px">Elegí cómo querés ver la app. Se guarda en tu cuenta y se ve igual en el celular y en la computadora.</p><h3 style="margin:14px 0 8px">Claro u oscuro</h3><div class="chips" id="mdC">'+[["auto","📱 Automático"],["light","☀️ Claro"],["dark","🌙 Oscuro"]].map(function(o){return '<button class="chip" data-md="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>'}).join("")+'</div><h3 style="margin:18px 0 8px">Color de la app</h3><div class="thg" id="thG">'+THEMES.map(function(t){return '<button type="button" class="thb" data-th="'+t.id+'" aria-pressed="'+(ct===t.id)+'"><i style="background:'+thSw(t)+'"></i><b>'+t.n+'</b><small>'+t.d+'</small></button>'}).join("")+'</div>',function(){$("mdC").onclick=function(e){var b=e.target.closest("[data-md]");if(!b)return;setMode(b.dataset.md);Array.prototype.forEach.call($("mdC").children,function(x){x.setAttribute("aria-pressed",x===b)})};$("thG").onclick=function(e){var b=e.target.closest("[data-th]");if(!b)return;setTheme(b.dataset.th);Array.prototype.forEach.call($("thG").children,function(x){x.setAttribute("aria-pressed",x===b)})}})}
   if(s==="gcal")gcalSheet();
   if(s==="help")helpSheet();
   if(s==="ntf")ntfSheet();
@@ -1523,7 +1547,7 @@ if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(
 
 /* ===== Buscador y atajos ===== */
 (function(){
-  var AL={svc:"precios servicios catalogo lista cobrar",hor:"horario horas abrir cerrar dias atencion",gcal:"calendario google agenda sincronizar",ntf:"notificaciones avisos alertas sonido celular push",fot:"fotos galeria trabajos antes despues imagenes",ia:"inteligencia artificial asistente textos redactar",dep:"adelanto sinpe pago deposito reserva",mode:"oscuro claro modo tema apariencia noche",web:"portada frase promocion pagina web",neg:"negocio nombre whatsapp direccion telefono",look:"logo color marca",est:"estilo diseno pagina",rev:"resenas opiniones estrellas google",faq:"preguntas frecuentes dudas",dom:"domicilio zonas ubicacion",ref:"referidos recomendar premio",plan:"plan precio suscripcion pagar",help:"ayuda soporte contacto",res:"reglas anticipacion dias reservar",stp:"pasos como funciona",why:"por que elegirte garantia"};
+  var AL={svc:"precios servicios catalogo lista cobrar",hor:"horario horas abrir cerrar dias atencion",gcal:"calendario google agenda sincronizar",ntf:"notificaciones avisos alertas sonido celular push",fot:"fotos galeria trabajos antes despues imagenes",ia:"inteligencia artificial asistente textos redactar",dep:"adelanto sinpe pago deposito reserva",mode:"oscuro claro modo tema apariencia noche color colores",web:"portada frase promocion pagina web",neg:"negocio nombre whatsapp direccion telefono",look:"logo color marca",est:"estilo diseno pagina",rev:"resenas opiniones estrellas google",faq:"preguntas frecuentes dudas",dom:"domicilio zonas ubicacion",ref:"referidos recomendar premio",plan:"plan precio suscripcion pagar",help:"ayuda soporte contacto",res:"reglas anticipacion dias reservar",stp:"pasos como funciona",why:"por que elegirte garantia"};
   var el=$("srch"),inp=$("srI"),list=$("srL"),items=[],cur=0,shown=[];
   function norm(t){return String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
   function build(){items=[];
@@ -1545,12 +1569,68 @@ if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(
   inp.oninput=function(){draw(inp.value)};
   inp.onkeydown=function(e){if(e.key==="ArrowDown"){e.preventDefault();mark(Math.min(cur+1,shown.length-1));var a=list.querySelector(".si.on");if(a)a.scrollIntoView({block:"nearest"})}else if(e.key==="ArrowUp"){e.preventDefault();mark(Math.max(cur-1,0));var b=list.querySelector(".si.on");if(b)b.scrollIntoView({block:"nearest"})}else if(e.key==="Enter"){e.preventDefault();pick(cur)}else if(e.key==="Escape"){close()}};
   $("srBd").onclick=close;$("sQ").onclick=open;$("srTop").onclick=open;
-  $("sCopy").onclick=function(){$("lCopy").click()};
   document.addEventListener("keydown",function(e){var t=(e.target&&e.target.tagName)||"",ed=/INPUT|TEXTAREA|SELECT/.test(t)||(e.target&&e.target.isContentEditable);
     if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){if($("main").classList.contains("on")){e.preventDefault();el.hidden?open():close()}}
     else if(e.key==="/"&&!ed&&$("main").classList.contains("on")&&el.hidden){e.preventDefault();open()}
     else if(e.key==="Escape"&&!el.hidden)close()});
 })();
+
+/* ===== Colores de la app ===== */
+var THEMES=[
+ {id:"neg",n:"Mi negocio",d:"El color de tu logo"},
+ {id:"violeta",n:"Violeta",d:"El de siempre",h:252,s:90,l:60},
+ {id:"azul",n:"Azul",d:"Limpio y serio",h:217,s:88,l:52},
+ {id:"cielo",n:"Cielo",d:"Fresco",h:196,s:90,l:38},
+ {id:"verde",n:"Verde",d:"Tranquilo",h:152,s:70,l:34},
+ {id:"naranja",n:"Naranja",d:"Con energía",h:24,s:92,l:48},
+ {id:"rojo",n:"Rojo",d:"Fuerte",h:355,s:78,l:50},
+ {id:"rosa",n:"Rosa",d:"Alegre",h:327,s:80,l:52},
+ {id:"grafito",n:"Grafito",d:"Sobrio, sin color",h:220,s:9,l:32,k:.12},
+ {id:"negro",n:"Negro puro",d:"Ahorra batería (modo oscuro)",h:252,s:90,l:60,amoled:1}];
+function curTheme(){var t="neg";try{t=localStorage.getItem("citaly_theme")||"neg"}catch(e){}return THEMES.some(function(x){return x.id===t})?t:"neg"}
+function thSw(t){if(t.id==="neg")return "conic-gradient(var(--acc),#ff8a5b,var(--acc))";if(t.amoled)return "#000";return "hsl("+t.h+","+t.s+"%,"+t.l+"%)"}
+var THV=["--bg","--card","--ink","--mute","--line","--soft","--acc","--sh"];
+function applyTheme(){if(typeof THEMES==="undefined"||typeof THV==="undefined")return;var r=document.documentElement,t=THEMES.filter(function(x){return x.id===curTheme()})[0]||THEMES[0],dk=isDark();
+  THV.forEach(function(v){r.style.removeProperty(v)});
+  if(t.id==="neg"||r.hasAttribute("data-th")){if(typeof B!=="undefined"&&B)r.style.setProperty("--acc",B.color||C.colors[0]);return}
+  var h=t.h,k=t.k||1,S=function(n){return Math.round(n*k)};
+  if(t.amoled&&!dk)t=THEMES[1];
+  if(t.amoled){var o={"--bg":"#000","--card":"#0d0d11","--ink":"#f2f0fb","--mute":"#a09bb8","--line":"#23202e","--soft":"#1a1630","--acc":"hsl(252,92%,70%)","--sh":"0 1px 2px rgba(0,0,0,.5),0 8px 24px -12px rgba(0,0,0,.8)"};for(var q in o)r.style.setProperty(q,o[q]);return}
+  var c=dk?{"--bg":"hsl("+h+","+S(38)+"%,7%)","--card":"hsl("+h+","+S(30)+"%,12%)","--ink":"hsl("+h+","+S(30)+"%,94%)","--mute":"hsl("+h+","+S(15)+"%,69%)","--line":"hsl("+h+","+S(26)+"%,22%)","--soft":"hsl("+h+","+S(36)+"%,19%)","--acc":"hsl("+h+","+Math.min(95,t.s+4)+"%,"+Math.min(70,t.l+14)+"%)","--sh":"0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6)"}
+   :{"--bg":"hsl("+h+","+S(48)+"%,96%)","--card":"#fff","--ink":"hsl("+h+","+S(40)+"%,12%)","--mute":"hsl("+h+","+S(14)+"%,41%)","--line":"hsl("+h+","+S(34)+"%,89%)","--soft":"hsl("+h+","+S(88)+"%,94.5%)","--acc":"hsl("+h+","+t.s+"%,"+t.l+"%)","--sh":"0 1px 2px hsla("+h+",40%,15%,.06),0 8px 24px -12px hsla("+h+",40%,15%,.2)"};
+  for(var n in c)r.style.setProperty(n,c[n])}
+function setTheme(id){try{localStorage.setItem("citaly_theme",id)}catch(e){}var r=document.documentElement;r.classList.add("thx");applyTheme();setTimeout(function(){r.classList.remove("thx")},450);if(typeof B!=="undefined"&&B&&B.uiTh!==id)try{saveBiz({uiTh:id})}catch(e){}}
+try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyTheme)}catch(e){}
+applyTheme();
+
+/* ===== Atajos que cada quien elige ===== */
+var FAVD=["svc","hor","fot","web","gcal","ntf","copy"];
+function favs(){if(typeof FAVD==="undefined")return [];var f=null;try{if(typeof B!=="undefined"&&B&&Array.isArray(B.favs))f=B.favs;else f=JSON.parse(localStorage.getItem("citaly_favs")||"null")}catch(e){}return Array.isArray(f)?f:FAVD}
+function favAll(){var L=[{k:"copy",t:"Copiar mi link",ic:"🔗"}];Array.prototype.forEach.call(document.querySelectorAll("#v-ajustes .set[data-s]"),function(b){var tb=b.querySelector(".m b");if(!tb)return;var t=tb.cloneNode(true);Array.prototype.forEach.call(t.querySelectorAll(".lk"),function(x){x.remove()});var ic=b.querySelector(".ic");L.push({k:b.dataset.s,t:t.textContent.trim(),ic:ic?ic.textContent:"⚙️"})});return L}
+function favGo(k){if(k==="copy"){$("lCopy").click();return}openSet(k)}
+function setFavs(a){a=a.slice(0,10);try{localStorage.setItem("citaly_favs",JSON.stringify(a))}catch(e){}if(typeof B!=="undefined"&&B){B.favs=a;try{saveBiz({favs:a})}catch(e){}}renderFavs()}
+function renderFavs(){if(typeof FAVD==="undefined")return;var F=favs(),A=favAll(),m={};A.forEach(function(x){m[x.k]=x});var L=F.filter(function(k){return m[k]});
+  var h=L.map(function(k){return '<button type="button" class="sbtn" data-fav="'+k+'"><span>'+esc(m[k].ic)+'</span>'+esc(m[k].t)+'</button>'}).join("")||'<div class="sempty2">Tocá ✏️ Editar para elegir tus atajos</div>';
+  if($("favS"))$("favS").innerHTML=h;
+  if($("favBar"))$("favBar").innerHTML='<div class="fbh"><b>⭐ Tus atajos</b><button type="button" class="fe" data-fe="1">✏️ Editar</button></div><div class="fbr">'+L.map(function(k){return '<button type="button" class="fch" data-fav="'+k+'"><span>'+esc(m[k].ic)+'</span>'+esc(m[k].t)+'</button>'}).join("")+'</div>';
+  Array.prototype.forEach.call(document.querySelectorAll("[data-fav]"),function(b){b.onclick=function(){favGo(b.dataset.fav)}});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-fe]"),function(b){b.onclick=favSheet});
+  Array.prototype.forEach.call(document.querySelectorAll("#v-ajustes .set[data-s]"),function(b){var st=b.querySelector(".fv");if(!st){st=document.createElement("span");st.className="fv";st.setAttribute("role","button");st.setAttribute("tabindex","0");st.onclick=function(e){e.stopPropagation();e.preventDefault();var k=b.dataset.s,f=favs().slice(),i=f.indexOf(k);if(i>-1)f.splice(i,1);else{if(f.length>=10){toast("Máximo 10 atajos");return}f.push(k)}setFavs(f)};b.appendChild(st)}
+    var on=F.indexOf(b.dataset.s)>-1;st.textContent=on?"★":"☆";st.classList.toggle("on",on);st.title=on?"Quitar de mis atajos":"Poner en mis atajos";st.setAttribute("aria-label",st.title)})}
+function favSheet(){sheet('<div id="fvW"><h2>⭐ Mis atajos</h2><p class="mute small" style="margin-top:-4px">Poné lo que más usás. Aparece en la barra de la izquierda (computadora) y arriba de Ajustes (celular). Hasta 10.</p><div id="fvA"></div><h3 style="margin:18px 0 6px">Agregar</h3><div id="fvB"></div><button class="btn alt" id="fvR" style="margin-top:12px">Volver a los de siempre</button></div>',function(){
+  function draw(){var F=favs(),A=favAll(),m={};A.forEach(function(x){m[x.k]=x});var L=F.filter(function(k){return m[k]});
+    $("fvA").innerHTML=L.length?L.map(function(k,i){return '<div class="fvr"><span class="ic">'+esc(m[k].ic)+'</span><b>'+esc(m[k].t)+'</b><span class="fva"><button type="button" data-u="'+i+'" aria-label="Subir"'+(i?'':' disabled')+'>▲</button><button type="button" data-d="'+i+'" aria-label="Bajar"'+(i<L.length-1?'':' disabled')+'>▼</button><button type="button" data-x="'+k+'" aria-label="Quitar">✕</button></span></div>'}).join(""):'<p class="mute small">Todavía no tenés atajos. Agregá desde abajo.</p>';
+    $("fvB").innerHTML=A.filter(function(x){return L.indexOf(x.k)<0}).map(function(x){return '<div class="fvr"><span class="ic">'+esc(x.ic)+'</span><b>'+esc(x.t)+'</b><span class="fva"><button type="button" class="ad" data-a="'+x.k+'">＋ Agregar</button></span></div>'}).join("")||'<p class="mute small">Ya los tenés todos 🎉</p>'}
+  draw();
+  $("fvW").onclick=function(e){var t=e.target.closest("button");if(!t)return;var F=favs().slice();
+    if(t.dataset.u!=null){var i=+t.dataset.u;if(i>0){var x=F[i];F[i]=F[i-1];F[i-1]=x}}
+    else if(t.dataset.d!=null){var j=+t.dataset.d;if(j<F.length-1){var y=F[j];F[j]=F[j+1];F[j+1]=y}}
+    else if(t.dataset.x){F=F.filter(function(k){return k!==t.dataset.x})}
+    else if(t.dataset.a){if(F.length>=10){toast("Máximo 10 atajos");return}F.push(t.dataset.a)}
+    else if(t.id==="fvR"){F=FAVD.slice()}else return;
+    setFavs(F);draw()}})}
+if($("favEd"))$("favEd").onclick=favSheet;
+if(typeof B!=="undefined"&&B)renderFavs();
 </script>
 </body>
 </html>
