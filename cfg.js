@@ -44,7 +44,7 @@ var CITALY = {
     insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." }
   },
   iaUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/ia",
-  fbLogin: false, // se enciende cuando Facebook esté configurado en Meta y Firebase
+  fbLogin: true, // Facebook ya configurado y probado (Meta publicada, Firebase activo)
   pushUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/push",   // URL del Worker + "/ia" (ej: https://xxxx.workers.dev/ia). Vacío = el asistente dice "muy pronto"
   sinpe: "6320-4942",    // SINPE Móvil de Citaly (personal de Esteban, separado de GlassStudioCR)
   sinpeName: "Esteban Bolaños García",  // a nombre de quién sale el SINPE
