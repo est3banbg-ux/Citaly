@@ -225,6 +225,8 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .cvL button img{width:100%;height:100%;object-fit:cover;display:block}.cvL button[aria-pressed=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
 .hpq{margin:10px 0 4px auto;max-width:85%;width:fit-content;background:var(--acc);color:#fff;border-radius:16px 16px 4px 16px;padding:8px 12px;font-size:15px}
 .hpa{max-width:92%;background:var(--soft);border-radius:16px 16px 16px 4px;padding:9px 12px;font-size:15px;white-space:pre-wrap}
+.pbn small{display:block;color:var(--mute);font-size:12.5px;margin-top:2px}.pbn{margin-bottom:12px;align-items:center;gap:10px;border:1.5px solid color-mix(in srgb,var(--warn) 50%,transparent);background:color-mix(in srgb,var(--warn) 9%,var(--card))}
+.fxb{height:6px;border-radius:9px;background:var(--soft);overflow:hidden;margin-top:6px}.fxb i{display:block;height:100%;background:var(--acc);transition:width .3s}
 </style>
 </head>
 <body>
@@ -311,6 +313,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
     <div id="trial"></div>
 
     <div id="v-agenda" class="view">
+      <div id="pbn"></div>
       <div id="onb"></div>
       <div id="hero"></div>
       <div class="sq"><input id="agq" type="search" placeholder="Buscar cita, nombre o teléfono" autocomplete="off"></div>
@@ -1125,12 +1128,54 @@ function pushOk(){return "Notification" in window&&"serviceWorker" in navigator&
 function pushId(t){return t.slice(-60).replace(/[^\w-]/g,"_")}
 function pushReg(){return navigator.serviceWorker.register("sw.js").then(function(){return navigator.serviceWorker.ready}).then(function(reg){
   return firebase.messaging().getToken({serviceWorkerRegistration:reg,vapidKey:C.vapid||undefined})}).then(function(t){if(!t)throw new Error("sin token");
-  try{localStorage.setItem("citaly_push",t)}catch(e){}
+  try{localStorage.setItem("citaly_push",t);localStorage.setItem("citaly_pid",pushId(t))}catch(e){}
   var dev=/iPhone|iPad/.test(navigator.userAgent)?"iPhone":/Android/.test(navigator.userAgent)?"Android":"Computadora";
   return db.doc("biz/"+BID+"/push/"+pushId(t)).set({t:t,d:dev,at:Date.now()}).then(function(){return t})})}
 /* Al abrir la app, si ya tenía avisos, renueva el token (cambian cada cierto tiempo) */
-function pushRefresh(){try{if(pushOk()&&Notification.permission==="granted"&&localStorage.getItem("citaly_push"))pushReg().catch(function(){})}catch(e){}}
+function pushRefresh(){try{if(pushOk()&&Notification.permission==="granted"&&localStorage.getItem("citaly_push"))pushReg().then(pushHealth,pushHealth);else pushHealth()}catch(e){}}
 function pushTest(){return auth.currentUser.getIdToken().then(function(t){return fetch(C.pushUrl,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({ev:"test",idToken:t})})}).then(function(r){return r.json()})}
+/* ---------- Salud de los avisos: detecta si se apagaron o si el celular los bloquea, y guía para arreglarlo ----------
+   El servidor guarda lastSent al mandar; el celular responde lastAck al recibir. Si salió y no llegó → algo lo bloquea. */
+var PH={st:"",at:0};
+function pushHealth(){var box=$("pbn");if(!box||!B||ROL!=="dueño"&&ROL!=="equipo")return;
+  function show(st){PH.st=st;var snooze=0;try{snooze=+localStorage.getItem("citaly_pbz")||0}catch(e){}
+    if(!st||st==="ok"||Date.now()<snooze){box.innerHTML="";return}
+    var T={off:["🔕","Activa los avisos","Te suena el celular cuando alguien reserva, cancela o cambia su cita.","Activar"],
+      blocked:["🔕","Bloqueaste los avisos","Así no te enteras de las reservas nuevas. Se arregla en 1 minuto.","Arreglarlo"],
+      fail:["⚠️","Tus avisos no te están llegando","Tu celular los está bloqueando para ahorrar batería. Se arregla en 1 minuto.","Arreglarlo"],
+      nosup:["📲","Instala Citaly en tu celular","Para recibir avisos de reservas, agrega la app a tu pantalla de inicio.","Ver cómo"]}[st];
+    box.innerHTML='<div class="banner pbn fade"><span style="font-size:22px">'+T[0]+'</span><span style="flex:1"><b>'+T[1]+'</b><small>'+T[2]+'</small></span><span style="display:flex;flex-direction:column;gap:4px;align-items:flex-end"><button class="btn sm" id="pbGo">'+T[3]+'</button><button class="link small" id="pbX">Ahora no</button></span></div>';
+    $("pbGo").onclick=function(){if(st==="off"||st==="nosup")openSet("ntf");else fixPush()};
+    $("pbX").onclick=function(){try{localStorage.setItem("citaly_pbz",Date.now()+3*864e5)}catch(e){}box.innerHTML=""}}
+  if(!pushOk()){show(/iPhone|iPad/.test(navigator.userAgent)&&!navigator.standalone?"nosup":"");return}
+  if(Notification.permission==="denied"){show("blocked");return}
+  var pid="";try{pid=localStorage.getItem("citaly_pid")||""}catch(e){}
+  if(Notification.permission!=="granted"||!pid){show("off");return}
+  db.doc("biz/"+BID+"/push/"+pid).get().then(function(d){var x=d.exists?d.data():null;
+    if(!x){show("off");return}
+    var s=+x.lastSent||0,a=+x.lastAck||0;show(s&&a<s&&Date.now()-s>3*60e3?"fail":"ok")},function(){})}
+/* Asistente paso a paso para arreglar los avisos (según la marca del celular) */
+function fixPush(){var ua=navigator.userAgent,nav=navigator.brave?"Brave":/SamsungBrowser/.test(ua)?"Samsung Internet":"Chrome",
+  mk=/Xiaomi|Redmi|POCO|M2\d{3}|2\d{3}[A-Z0-9]{4,}/i.test(ua)?"xiaomi":/SM-|Samsung/i.test(ua)?"samsung":/HUAWEI|HONOR/i.test(ua)?"huawei":"otro",i=0,blocked=Notification.permission==="denied";
+  var S=[];
+  if(blocked)S.push(["🔓","Permite los avisos de Citaly","Toca el <b>candado 🔒</b> junto a la dirección (arriba) → <b>Permisos</b> o <b>Notificaciones</b> → <b>Permitir</b>.<br><br>Si no ves el candado: abre los ajustes de <b>"+nav+"</b> → <b>Configuración de sitios</b> → <b>Notificaciones</b> → busca <b>citalyapp.com</b> → <b>Permitir</b>."]);
+  S.push(["🔋","Quita el ahorro de batería",{xiaomi:"Sal de aquí un momento y mantén presionado el ícono de <b>"+nav+"</b> → <b>Información de la app</b> → <b>Ahorro de batería</b> → elige <b>Sin restricciones</b>.",samsung:"Abre <b>Ajustes</b> del celular → <b>Aplicaciones</b> → <b>"+nav+"</b> → <b>Batería</b> → <b>Sin restricciones</b>.",huawei:"Abre <b>Ajustes</b> → <b>Batería</b> → <b>Inicio de aplicaciones</b> → <b>"+nav+"</b> → <b>Gestionar manualmente</b> y activa las 3 opciones.",otro:"Mantén presionado el ícono de <b>"+nav+"</b> → <b>Información de la app</b> → <b>Batería</b> → <b>Sin restricciones</b>."}[mk]]);
+  if(mk==="xiaomi")S.push(["🚀","Activa el inicio automático","En esa misma pantalla de <b>"+nav+"</b>, activa <b>Inicio automático</b>. Así Xiaomi no la apaga cuando bloqueas el celular."]);
+  S.push(["🔔","Que suene y se vea con el celular bloqueado","En la información de <b>"+nav+"</b> → <b>Notificaciones</b> → toca la categoría de <b>sitios</b> → activa <b>Sonido</b>, <b>Pantalla de bloqueo</b> y <b>Notificaciones flotantes</b>."]);
+  S.push(["✅","Probemos que funcione","Toca el botón, <b>bloquea el celular</b> y espera unos segundos. Te tiene que sonar un aviso."]);
+  function draw(){var x=S[i],last=i===S.length-1;
+    sheet('<div class="fxp"><div class="mute small">Paso '+(i+1)+' de '+S.length+'</div><div class="fxb"><i style="width:'+Math.round((i+1)/S.length*100)+'%"></i></div><div style="font-size:54px;text-align:center;margin:14px 0 4px">'+x[0]+'</div><h2 style="text-align:center">'+x[1]+'</h2><p style="line-height:1.55">'+x[2]+'</p>'
+      +(last?'<button class="btn big" id="fxT">🔔 Mandarme un aviso de prueba</button><p class="mute small" id="fxR" style="text-align:center"></p>':'<button class="btn big" id="fxN">Listo, siguiente →</button>')
+      +(i?'<button class="link" id="fxB" style="margin-top:8px">← Atrás</button>':'')+'</div>',function(){
+      if($("fxN"))$("fxN").onclick=function(){i++;draw()};if($("fxB"))$("fxB").onclick=function(){i--;draw()};
+      if($("fxT"))$("fxT").onclick=function(){var b=this,t0=Date.now(),pid=localStorage.getItem("citaly_pid");b.disabled=true;$("fxR").textContent="Enviando… ahora bloquea el celular 📴";
+        (Notification.permission==="granted"&&pid?Promise.resolve():Notification.requestPermission().then(function(p){if(p!=="granted")throw 0;return pushReg()})).then(pushTest).then(function(){
+          var tries=0;(function chk(){db.doc("biz/"+BID+"/push/"+(localStorage.getItem("citaly_pid")||pid)).get().then(function(d){var a=d.exists&&+d.data().lastAck||0;
+            if(a>=t0){$("fxR").innerHTML="";sheet('<div style="text-align:center"><div style="font-size:60px">🎉</div><h2>¡Listo, tus avisos funcionan!</h2><p class="mute">Ya no te vas a perder ninguna reserva.</p></div><button class="btn" id="fxOk">Perfecto</button>',function(){$("fxOk").onclick=function(){closeSheet();pushHealth()}});confetti();return}
+            if(++tries<10)setTimeout(chk,3000);else{b.disabled=false;b.textContent="Probar otra vez";$("fxR").innerHTML="Todavía no llegó. Revisa los pasos anteriores o <a class=\"link\" target=\"_blank\" rel=\"noopener\" href=\""+esc(waUrl(C.wa,"Hola Esteban, no me llegan los avisos de Citaly ("+B.name+"). Celular: "+mk))+"\">escríbenos por WhatsApp</a> y te ayudamos."}})})()},
+          function(){b.disabled=false;$("fxR").textContent="Primero permite los avisos (paso 1)."})}})}
+  draw()}
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&B)setTimeout(pushHealth,800)});
 /* Guía para que el celular no bloquee los avisos (ahorro de batería y sonido según la marca) */
 function batGuide(){var ua=navigator.userAgent,br=/Brave/i.test(ua)||(navigator.brave?"Brave":""),nav=navigator.brave?"Brave":/SamsungBrowser/.test(ua)?"Samsung Internet":"Chrome";
   var mk=/Xiaomi|Redmi|POCO|M2\d{3}|2\d{3}[A-Z0-9]{4,}/i.test(ua)?"xiaomi":/SM-|Samsung/i.test(ua)?"samsung":/HUAWEI|HONOR/i.test(ua)?"huawei":/iPhone|iPad/.test(ua)?"ios":"otro";
@@ -1144,8 +1189,8 @@ function ntfSheet(){var t=B.ntf||"",ios=/iPhone|iPad/.test(navigator.userAgent),
   function on(){try{return Notification.permission==="granted"&&!!localStorage.getItem("citaly_push")}catch(e){return false}}
   function draw(){var h='<h2>🔔 Avisos de reservas</h2><p class="mute small" style="margin-top:-4px">Te suena el celular cuando alguien reserva, cancela o cambia su cita, aunque tengas la app cerrada.</p>';
     if(!pushOk()){h+=ios&&!standalone?'<div class="card" style="box-shadow:none"><b>En iPhone, primero instala la app:</b><ol class="small" style="padding-left:18px;line-height:1.6;margin:6px 0 0"><li>Abre citalyapp.com/app en <b>Safari</b>.</li><li>Toca <b>Compartir</b> ⬆️ y luego <b>Agregar a inicio</b>.</li><li>Abre Citaly desde el ícono y vuelve aquí.</li></ol></div>':'<div class="card" style="box-shadow:none">Este navegador no permite avisos. Abre la app en <b>Chrome</b> (Android) o instálala en tu pantalla de inicio.</div>'}
-    else if(Notification.permission==="denied")h+='<div class="card" style="box-shadow:none"><b>Bloqueaste los avisos.</b><p class="mute small" style="margin:6px 0 0">Ve a los ajustes del navegador → Notificaciones → permite citalyapp.com, y vuelve a tocar el botón.</p></div><button class="btn" id="pnA" style="margin-top:12px">Intentar de nuevo</button>';
-    else if(on())h+='<div class="card" style="box-shadow:none;text-align:center"><div style="font-size:36px">✅</div><b>Avisos activados en este celular</b><p class="mute small" style="margin:6px 0 0">Si usas otro celular o compu, entra ahí y actívalos también.</p></div><button class="btn ghost" id="pnT" style="margin-top:12px">Mandarme un aviso de prueba</button>'+batGuide();
+    else if(Notification.permission==="denied")h+='<div class="card" style="box-shadow:none"><b>Bloqueaste los avisos.</b><p class="mute small" style="margin:6px 0 0">Ve a los ajustes del navegador → Notificaciones → permite citalyapp.com, y vuelve a tocar el botón.</p></div><button class="btn" id="pnF" style="margin-top:12px">Ayúdame a arreglarlo</button>';
+    else if(on())h+='<div class="card" style="box-shadow:none;text-align:center"><div style="font-size:36px">✅</div><b>Avisos activados en este celular</b><p class="mute small" style="margin:6px 0 0">Si usas otro celular o compu, entra ahí y actívalos también.</p></div><button class="btn ghost" id="pnT" style="margin-top:12px">Mandarme un aviso de prueba</button><button class="btn alt" id="pnF" style="margin-top:8px">🛠️ No me suenan los avisos</button>'+batGuide();
     else h+='<button class="btn big" id="pnA">🔔 Activar avisos en este celular</button><p class="mute small" style="text-align:center">Te va a preguntar si permites notificaciones: toca <b>Permitir</b>.</p>';
     h+='<p class="err" id="pnE"></p>';
     if(t)h+='<details style="margin-top:14px"><summary class="mute small">Avisos por la app ntfy (opción vieja)</summary><p class="small">Tu canal: <code style="word-break:break-all">'+esc(t)+'</code></p><button class="btn ghost sm" id="ntnO">Quitar avisos de ntfy</button></details>';
@@ -1153,6 +1198,7 @@ function ntfSheet(){var t=B.ntf||"",ios=/iPhone|iPad/.test(navigator.userAgent),
       if($("pnA"))$("pnA").onclick=function(){var b=this;b.disabled=true;b.textContent="Activando…";
         Notification.requestPermission().then(function(p){if(p!=="granted")throw new Error("permiso");return pushReg()}).then(function(){toast("Avisos activados ✓");return pushTest()}).then(draw,function(e){console.error(e);draw();if($("pnE"))$("pnE").textContent=e&&e.message==="permiso"?"No diste permiso. Toca el botón otra vez y elige «Permitir».":"No se pudo activar. Revisa tu internet e intenta de nuevo."})};
       if($("pnT"))$("pnT").onclick=function(){var b=this;b.disabled=true;pushTest().then(function(j){b.disabled=false;toast(j&&j.n?"Listo, te debería sonar el celular 🔔":"No encontramos tu celular. Toca «Activar» de nuevo.")},function(){b.disabled=false;toast("Sin conexión")})};
+      if($("pnF"))$("pnF").onclick=function(){fixPush()};
       if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
   draw()}
 /* ---------- Asistente con IA (límite diario por plan; corre en el servidor de Citaly) ---------- */

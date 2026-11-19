@@ -136,8 +136,8 @@ async function sendPush(env, bid, title, body, url) {
   for (const d of docs) {
     const t = sv(d.fields, "t"); if (!t) continue;
     const res = await fetch(`https://fcm.googleapis.com/v1/projects/${env.FB_PROJECT}/messages:send`, { method: "POST", headers: { authorization: "Bearer " + mt, "content-type": "application/json" },
-      body: JSON.stringify({ message: { token: t, data: { title, body, url: url || "/app/" }, webpush: { headers: { Urgency: "high", TTL: "86400" } } } }) });
-    if (res.ok) n++;
+      body: JSON.stringify({ message: { token: t, data: { title, body, url: url || "/app/", biz: bid, pid: d.name.split("/").pop() }, webpush: { headers: { Urgency: "high", TTL: "86400" } } } }) });
+    if (res.ok) { n++; await fetch(`https://firestore.googleapis.com/v1/${d.name}?updateMask.fieldPaths=lastSent`, { method: "PATCH", headers: { authorization: "Bearer " + tk, "content-type": "application/json" }, body: JSON.stringify({ fields: { lastSent: V(Date.now()) } }) }); }
     else if (res.status === 404 || res.status === 400) await fetch(`https://firestore.googleapis.com/v1/${d.name}`, { method: "DELETE", headers: { authorization: "Bearer " + tk } }); // celular que ya no existe
   }
   return n;
@@ -200,11 +200,23 @@ async function ics(env, bid, key) {
   return new Response(out.filter(Boolean).join("\r\n"), { headers: { "content-type": "text/calendar; charset=utf-8", "cache-control": "max-age=300" } });
 }
 
+/* El celular confirma que recibió el aviso (POST /ack). Si un aviso salió y no se confirmó, la app le avisa al dueño que algo lo bloquea. */
+async function ack(req, env) {
+  let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
+  const bid = clip(b.biz, 60).replace(/[^\w-]/g, ""), pid = clip(b.pid, 80).replace(/[^\w-]/g, "");
+  if (!bid || !pid) return jr(req, { error: "datos" }, 400);
+  const tk = await token(env), path = `biz/${bid}/push/${pid}`;
+  if (!(await get(env, tk, path))) return jr(req, { error: "no" }, 404);
+  await patch(env, tk, path, { lastAck: V(Date.now()) });
+  return jr(req, { ok: true });
+}
+
 export default {
   async fetch(req, env) {
     const path = new URL(req.url).pathname;
     const im = path.match(/^\/ics\/([\w-]{1,60})\/([\w-]{10,60})\.ics$/);
     if (im) return ics(env, im[1], im[2]);
+    if (path === "/ack") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ack(req, env) : new Response("ok");
     if (path === "/push") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? push(req, env) : new Response("ok");
     if (path === "/ia") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ia(req, env) : new Response("ok");
     if (req.method !== "POST") return new Response("ok");
