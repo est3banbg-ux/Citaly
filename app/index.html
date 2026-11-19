@@ -1358,7 +1358,7 @@ function ntfSheet(){var t=B.ntf||"",ios=/iPhone|iPad/.test(navigator.userAgent),
     if(t)h+='<details style="margin-top:14px"><summary class="mute small">Avisos por la app ntfy (opción vieja)</summary><p class="small">Tu canal: <code style="word-break:break-all">'+esc(t)+'</code></p><button class="btn ghost sm" id="ntnO">Quitar avisos de ntfy</button></details>';
     sheet(h,function(){bindBrave($("shC"));
       if($("pnA"))$("pnA").onclick=function(){var b=this;b.disabled=true;b.textContent="Activando…";
-        Notification.requestPermission().then(function(p){if(p!=="granted")throw new Error("permiso");return pushReg()}).then(function(){toast("Avisos activados ✓");return pushTest()}).then(draw,function(e){console.error(e);draw();pushFailUi(e)})};
+        Notification.requestPermission().then(function(p){if(p!=="granted")throw new Error("permiso");return pushReg()}).then(function(){toast("Avisos activados ✓");return pushTest()}).then(function(){draw();setTimeout(pushHealth,600)},function(e){console.error(e);draw();pushFailUi(e)})};
       if($("pnT"))$("pnT").onclick=function(){var b=this;b.disabled=true;pushTest().then(function(j){b.disabled=false;toast(j&&j.n?(IS_MOB?"Listo, te debería sonar el celular 🔔":"Listo, mira la esquina de la pantalla 🔔"):"No encontramos este dispositivo. Toca «Activar» de nuevo.")},function(){b.disabled=false;toast("Sin conexión")})};
       if($("pnF"))$("pnF").onclick=function(){fixPush()};
       if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
