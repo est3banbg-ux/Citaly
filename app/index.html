@@ -512,12 +512,12 @@ $("suGoo").onclick=function(){var p=new firebase.auth.GoogleAuthProvider();p.set
 function freeSlug(base){base=base||"mi-negocio";if(base.length<3)base=base+"-cr";if(RESERVED.indexOf(base)>=0)base=base+"-1";
   var tries=[base];for(var i=2;i<8;i++)tries.push(base.slice(0,36)+"-"+i);tries.push(base.slice(0,30)+"-"+Math.random().toString(36).slice(2,7));
   return tries.reduce(function(p,sl){return p.then(function(found){if(found)return found;return db.doc("pub/"+sl).get().then(function(d){return d.exists?null:sl})})},Promise.resolve(null))}
-function createBiz(f){var t=C.types[f.type],car=!!t.car,uid=U.uid,now=firebase.firestore.FieldValue.serverTimestamp();
+function createBiz(f){var t=C.types[f.type],tp=(C.tpl||{})[f.type]||{},car=!!t.car,uid=U.uid,now=firebase.firestore.FieldValue.serverTimestamp();
   return freeSlug(slugify(f.name)).then(function(sl){if(!sl)throw {code:"x/slug"};
-    var services=t.svc.map(function(x,i){var o={id:"s"+(i+1),n:x[0],p:x[1],d:x[2],ic:x[3]||""};if(car&&x[4])o.vx=true;return o});
+    var services=t.svc.map(function(x,i){var o={id:"s"+(i+1),n:x[0],p:x[1],d:x[2],ic:x[3]||""};if(car&&x[4])o.vx=true;if(tp.re&&tp.re[x[0]])o.re=tp.re[x[0]];return o});
     var biz={name:f.name.slice(0,60),type:f.type,wa:f.wa,addr:"",slug:sl,color:C.colors[0],logo:"",services:services,
-      hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"17:00"}}),home:false,zones:[],tagline:"",blurb:"",promo:"",
-      web:{faqs:[],reviews:[]},email:(U.email||"").toLowerCase(),team:[],mods:car?{vehiculo:true}:{},
+      hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"17:00"}}),home:false,zones:[],tagline:tp.tag||"",blurb:tp.blurb||"",promo:"",
+      web:{faqs:(tp.faq||[]).map(function(x){return {q:x[0],a:x[1]}}),reviews:[]},email:(U.email||"").toLowerCase(),team:[],mods:car?{vehiculo:true}:{},
       veh:car?[{n:"Sedán o hatchback",x:0},{n:"SUV",x:5000},{n:"Pick-up o 4x4",x:8000}]:[],
       open:true,ahead:21,lead:2,showPrices:true,askHow:true,self:true,owner:f.owner.slice(0,60),country:f.cc,onb:{cuenta:true},created:now};
     BID=uid;var pub=pubOf(biz);BID=null;
@@ -1016,7 +1016,7 @@ function fotSheet(){
 var LISTS={
   rev:{key:"rev",wk:"reviews",title:"⭐ Reseñas de clientes",intro:"Escribe lo que de verdad te han dicho tus clientes. Salen en tu página web. Usa solo reseñas reales.",add:"Agregar reseña",max:12,need:"t",
     f:[{k:"n",l:"Nombre del cliente",ph:"Ej: Carlos M.",max:40},{k:"t",l:"Lo que dijo",ph:"Ej: Excelente servicio, el carro quedó como nuevo.",max:300,area:1},{k:"src",l:"¿Dónde lo dijo? (opcional)",ph:"Ej: Google, WhatsApp, Facebook",max:30}]},
-  faq:{key:"faq",wk:"faqs",title:"❓ Preguntas frecuentes",intro:"Responde lo que más te preguntan por WhatsApp. Así vendes sin escribir lo mismo mil veces.",add:"Agregar pregunta",max:12,need:"q",
+  faq:{key:"faq",wk:"faqs",title:"❓ Preguntas frecuentes",intro:"Ya dejamos algunas de ejemplo. Cámbialas y agrega las tuyas: ¿cómo pago?, ¿dónde están?, ¿hacen domicilio? Así vendes sin escribir lo mismo mil veces.",add:"Agregar pregunta",max:12,need:"q",
     f:[{k:"q",l:"Pregunta",ph:"Ej: ¿Cómo puedo pagar?",max:120},{k:"a",l:"Respuesta",ph:"Ej: Con SINPE Móvil, tarjeta o efectivo.",max:400,area:1}]}};
 function listEd(o){
   if(!can("web")){upsell("web");return}
