@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>try{var __m=localStorage.getItem("citaly_mode");if(__m==="light"||__m==="dark")document.documentElement.setAttribute("data-mode",__m)}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cargando…</title>
 <meta name="description" content="">
@@ -127,6 +128,10 @@ footer a{color:var(--mute);font-weight:700}
 <div id="page" hidden></div>
 <div class="lb" id="lb" role="dialog" aria-modal="true"><button id="lbX" aria-label="Cerrar">✕</button><img id="lbI" alt=""><p id="lbP"></p></div>
 <script>
+function setMode(m){try{if(m==="light"||m==="dark"){localStorage.setItem("citaly_mode",m);document.documentElement.setAttribute("data-mode",m)}else{localStorage.removeItem("citaly_mode");document.documentElement.removeAttribute("data-mode")}}catch(e){}}
+function isDark(){var m=document.documentElement.getAttribute("data-mode");return m?m==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
+function modeLink(){return document.documentElement.hasAttribute("data-th")?"":' · <button class="link small" onclick="setMode(isDark()?\'light\':\'dark\');this.textContent=isDark()?\'☀️ Modo claro\':\'🌙 Modo oscuro\'" style="font-size:inherit">'+(isDark()?"☀️ Modo claro":"🌙 Modo oscuro")+'</button>'}
+
 "use strict";
 var $=function(i){return document.getElementById(i)},C=CITALY;
 var DN=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"],DS=["dom","lun","mar","mié","jue","vie","sáb"];
@@ -225,7 +230,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
     +(W.email?'<a href="mailto:'+esc(W.email)+'"><span class="ic">✉️</span><span><b>Correo</b><span>'+esc(W.email)+'</span></span></a>':"")
     +(hs?'<div><span class="ic">🕘</span><span><b>Horario</b><span>'+esc(hs)+'</span></span></div>':"")
     +'</div>'+(soc.length?'<div class="socials">'+soc.map(function(x){return '<a target="_blank" rel="noopener" href="'+esc(url(x[1]))+'">'+x[0]+'</a>'}).join("")+'</div>':"")+'</div></section>';
-  h+='<footer>© '+new Date().getFullYear()+' '+esc(name)+' · Página y reservas con <a href="/" target="_blank">citaly</a></footer>';
+  h+='<footer>© '+new Date().getFullYear()+' '+esc(name)+' · Página y reservas con <a href="/" target="_blank">citaly</a>'+modeLink()+'</footer>';
   h+='<div class="dock" id="dock">'+bookBtn("")+'<a class="btn wa" target="_blank" rel="noopener" href="'+wa+'" aria-label="WhatsApp">'+WA_SVG+'</a></div>';
   $("page").innerHTML=h;$("load").hidden=true;$("page").hidden=false;
   // datos para Google

@@ -49,13 +49,24 @@ async function patch(env, tk, path, fields) {
 function addMonth(ms) { const d = new Date(ms); d.setMonth(d.getMonth() + 1); return d.getTime(); }
 
 /* ---------- Asistente con IA para los negocios (POST /ia) ---------- */
-const IA_LIM = { turbo: 5, nitro: 30, trial: 10 }; // usos por día
+const IA_LIM = { turbo: 5, nitro: 30, trial: 10, ayuda: 20 }; // usos por día
 const ORIGINS = ["https://citalyapp.com", "https://www.citalyapp.com", "https://est3banbg-ux.github.io"];
 const cors = (req) => { const o = req.headers.get("origin") || ""; return { "access-control-allow-origin": ORIGINS.includes(o) ? o : ORIGINS[0], "access-control-allow-headers": "content-type", "access-control-allow-methods": "POST, OPTIONS", vary: "origin" }; };
 const jr = (req, obj, status = 200) => new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json", ...cors(req) } });
 const clip = (x, n) => String(x == null ? "" : x).replace(/[\u0000-\u001f]/g, " ").trim().slice(0, n);
 const GUARD = "Eres el asistente de un negocio pequeño de Costa Rica que usa Citaly. Solo ayudas con la página web del negocio, sus servicios, textos de WhatsApp y respuestas a clientes. Si piden algo que no tenga que ver con eso (tareas, código, política, otros temas), responde en una frase que solo puedes ayudar con el negocio. Escribe en español de Costa Rica, trato de tú, cercano y profesional, sin inventar precios, garantías ni datos que no te dieron. Sé breve.";
+const HELP = `Eres el soporte de Citaly (citalyapp.com), una app de citas y página web para negocios pequeños de Costa Rica (lavacars, detailing, barberías, salones, talleres, etc.). Ayudas al DUEÑO del negocio a usar la app. Responde en español de Costa Rica, cálido y claro, en máximo 90 palabras, con pasos numerados cuando sirva. Si no sabes algo o es un problema de cobro, cuenta o error técnico, dile que toque «Hablar con una persona» para escribirle a Esteban por WhatsApp. No inventes funciones.
+Dónde está cada cosa (la app tiene 4 pestañas abajo: Agenda, Clientes, Números, Ajustes):
+- Crear cita: Agenda → «+ Nueva cita». Cambiar estado: el selector de cada cita (Por confirmar, Confirmada, Lista = atendida, No vino, Cancelada). Botones por cita: Llamar, Confirmar/Recordar por WhatsApp, En camino (domicilio), Calendario, Editar, Borrar.
+- Cobros y abonos: botón «💰 Cobrar» en cada cita; al marcar «Lista» pregunta cómo te pagó (SINPE, Efectivo, Tarjeta, Transferencia); se puede abonar una parte. Cierre de caja y quién te debe: en Agenda, tarjeta «Cierre del día» → «Cierre de caja» (planes Turbo y Nitro).
+- Link de reservas y página web: Ajustes arriba (Copiar/Compartir). Servicios y precios, Horario, Logo y color, Portada (frase, promo y foto de portada), Estilo de tu página, Fotos (varias a la vez y «Antes y después»), Reseñas, Preguntas frecuentes, Reglas de reserva (anticipación, días hacia adelante), Cerrar un día (en la agenda, botón de cerrar día), Servicio a domicilio con zonas, Adelanto por SINPE.
+- Avisos al celular de reservas nuevas, canceladas o cambiadas: Ajustes → Avisos de reservas → Activar (en iPhone primero agregar la app a la pantalla de inicio desde Safari).
+- Google Calendar: Ajustes → Google Calendar → Conectar. Apariencia claro/oscuro: Ajustes → Apariencia.
+- Asistente con IA (textos y respuestas): Ajustes → Asistente con IA. Equipo: Ajustes → Equipo. Clientes: pestaña Clientes (historial, para reactivar, recordatorios). Números: ingresos, gastos, metas.
+- Planes: Arranque ₡4.900, Turbo ₡9.900, Nitro ₡19.900 al mes; se paga con tarjeta (Polar) o SINPE en Ajustes → Mi plan.
+- El cliente final reserva en citalyapp.com/nombre-del-negocio/reservar y puede cambiar o cancelar su cita con su link hasta 12 horas antes.`;
 function iaPrompt(mode, ctx) {
+  if (mode === "ayuda") return HELP + ` El negocio que pregunta: ${ctx.name}.`;
   const info = `Negocio: ${ctx.name}${ctx.type ? " (" + ctx.type + ")" : ""}.${ctx.services.length ? " Servicios: " + ctx.services.join(", ") + "." : ""}`;
   if (mode === "desc") return GUARD + " " + info + ' Mejora la frase de portada (máx. 8 palabras) y la descripción corta (máx. 25 palabras) de su página. Responde SOLO con JSON válido: {"tagline":"...","blurb":"..."}';
   if (mode === "faq") return GUARD + " " + info + ' Crea 5 preguntas frecuentes con respuesta corta (máx. 35 palabras cada una) que harían sus clientes. No inventes políticas: si no sabes algo (garantía, precios), da una respuesta neutral. Responde SOLO con JSON válido: [{"q":"...","a":"..."}]';
@@ -78,7 +89,7 @@ async function fbUser(idToken, env) { // verifica el token de Firebase con las l
 async function ia(req, env) {
   if (!env.ANTHROPIC_API_KEY || !env.FB_PROJECT) return jr(req, { error: "no_config" }, 503);
   let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
-  const idToken = clip(b.idToken, 4000), mode = ["desc", "faq", "resp", "libre"].includes(b.mode) ? b.mode : "libre", text = clip(b.text, 500);
+  const idToken = clip(b.idToken, 4000), mode = ["desc", "faq", "resp", "libre", "ayuda"].includes(b.mode) ? b.mode : "libre", text = clip(b.text, 500);
   if (!idToken) return jr(req, { error: "sesion" }, 401);
   if (mode !== "desc" && mode !== "faq" && text.length < 3) return jr(req, { error: "vacio" }, 400);
   const u = await fbUser(idToken, env);
@@ -88,10 +99,11 @@ async function ia(req, env) {
   const s = bid && (await get(env, tk, "subs/" + bid));
   if (!s) return jr(req, { error: "plan" }, 403);
   const until = s.until && s.until.timestampValue ? Date.parse(s.until.timestampValue) : 0, st = (s.status || {}).stringValue || "", t = (s.tier || {}).stringValue || "";
-  if (st === "suspended" || until < Date.now()) return jr(req, { error: "plan" }, 403);
-  const max = st === "trial" ? IA_LIM.trial : IA_LIM[t] || 0;
+  const help = mode === "ayuda"; // la ayuda para usar Citaly es gratis en todos los planes (con su propio límite)
+  if (!help && (st === "suspended" || until < Date.now())) return jr(req, { error: "plan" }, 403);
+  const max = help ? IA_LIM.ayuda : st === "trial" ? IA_LIM.trial : IA_LIM[t] || 0;
   if (!max) return jr(req, { error: "plan" }, 403);
-  const day = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10), path = "ia/" + bid + "_" + day;
+  const day = new Date(Date.now() - 6 * 3600e3).toISOString().slice(0, 10), path = "ia/" + bid + "_" + day + (help ? "_ayuda" : "");
   const used = +((((await get(env, tk, path)) || {}).n || {}).integerValue || 0);
   if (used >= max) return jr(req, { error: "limite", max, left: 0 }, 429);
   await patch(env, tk, path, { n: V(used + 1), biz: V(bid) }); // se cuenta antes de llamar a la IA
@@ -162,9 +174,37 @@ async function push(req, env) {
   return jr(req, { ok: true, n });
 }
 
+/* ---------- Calendario sincronizado (GET /ics/{negocio}/{llave}.ics) ----------
+   El dueño agrega este link en Google Calendar / iPhone y ve sus citas solas. La llave secreta está en biz/{id}.ics. */
+const icsEsc = (t) => String(t || "").replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const icsT = (date, min) => { const [y, m, d] = String(date).split("-").map(Number); const t = new Date(Date.UTC(y, m - 1, d, 6, 0) + min * 60e3); return t.toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z"; }; // Costa Rica = UTC-6
+async function ics(env, bid, key) {
+  const tk = await token(env), b = await get(env, tk, "biz/" + bid);
+  if (!b || !key || sv(b, "ics") !== key) return new Response("no encontrado", { status: 404 });
+  const from = new Date(Date.now() - 30 * 864e5).toISOString().slice(0, 10);
+  const r = await fetch(`${fs(env)}/biz/${bid}:runQuery`, { method: "POST", headers: { authorization: "Bearer " + tk }, body: JSON.stringify({ structuredQuery: { from: [{ collectionId: "jobs" }], where: { fieldFilter: { field: { fieldPath: "date" }, op: "GREATER_THAN_OR_EQUAL", value: { stringValue: from } } }, limit: 800 } }) });
+  const rows = r.ok ? (await r.json()).filter((x) => x.document).map((x) => x.document) : [];
+  const name = sv(b, "name") || "Citaly", now = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
+  const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Citaly//Agenda//ES", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:" + icsEsc(name + " · Citaly"), "X-WR-TIMEZONE:America/Costa_Rica", "REFRESH-INTERVAL;VALUE=DURATION:PT1H", "X-PUBLISHED-TTL:PT1H"];
+  for (const d of rows) {
+    const f = d.fields || {}, st = sv(f, "st"), date = sv(f, "date"), time = sv(f, "time");
+    if (!date || !time || st === "Cancelada" || st === "No vino") continue;
+    const [h, mi] = time.split(":").map(Number), a = h * 60 + (mi || 0), dur = +sv(f, "dur") || 60;
+    const items = (((f.items || {}).arrayValue || {}).values || []).map((x) => x.stringValue).filter(Boolean).join(" + ");
+    const tel = sv(f, "tel"), tot = +sv(f, "total") || 0, place = sv(f, "addr") || sv(f, "zone");
+    const desc = [items, tel ? "WhatsApp: " + tel : "", tot ? "Total: ₡" + tot.toLocaleString("es-CR") : "", st, sv(f, "note")].filter(Boolean).join("\n");
+    out.push("BEGIN:VEVENT", "UID:" + d.name.split("/").pop() + "@citalyapp.com", "DTSTAMP:" + now, "DTSTART:" + icsT(date, a), "DTEND:" + icsT(date, a + dur),
+      "SUMMARY:" + icsEsc((st === "Por confirmar" ? "⏳ " : "") + (sv(f, "cli") || "Cita") + (items ? " · " + items : "")), "DESCRIPTION:" + icsEsc(desc) + "\\nhttps://citalyapp.com/app/?cita=" + d.name.split("/").pop(), place ? "LOCATION:" + icsEsc(place) : "", "END:VEVENT");
+  }
+  out.push("END:VCALENDAR");
+  return new Response(out.filter(Boolean).join("\r\n"), { headers: { "content-type": "text/calendar; charset=utf-8", "cache-control": "max-age=300" } });
+}
+
 export default {
   async fetch(req, env) {
     const path = new URL(req.url).pathname;
+    const im = path.match(/^\/ics\/([\w-]{1,60})\/([\w-]{10,60})\.ics$/);
+    if (im) return ics(env, im[1], im[2]);
     if (path === "/push") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? push(req, env) : new Response("ok");
     if (path === "/ia") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ia(req, env) : new Response("ok");
     if (req.method !== "POST") return new Response("ok");

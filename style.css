@@ -1,6 +1,7 @@
 /* Citaly — estilos base */
 :root{--bg:#f4f2fb;--card:#fff;--ink:#1a1530;--mute:#6b6585;--line:#e4e0f2;--acc:#6c4cf5;--acc2:#ff8a5b;--accink:#fff;--soft:#efeafe;--ok:#1f8a4c;--warn:#c27a00;--bad:#c2372d;--sh:0 1px 2px rgba(26,21,48,.06),0 8px 24px -12px rgba(26,21,48,.18);color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0f0c1d;--card:#1a1630;--ink:#ece9f8;--mute:#a49dc2;--line:#2c2648;--acc:#8b72ff;--soft:#241d45;--ok:#4cc782;--warn:#f2b134;--bad:#ff8b80;--sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);color-scheme:dark}}
+@media (prefers-color-scheme:dark){:root:not([data-mode=light]):not([data-th]){--bg:#0f0c1d;--card:#1a1630;--ink:#ece9f8;--mute:#a49dc2;--line:#2c2648;--acc:#8b72ff;--soft:#241d45;--ok:#4cc782;--warn:#f2b134;--bad:#ff8b80;--sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-mode=dark]:not([data-th]){--bg:#0f0c1d;--card:#1a1630;--ink:#ece9f8;--mute:#a49dc2;--line:#2c2648;--acc:#8b72ff;--soft:#241d45;--ok:#4cc782;--warn:#f2b134;--bad:#ff8b80;--sh:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.6);color-scheme:dark}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 Figtree,system-ui,-apple-system,sans-serif;min-height:100vh;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
@@ -50,3 +51,8 @@ input[type=color]{padding:2px;height:44px}
 .logo img{width:30px;height:30px;border-radius:9px}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Modo claro / oscuro elegido a mano */
+:root[data-mode=light]:not([data-th]){color-scheme:light}
+:root[data-mode=dark]:not([data-th]){color-scheme:dark}
+.modeB{position:fixed;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:40;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:18px;box-shadow:var(--sh);cursor:pointer}

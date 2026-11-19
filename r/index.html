@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<script>try{var __m=localStorage.getItem("citaly_mode");if(__m==="light"||__m==="dark")document.documentElement.setAttribute("data-mode",__m)}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Reserva tu cita</title>
 <meta name="theme-color" content="#6c4cf5">
@@ -77,7 +78,8 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .zn b{color:var(--acc)}.zn[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}
 .or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:16px 0 10px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
 :root{--fmbg:#e8edf0;--fmpk:#cfe6c8;--fmr:#fff;--fmm:#ffd98a}
-@media (prefers-color-scheme:dark){:root{--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a}}
+@media (prefers-color-scheme:dark){:root:not([data-mode=light]):not([data-th]){--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a}}
+:root[data-mode=dark]:not([data-th]){--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a}
 .mapc{position:relative;display:block;height:130px;margin:10px 0 4px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--fmbg);text-decoration:none;color:#fff}
 .fm{position:absolute;inset:0;width:100%;height:100%}.fm-bg{fill:var(--fmbg)}.fm-pk{fill:var(--fmpk)}.fm-r{fill:none;stroke:var(--fmr);stroke-width:3.5;stroke-linecap:round}.fm-m{fill:none;stroke:var(--fmm);stroke-width:7;stroke-linecap:round}
 .tl{position:absolute;left:50%;top:50%;width:512px;height:512px;opacity:0;transition:opacity .5s}.tl img{position:absolute;width:256px;height:256px;max-width:none}.tl.on{opacity:1}.tl.off{display:none}
@@ -122,7 +124,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
       <a class="btn ghost" id="waTop" target="_blank" rel="noopener" style="margin-top:8px">💬 Escríbenos por WhatsApp</a>
     </div>
     <a class="btn ghost" id="toWeb" style="margin-top:8px">🌐 Ver más de este negocio</a>
-    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a></div>
+    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a><span class="mlk"></span></div>
   </div>
 
   <!-- RESERVA -->
@@ -156,13 +158,13 @@ h2.sec{margin:28px 0 12px;font-size:20px}
       <p class="mute small">Al confirmar, apartamos tu hora y te confirmamos por WhatsApp.</p>
     </div>
     <p class="err" id="er"></p>
-    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a></div>
+    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a><span class="mlk"></span></div>
   </div>
 
   <div id="mc" hidden>
     <div class="mini"><div class="lg" id="lg3"></div><b id="nm3"></b></div>
     <div id="mcb" style="text-align:center;padding-top:14px"><div class="spin"></div></div>
-    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a></div>
+    <div class="foot">Reservas con <a href="../" target="_blank">citaly</a><span class="mlk"></span></div>
   </div>
 
   <div id="ok" class="done" hidden>
@@ -187,6 +189,10 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 </div></div>
 
 <script>
+function setMode(m){try{if(m==="light"||m==="dark"){localStorage.setItem("citaly_mode",m);document.documentElement.setAttribute("data-mode",m)}else{localStorage.removeItem("citaly_mode");document.documentElement.removeAttribute("data-mode")}}catch(e){}}
+function isDark(){var m=document.documentElement.getAttribute("data-mode");return m?m==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
+function modeLink(){return document.documentElement.hasAttribute("data-th")?"":' · <button class="link small" onclick="setMode(isDark()?\'light\':\'dark\');this.textContent=isDark()?\'☀️ Modo claro\':\'🌙 Modo oscuro\'" style="font-size:inherit">'+(isDark()?"☀️ Modo claro":"🌙 Modo oscuro")+'</button>'}
+
 "use strict";
 var $=function(i){return document.getElementById(i)},C=CITALY;
 var DN=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],DS=["dom","lun","mar","mié","jue","vie","sáb"],MN=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
@@ -225,7 +231,7 @@ if(!slug||!db)notFound();else db.doc("pub/"+slug).get().then(function(d){if(!d.e
   return db.doc("subs/"+BID).get().then(function(s){var x=s.exists?s.data():null,ok=x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now();if(MCQ){openMine();return}init(ok&&P.open!==false)})}).catch(function(){notFound(true)});
 function notFound(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
 
-function init(open){$("load").hidden=true;$("land").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];
+function init(open){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];
   document.title=P.name+" · Reserva tu cita";document.documentElement.style.setProperty("--acc",col);document.querySelector('meta[name=theme-color]').content=col;
   var lg=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
   var cv=C.coverOf?C.coverOf(P.type,(P.web||{}).cover,900):"";if(cv){$("cov").innerHTML='<img alt="" src="'+cv+'" onerror="this.parentNode.hidden=true">';$("cov").hidden=false}
@@ -372,7 +378,7 @@ function myLink(tk){return location.origin+location.pathname+"?n="+slug+"&cita="
 function atMs(f,t){var d=pd(f);d.setMinutes(tm(t));return d.getTime()}
 function mcBox(h){$("mcb").innerHTML=h;window.scrollTo(0,0)}
 function mcWa(t){return waUrl(P.wa,t||"¡Hola "+P.name+"! 👋 Quiero hacer un cambio en mi cita"+(MC?" del "+niceDay(MC.date)+", "+fh(MC.time):""))}
-function openMine(){$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
+function openMine(){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
   $("lg3").innerHTML=P.logo?'<img alt="" src="'+P.logo+'">':esc(P.name.charAt(0).toUpperCase());$("nm3").textContent=P.name;
   db.doc("biz/"+BID+"/mine/"+MCQ).get().then(function(d){if(!d.exists){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p><a class="btn wa" target="_blank" rel="noopener" href="'+mcWa("¡Hola "+P.name+"! 👋 Tengo una consulta sobre mi cita")+'">Escribir por WhatsApp</a>');return}MC=d.data();renderMine()},
    function(){mcBox('<h2>No se pudo cargar tu cita</h2><p class="mute">Revisa tu internet y vuelve a intentar.</p><a class="btn alt" href="">Reintentar</a>')})}
