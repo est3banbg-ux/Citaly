@@ -124,7 +124,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="mini"><div class="lg" id="lg2"></div><b id="nm2"></b></div>
     <div class="prog"><i id="pg"></i></div><div class="pt" id="pt"></div>
 
-    <div class="step" id="s-svc"><h2 style="margin-top:12px">¿Qué te vas a hacer?</h2><p class="mute small" style="margin-top:-6px">Puedes elegir más de uno.</p><div id="vehBox" hidden><label style="margin-top:4px">¿Qué vehículo es?</label><div class="chips" id="vehs" style="margin-bottom:12px"></div></div><div id="svcs"></div></div>
+    <div class="step" id="s-svc"><h2 style="margin-top:12px">¿Qué te vas a hacer?</h2><p class="mute small" style="margin-top:-6px">Puedes elegir más de uno.</p><div id="vehBox" hidden><label style="margin-top:4px">¿Qué vehículo es?</label><div class="chips" id="vehs" style="margin-bottom:6px"></div><input id="vmod" maxlength="40" placeholder="Marca y modelo (ej: Toyota Rav4)" autocomplete="off" style="margin-bottom:4px"><p class="small" id="vmh" style="margin:0 0 12px;color:var(--mute)"></p></div><div id="svcs"></div></div>
 
     <div class="step" id="s-when"><h2 style="margin-top:12px">Elige el día</h2><div class="days" id="days"></div><h2 id="hT">Elige la hora</h2><div class="hours" id="hrs"></div><div id="hEmpty"></div></div>
 
@@ -164,6 +164,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <h1>¡Listo, tu cita quedó agendada!</h1>
     <p class="mute" id="okT"></p>
     <div class="card" style="text-align:left" id="okS"></div>
+    <div class="card" id="okDep" hidden style="text-align:left;margin-bottom:12px"></div>
     <a class="btn wa big" id="okWa" target="_blank" rel="noopener">Avisar por WhatsApp</a>
     <p class="mute small" style="margin:6px 0 12px">Toca el botón y manda el mensaje que ya va escrito. Así nos llega el aviso al instante y te confirmamos por ahí mismo.</p>
     <div class="mylink" id="mylink" hidden><b>🔁 ¿Necesitas cambiar o cancelar?</b><small>Guarda este link: ahí puedes cambiar el día u hora, o cancelar, hasta 12 horas antes.</small><div class="ml"><input id="mlv" readonly aria-label="Link de tu cita"><button id="mlc">Copiar</button></div></div>
@@ -235,10 +236,23 @@ function init(open){$("load").hidden=true;$("land").hidden=false;var col=P.color
   if((P.zones||[]).length)$("zones").innerHTML=P.zones.map(function(z,i){return '<button class="zn" data-z="'+i+'" aria-pressed="false"><span>'+esc(z.n)+'</span><b>'+(z.fee?"+"+crc(z.fee):"Gratis")+'</b></button>'}).join("");else $("zW").hidden=true;
   if(P.askHow!==false)$("how").innerHTML=HOW.map(function(h){return '<button class="chip" data-h="'+esc(h)+'" aria-pressed="false">'+esc(h)+'</button>'}).join("");else $("howW").hidden=true;
   if(/[?&]go=1/.test(location.search))start()}
-function start(){$("land").hidden=true;$("flow").hidden=false;$("bar").hidden=false;show(0)}
+function start(){memFill();$("land").hidden=true;$("flow").hidden=false;$("bar").hidden=false;show(0)}
 $("go1").onclick=$("go2").onclick=start;
 
 $("svcs").onclick=function(e){var b=e.target.closest(".svc");if(!b)return;var i=+b.dataset.i,k=S.pick.indexOf(i);if(k>=0)S.pick.splice(k,1);else S.pick.push(i);b.setAttribute("aria-pressed",k<0);S.t=null;upd()};
+/* Detecta si el modelo es SUV/pick-up o sedán y sugiere el tipo de vehículo */
+var SUVRX=["rav ?4","cr-?v","hr-?v","c-?hr","prado","land ?cruiser","fortuner","rush","hilux","tacoma","tundra","4 ?runner","highlander","sequoia","sportage","sorento","seltos","sonet","tucson","santa ?fe","creta","venue","kona","palisade","x-?trail","qashqai","kicks","frontier","navara","pathfinder","montero","outlander","asx","l ?200","pajero","nativa","mu-?x","d-?max","ranger","explorer","escape","ecosport","bronco","everest","cx-?[3589]0?","bt-?50","forester","outback","xv","crosstrek","vitara","jimny","s-?cross","terios","tiguan","t-?cross","t-?roc","touareg","amarok","duster","koleos","captur","oroch","trailblazer","tracker","equinox","colorado","silverado","wrangler","cherokee","compass","renegade","gladiator","x[1-7]","q[2-8]","gl[abce]","rx","nx","ux","gx","lx","xc[469]0","h6","jolion","haval","korando","tivoli","rexton","musso","l300","hiace","suv","pick ?up","camioneta","4x4"];
+var SEDRX=["corolla","yaris","camry","prius","etios","civic","accord","city","fit","jazz","sentra","versa","almera","march","tiida","note","elantra","accent","i10","i20","i30","sonata","rio","picanto","k3","k5","cerato","forte","soluto","mazda ?[236]","demio","swift","alto","celerio","ciaz","dzire","baleno","mirage","lancer","attrage","jetta","golf","gol","polo","vento","virtus","spark","sail","aveo","cruze","onix","beat","focus","fiesta","logan","sandero","model 3","leaf","ioniq","sedan","sedán","hatchback"];
+function nrm(s){return String(s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")}
+function hitRx(L,s){return L.some(function(r){return new RegExp("(^|[^a-z0-9])("+r+")([^a-z0-9]|$)").test(s)})}
+function guessVeh(){var s=nrm($("vmod").value);if(s.length<2)return "";var su=hitRx(SUVRX,s),se=hitRx(SEDRX,s);return su&&!se?"suv":se&&!su?"sed":""}
+function vehIdx(k){var rx=k==="suv"?/suv|camioneta|pick|4x4|jeep|todo ?terreno/i:/sed|hatch|compact|peque|auto\b|carro/i,ix=-1;(P.veh||[]).forEach(function(v,i){if(ix<0&&rx.test(nrm(v.n)))ix=i});if(k==="suv"){var pk=-1;(P.veh||[]).forEach(function(v,i){if(pk<0&&/pick|4x4/i.test(nrm(v.n))&&/pick|camioneta|hilux|ranger|frontier|navara|d-?max|amarok|colorado|silverado|tacoma|tundra|l ?200|mu-?x/.test(nrm($("vmod").value)))pk=i});if(pk>=0)return pk}return ix}
+function pickVeh(i){S.veh=i;Array.prototype.forEach.call($("vehs").children,function(c,j){c.setAttribute("aria-pressed",j===i?"true":"false")});renderSvcs();upd()}
+$("vmod").oninput=function(){var g=guessVeh(),h=$("vmh");h.textContent="";if(!g)return;var i=vehIdx(g);if(i<0)return;if(S.veh!==i){pickVeh(i);h.textContent="Lo marcamos como «"+P.veh[i].n+"». Si no es, cámbialo arriba."}};
+/* Recordar tus datos en este teléfono para la próxima reserva */
+var MEM="citaly_cli";function memGet(){try{return JSON.parse(localStorage.getItem(MEM)||"{}")}catch(e){return {}}}
+function memSet(o){try{localStorage.setItem(MEM,JSON.stringify(o))}catch(e){}}
+function memFill(){var m=memGet();if(m.n&&!$("cli").value)$("cli").value=m.n;if(m.t&&!$("tel").value)$("tel").value=m.t;if(m.m&&$("vmod")&&!$("vmod").value)$("vmod").value=m.m}
 function picked(){return S.pick.map(function(i){return P.services[i]})}
 /* Módulo "precio según tipo de vehículo": los servicios marcados suben según el vehículo elegido */
 function vehOn(){return !!(P.mods&&P.mods.vehiculo&&(P.veh||[]).length)}
@@ -310,7 +324,7 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
   var id=String(Date.now()*100+Math.floor(Math.random()*100)),tel=telN($("tel").value),L=picked().map(function(s){return {n:s.n,p:sp(s)}}),at=Date.now(),z=S.zone>=0?P.zones[S.zone]:null;
   var end=pd(S.day);end.setMinutes(tm(S.t)+dur());
   var job={id:id,cli:$("cli").value.trim().slice(0,60),tel:tel,items:L.map(function(l){return l.n}),lines:L,date:S.day,time:S.t,dur:dur(),sub:subT(),disc:0,fee:fee(),total:total(),
-    veh:vehOn()&&S.veh>=0?P.veh[S.veh].n:"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
+    veh:(vehOn()&&S.veh>=0?P.veh[S.veh].n:"")+(vehOn()&&$("vmod").value.trim()?" · "+$("vmod").value.trim().slice(0,40):""),ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
   var tk=newTok();S.tk=tk;
   function mk(wt){var bt=db.batch(),jd=Object.assign({},job);if(wt)jd.tk=tk;bt.set(db.doc("biz/"+BID+"/jobs/"+id),jd);
     blocks().forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
@@ -323,9 +337,14 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
     var taken=blocks().some(function(k){return BUSY[k]});
     if(taken){S.t=null;show(STEPS.indexOf("when"));err("Uy, alguien acaba de tomar esa hora. Elige otra, por favor.")}
     else{upd();err("Ya tienes una cita pendiente con este número. Para cambiarla o agendar otra, escríbenos por WhatsApp.")}})}}
+/* Aviso al dueño (app gratuita ntfy): solo manda día, hora y servicio, sin datos personales */
+function pingOwner(){try{if(!P.ntf)return;fetch("https://ntfy.sh/"+encodeURIComponent(P.ntf),{method:"POST",headers:{"Title":"Nueva reserva en Citaly","Tags":"calendar","Priority":"4"},body:niceDay(S.day)+", "+fh(S.t)+" · "+picked().map(function(s){return s.n}).join(" + ")}).catch(function(){})}catch(e){}}
+/* Adelanto por SINPE para asegurar la hora (lo configura el dueño) */
+function depBox(){var d=P.dep;if(!d||!d.tel){return}var amt=+d.amt||0,box=$("okDep");if(d.pct&&!amt)amt=Math.round(total()*d.pct/100/100)*100;
+  box.hidden=false;box.innerHTML='<b>💸 Asegura tu hora con un adelanto</b><p class="mute small" style="margin:6px 0 0">'+(amt?'Envía <b>'+crc(amt)+'</b>':'Envía el adelanto')+' por SINPE Móvil al <b>'+esc(d.tel)+'</b>'+(d.name?' ('+esc(d.name)+')':'')+' y manda el comprobante por WhatsApp.'+(d.note?' '+esc(d.note):'')+'</p>'}
 function waText(){var z=S.zone>=0?P.zones[S.zone]:null;return "¡Hola "+P.name+"! 👋 Acabo de reservar por su página:\n\n📅 "+niceDay(S.day)+", "+fh(S.t)+(vehOn()&&S.veh>=0?"\n🚙 "+P.veh[S.veh].n:"")+"\n✨ "+picked().map(function(s){return s.n}).join(" + ")+"\n💰 "+crc(total())+"\n👤 "+$("cli").value.trim()
   +(P.home?(z?"\n🗺️ "+z.n:"")+(S.ll?"\n📍 https://maps.google.com/?q="+S.ll:"")+($("ad").value.trim()?"\n🏠 "+$("ad").value.trim():""):"")+($("nt").value.trim()?"\n📝 "+$("nt").value.trim():"")+(S.tk?"\n\n🔗 Para cambiar o cancelar mi cita: "+myLink(S.tk):"")}
-function done(){if(S.tk){$("mylink").hidden=false;$("mlv").value=myLink(S.tk);$("mlc").onclick=function(){var v=$("mlv").value;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(function(){$("mlc").textContent="¡Copiado!"},function(){$("mlv").select()})}}$("flow").hidden=true;$("bar").hidden=true;$("ok").hidden=false;window.scrollTo(0,0);
+function done(){memSet({n:$("cli").value.trim().slice(0,60),t:$("tel").value.trim().slice(0,15),m:$("vmod")?$("vmod").value.trim().slice(0,40):""});pingOwner();depBox();if(S.tk){$("mylink").hidden=false;$("mlv").value=myLink(S.tk);$("mlc").onclick=function(){var v=$("mlv").value;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(function(){$("mlc").textContent="¡Copiado!"},function(){$("mlv").select()})}}$("flow").hidden=true;$("bar").hidden=true;$("ok").hidden=false;window.scrollTo(0,0);
   $("okT").textContent=P.name+" recibió tu reserva.";
   $("okS").innerHTML='<b>'+niceDay(S.day).replace(/^./,function(c){return c.toUpperCase()})+', '+fh(S.t)+'</b><br><span class="mute">'+esc(picked().map(function(s){return s.n}).join(" + "))+" · "+crc(total())+'</span>';
   $("okWa").href=waUrl(P.wa,waText());

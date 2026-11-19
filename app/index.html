@@ -350,6 +350,8 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
         <button class="set" data-s="hor"><span class="ic">🕘</span><span class="m"><b>Horario</b><span id="horN"></span></span>›</button>
         <button class="set" data-s="look"><span class="ic">🎨</span><span class="m"><b>Logo y color</b><span>Cómo te ven tus clientes</span></span>›</button>
         <button class="set" data-s="web"><span class="ic">✨</span><span class="m"><b>Portada de mi página</b><span>Frase, promoción y precios</span></span>›</button>
+        <button class="set" data-s="dep"><span class="ic">💸</span><span class="m"><b>Adelanto por SINPE</b><span id="depN">Para asegurar la hora del cliente</span></span>›</button>
+        <button class="set" data-s="ntf"><span class="ic">🔔</span><span class="m"><b>Avisos de reservas nuevas</b><span id="ntfN">Que te suene el celular</span></span>›</button>
         <button class="set" data-s="fot"><span class="ic">📸</span><span class="m"><b>Fotos de mis trabajos</b><span id="fotN">Se ven en tu página web</span></span>›</button>
         <button class="set" data-s="rev"><span class="ic">⭐</span><span class="m"><b>Reseñas de clientes</b><span id="revN">Lo que dicen de ti</span></span>›</button>
         <button class="set" data-s="faq"><span class="ic">❓</span><span class="m"><b>Preguntas frecuentes</b><span id="faqN">Responde antes de que pregunten</span></span>›</button>
@@ -551,7 +553,7 @@ function noAcc(kind){show("noacc");var e=esc(U&&U.email||"");
   $("naWa").href=waUrl(C.wa,kind==="verify"?"Hola, no me llega el correo para confirmar mi cuenta de Citaly ("+(U&&U.email||"")+")":"Hola, quiero entrar a Citaly con este correo: "+(U&&U.email||""))}
 $("naOut").onclick=function(){auth.signOut()};
 function resizeImg(f,S){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var c=document.createElement("canvas"),s=Math.min(im.width,im.height);c.width=c.height=S;var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,S,S);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,S,S);var u=c.toDataURL("image/webp",.82);if(u.indexOf("image/webp")<0)u=c.toDataURL("image/jpeg",.82);ok(u)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
-function pubOf(b){return {biz:BID,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[],cierre:b.cierre||{}}}
+function pubOf(b){return {biz:BID,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[],cierre:b.cierre||{},dep:b.dep||null,ntf:b.ntf||""}}
 
 /* ---------- ARRANQUE ---------- */
 var PAGO_OK=/[?&]pago=ok/.test(location.search);
@@ -975,6 +977,8 @@ function openSet(s){
     function(){$("nS").onclick=function(){var n=$("nN").value.trim(),w=telN($("nW").value);if(n.length<2||w.length<8){$("nE").textContent="Revisa el nombre y el WhatsApp.";return}var rv=$("nR").value.trim();if(rv&&!/^https?:\/\/\S+$/i.test(rv)){$("nE").textContent="El link de reseñas debe empezar con https://";return}saveBiz({name:n,wa:w,addr:$("nA").value.trim(),rev:rv}).then(function(){closeSheet();toast("Guardado ✓")})}});
   if(s==="svc")svcSheet();
   if(s==="fot")fotSheet();
+  if(s==="dep")depSheet();
+  if(s==="ntf")ntfSheet();
   if(s==="rev")listEd(LISTS.rev);
   if(s==="faq")listEd(LISTS.faq);
   if(s==="hor")sheet('<h2>Horario</h2><p class="mute small" style="margin-top:-4px">Marca los días que atiendes.</p>'+[1,2,3,4,5,6,0].map(function(d){var h=(B.hours||[])[d]||{on:false,a:"08:00",b:"18:00"};return '<div class="hrow"><button class="chip" data-hd="'+d+'" aria-pressed="'+!!h.on+'">'+DS[d]+'</button><input type="time" step="1800" id="ha'+d+'" value="'+h.a+'"'+(h.on?"":" disabled")+'><input type="time" step="1800" id="hb'+d+'" value="'+h.b+'"'+(h.on?"":" disabled")+'></div>'}).join("")+'<p class="err" id="hE"></p><button class="btn" id="hS">Guardar horario</button>',
@@ -991,6 +995,19 @@ function openSet(s){
     +(B.mods&&Object.keys(B.mods).some(function(k){return B.mods[k]})?'<p class="mute small" style="margin:8px 0 0">Módulos activos: '+Object.keys(B.mods).filter(function(k){return B.mods[k]&&C.mods[k]}).map(function(k){return C.mods[k].ic+" "+C.mods[k].n}).join(", ")+'</p>':"")
     +'</div><p class="mute small">¿Necesitas algo especial para tu negocio? Lo programamos y lo activamos solo para ti.</p><a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,"Hola, quiero agregar algo nuevo a mi sistema de Citaly ("+(B?B.name:"")+")")+'">Pedir algo nuevo por WhatsApp</a>',null)}
 
+/* ---------- Adelanto por SINPE y avisos de reservas nuevas ---------- */
+function depSheet(){var d=B.dep||{};
+  sheet('<h2>💸 Adelanto por SINPE</h2><p class="mute small" style="margin-top:-4px">Al terminar de reservar, tu cliente ve cuánto enviar y a qué número. Reduce los que no llegan.</p><label>SINPE Móvil donde recibes</label><input id="addT" inputmode="tel" maxlength="15" placeholder="8888 8888" value="'+esc(d.tel||"")+'"><label>A nombre de (opcional)</label><input id="addN" maxlength="40" value="'+esc(d.name||"")+'"><label>Monto fijo en colones (opcional)</label><input id="addA" inputmode="numeric" maxlength="7" placeholder="Ej: 5000" value="'+(d.amt||"")+'"><label>O porcentaje del total (si no pones monto)</label><input id="addP" inputmode="numeric" maxlength="3" placeholder="Ej: 30" value="'+(d.pct||"")+'"><p class="err" id="addE"></p><button class="btn" id="addS">Guardar</button><button class="link" id="addX" style="margin-top:8px">Quitar adelanto</button>',function(){
+    $("addS").onclick=function(){var t=telDigits($("addT").value);if(t.length!==8){$("addE").textContent="Escribe un número de 8 dígitos.";return}
+      var o={tel:t,name:$("addN").value.trim().slice(0,40),amt:Math.max(0,parseInt($("addA").value,10)||0),pct:Math.min(100,Math.max(0,parseInt($("addP").value,10)||0))};
+      $("addS").disabled=true;saveBiz({dep:o}).then(function(){closeSheet();toast("Adelanto activado ✓")},function(e){$("addS").disabled=false;$("addE").textContent=errEs(e)})};
+    $("addX").onclick=function(){saveBiz({dep:null}).then(function(){closeSheet();toast("Adelanto quitado")})}})}
+function telDigits(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
+function ntfSheet(){var t=B.ntf||"";
+  function draw(){sheet('<h2>🔔 Avisos de reservas nuevas</h2><p class="mute small" style="margin-top:-4px">Te suena el celular apenas alguien reserva. Es gratis y usa la app <b>ntfy</b>.</p>'+(t?'<div class="card" style="box-shadow:none"><b>Tu canal:</b><br><code style="word-break:break-all">'+esc(t)+'</code></div><ol class="small" style="padding-left:18px;line-height:1.6"><li>Instala la app <b>ntfy</b> (gratis, Android y iPhone).</li><li>Toca «+» y escribe el nombre de tu canal tal cual.</li><li>Listo: cada reserva nueva te llega como notificación.</li></ol><button class="btn ghost" id="ntnO">Quitar avisos</button>':'<button class="btn" id="ntnA">Activar avisos</button>'),function(){
+    if($("ntnA"))$("ntnA").onclick=function(){var a=new Uint8Array(9),c="abcdefghijkmnpqrstuvwxyz23456789";crypto.getRandomValues(a);t="citaly-"+Array.prototype.map.call(a,function(x){return c[x%c.length]}).join("");$("ntnA").disabled=true;saveBiz({ntf:t}).then(draw,function(){t="";$("ntnA").disabled=false})};
+    if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
+  draw()}
 /* ---------- Contenido de la página web: fotos, reseñas y preguntas (lo edita el dueño) ---------- */
 function fitImg(f,S){return new Promise(function(ok,ko){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var k=Math.min(1,S/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);var x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);
   var enc=function(q){var u=c.toDataURL("image/webp",q);return u.indexOf("image/webp")<0?c.toDataURL("image/jpeg",q):u},q=.82,u=enc(q);while(u.length>600000&&q>.4){q-=.12;u=enc(q)}ok(u)};im.onerror=ko;im.src=r.result};r.onerror=ko;r.readAsDataURL(f)})}
