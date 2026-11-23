@@ -350,6 +350,13 @@ html.thx *,html.thx *:before,html.thx *:after{transition:background-color .4s,bo
   .thg{grid-template-columns:repeat(3,1fr)}
 }
 </style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1670659898178288');fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1670659898178288&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
 </head>
 <body>
 
@@ -705,7 +712,7 @@ $("suGo").onclick=function(){var e=$("suErr"),btn=this,c=suCountry(),n=$("suN").
   var wa=c[0]==="CR"?w:c[2]+w,f={type:SU.type,name:n,owner:own,wa:wa,cc:c[0]};
   btn.disabled=true;btn.textContent="Creando tu cuenta…";CREATING=true;
   var step=inn?Promise.resolve(U):auth.createUserWithEmailAndPassword(em,pw).then(function(r){U=r.user;r.user.updateProfile({displayName:own}).catch(function(){});r.user.sendEmailVerification().catch(function(){});return r.user});
-  step.then(function(){return createBiz(f)}).then(function(){CREATING=false;stop();BID=U.uid;start(true)},function(x){console.error(x);CREATING=false;btn.disabled=false;btn.textContent="Crear cuenta gratis";
+  step.then(function(){return createBiz(f)}).then(function(){CREATING=false;try{window.fbq&&fbq("track","CompleteRegistration",{content_name:SU.type,status:true})}catch(e){}stop();BID=U.uid;start(true)},function(x){console.error(x);CREATING=false;btn.disabled=false;btn.textContent="Crear cuenta gratis";
     e.textContent=x.code==="auth/email-already-in-use"?"Ese correo ya tiene cuenta. Tocá «Entrar» abajo.":x.code==="permission-denied"?"No se pudo crear el negocio. Escribinos por WhatsApp y te ayudamos.":errEs(x);
     if(x.code==="auth/email-already-in-use")$("suHave").hidden=false})};
 
@@ -725,7 +732,7 @@ function pubOf(b){return {biz:BID,tier:tier(),cap:{fot:lim("fot")},web:pubWeb(b.
 
 /* ---------- ARRANQUE ---------- */
 var PAGO_OK=/[?&]pago=ok/.test(location.search);
-function pagoOk(){if(!PAGO_OK)return;PAGO_OK=false;try{history.replaceState(null,"",location.pathname)}catch(e){}
+function pagoOk(){if(!PAGO_OK)return;PAGO_OK=false;try{window.fbq&&fbq("track","Purchase",{value:4900,currency:"CRC"})}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}
   setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Gracias por tu pago!</h2><p class="mute">Recibimos tu suscripción. En unos minutos activamos tu plan y te avisamos por WhatsApp.</p></div><a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,"¡Hola! Acabo de pagar Citaly con tarjeta 💳\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))+'">Avisar a Citaly por WhatsApp</a>')},900)}
 function start(fresh){var uid=BID,first=true;
   UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;syncPub();if(first){first=false;setTimeout(pushRefresh,2500);show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));

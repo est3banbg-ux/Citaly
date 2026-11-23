@@ -202,6 +202,18 @@ footer a{color:var(--mute)}
 .rubro:after{content:"Probar →";position:absolute;right:14px;bottom:14px;background:rgba(255,255,255,.2);border-radius:999px;font:800 12px Figtree,sans-serif;padding:4px 10px}
 .rubro small{padding-right:68px}
 </style>
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1670659898178288');fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1670659898178288&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel -->
+<script>
+document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a");if(!a||!window.fbq)return;var h=a.getAttribute("href")||"";
+if(/nuevo=1/.test(h))fbq("track","Lead",{content_name:"crear_cuenta"});
+else if(a.classList.contains("wa-demo")||/wa\.me|whatsapp/.test(h))fbq("track","Contact",{content_name:"whatsapp"})},true);
+</script>
 </head>
 <body>
 <div class="ann">🔥 Promo: Arranque a <span class="pPromo">₡500</span>/mes por <span class="pPM">3</span> meses<a href="app/?nuevo=1">Quiero la promo →</a></div>
