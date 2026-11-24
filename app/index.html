@@ -172,7 +172,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .svcrow{display:grid;grid-template-columns:44px 1fr;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
 .svcrow .x{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:6px}
 .svcrow input{padding:8px 10px}
-.ics{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.icb{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--soft);display:grid;place-items:center;font-size:22px;padding:0;cursor:pointer;color:var(--ink)}.icb .ics{width:30px;height:30px}.ico-img{object-fit:contain}
+.ics{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.ico-img{object-fit:contain}.icb .ico-img{width:36px;height:36px}.icg .ico-img,.icg .ics{width:100%;height:100%}.chip .ico-img{width:1.6em;height:1.6em;vertical-align:-.45em}.icb{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--soft);display:grid;place-items:center;font-size:22px;padding:0;cursor:pointer;color:var(--ink)}.icb .ics{width:30px;height:30px}.ico-img{object-fit:contain}
 .icpk{grid-column:1/-1;background:var(--soft);border-radius:14px;padding:10px}.icg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.icg button{aspect-ratio:1;border-radius:12px;border:2px solid transparent;background:var(--card);display:grid;place-items:center;padding:6px;cursor:pointer;color:var(--ink)}.icg button .ics{width:100%;height:100%}.icg button[aria-pressed=true]{border-color:var(--acc)}
 .toggle{position:relative;width:50px;height:30px;flex:none}
 .toggle input{opacity:0;width:0;height:0}
@@ -663,7 +663,7 @@ function signup(){show("signup");var inn=!!U;
   if(inn){$("suEm").textContent=U.email||"";$("suWa").href=waUrl(C.wa,"Hola, necesito ayuda para entrar a Citaly con "+(U.email||""));if(U.displayName&&!$("suP").value)$("suP").value=U.displayName}
   Array.prototype.forEach.call(document.querySelectorAll(".suDays"),function(e){e.textContent=C.trialDays||7});
   var order=["lavacar","detailing","pulido","polarizado","taller","autos","otro"];
-  $("suT").innerHTML=order.filter(function(k){return C.types[k]}).map(function(k){var t=C.types[k];return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(SU.type===k)+'">'+(t.ic||"")+" "+esc(t.n)+'</button>'}).join("");
+  $("suT").innerHTML=order.filter(function(k){return C.types[k]}).map(function(k){var t=C.types[k];return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(SU.type===k)+'">'+(t.ico?C.ico(t.ico):(t.ic||""))+" "+esc(t.n)+'</button>'}).join("");
   if(!$("suC").options.length){var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
     var guess=/Costa_Rica/.test(tz)?"CR":/Panama/.test(tz)?"PA":/Mexico|Monterrey|Cancun|Tijuana|Merida|Chihuahua/.test(tz)?"MX":/Bogota/.test(tz)?"CO":/Lima/.test(tz)?"PE":/Santiago/.test(tz)?"CL":/Guayaquil/.test(tz)?"EC":/Santo_Domingo/.test(tz)?"DO":/Puerto_Rico/.test(tz)?"PR":/Buenos_Aires|Argentina/.test(tz)?"AR":/Guatemala/.test(tz)?"GT":/Salvador/.test(tz)?"SV":/Tegucigalpa/.test(tz)?"HN":/Managua/.test(tz)?"NI":/Madrid/.test(tz)?"ES":/Caracas/.test(tz)?"VE":/Montevideo/.test(tz)?"UY":/Asuncion/.test(tz)?"PY":/La_Paz/.test(tz)?"BO":/America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix)/.test(tz)?"US":"CR";
     $("suC").innerHTML=C.countries.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===guess?" selected":"")+'>'+flag(c[0])+" +"+c[2]+'</option>'}).join("");suPh()}}
