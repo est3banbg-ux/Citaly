@@ -163,7 +163,7 @@ function render(){var ids=Object.keys(BIZ),now=Date.now(),c={active:0,suspended:
     +k("Cobrado este mes",crc(mon))+k("Ingreso fijo al mes",crc(mrr))+k("En prueba gratis",c.trial)+k("Mensualidad vencida",lateN)+k("Negocios activos",c.active)+k("Saldo por cobrar",crc(owe));
   var q=$("q").value.trim().toLowerCase();
   var L=ids.map(function(i){return {id:i,s:SUBS[i]||null,b:BIZ[i]}}).filter(function(x){var st=state(x.s);if(F==="late"){if(!late(x.s))return false}else if(F==="owe"){if(st==="demo"||Math.max(0,totalOf(x.s)-paidOf(x.id))<=0)return false}else if(F!=="all"&&st!==F)return false;
-      return !q||[x.b.name,x.b.email,x.b.slug,x.b.wa,(x.b.team||[]).join(" "),(typeof ADM!=="undefined"&&ADM[x.id]?(ADM[x.id].tags||[]).join(" ")+" "+(ADM[x.id].note||""):"")].join(" ").toLowerCase().indexOf(q)>=0})
+      return !q||CITALY.fz(q,[x.b.name,x.b.email,x.b.slug,x.b.wa,(x.b.team||[]).join(" "),(typeof ADM!=="undefined"&&ADM[x.id]?(ADM[x.id].tags||[]).join(" ")+" "+(ADM[x.id].note||""):"")].join(" "))>0})
     .sort(function(a,b){return (b.b.created&&b.b.created.toMillis?b.b.created.toMillis():0)-(a.b.created&&a.b.created.toMillis?a.b.created.toMillis():0)});
   $("list").innerHTML=L.length?L.map(function(x){var st=state(x.s),b=x.b,s=x.s,tot=totalOf(s),paid=paidOf(x.id),due=Math.max(0,tot-paid);
       var dl=Math.ceil((untilMs(s)-Date.now())/864e5);

@@ -475,11 +475,13 @@ var CITALY = {
   };
   function norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
   function apply(k) {
-    var t = k.querySelector(".ipt.on"), tab = t ? t.dataset.ipt : "*", q = norm(k.querySelector(".ipq").value).trim(), n = 0;
-    k.querySelectorAll(".ipb").forEach(function (b) {
-      var show = b.classList.contains("ipcur") || (q ? q.split(/\s+/).every(function (w) { return norm(b.dataset.kw).indexOf(w) >= 0; }) : (tab === "*" || (" " + b.dataset.g + " ").indexOf(" " + tab + " ") >= 0));
-      b.hidden = !show; if (show) n++;
+    var t = k.querySelector(".ipt.on"), tab = t ? t.dataset.ipt : "*", q = k.querySelector(".ipq").value.trim(), n = 0, g = k.querySelector(".ipg"), bs = [].slice.call(k.querySelectorAll(".ipb")), sc = {};
+    bs.forEach(function (b, i) {
+      if (b.dataset.o == null) b.dataset.o = i;
+      var s = b.classList.contains("ipcur") ? 9 : q ? C.fz(q, b.dataset.kw) : ((tab === "*" || (" " + b.dataset.g + " ").indexOf(" " + tab + " ") >= 0) ? 1 : 0);
+      sc[i] = s; b.hidden = !s; if (s) n++;
     });
+    bs.map(function (b, i) { return [b, q ? sc[i] : 0, +b.dataset.o]; }).sort(function (x, y) { return y[1] - x[1] || x[2] - y[2]; }).forEach(function (x) { g.appendChild(x[0]); });
     var p = k.querySelector(".ipn"); if (p) p.hidden = n > 0 || !q;
   }
   function init(k) {
@@ -501,4 +503,91 @@ var CITALY = {
     }, true);
     document.addEventListener("input", function (e) { var q = e.target.closest && e.target.closest(".ipq"); if (q) apply(q.closest(".ipk")); });
   }
+})(CITALY);
+
+/* ===== Buscador inteligente (sinonimos + errores de tipeo) - compartido ===== */
+(function (C) {
+  var G = [
+    "foco focos faro faros farol luz luces luminaria lampara headlight",
+    "parabrisas vidrio vidrios cristal cristales ventana ventanas luna windshield medallon",
+    "pulir pulido pulidos pulida lustrar lustre abrillantar brillo brillar polish restaurar restauracion",
+    "lavar lavado lavados lavacar aseo limpieza limpiar wash",
+    "detailing detallado detalle detallar estetica",
+    "tapiceria asientos interior cuero tapizado",
+    "ceramico ceramica nano proteccion sellador coating",
+    "polarizado polarizar tintado tinte laminas lamina film",
+    "rayon rayones raya rayas arana aranazo aranazos scratch",
+    "gota seca manchas sarro calcareo",
+    "cita citas reserva reservas agenda turno turnos appointment evento",
+    "cliente clientes contacto contactos persona comprador",
+    "precio precios costo costos tarifa tarifas cobro cobrar valor cuanto",
+    "horario horarios hora horas abrir cerrar dias atencion",
+    "pago pagos sinpe deposito adelanto transferencia cobrado",
+    "gasto gastos egreso egresos compra insumo insumos",
+    "ganancia ganancias ingreso ingresos dinero plata utilidad ventas venta",
+    "foto fotos imagen imagenes galeria fotografia",
+    "whatsapp wasap wsp mensaje mensajes chat",
+    "resena resenas opinion opiniones estrellas calificacion review",
+    "recordatorio recordatorios aviso avisos alerta notificacion notificaciones",
+    "barba barberia navaja afeitar",
+    "pelo cabello corte cortar peluqueria peinado",
+    "unas manicure pedicure esmalte gel acrilicas",
+    "masaje masajes spa relajante relajacion",
+    "taller mecanica mecanico reparacion motor",
+    "aceite lubricante",
+    "frenos freno pastillas disco",
+    "carro auto vehiculo coche automovil pickup suv sedan",
+    "negocio empresa local comercio",
+    "correo email mail",
+    "configuracion ajustes opciones preferencias settings",
+    "modo tema oscuro claro noche apariencia",
+    "link enlace url pagina web sitio",
+    "telefono tel celular numero movil llamar"
+  ];
+  var M = {};
+  G.forEach(function (g, i) { g.split(" ").forEach(function (w) { (M[w] = M[w] || []).push(i); }); });
+  function norm(s) { return String(s == null ? "" : s).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+  function toks(s) { return norm(s).split(/[^a-z0-9]+/).filter(Boolean); }
+  function lev(a, b, max) {
+    if (Math.abs(a.length - b.length) > max) return max + 1;
+    var p = [], i, j, c, t, min;
+    for (j = 0; j <= b.length; j++) p[j] = j;
+    for (i = 1; i <= a.length; i++) {
+      var prev = p[0]; p[0] = i; min = p[0];
+      for (j = 1; j <= b.length; j++) {
+        t = p[j]; c = a[i - 1] === b[j - 1] ? 0 : 1;
+        p[j] = Math.min(p[j] + 1, p[j - 1] + 1, prev + c); prev = t; if (p[j] < min) min = p[j];
+      }
+      if (min > max) return max + 1;
+    }
+    return p[b.length];
+  }
+  function variants(w) {
+    var v = [w], st = w.length > 4 ? w.replace(/(es|s)$/, "") : w;
+    [w, st].forEach(function (x) { (M[x] || []).forEach(function (i) { G[i].split(" ").forEach(function (y) { if (v.indexOf(y) < 0) v.push(y); }); }); });
+    if (st !== w && v.indexOf(st) < 0) v.push(st);
+    return v;
+  }
+  /* devuelve 0 si no coincide; mayor numero = mejor coincidencia */
+  C.fz = function (q, hay) {
+    var qt = toks(q); if (!qt.length) return 1;
+    var ht = toks(hay), total = 0;
+    for (var a = 0; a < qt.length; a++) {
+      var best = 0, vs = variants(qt[a]);
+      for (var k = 0; k < vs.length; k++) {
+        var v = vs[k], f = k === 0 ? 1 : 0.8;
+        for (var b = 0; b < ht.length; b++) {
+          var t = ht[b], s = 0;
+          if (t === v) s = 3;
+          else if (v.length >= 2 && t.indexOf(v) === 0) s = 2.5;
+          else if (v.length >= 3 && t.indexOf(v) > 0) s = 2;
+          else if (t.length >= 4 && v.indexOf(t) === 0) s = 1.5;
+          else if (!/\d/.test(v) && v.length >= 4 && lev(v, t, v.length >= 7 ? 2 : 1) <= (v.length >= 7 ? 2 : 1)) s = 1;
+          s *= f; if (s > best) best = s;
+        }
+      }
+      if (!best) return 0; total += best;
+    }
+    return total;
+  };
 })(CITALY);

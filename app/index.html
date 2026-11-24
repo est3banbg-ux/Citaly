@@ -808,7 +808,7 @@ function calUrl(j){var f=function(m){return String(j.date).replace(/-/g,"")+"T"+
 function goJob(id){var j=JOBS.find(function(x){return x._id===id});if(!j)return;go("agenda");SEL=j.date;MG=false;renderAg();setTimeout(function(){var el=document.querySelector('#dayList .job[data-id="'+id+'"]');if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("pcf")}},80)}
 var MG=false;
 function agSearch(){var q=$("agq").value.trim().toLowerCase(),d=q.replace(/\D/g,"");if(q.length<2){$("agr").innerHTML="";return}
-  var L=JOBS.filter(function(j){var h=((j.cli||"")+" "+(j.items||[]).join(" ")+" "+(j.veh||"")+" "+(j.note||"")).toLowerCase();return h.indexOf(q)>=0||(d.length>=3&&String(j.tel||"").indexOf(d)>=0)}).sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)}).slice(0,12);
+  var L=JOBS.filter(function(j){var h=((j.cli||"")+" "+(j.items||[]).join(" ")+" "+(j.veh||"")+" "+(j.note||"")).toLowerCase();return CITALY.fz(q,h)>0||(d.length>=3&&String(j.tel||"").indexOf(d)>=0)}).sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)}).slice(0,12);
   $("agr").innerHTML=L.length?L.map(function(j){return '<div class="job st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+pd(j.date).getDate()+'<small>'+MN[pd(j.date).getMonth()].slice(0,3)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+fh(j.time)+' · '+esc((j.items||[]).join(" + ")||"—")+'</span></div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join(""):'<p class="mute small" style="text-align:center">No encontré citas con eso.</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#agr .job"),function(el){el.onclick=function(){$("agq").value="";$("agr").innerHTML="";goJob(el.dataset.id)}})}
 $("agq").oninput=agSearch;
@@ -1057,7 +1057,7 @@ $("cq").oninput=renderCli;
 $("cF").onclick=function(e){var b=e.target.closest("button");if(!b)return;CF=b.dataset.f;renderCli()};
 function renderCli(){renderNotes();var q=$("cq").value.trim().toLowerCase(),A=clients(),odN=A.filter(function(c){return c.od}).length;
   $("cF").innerHTML='<button class="chip" data-f="all" aria-pressed="'+(CF==="all")+'">Todos · '+A.length+'</button><button class="chip" data-f="od" aria-pressed="'+(CF==="od")+'">💤 Para reactivar · '+odN+'</button><button class="chip" data-f="top" aria-pressed="'+(CF==="top")+'">⭐ Mejores</button>';
-  var L=A.filter(function(c){return (CF!=="od"||c.od)&&(!q||String(c.cli).toLowerCase().indexOf(q)>=0||String(c.tel).indexOf(q.replace(/\D/g,"")||"~")>=0)});
+  var L=A.filter(function(c){return (CF!=="od"||c.od)&&(!q||CITALY.fz(q,c.cli)>0||String(c.tel).indexOf(q.replace(/\D/g,"")||"~")>=0)});
   if(CF==="top")L.sort(function(a,b){return b.spent-a.spent});
   $("cList").innerHTML=L.length?L.map(function(c,i){return '<div class="cl" data-i="'+i+'"><div class="ini">'+esc(String(c.cli||"?").charAt(0).toUpperCase())+'</div><div class="m"><b>'+esc(c.cli)+'</b><span>'+(c.due?'<span style="color:var(--warn);font-weight:700">🔔 Le toca volver: '+esc(c.due.n)+'</span>':c.od?'<span style="color:var(--warn);font-weight:700">Hace '+c.od+' meses que no viene</span>':c.next?"📅 Próxima cita "+pd(c.next).getDate()+" "+MN[pd(c.next).getMonth()].slice(0,3):c.n?c.n+(c.n===1?" visita":" visitas")+" · "+crc(c.spent):"Sin visitas atendidas")+'</span></div>'+(c.od&&c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor("back",c)))+'" onclick="event.stopPropagation()">Escribirle</a>':'<span class="mute small">'+(c.n?crc(c.spent):"")+'</span>')+'</div>'}).join("")
    :'<div class="empty"><div>👥</div>'+(q?"No encontramos a nadie con eso.":CF==="od"?"¡Bien! Ningún cliente se te está perdiendo.":"Aquí aparecen tus clientes cuando agendes citas.")+'</div>';
@@ -1685,7 +1685,7 @@ if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(
       items.push({t:t.textContent.trim(),s:sp?sp.textContent.trim():"",ic:ic?ic.textContent:"⚙️",k:(AL[b.dataset.s]||""),f:function(){go("ajustes");b.click()},hide:b.hidden})});
     items=items.filter(function(i){return !i.hide})}
   function draw(q){var w=norm(q).split(/\s+/).filter(Boolean);
-    shown=items.filter(function(i){var h=norm(i.t+" "+i.s+" "+i.k);return w.every(function(x){return h.indexOf(x)>-1})});
+    shown=items.map(function(i){return [i,w.length?CITALY.fz(q,i.t+" "+i.s+" "+i.k+" "+i.t):1]}).filter(function(x){return x[1]>0}).sort(function(x,y){return y[1]-x[1]}).map(function(x){return x[0]});
     if(!w.length)shown=shown.slice(0,9);cur=0;
     list.innerHTML=shown.length?shown.map(function(i,n){return '<button type="button" class="si'+(n===0?' on':'')+'" data-i="'+n+'"><span class="ic">'+esc(i.ic)+'</span><span class="m"><b>'+esc(i.t)+'</b><span>'+esc(i.s)+'</span></span><kbd>↵</kbd></button>'}).join(""):'<div class="sempty">No encontré «'+esc(q)+'». Probá con otra palabra, o escribile al <b>Asistente IA</b> ✨</div>';
     Array.prototype.forEach.call(list.querySelectorAll(".si"),function(b){b.onclick=function(){pick(+b.dataset.i)};b.onmousemove=function(){mark(+b.dataset.i)}})}
