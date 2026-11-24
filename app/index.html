@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
 <link rel="icon" href="../favicon-32.png">
 <link rel="manifest" href="manifest.json">
+<script>window.__ip=null;window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__ip=e;try{window.dispatchEvent(new Event("ipready"))}catch(x){}});window.addEventListener("appinstalled",function(){window.__ip=null;try{localStorage.setItem("citaly_installed","1")}catch(x){}});</script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
@@ -502,6 +503,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
         <button class="set" data-s="dep"><span class="ic">💸</span><span class="m"><b>Adelanto por SINPE</b><span id="depN">Para asegurar la hora del cliente</span></span>›</button>
         <button class="set" data-s="gcal"><span class="ic">📅</span><span class="m"><b>Google Calendar</b><span>Tus citas aparecen solas en tu calendario</span></span>›</button>
         <button class="set" data-s="mode"><span class="ic">🌓</span><span class="m"><b>Apariencia</b><span>Modo claro, oscuro o automático</span></span>›</button>
+        <button class="set" data-s="inst"><span class="ic">📲</span><span class="m"><b>Instalar la app</b><span id="instN">Con un toque, sin tienda</span></span>›</button>
         <button class="set" data-s="ntf"><span class="ic">🔔</span><span class="m"><b>Avisos de reservas nuevas</b><span id="ntfN">Te llegan al celular y a la compu</span></span>›</button>
         <button class="set" data-s="fot"><span class="ic">📸</span><span class="m"><b>Fotos de mis trabajos</b><span id="fotN">Se ven en tu página web</span></span>›</button>
         <button class="set" data-s="rev"><span class="ic">⭐</span><span class="m"><b>Reseñas de clientes</b><span id="revN">Lo que dicen de ti</span></span>›</button>
@@ -747,7 +749,7 @@ function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until
 function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.now())/864e5):0}
 
 /* ---------- RENDER GENERAL ---------- */
-function render(){if(!B)return;renderOnb();pagoOk();
+function render(){if(!B)return;renderOnb();instNote();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();renderFavs();
@@ -1172,10 +1174,11 @@ function share(){markOnb("share");var t="¡Reserva tu cita en "+B.name+" en segu
 var ONB=[["cuenta","Creá tu cuenta","¡Ya está!",null],["ia","Armá tu página con IA","Textos y preguntas listos en 1 minuto",function(){iaSheet("all")}],
   ["svc","Revisá tus servicios y precios","Lo que tus clientes ven al reservar",function(){openSet("svc")}],["hor","Configurá tu horario","Los días y horas que atendés",function(){openSet("hor")}],
   ["look","Poné tu logo y tu color","Para que tu página se vea tuya",function(){openSet("look")}],
+  ["inst","Instalá la app en tu celular","Ábrela con un toque, como cualquier app",function(){instSheet()}],
   ["prueba","Hacé una reserva de prueba","Mirá lo que ve tu cliente",function(){window.open(link(),"_blank");setTimeout(function(){toast("Cuando reserves, la cita te aparece aquí 👇")},800)}],
   ["share","Compartí tu link de reservas","En WhatsApp, Instagram y TikTok",function(){share()}]];
 var onbAll=false;
-function onbDone(k){var o=B&&B.onb||{};if(k==="cuenta")return true;if(k==="ia"&&(!C.iaUrl||!can("ia")))return true;if(k==="prueba")return !!o.prueba||JOBS.some(function(j){return j.web});return !!o[k]}
+function onbDone(k){var o=B&&B.onb||{};if(k==="cuenta")return true;if(k==="ia"&&(!C.iaUrl||!can("ia")))return true;if(k==="inst")return isStandalone()||!!o.inst||(function(){try{return localStorage.getItem("citaly_installed")==="1"}catch(e){return false}})();if(k==="prueba")return !!o.prueba||JOBS.some(function(j){return j.web});return !!o[k]}
 function renderOnb(){var box=$("onb");if(!box)return;var o=B.onb||{};
   if(!B.self&&!B.onb||o.hide||o.done){box.innerHTML="";return}
   if(!o.prueba&&JOBS.some(function(j){return j.web}))markOnb("prueba");
@@ -1221,6 +1224,7 @@ function openSet(s){
   if(s==="mode"){var cur=localStorage.getItem("citaly_mode")||"auto",ct=curTheme();sheet('<h2>🎨 Apariencia</h2><p class="mute small" style="margin-top:-4px">Elegí cómo querés ver la app. Se guarda en tu cuenta y se ve igual en el celular y en la computadora.</p><h3 style="margin:14px 0 8px">Claro u oscuro</h3><div class="chips" id="mdC">'+[["auto","📱 Automático"],["light","☀️ Claro"],["dark","🌙 Oscuro"]].map(function(o){return '<button class="chip" data-md="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>'}).join("")+'</div><h3 style="margin:18px 0 8px">Color de la app</h3><div class="thg" id="thG">'+THEMES.map(function(t){return '<button type="button" class="thb" data-th="'+t.id+'" aria-pressed="'+(ct===t.id)+'"><i style="background:'+thSw(t)+'"></i><b>'+t.n+'</b><small>'+t.d+'</small></button>'}).join("")+'</div>',function(){$("mdC").onclick=function(e){var b=e.target.closest("[data-md]");if(!b)return;setMode(b.dataset.md);Array.prototype.forEach.call($("mdC").children,function(x){x.setAttribute("aria-pressed",x===b)})};$("thG").onclick=function(e){var b=e.target.closest("[data-th]");if(!b)return;setTheme(b.dataset.th);Array.prototype.forEach.call($("thG").children,function(x){x.setAttribute("aria-pressed",x===b)})}})}
   if(s==="gcal")gcalSheet();
   if(s==="help")helpSheet();
+  if(s==="inst"){instSheet();return}
   if(s==="ntf")ntfSheet();
   if(s==="rev")listEd(LISTS.rev);
   if(s==="faq")listEd(LISTS.faq);
@@ -1613,6 +1617,40 @@ function renderPay(){var trial=SUB&&SUB.status==="trial";
   $("payWa").onclick=null;$("payWa").target="_blank";
   if(trial){$("payWa").removeAttribute("target");$("payWa").href="#";$("payWa").onclick=function(e){e.preventDefault();planSheet()};return}
   $("payWa").href=waUrl(C.wa,trial?payMsg():"Hola, mi cuenta de Citaly aparece pausada.\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))}
+
+/* ---------- Instalar la app ---------- */
+function isStandalone(){return matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: window-controls-overlay)").matches||navigator.standalone===true}
+function instEnv(){var u=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1),and=/Android/.test(u),b=brw(),
+  iosB=ios?(/CriOS/.test(u)?"Chrome":/FxiOS/.test(u)?"Firefox":/EdgiOS/.test(u)?"Edge":/OPiOS/.test(u)?"Opera":/FBAN|FBAV|Instagram/.test(u)?"inapp":"Safari"):"",
+  inapp=/FBAN|FBAV|Instagram|TikTok|musical_ly|Line\//.test(u),mac=/Macintosh/.test(u)&&!ios,saf=mac&&/Safari/.test(u)&&!/Chrome|Chromium|Edg|OPR|Firefox/.test(u);
+  return{ios:ios,and:and,b:b,iosB:iosB,inapp:inapp,mac:mac,saf:saf,mob:ios||and}}
+function instSteps(){var e=instEnv(),h=[];
+  function card(t,l){return '<div class="card" style="box-shadow:none;margin:0 0 10px"><b>'+t+'</b><ol class="small" style="padding-left:18px;line-height:1.7;margin:6px 0 0">'+l.map(function(x){return '<li>'+x+'</li>'}).join("")+'</ol></div>'}
+  if(e.inapp){h.push('<div class="card" style="box-shadow:none;margin:0 0 10px;border:1px solid var(--acc)"><b>⚠️ Estás dentro de Facebook, Instagram o TikTok</b><p class="small" style="margin:6px 0 0;line-height:1.6">Desde aquí no se puede instalar. Tocá los <b>tres puntos ⋯</b> (arriba o abajo a la derecha) y elegí <b>«Abrir en el navegador»</b> (Chrome o Safari). Ahí volvés a esta pantalla y seguís los pasos.</p></div>')}
+  if(e.ios){
+    if(e.iosB==="Safari")h.push(card("🍎 iPhone o iPad con Safari",["Tocá el botón <b>Compartir</b> (el cuadrito con la flecha ⬆️, abajo en el centro).","Bajá en la lista y tocá <b>«Agregar a inicio»</b> (Add to Home Screen).","Dejá el nombre <b>Citaly</b> y tocá <b>Agregar</b>.","Listo: el ícono de Citaly queda en tu pantalla. Abrila desde ahí."]));
+    else h.push(card("🍎 iPhone con "+(e.iosB==="inapp"?"este navegador":e.iosB),["Tocá <b>Compartir</b> (la flecha ⬆️ o los tres puntos ⋯ en la barra).","Elegí <b>«Agregar a inicio»</b> (en iPhone con iOS 16.4 o más nuevo funciona desde "+(e.iosB==="inapp"?"cualquier navegador":e.iosB)+").","Tocá <b>Agregar</b>.","Si no te sale esa opción, abrí citalyapp.com/app en <b>Safari</b> y repetí los pasos."]));
+    h.push('<p class="mute small" style="margin:0 0 10px">En iPhone, Apple no permite un botón automático: siempre se hace desde Compartir.</p>');
+    return h.join("")}
+  if(e.and){
+    h.push(card("🤖 Android con Chrome, Brave, Edge u Opera",["Tocá el botón <b>«Instalar Citaly»</b> de arriba. Si no aparece:","Tocá los <b>tres puntos ⋮</b> arriba a la derecha.","Elegí <b>«Instalar aplicación»</b> o <b>«Agregar a la pantalla principal»</b>.","Confirmá con <b>Instalar</b>. El ícono queda en tu pantalla y en el cajón de apps."]));
+    h.push(card("📱 Samsung Internet",["Tocá el menú <b>☰</b> (abajo a la derecha).","Elegí <b>«Agregar página a»</b> → <b>«Pantalla de inicio»</b> (o «Instalar»).","Confirmá con <b>Agregar</b>."]));
+    h.push(card("🦊 Firefox en Android",["Tocá los <b>tres puntos ⋮</b>.","Elegí <b>«Instalar»</b> (o «Agregar a pantalla de inicio»).","Confirmá con <b>Agregar</b>."]));
+    return h.join("")}
+  h.push(card("💻 Chrome, Edge o Brave en computadora",["Tocá el botón <b>«Instalar Citaly»</b> de arriba. Si no aparece:","Mirá al final de la barra de direcciones: sale un ícono de <b>instalar ⊕</b> o de una pantalla con flecha.","O abrí el menú <b>⋮</b> → <b>«Guardar y compartir»</b> → <b>«Instalar Citaly»</b> (en Edge: <b>Aplicaciones</b> → <b>Instalar este sitio como aplicación</b>).","Se abre en su propia ventana y queda en tu escritorio o menú de inicio."]));
+  h.push(card("🍎 Safari en Mac (Safari 17 o más nuevo)",["En el menú de arriba tocá <b>Archivo</b>.","Elegí <b>«Agregar al Dock»</b>.","Confirmá con <b>Agregar</b>."]));
+  h.push('<p class="mute small" style="margin:0 0 10px">🦊 Firefox en computadora no instala apps web. Usá Chrome, Edge o Brave, o simplemente guardá citalyapp.com/app en favoritos.</p>');
+  return h.join("")}
+function instSheet(){var st=isStandalone(),e=instEnv();
+  var top=st?'<div style="text-align:center"><div style="font-size:54px">✅</div><h2>¡Ya tenés Citaly instalada!</h2><p class="mute">Estás usando la app. Abrila siempre desde su ícono: es más rápida y te llegan los avisos.</p></div>'
+   :'<div style="text-align:center"><div style="font-size:54px">📲</div><h2>Instalá Citaly en tu '+(e.mob?"celular":"compu")+'</h2><p class="mute" style="line-height:1.55">Es la <b>misma app</b>, sin tienda y sin costo. Queda con su ícono, abre en pantalla completa, ocupa muy poco espacio y se actualiza sola.</p></div>'
+   +(window.__ip?'<button class="btn big" id="instGo" style="margin:6px 0 12px">📲 Instalar Citaly</button>':'')
+   +'<div class="mute small" style="margin:0 0 8px;text-align:center">'+(window.__ip?"O seguí estos pasos si preferís:":"Seguí estos pasos:")+'</div>';
+  sheet(top+(st?"":instSteps())+'<div class="card" style="box-shadow:none;margin:0 0 10px"><b>❓ Preguntas rápidas</b><p class="small" style="line-height:1.6;margin:6px 0 0"><b>¿Es una app de verdad?</b> Sí, funciona como cualquier app de tu celular. Pronto también estará en Play Store.<br><b>¿Gasta datos o espacio?</b> Casi nada.<br><b>¿Puedo desinstalarla?</b> Sí, como cualquier app: mantené el ícono y elegí quitar.<br><b>¿Pierdo mis datos si la quito?</b> No, todo queda guardado en tu cuenta.</p></div><button class="link" id="instW" style="display:block;margin:6px auto">¿No te funcionó? Escribinos por WhatsApp</button>',function(){
+    if($("instGo"))$("instGo").onclick=function(){var ip=window.__ip;if(!ip)return;ip.prompt();ip.userChoice.then(function(r){window.__ip=null;if(r&&r.outcome==="accepted"){toast("¡Instalando Citaly! 🎉");closeSheet()}else toast("Sin problema, podés instalarla cuando quieras")}).catch(function(){})};
+    $("instW").onclick=function(){window.open(waUrl(C.wa,"Hola, necesito ayuda para instalar la app de Citaly. Mi celular/navegador: "+navigator.userAgent.slice(0,90)),"_blank")}})}
+function instNote(){var n=$("instN");if(n)n.textContent=isStandalone()?"Ya la tenés instalada ✓":"Con un toque, sin tienda"}
+window.addEventListener("ipready",function(){instNote();try{renderOnb()}catch(e){}});
 
 /* ---------- PWA ---------- */
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});
