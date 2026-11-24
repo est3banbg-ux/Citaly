@@ -261,7 +261,7 @@ function edRender(){var nw=!E.id,W=E.web;$("main").hidden=true;$("ed").hidden=fa
     +'<label for="wSn">Nota debajo de los precios</label><input id="wSn" maxlength="160" value="'+esc(W.svcNote||"")+'" placeholder="Ej: Si el carro es otro tipo, el precio se ajusta al real.">'
     +'<label for="wHn">Nota del servicio a domicilio</label><input id="wHn" maxlength="160" value="'+esc(W.homeNote||"")+'" placeholder="Ej: Trabajamos en tu casa o en el parqueo de tu trabajo.">'
     +'<label>Preguntas frecuentes</label><div id="wFq"></div><button class="btn ghost" id="wFqA" style="margin-top:8px">+ Agregar pregunta</button>'
-    +'<label for="wVd">Videos (links, uno por línea, máximo 3)</label><textarea id="wVd" style="min-height:70px" placeholder="https://www.tiktok.com/@negocio/video/123…&#10;https://www.youtube.com/watch?v=…">'+esc((W.videos||[]).map(function(v){return v.u}).join("\n"))+'</textarea><p class="hint" style="margin-top:-2px">TikTok, Instagram, Facebook o YouTube. Link completo, no el corto. Solo se ven si enciendes el módulo «Videos en la web» abajo.</p>'
+    +'<label for="wVd">Videos (un link por línea, con título opcional)</label><textarea id="wVd" style="min-height:70px" placeholder="https://www.tiktok.com/@negocio/video/123…&#10;https://www.youtube.com/watch?v=…">'+esc((W.videos||[]).map(function(v){return v.u+(v.c?" "+v.c:"")}).join("\n"))+'</textarea><p class="hint" style="margin-top:-2px">TikTok, Instagram, Facebook o YouTube. Los links cortos se convierten solos al salir del cuadro. Se muestran hasta 6 (Arranque y prueba), 12 (Turbo) o 24 (Nitro).</p>'
     +'<label>Reseñas de clientes reales</label><p class="hint" style="margin-top:-2px">Copia reseñas reales (Google, Facebook, Instagram) y pon de dónde salen.</p><div id="wRv"></div><button class="btn ghost" id="wRvA" style="margin-top:8px">+ Agregar reseña</button>'
     +'<label for="wGr">Link para dejar reseña en Google</label><input id="wGr" inputmode="url" value="'+esc(W.greview||"")+'" placeholder="https://g.page/r/…">'
     +'<div class="r3"><div><label for="wIg">Instagram</label><input id="wIg" inputmode="url" value="'+esc(W.ig||"")+'" placeholder="instagram.com/…"></div><div><label for="wFb">Facebook</label><input id="wFb" inputmode="url" value="'+esc(W.fb||"")+'" placeholder="facebook.com/…"></div></div>'
@@ -327,8 +327,13 @@ function edWire(){
   vehRows();listWire($("eVh"),function(){return E.veh},vehRows,["x"]);
   $("eVhA").onclick=function(){E.veh.push({n:"",x:0});vehRows()};
   if($("impGo"))$("impGo").onclick=impRun;
-  $("eGo").onclick=save}
+  if($("wVd"))$("wVd").onchange=function(){vidFix()};
+  $("eGo").onclick=function(){vidFix().then(save)}}
 
+
+function vidResolve(u){if(!C.vidShort(u))return Promise.resolve(u);return auth.currentUser.getIdToken().then(function(t){return fetch(C.iaUrl.replace(/\/ia$/,"/enlace"),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:t,url:u})})}).then(function(r){return r.json()}).then(function(j){return j&&j.ok&&j.url?j.url:u}).catch(function(){return u})}
+function vidFix(){var el=$("wVd");if(!el)return Promise.resolve();var rows=lines(el.value);if(!rows.some(function(x){return C.vidShort(x.split(/\s+/)[0])}))return Promise.resolve();
+  return Promise.all(rows.map(function(x){var m=x.match(/^(\S+)\s*(.*)$/);return vidResolve(m[1]).then(function(u){return u+(m[2]?" "+m[2]:"")})})).then(function(o){el.value=o.join("\n")})}
 /* ---------- Llenar el formulario con los mensajes del cliente (IA) ---------- */
 function impSet(id,v){var e=$(id);if(e&&v){e.value=v;e.dispatchEvent(new Event("input",{bubbles:true}))}}
 function impTm(x){return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x||""))?x:null}
@@ -352,12 +357,14 @@ function impApply(d){var done=[];
   if(Array.isArray(d.faqs)&&d.faqs.length){E.web.faqs=d.faqs.filter(function(f){return f&&f.q&&f.a}).slice(0,5).map(function(f){return {q:String(f.q).slice(0,140),a:String(f.a).slice(0,600)}});faqRows();done.push("preguntas frecuentes")}
   return done}
 function impRun(){var t=$("impT").value.trim(),btn=$("impGo"),box=$("impR");if(t.length<10){toast("Pega primero los mensajes del cliente");return}
+  var vl=(t.match(/https?:\/\/[^\s<>"]+/g)||[]).map(function(x){return x.replace(/[).,;]+$/,"")}).filter(function(x){return C.vid(x)||C.vidShort(x)});
   btn.disabled=true;btn.textContent="Leyendo…";box.hidden=true;collect();
   auth.currentUser.getIdToken().then(function(tok){return fetch(C.iaUrl.replace(/\/ia$/,"/importar"),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:tok,text:t,type:E.type,name:E.name})})})
     .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
     .then(function(x){btn.disabled=false;btn.textContent="Llenar formulario";
       if(!x.ok||!x.j.ok){var er=x.j&&x.j.error;toast(er==="admin"?"Solo el admin puede usar esto":er==="no_config"?"Falta activar /importar en el Worker":"No se pudo leer, intenta otra vez");return}
       var done=impApply(x.j.data||{}),notes=Array.isArray((x.j.data||{}).notes)?x.j.data.notes.slice(0,5):[];
+      if(vl.length&&$("wVd")){var have=lines($("wVd").value),seen={};have.forEach(function(l){seen[l.split(/\s+/)[0]]=1});vl.forEach(function(l){if(!seen[l]){seen[l]=1;have.push(l)}});$("wVd").value=have.slice(0,24).join("\n");done.push(vl.length+" links de video");vidFix()}
       box.hidden=false;box.innerHTML='<b style="color:var(--ok)">✓ Llené: '+esc(done.join(", ")||"nada nuevo")+'.</b> Revisa y toca Guardar.'+(notes.length?'<ul style="margin:6px 0 0;padding-left:18px">'+notes.map(function(n){return '<li>'+esc(String(n).slice(0,160))+'</li>'}).join("")+'</ul>':"")})
     .catch(function(){btn.disabled=false;btn.textContent="Llenar formulario";toast("No se pudo conectar con el Worker")})}
 var slugT;
@@ -384,7 +391,7 @@ function collect(){E.name=$("eN").value.trim();E.type=$("eT").value;E.wa=telN($(
   E.hours=[0,1,2,3,4,5,6].map(function(d){return {on:document.querySelector('[data-hd="'+d+'"]').getAttribute("aria-pressed")==="true",a:$("ha"+d).value||"08:00",b:$("hb"+d).value||"18:00"}});
   E.tagline=$("wTg").value.trim();E.blurb=$("wBl").value.trim();E.promo=$("wPr").value.trim();
   var W=E.web;W.promoNote=$("wPn").value.trim();W.feats=lines($("wFt").value).slice(0,4).join("\n");W.about=$("wAb").value.trim();W.svcNote=$("wSn").value.trim();W.homeNote=$("wHn").value.trim();
-  var vOld=W.videos||[];W.videos=lines($("wVd").value).slice(0,3).map(function(u){var o=vOld.filter(function(x){return x.u===u})[0];return o&&o.c?{u:u,c:o.c}:{u:u}});W.greview=$("wGr").value.trim();W.ig=$("wIg").value.trim();W.fb=$("wFb").value.trim();W.tt=$("wTt").value.trim();W.email=$("wEm").value.trim();
+  W.videos=lines($("wVd").value).slice(0,24).map(function(x){var m=x.match(/^(\S+)\s*(.*)$/);return m[2]?{u:m[1],c:m[2].trim().slice(0,60)}:{u:m[1]}});W.greview=$("wGr").value.trim();W.ig=$("wIg").value.trim();W.fb=$("wFb").value.trim();W.tt=$("wTt").value.trim();W.email=$("wEm").value.trim();
   var pl=$("pPl").value;E.demo=pl==="demo";E.plan=E.demo?"standard":pl;E.total=E.demo?0:Math.max(0,+$("pTo").value||0);
   if($("pSp"))E.paidNow=E.demo?0:Math.min(E.total,Math.max(0,+$("pSp").value||0))}
 function fail(id,msg){$("eErr").textContent=msg;var el=id&&$(id);if(el){el.classList.add("bad");el.scrollIntoView({behavior:"smooth",block:"center"});el.addEventListener("input",function(){el.classList.remove("bad")},{once:true})}return false}
@@ -401,7 +408,8 @@ function validate(){$("eErr").textContent="";
   var bv=(E.web.videos||[]).filter(function(v){return !C.vid(v.u)})[0];if(bv)return fail("wVd",C.vidShort(bv.u)?"Un video tiene link corto: abre el video en el navegador y copia la dirección completa.":"No reconozco el link de un video. Usa TikTok, Instagram, Facebook o YouTube.");
   if(E.mods.vehiculo&&!E.veh.some(function(v){return String(v.n).trim()}))return fail("eVhA","Agrega al menos un tipo de vehículo.");
   return true}
-function pubOf(b,bid){return {biz:bid,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
+function capVid(s,plan){var pl=(s&&s.plan)||plan;if((s&&s.status==="trial")||pl==="trial")return 6;var t=s&&s.tier&&C.plans[s.tier]?s.tier:(pl==="mensual"?"arranque":"nitro");return [6,12,24][["arranque","turbo","nitro"].indexOf(t)]||6}
+function pubOf(b,bid){return {biz:bid,cap:{vid:capVid(SUBS[bid],E&&E.plan)},web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
 function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.id||db.collection("biz").doc().id,now=TS.now();
   var team=emails(E.team).filter(function(x){return x!==E.email}),all=(E.email?[E.email]:[]).concat(team);
   var services=E.services.filter(function(s){return String(s.n).trim()}).map(function(s,i){var o={id:s.id||"s"+(i+1),n:String(s.n).trim().slice(0,80),p:Math.max(0,+s.p||0),d:+s.d||60,ic:(String(s.ic||"").indexOf("data:image/")===0&&String(s.ic).length<90000)?String(s.ic):String(s.ic||"").slice(0,40)};if(s.vx&&E.mods.vehiculo)o.vx=true;return o});
@@ -411,7 +419,7 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
   var W=E.web,web=Object.assign({},W,{promoNote:W.promoNote||"",feats:W.feats||"",about:W.about||"",svcNote:W.svcNote||"",homeNote:W.homeNote||"",greview:W.greview||"",ig:W.ig||"",fb:W.fb||"",tt:W.tt||"",email:W.email||"",
     faqs:W.faqs.filter(function(f){return String(f.q).trim()&&String(f.a).trim()}).slice(0,20).map(function(f){return {q:String(f.q).trim(),a:String(f.a).trim()}}),
     reviews:W.reviews.filter(function(r){return String(r.t).trim()}).slice(0,12).map(function(r){return {t:String(r.t).trim(),n:String(r.n||"").trim(),src:String(r.src||"").trim()}}),
-    videos:(W.videos||[]).filter(function(v){return v&&C.vid(v.u)}).slice(0,3).map(function(v){return v.c?{u:String(v.u).trim(),c:String(v.c).slice(0,60)}:{u:String(v.u).trim()}})});
+    videos:(W.videos||[]).filter(function(v){return v&&C.vid(v.u)}).slice(0,24).map(function(v){return v.c?{u:String(v.u).trim(),c:String(v.c).slice(0,60)}:{u:String(v.u).trim()}})});
   var x=E.extra||{};
   var biz={name:E.name,type:E.type,wa:E.wa,addr:E.addr,slug:E.slug,color:E.color,logo:E.logo,services:services,hours:E.hours,home:E.home,zones:zones,tagline:E.tagline,blurb:E.blurb,promo:E.promo,web:web,email:E.email,team:team,mods:mods,veh:veh,
     open:x.open!==false,ahead:x.ahead||21,lead:x.lead==null?2:x.lead,showPrices:x.showPrices!==false,askHow:x.askHow!==false};

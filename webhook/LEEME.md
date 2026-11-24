@@ -41,3 +41,9 @@ En el panel /admin, al editar o crear un negocio, el cuadro "✨ Llenar con los 
 1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar. No necesita variables nuevas (usa `ANTHROPIC_API_KEY`, `FB_PROJECT` y la cuenta de servicio que ya tienes).
 2. Opcional: `ADMIN_EMAIL` (por defecto est3banbg@gmail.com) e `IMPORT_MODEL` (por defecto `claude-sonnet-5-5`).
 3. Solo responde si entras al admin con la cuenta del admin; cualquier otra recibe error.
+
+
+## Links cortos de video (ruta /enlace del mismo Worker)
+Cuando un dueño o el admin pega un link corto de TikTok (vm.tiktok.com…) o de Facebook (fb.watch), esta ruta lo convierte en el link completo para poder incrustar el video. Solo funciona con sesión iniciada y solo abre esos sitios.
+
+1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar. No necesita variables nuevas.

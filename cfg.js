@@ -41,8 +41,7 @@ var CITALY = {
   // 1) se registra aquí, 2) se programa en la app/página revisando modOn(B, "clave").
   mods: {
     vehiculo: { n: "Precio según tipo de vehículo", ic: "🚙", d: "El cliente elige su vehículo al reservar y los servicios marcados cambian de precio según el tipo." },
-    insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." },
-    videos:   { n: "Videos en la web", ic: "🎥", d: "Hasta 3 videos de TikTok, Instagram, Facebook o YouTube en su página web. Pega el link y se ve ahí mismo." }
+    insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." }
   },
   iaUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/ia",
   fbLogin: true, // Facebook ya configurado y probado (Meta publicada, Firebase activo)

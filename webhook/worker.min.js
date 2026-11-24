@@ -3,6 +3,7 @@
    FB_CLIENT_EMAIL, FB_PRIVATE_KEY (de la cuenta de servicio de Firebase). Guía: LEEME.md
    Asistente con IA (ruta /ia): además ANTHROPIC_API_KEY (secreto).
    Llenar negocio con mensajes (ruta /importar, solo admin): ANTHROPIC_API_KEY; opcional ADMIN_EMAIL e IMPORT_MODEL.
+   Resolver links cortos de video (ruta /enlace): solo necesita la sesión del usuario.
    Avisos al celular (ruta /push): usa la misma cuenta de servicio (Firebase Cloud Messaging). */
 const TIERS = { arranque: 4900, turbo: 9900, nitro: 19900 };
 const PROMO = { plan: "arranque", price: 500, months: 3 };
@@ -156,6 +157,31 @@ async function importar(req, env) {
   const i = out.indexOf("{"), j = out.lastIndexOf("}");
   let data; try { data = JSON.parse(out.slice(i, j + 1)); } catch (e) { return jr(req, { error: "formato" }, 502); }
   return jr(req, { ok: true, data });
+}
+
+/* ---------- Resolver links cortos de video (POST /enlace) ----------
+   Convierte vm.tiktok.com / vt.tiktok.com / tiktok.com/t/… / fb.watch en el link completo del video para poder incrustarlo.
+   Solo para usuarios con sesión; solo hosts de la lista blanca; un salto a la vez, sin seguir redirecciones a otros sitios. */
+const SHORT_HOSTS = ["vm.tiktok.com", "vt.tiktok.com", "www.tiktok.com", "tiktok.com", "fb.watch", "on.fb.me"];
+const FINAL_HOSTS = ["www.tiktok.com", "tiktok.com", "www.facebook.com", "facebook.com", "m.facebook.com", "web.facebook.com"];
+async function enlace(req, env) {
+  if (!env.FB_PROJECT) return jr(req, { error: "no_config" }, 503);
+  let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
+  const idToken = clip(b.idToken, 4000);
+  if (!idToken) return jr(req, { error: "sesion" }, 401);
+  if (!(await fbUser(idToken, env))) return jr(req, { error: "sesion" }, 401);
+  let u; try { u = new URL(clip(b.url, 300)); } catch (e) { return jr(req, { error: "url" }, 400); }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return jr(req, { error: "url" }, 400);
+  for (let hop = 0; hop < 4; hop++) {
+    const h = u.hostname.toLowerCase();
+    if (FINAL_HOSTS.includes(h) && /\/(video|videos|reel)\/\d{6,25}|\/watch\/?$/.test(u.pathname)) { u.search = h.endsWith("tiktok.com") ? "" : u.search; return jr(req, { ok: true, url: u.origin + u.pathname + u.search }); }
+    if (!SHORT_HOSTS.includes(h)) return jr(req, { error: "host" }, 400);
+    let r; try { r = await fetch(u.toString(), { redirect: "manual", headers: { "user-agent": "Mozilla/5.0 (compatible; CitalyBot/1.0)" } }); } catch (e) { return jr(req, { error: "red" }, 502); }
+    const loc = r.headers.get("location");
+    if (!loc || r.status < 300 || r.status > 399) return jr(req, { error: "sin_destino" }, 404);
+    try { u = new URL(loc, u); } catch (e) { return jr(req, { error: "url" }, 400); }
+  }
+  return jr(req, { error: "sin_destino" }, 404);
 }
 
 /* ---------- Avisos al celular del dueño (POST /push) ----------
@@ -451,6 +477,7 @@ export default {
     const bm = path.match(/^\/baja\/([\w-]{1,60})\/(\w{10,64})$/);
     if (bm) return baja(env, bm[1], bm[2]);
     if (path === "/importar") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? importar(req, env) : new Response("ok");
+    if (path === "/enlace") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? enlace(req, env) : new Response("ok");
     if (path === "/ia") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ia(req, env) : new Response("ok");
     if (req.method !== "POST") return new Response("ok");
     const body = await req.text();
