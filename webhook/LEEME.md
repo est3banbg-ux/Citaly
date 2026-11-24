@@ -33,3 +33,11 @@ Cada uso queda contado en la colección `ia` de Firestore (negocio + día). Si s
 1. Crea cuenta gratis en resend.com → API Keys → Create (permiso "Sending access") y copia la llave.
 2. En el Worker → Variables y secretos agrega `RESEND_KEY` (secreto). Opcional: `MAIL_FROM` = `Citaly <avisos@tudominio.com>` (requiere dominio verificado en Resend; sin esto envía desde onboarding@resend.dev).
 3. Vuelve a desplegar `worker.js`. Cada dueño activa su correo en Ajustes → Avisos de reservas.
+
+
+## Llenar un negocio con los mensajes del cliente (ruta /importar del mismo Worker, solo admin)
+En el panel /admin, al editar o crear un negocio, el cuadro "✨ Llenar con los mensajes del cliente" lee lo que el dueño te escribió por WhatsApp y llena servicios, precios, horario, dirección y textos de la web. No guarda nada hasta que toques Guardar.
+
+1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar. No necesita variables nuevas (usa `ANTHROPIC_API_KEY`, `FB_PROJECT` y la cuenta de servicio que ya tienes).
+2. Opcional: `ADMIN_EMAIL` (por defecto est3banbg@gmail.com) e `IMPORT_MODEL` (por defecto `claude-sonnet-5-5`).
+3. Solo responde si entras al admin con la cuenta del admin; cualquier otra recibe error.

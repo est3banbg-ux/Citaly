@@ -224,6 +224,8 @@ function tog(id,on){return '<label class="toggle"><input type="checkbox" id="'+i
 function edRender(){var nw=!E.id,W=E.web;$("main").hidden=true;$("ed").hidden=false;
   var h='<div class="between" style="margin:10px 0 12px"><h1>'+(nw?"Nuevo negocio":esc(E.name))+'</h1><button class="btn sm ghost" id="eX">Cerrar</button></div>';
   if(nw)h+='<div class="demo"><span style="flex:1">¿Armando la demo? Llena todo con los datos, logo y fotos de GlassStudioCR.</span><button class="btn sm" id="eDemo">Usar GlassStudioCR</button></div>';
+  // llenar con IA
+  if(C.iaUrl)h+='<div class="card"><b>✨ Llenar con los mensajes del cliente</b><p class="hint" style="margin:4px 0 8px">Pega lo que te escribió por WhatsApp (servicios, precios, horario, dónde atiende). La IA llena el formulario y tú revisas antes de guardar. No cambia nada hasta que toques Guardar.</p><textarea id="impT" maxlength="6000" style="min-height:90px" placeholder="Ej: Ofrezco lavado 8mil sedan y 10000 suv. Atiendo miércoles y jueves de 8 a 2…"></textarea><div class="row" style="margin-top:8px"><button class="btn sm" id="impGo">Llenar formulario</button></div><div id="impR" class="hint" style="margin-top:8px" hidden></div></div>';
   // datos
   h+='<div class="card">'+sec("1. Datos del negocio")
     +'<label for="eN">Nombre</label><input id="eN" maxlength="50" value="'+esc(E.name)+'" placeholder="Ej: Barbería El Legado">'
@@ -323,7 +325,39 @@ function edWire(){
   Object.keys(C.mods).forEach(function(k){$("md_"+k).onchange=function(){E.mods[k]=this.checked;if(k==="vehiculo"){$("vehCfg").hidden=!this.checked;svcRows()}}});
   vehRows();listWire($("eVh"),function(){return E.veh},vehRows,["x"]);
   $("eVhA").onclick=function(){E.veh.push({n:"",x:0});vehRows()};
+  if($("impGo"))$("impGo").onclick=impRun;
   $("eGo").onclick=save}
+
+/* ---------- Llenar el formulario con los mensajes del cliente (IA) ---------- */
+function impSet(id,v){var e=$(id);if(e&&v){e.value=v;e.dispatchEvent(new Event("input",{bubbles:true}))}}
+function impTm(x){return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(x||""))?x:null}
+function impApply(d){var done=[];
+  var sv=Array.isArray(d.services)?d.services.filter(function(x){return x&&String(x.n||"").trim()}).slice(0,20):[];
+  if(sv.length){var def=(C.types[E.type]&&C.types[E.type].svc&&C.types[E.type].svc[0]&&C.types[E.type].svc[0][3])||"img:calendario";
+    E.services=sv.map(function(x,i){var dd=+x.d||60,best=DURS.reduce(function(a,m){return Math.abs(m-dd)<Math.abs(a-dd)?m:a},DURS[0]),ic="img:"+String(x.ic||"").replace(/^img:/,"");
+      return {id:"s"+(i+1),n:String(x.n).trim().slice(0,80),p:Math.max(0,Math.round(+x.p||0)),d:best,ic:(C.iconNames||[]).indexOf(ic)>=0?ic:def,vx:!!x.vx}});
+    E.svcFromType=false;done.push(sv.length+" servicios")}
+  var vh=Array.isArray(d.veh)?d.veh.filter(function(v){return v&&String(v.n||"").trim()}).slice(0,8):[];
+  if(vh.length&&E.services.some(function(s){return s.vx})){E.veh=vh.map(function(v){return {n:String(v.n).trim().slice(0,30),x:Math.max(0,Math.round(+v.x||0))}});E.mods.vehiculo=true;if($("md_vehiculo"))$("md_vehiculo").checked=true;if($("vehCfg"))$("vehCfg").hidden=false;vehRows()}
+  svcRows();
+  if(d.hours&&typeof d.hours==="object"){var n=0;for(var k=0;k<7;k++){var h=d.hours[k],a=h&&impTm(h.a),b=h&&impTm(h.b),on=!!(a&&b),btn=document.querySelector('[data-hd="'+k+'"]'),ia=$("ha"+k),ib=$("hb"+k);btn.setAttribute("aria-pressed",on);ia.disabled=ib.disabled=!on;if(on){ia.value=a;ib.value=b;n++}}
+    if(n)done.push("horario")}
+  if(d.addr){impSet("eA",String(d.addr).slice(0,120));done.push("dirección")}
+  if(typeof d.home==="boolean"){E.home=d.home;if($("eH"))$("eH").checked=d.home;if($("eZw"))$("eZw").hidden=!d.home}
+  impSet("wTg",String(d.tagline||"").slice(0,70));impSet("wBl",String(d.blurb||"").slice(0,260));impSet("wAb",String(d.about||"").slice(0,900));impSet("wSn",String(d.svcNote||"").slice(0,160));
+  if(Array.isArray(d.feats)&&d.feats.length)impSet("wFt",d.feats.slice(0,4).map(function(x){return String(x).slice(0,60)}).join("\n"));
+  if(d.tagline||d.blurb||d.about)done.push("textos de la web");
+  if(Array.isArray(d.faqs)&&d.faqs.length){E.web.faqs=d.faqs.filter(function(f){return f&&f.q&&f.a}).slice(0,6).map(function(f){return {q:String(f.q).slice(0,140),a:String(f.a).slice(0,600)}});faqRows();done.push("preguntas frecuentes")}
+  return done}
+function impRun(){var t=$("impT").value.trim(),btn=$("impGo"),box=$("impR");if(t.length<10){toast("Pega primero los mensajes del cliente");return}
+  btn.disabled=true;btn.textContent="Leyendo…";box.hidden=true;collect();
+  auth.currentUser.getIdToken().then(function(tok){return fetch(C.iaUrl.replace(/\/ia$/,"/importar"),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:tok,text:t,type:E.type,name:E.name})})})
+    .then(function(r){return r.json().then(function(j){return {ok:r.ok,j:j}})})
+    .then(function(x){btn.disabled=false;btn.textContent="Llenar formulario";
+      if(!x.ok||!x.j.ok){var er=x.j&&x.j.error;toast(er==="admin"?"Solo el admin puede usar esto":er==="no_config"?"Falta activar /importar en el Worker":"No se pudo leer, intenta otra vez");return}
+      var done=impApply(x.j.data||{}),notes=Array.isArray((x.j.data||{}).notes)?x.j.data.notes.slice(0,5):[];
+      box.hidden=false;box.innerHTML='<b style="color:var(--ok)">✓ Llené: '+esc(done.join(", ")||"nada nuevo")+'.</b> Revisa y toca Guardar.'+(notes.length?'<ul style="margin:6px 0 0;padding-left:18px">'+notes.map(function(n){return '<li>'+esc(String(n).slice(0,160))+'</li>'}).join("")+'</ul>':"")})
+    .catch(function(){btn.disabled=false;btn.textContent="Llenar formulario";toast("No se pudo conectar con el Worker")})}
 var slugT;
 function setColor(c){E.color=c;$("eCc").value=/^#[0-9a-f]{6}$/i.test(c)?c:"#6c4cf5";Array.prototype.forEach.call($("eC").querySelectorAll("button"),function(x){x.setAttribute("aria-pressed",x.dataset.c===c)})}
 function edRefreshLogo(){$("eLg").innerHTML=E.logo?'<img alt="" src="'+E.logo+'">':"📷"}
