@@ -699,3 +699,46 @@ var CITALY = {
     setTimeout(fin, 8000);
   };
 })(CITALY);
+
+/* ===== Precio final por tipo de vehiculo (por servicio) ===== */
+/* s.vp = [{n: nombreVehiculo, p: precioFinal}, ...] (objetos: Firestore no guarda arreglos dentro de arreglos). Si un tipo no tiene precio propio: precio base + extra del tipo. */
+(function (C) {
+  function e(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function own(s, n) { var r = 0; (s && s.vp || []).forEach(function (x) { if (x && x.n === n && +x.p > 0) r = +x.p; }); return r; }
+  C.vprice = function (s, v) {
+    var b = +(s && s.p) || 0;
+    if (!s || !s.vx || !v) return b;
+    return own(s, v.n) || (b + (+v.x || 0));
+  };
+  C.vrange = function (s, vehs) {
+    var b = +(s && s.p) || 0;
+    if (!s || !s.vx || !(vehs || []).length) return [b, b];
+    var a = vehs.map(function (v) { return C.vprice(s, v); });
+    return [Math.min.apply(null, a), Math.max.apply(null, a)];
+  };
+  C.vpHtml = function (s, i, vehs) {
+    if (!s.vx || !(vehs || []).length) return "";
+    var b = +s.p || 0;
+    return '<div class="vpg"><p class="vph">🚙 Precio final por tamaño <span>(vacío = precio base' + (vehs.some(function (v) { return +v.x > 0; }) ? " + extra" : "") + ')</span></p>' +
+      vehs.map(function (v) {
+        var o = own(s, v.n);
+        return '<label class="vpl"><span>' + e(v.n) + '</span><input type="number" inputmode="numeric" min="0" data-vpi="' + i + '" data-vpn="' + e(v.n) + '" value="' + (o || "") + '" placeholder="₡' + (b + (+v.x || 0)) + '"></label>';
+      }).join("") + '</div>';
+  };
+  C.vpSet = function (s, n, val) {
+    var L = (s.vp || []).filter(function (x) { return x && x.n !== n; });
+    if (+val > 0) L.push({ n: n, p: Math.round(+val) });
+    s.vp = L;
+  };
+  C.vpClean = function (s, vehs) {
+    if (!s.vx) return null;
+    var names = (vehs || []).map(function (v) { return String(v.n).trim(); });
+    var L = (s.vp || []).filter(function (x) { return x && names.indexOf(x.n) >= 0 && +x.p > 0; }).map(function (x) { return { n: String(x.n).slice(0, 40), p: Math.round(+x.p) }; });
+    return L.length ? L : null;
+  };
+  if (typeof document !== "undefined") {
+    var st = document.createElement("style");
+    st.textContent = ".vpg{margin:8px 0 2px;padding:10px;border-radius:12px;background:rgba(124,92,255,.08);display:grid;grid-template-columns:1fr 1fr;gap:8px}.vph{grid-column:1/-1;margin:0;font-size:13px;font-weight:700}.vph span{font-weight:500;opacity:.7}.vpl{display:flex;flex-direction:column;gap:3px;margin:0;font-size:12px;font-weight:600}.vpl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vpl input{padding:8px 10px}";
+    document.head.appendChild(st);
+  }
+})(CITALY);
