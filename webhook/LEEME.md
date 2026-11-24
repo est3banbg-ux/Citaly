@@ -28,3 +28,8 @@ Lo usan los clientes en la app (Ajustes → Asistente con IA). Límite por día:
 4. Prueba: entra a la app con un negocio Turbo/Nitro → Ajustes → Asistente con IA → "Mejorar mi portada".
 
 Cada uso queda contado en la colección `ia` de Firestore (negocio + día). Si se pasa del gasto, baja los límites en `IA_LIM` del worker.
+
+## Aviso por correo (respaldo)
+1. Crea cuenta gratis en resend.com → API Keys → Create (permiso "Sending access") y copia la llave.
+2. En el Worker → Variables y secretos agrega `RESEND_KEY` (secreto). Opcional: `MAIL_FROM` = `Citaly <avisos@tudominio.com>` (requiere dominio verificado en Resend; sin esto envía desde onboarding@resend.dev).
+3. Vuelve a desplegar `worker.js`. Cada dueño activa su correo en Ajustes → Avisos de reservas.

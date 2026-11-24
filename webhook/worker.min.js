@@ -143,6 +143,20 @@ async function sendPush(env, bid, title, body, url) {
   }
   return n;
 }
+/* Aviso por correo (respaldo): usa Resend. Variables: RESEND_KEY y MAIL_FROM (ej. "Citaly <avisos@citalyapp.com>"). El dueño lo activa en Ajustes → Avisos (biz.mailTo). */
+async function sendMail(env, tk, bid, title, body, url) {
+  try {
+    if (!env.RESEND_KEY) return 0;
+    const b = await get(env, tk, "biz/" + bid); if (!b) return 0;
+    const to = sv(b, "mailTo").trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to) || (b.mailOff && b.mailOff.booleanValue)) return 0;
+    const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const link = "https://citalyapp.com" + (url || "/app/");
+    const html = `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto"><h2 style="margin:0 0 8px">${esc(title)}</h2><p style="font-size:16px;line-height:1.5">${esc(body)}</p><p><a href="${esc(link)}" style="background:#7c5cff;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;display:inline-block">Abrir mi agenda</a></p><p style="color:#888;font-size:12px">Aviso de respaldo de Citaly. Podés apagarlo en Ajustes → Avisos de reservas.</p></div>`;
+    const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { authorization: "Bearer " + env.RESEND_KEY, "content-type": "application/json" }, body: JSON.stringify({ from: env.MAIL_FROM || "Citaly <onboarding@resend.dev>", to: [to], subject: title, html }) });
+    return r.ok ? 1 : 0;
+  } catch (e) { return 0; }
+}
 async function push(req, env) {
   let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
   const ev = ["new", "chg", "test"].includes(b.ev) ? b.ev : "";
@@ -151,7 +165,8 @@ async function push(req, env) {
     const tk = await token(env), bid = (await get(env, tk, "subs/" + u.localId)) ? u.localId : u.emailVerified && u.email ? await find(env, tk, String(u.email).toLowerCase()) : null;
     if (!bid) return jr(req, { error: "negocio" }, 404);
     const n = await sendPush(env, bid, "🔔 Avisos activados", "Así te va a llegar cada reserva nueva de tus clientes.", "/app/");
-    return jr(req, { ok: true, n });
+    const m = await sendMail(env, tk, bid, "🔔 Avisos activados", "Así te va a llegar cada reserva nueva de tus clientes.", "/app/");
+    return jr(req, { ok: true, n, m });
   }
   const bid = clip(b.biz, 60).replace(/[^\w-]/g, ""), jid = clip(b.job, 30).replace(/[^\w-]/g, "");
   if (!ev || !bid || !jid) return jr(req, { error: "datos" }, 400);
@@ -171,8 +186,8 @@ async function push(req, env) {
     body = chg === "cancelada" ? `${who} canceló su cita del ${cuando(F("date"), F("time"))}` : `${who} la pasó para el ${cuando(F("date"), F("time"))}`;
     await patch(env, tk, path, { pushC: V(F("chgAt")) });
   }
-  const n = await sendPush(env, bid, title, body, "/app/?cita=" + jid);
-  return jr(req, { ok: true, n });
+  const [n, m] = await Promise.all([sendPush(env, bid, title, body, "/app/?cita=" + jid), sendMail(env, tk, bid, title, body, "/app/?cita=" + jid)]);
+  return jr(req, { ok: true, n, m });
 }
 
 /* ---------- Calendario sincronizado (GET /ics/{negocio}/{llave}.ics) ----------
