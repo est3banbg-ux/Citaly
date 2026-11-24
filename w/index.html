@@ -66,6 +66,7 @@ h2.t{font-size:clamp(27px,4.4vw,40px);line-height:1.06;margin:6px 0 10px;letter-
 .svc{display:flex;gap:13px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:var(--sh);text-decoration:none;color:var(--ink);transition:transform .15s,border-color .15s}
 section.alt .svc{background:var(--bg)}
 .svc:hover{transform:translateY(-2px);border-color:var(--acc)}
+.ics{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.ic .ics{width:68%;height:68%}
 .svc .ic{width:48px;height:48px;border-radius:14px;background:color-mix(in srgb,var(--acc) 12%,var(--card));display:grid;place-items:center;font-size:24px;flex:none}
 .svc .m{flex:1;min-width:0}.svc .m b{display:block;line-height:1.25}.svc .m span{font-size:13px;color:var(--mute)}
 .svc .p{text-align:right;font:800 17px "Bricolage Grotesque",sans-serif;white-space:nowrap}
@@ -199,7 +200,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
   var whyH=why.length?'<section class="s alt sec-why" id="porque"><div class="c rv"><div class="kick">Por qué elegirnos</div><h2 class="t">'+hlt(W.whyTitle||"Tranquilidad en cada servicio")+'</h2><div class="grid g3" style="margin-top:18px">'+why.map(function(x){return '<div class="wy"><b>'+esc(x.q)+'</b><span>'+esc(x.a)+'</span></div>'}).join("")+'</div></div></section>':"";
   // servicios
   if(svcs.length)h+='<section class="s" id="servicios"><div class="c rv"><div class="kick">Servicios'+(showP?" y precios":"")+'</div><h2 class="t">'+hlt(W.svcTitle||"¿Qué necesitas?")+'</h2><p class="sub">'+esc(W.svcSub||(OPEN?"Elige y reserva en línea. Solo ves las horas libres.":"Escríbenos y te agendamos."))+'</p><div class="grid g2">'
-    +svcs.map(function(s){return '<a class="svc" href="'+(OPEN?bookUrl():wa)+'"'+(OPEN?"":' target="_blank" rel="noopener"')+'><span class="ic">'+esc(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+durTxt(+s.d||60)+'</span></span><span class="p">'+(showP?(s.p?(s.vx&&vehOn?'<small style="display:inline;color:var(--mute)">desde </small>':"")+crc(s.p):"Consultar"):"")+'<small>'+(OPEN?"Reservar →":"Consultar →")+'</small></span></a>'}).join("")
+    +svcs.map(function(s){return '<a class="svc" href="'+(OPEN?bookUrl():wa)+'"'+(OPEN?"":' target="_blank" rel="noopener"')+'><span class="ic">'+C.ico(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+durTxt(+s.d||60)+'</span></span><span class="p">'+(showP?(s.p?(s.vx&&vehOn?'<small style="display:inline;color:var(--mute)">desde </small>':"")+crc(s.p):"Consultar"):"")+'<small>'+(OPEN?"Reservar →":"Consultar →")+'</small></span></a>'}).join("")
     +'</div>'+(W.svcNote?'<p class="mute small" style="margin-top:14px">'+esc(W.svcNote)+'</p>':"")+'</div></section>';
   h+=stpH;
   // trabajos

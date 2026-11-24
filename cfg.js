@@ -397,6 +397,33 @@ var CITALY = {
     salud:      ["1629909613654-28e377c37b09", "1758691462878-6edc3d3da1be"],
     otro:       ["1790976158663-ccc651ef9805", "1783099779469-5b02ae272c09"]
   },
+
+  /* Íconos de servicio (SVG propios, línea + acento del color de marca). Se guardan como "i:nombre" en el campo ic del servicio. */
+  icons: (function () {
+    var A = ' style="stroke:var(--acc,#2f6df6)"', AF = ' style="stroke:var(--acc,#2f6df6);fill:var(--acc,#2f6df6);fill-opacity:.22"', W = ' style="fill:var(--card,#fff)"';
+    var star = function (x, y, r, f) { return '<path' + (f ? AF : A) + ' d="M' + x + ' ' + (y - r) + 'L' + (x + r * .3) + ' ' + (y - r * .3) + 'L' + (x + r) + ' ' + y + 'L' + (x + r * .3) + ' ' + (y + r * .3) + 'L' + x + ' ' + (y + r) + 'L' + (x - r * .3) + ' ' + (y + r * .3) + 'L' + (x - r) + ' ' + y + 'L' + (x - r * .3) + ' ' + (y - r * .3) + 'Z"/>'; };
+    var drop = function (x, y, s) { return '<path' + AF + ' d="M' + x + ' ' + y + 'q' + (2.6 * s) + ' ' + (3.8 * s) + ' ' + (2.6 * s) + ' ' + (6 * s) + 'a' + (2.6 * s) + ' ' + (2.6 * s) + ' 0 0 1 ' + (-5.2 * s) + ' 0q0 ' + (-2.2 * s) + ' ' + (2.6 * s) + ' ' + (-6 * s) + 'z"/>'; };
+    var sideCar = '<path d="M7 44V37.5Q7 34.5 10.5 34L18 32.5 24.5 25Q25.6 24 27.5 24H39Q41 24 42.4 25.4L47.5 32.5 53.5 33.6Q57 34.4 57 37.8V44Z"/><path d="M24 32.5 28.5 26.5H38.5L43.5 32.5Z"/><path d="M34 26.5V32.5"/><circle cx="19" cy="44" r="5.6"' + W + '/><circle cx="46" cy="44" r="5.6"' + W + '/><circle cx="19" cy="44" r="1.6"' + A + '/><circle cx="46" cy="44" r="1.6"' + A + '/>';
+    return {
+      lavado: sideCar.replace('M7 44V37.5', 'M7 46V39.5').replace('Q7 34.5', 'Q7 36.5').replace('V44Z', 'V46Z') + drop(20, 5, 1) + drop(32, 8, 1) + drop(44, 5, 1) + '<circle cx="26" cy="12" r="1.2"' + AF + '/><circle cx="38" cy="14" r="1.2"' + AF + '/><path' + A + ' d="M12 54H52"/>',
+      tapiceria: '<rect x="22" y="30" width="22" height="26" rx="6"/><path d="M27 30V24H39V30"/><path d="M27 24V17Q27 14 30 14H42Q46 14 46 18V22H39"/><path d="M46 20H49Q52 20 52 23V27"/><path' + A + ' d="M26 42H40M26 48H40"/><circle cx="56" cy="15" r="1.4"' + AF + '/><circle cx="53" cy="10" r="1.4"' + AF + '/><circle cx="58" cy="21" r="1.4"' + AF + '/>',
+      vidrio: '<path d="M8 47L16 22Q32 15 48 22L56 47Z"/><path d="M15 47L21 29M24 47L29 26"/><path d="M8 47H56"/>' + star(49, 12, 8, 1) + star(34, 9, 3.2, 0) + star(57, 29, 3, 0),
+      ceramico: '<path d="M32 7L51 13.5V30C51 42 43 50.5 32 57C21 50.5 13 42 13 30V13.5Z"/><path' + A + ' d="M22.5 31.5L29.5 38.5L42 25"  stroke-width="3.4"/>',
+      ppf: '<path d="M17 30L21 19.5Q22 17.5 25 17.5H39Q42 17.5 43 19.5L47 30"/><path d="M11.5 30H52.5Q54.5 30 54.5 33V46H9.5V33Q9.5 30 11.5 30Z"/><ellipse cx="18" cy="37" rx="4" ry="2.8"/><ellipse cx="46" cy="37" rx="4" ry="2.8"/><path d="M26 39.5H38"/><path d="M14 46V50.5H20V46M44 46V50.5H50V46"/><path style="stroke:var(--acc,#2f6df6);fill:var(--card,#fff)" d="M50 34L59 37.5V45C59 50.5 55 54 50 56.5C45 54 41 50.5 41 45V37.5Z"/><path' + A + ' d="M45.8 45.5L49 48.7L54.4 42.6" stroke-width="2.8"/>',
+      pulido: '<path d="M16 50Q16 31 32 31Q48 31 48 50Z"/><path d="M32 31V19Q32 14 37 14H48"/><rect x="45" y="11" width="10" height="6" rx="3"/><ellipse cx="32" cy="50" rx="20" ry="5.5"' + A + '/><path' + A + ' d="M12 57Q32 63 52 57"/>' + star(14, 22, 5.5, 1) + star(52, 36, 3.4, 0),
+      polarizado: '<path d="M9 48L17 17H47L55 48Z"/><path style="fill:currentColor;fill-opacity:.2;stroke:none" d="M12.8 38H51.2L55 48H9Z"/><path d="M12.8 38H51.2"/><path' + A + ' d="M24 25L30 25M22 29.5L34 29.5"/>' + star(46, 25, 4.4, 1),
+      ruedas: '<circle cx="32" cy="32" r="23"/><circle cx="32" cy="32" r="15.5"/><circle cx="32" cy="32" r="5"' + AF + '/><path d="M32 17V27M45.3 27.7L36.8 30.5M40.2 43.3L35 36.3M23.8 43.3L29 36.3M18.7 27.7L27.2 30.5"/><path' + A + ' d="M32 9V12M32 52V55M9 32H12M52 32H55" opacity=".0"/>',
+      suv: '<path d="M6 43V33Q6 29.6 9.5 29L15 27.8 20 19.5Q21 18 23 18H42Q44 18 45.2 19.4L50.5 27.8H54Q58 28 58 32V43Z"/><path d="M22.5 27.6 26 21H34V27.6ZM37 21H43L47.5 27.6H37Z"/><path' + A + ' d="M21 14H43"/><circle cx="19" cy="43.5" r="8"' + W + '/><circle cx="47" cy="43.5" r="8"' + W + '/><circle cx="19" cy="43.5" r="2.4"' + A + '/><circle cx="47" cy="43.5" r="2.4"' + A + '/>',
+      brillo: star(28, 34, 20, 1) + star(51, 13, 7, 0) + star(52, 50, 5, 0),
+      llave: '<path d="M29 8.7V16.5H35V8.7A12 12 0 1 1 29 8.7Z"/><path d="M28.5 31V52A3.5 3.5 0 0 0 35.5 52V31"/><circle cx="32" cy="52" r="1.2"' + A + '/>'
+    };
+  })(),
+  iconNames: ["lavado", "tapiceria", "vidrio", "ceramico", "ppf", "pulido", "polarizado", "ruedas", "suv", "brillo", "llave"],
+  ico: function (ic) {
+    ic = String(ic || "");
+    if (ic.indexOf("i:") === 0 && this.icons[ic.slice(2)]) return '<svg class="ics" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + this.icons[ic.slice(2)] + '</svg>';
+    return ic.replace(/[&<>"']/g, function (m) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]; });
+  },
   coverUrl: function (id, w) { return /^https:/.test(id) ? id : "https://images.unsplash.com/photo-" + id + "?w=" + (w || 1200) + "&q=70&auto=format&fit=crop"; },
   /* Portada de un negocio: "none" = sin foto; un id o link elegido; si no eligió nada, la primera de su tipo */
   coverOf: function (type, cover, w) {
