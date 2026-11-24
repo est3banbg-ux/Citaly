@@ -240,14 +240,14 @@ function respBase(){var C=CITALY,P=C.plans,PM=C.monthly.promoMonths,PR=rcrc(C.mo
   ["Dudas comunes","No tengo tiempo para configurarla","Justamente por eso existe: ya viene prearmada seg\u00fan tu tipo de negocio. En 10 minutos dej\u00e1s listo tu link. Y si te atascás, escribime por WhatsApp y te ayudo."],
   ["Dudas comunes","Me da pena / no soy bueno con la tecnología","Tranquilo \ud83d\ude0a Est\u00e1 hecha para que cualquiera la use desde el celular, paso a paso. Y cualquier duda me escrib\u00eds y te ayudo."],
   ["Dudas comunes","\u00bfPuedo cancelar cuando quiera?","Pod\u00e9s dejar de usarla cuando quer\u00e1s, y mientras tanto tus datos siguen guardados en tu cuenta. Cualquier duda sobre tu plan escribime y lo resolvemos."],
-  ["Dudas comunes","\u00bfMis datos y los de mis clientes est\u00e1n seguros?","S\u00ed. Todo se guarda en tu cuenta y solo vos, tu equipo y el soporte de Citaly ten\u00e9s acceso a tus clientes y tu agenda."],
+  ["Dudas comunes","\u00bfMis datos y los de mis clientes est\u00e1n seguros?","S\u00ed. Todo se guarda en tu cuenta y solo vos, tu equipo y el soporte de Citaly tienen acceso a tus clientes y tu agenda."],
   ["Soporte","\u00bfC\u00f3mo la instalo en el celular?","Abr\u00ed "+S+" en el navegador. En Android: men\u00fa \u22ee \u2192 \u00abInstalar app\u00bb. En iPhone (Safari): bot\u00f3n compartir \u2192 \u00abAgregar a pantalla de inicio\u00bb. Queda con su \u00edcono como cualquier app."],
   ["Soporte","\u00bfC\u00f3mo creo mi cuenta?","Entr\u00e1 a https://citalyapp.com, toc\u00e1 el bot\u00f3n para empezar gratis, eleg\u00ed tu tipo de negocio y entr\u00e1 con tu correo, Google o Facebook. La app te va guiando."],
   ["Soporte","No me llegan los avisos de reservas","Revis\u00e1 en Ajustes \u2192 Notificaciones que est\u00e9n activadas y que el celular permita notificaciones para la app. Si segu\u00eds sin recibirlas escribime por WhatsApp con el modelo de tu celular y lo arreglamos."]
   ]}
 function respMine(){try{return JSON.parse(localStorage.getItem("cz_resp")||"[]")}catch(e){return[]}}
 function respSave(a){try{localStorage.setItem("cz_resp",JSON.stringify(a))}catch(e){toast("No se pudo guardar en este navegador")}}
-function rResp(){var fm=$("rForm");if(fm&&!fm.hidden&&document.activeElement&&fm.contains(document.activeElement))return;var base=respBase().map(function(x){return {g:x[0],q:x[1],a:x[2]}}),mine=respMine().map(function(x,i){return {g:"Mis respuestas",q:x.q,a:x.a,own:i}}),all=mine.concat(base),
+function rResp(force){var fm=$("rForm");if(!force&&fm&&!fm.hidden)return;var base=respBase().map(function(x){return {g:x[0],q:x[1],a:x[2]}}),mine=respMine().map(function(x,i){return {g:"Mis respuestas",q:x.q,a:x.a,own:i}}),all=mine.concat(base),
   L=all.map(function(x){return [x,RQ?CITALY.fz(RQ,x.q+" "+x.g+" "+x.a):1]}).filter(function(x){return x[1]>0});
   if(RQ)L.sort(function(a,b){return b[1]-a[1]});
   var h='<input id="rq" type="search" placeholder="Buscar pregunta: precio, sinpe, instalar\u2026" value="'+esc(RQ)+'" style="margin:0 0 12px"><button class="btn ghost" id="rNew" style="margin-bottom:12px">+ Agregar mi propia respuesta</button><div id="rForm" hidden class="card" style="margin-bottom:12px"><label>Pregunta</label><input id="rfQ" maxlength="80"><label>Respuesta (lo que se copia)</label><textarea id="rfA" rows="5" maxlength="1200"></textarea><button class="btn" id="rSave" style="margin-top:8px">Guardar</button></div>';
@@ -257,9 +257,9 @@ function rResp(){var fm=$("rForm");if(fm&&!fm.hidden&&document.activeElement&&fm
     h+='<div class="card" style="margin-bottom:10px"><b>'+esc(o.q)+'</b><p style="white-space:pre-wrap;margin:6px 0 10px;line-height:1.5;font-size:14px">'+esc(o.a)+'</p><button class="btn" data-rc="'+i+'">\ud83d\udccb Copiar respuesta</button>'+(o.own!=null?' <button class="btn ghost" data-rd="'+o.own+'" style="margin-top:6px">Borrar</button>':'')+'</div>'});
   $("t-resp").innerHTML=h;window.__rall=all;var q=$("rq");if(RQ){q.focus();q.setSelectionRange(RQ.length,RQ.length)}}
 function copyTxt(t){if(navigator.clipboard&&navigator.clipboard.writeText)return navigator.clipboard.writeText(t);return new Promise(function(ok,no){var a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy")?ok():no()}catch(e){no(e)}a.remove()})}
-$("t-resp").addEventListener("input",function(e){if(e.target.id==="rq"){RQ=e.target.value;rResp()}});
+$("t-resp").addEventListener("input",function(e){if(e.target.id==="rq"){RQ=e.target.value;rResp(true)}});
 $("t-resp").addEventListener("click",function(e){var c=e.target.closest("[data-rc]"),d=e.target.closest("[data-rd]");
   if(c){var o=window.__rall[+c.dataset.rc];copyTxt(o.a).then(function(){toast("Copiado \u2705 Peg\u00e1lo en WhatsApp")}).catch(function(){toast("No se pudo copiar, seleccion\u00e1 el texto")});return}
-  if(d){var a=respMine();a.splice(+d.dataset.rd,1);respSave(a);rResp();return}
+  if(d){var a=respMine();a.splice(+d.dataset.rd,1);respSave(a);rResp(true);return}
   if(e.target.id==="rNew"){$("rForm").hidden=!$("rForm").hidden;return}
-  if(e.target.id==="rSave"){var q=$("rfQ").value.trim(),t=$("rfA").value.trim();if(!q||!t){toast("Escrib\u00ed la pregunta y la respuesta");return}var m=respMine();m.unshift({q:q,a:t});respSave(m);rResp();toast("Guardada")}});
+  if(e.target.id==="rSave"){var q=$("rfQ").value.trim(),t=$("rfA").value.trim();if(!q||!t){toast("Escrib\u00ed la pregunta y la respuesta");return}var m=respMine();m.unshift({q:q,a:t});respSave(m);rResp(true);toast("Guardada")}});
