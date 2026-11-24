@@ -41,7 +41,8 @@ var CITALY = {
   // 1) se registra aquí, 2) se programa en la app/página revisando modOn(B, "clave").
   mods: {
     vehiculo: { n: "Precio según tipo de vehículo", ic: "🚙", d: "El cliente elige su vehículo al reservar y los servicios marcados cambian de precio según el tipo." },
-    insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." }
+    insumos:  { n: "Control de insumos", ic: "📦", d: "Lista de materiales con existencias, compras, uso y alerta cuando se están acabando." },
+    videos:   { n: "Videos en la web", ic: "🎥", d: "Hasta 3 videos de TikTok, Instagram, Facebook o YouTube en su página web. Pega el link y se ve ahí mismo." }
   },
   iaUrl: "https://bitter-brook-9ee2.citalyapp-cr.workers.dev/ia",
   fbLogin: true, // Facebook ya configurado y probado (Meta publicada, Firebase activo)
@@ -412,6 +413,32 @@ var CITALY = {
   },
   coverUrl: function (id, w) { return /^https:/.test(id) ? id : "https://images.unsplash.com/photo-" + id + "?w=" + (w || 1200) + "&q=70&auto=format&fit=crop"; },
   /* Portada de un negocio: "none" = sin foto; un id o link elegido; si no eligió nada, la primera de su tipo */
+  // Link de video (YouTube, TikTok, Instagram, Facebook) → datos para incrustarlo. Solo se arma con IDs validados; null si no se reconoce.
+  vid: function (u) {
+    u = String(u || "").trim();
+    if (!/^https?:\/\//i.test(u)) u = /^[\w-]+(\.[\w-]+)+\//.test(u) ? "https://" + u : "";
+    var x, m, h, p;
+    try { x = new URL(u); } catch (e) { return null; }
+    h = x.hostname.toLowerCase().replace(/^(www|m|web|mbasic)\./, ""); p = x.pathname;
+    var yt = function (id, v) { return { k: "yt", id: id, src: "https://www.youtube-nocookie.com/embed/" + id, r: v ? "9/16" : "16/9", v: !!v }; };
+    if (h === "youtu.be") { m = p.match(/^\/([\w-]{11})(\/|$)/); return m ? yt(m[1]) : null; }
+    if (h === "youtube.com" || h === "music.youtube.com") {
+      if ((m = p.match(/^\/shorts\/([\w-]{11})(\/|$)/))) return yt(m[1], 1);
+      if ((m = p.match(/^\/(embed|live)\/([\w-]{11})(\/|$)/))) return yt(m[2]);
+      m = x.searchParams.get("v"); return m && /^[\w-]{11}$/.test(m) ? yt(m) : null;
+    }
+    if (h === "tiktok.com") { m = p.match(/\/video\/(\d{8,25})(\/|$)/); return m ? { k: "tt", id: m[1], src: "https://www.tiktok.com/embed/v2/" + m[1], r: "9/16", v: true } : null; }
+    if (h === "instagram.com") { m = p.match(/\/(reel|p|tv)\/([\w-]{5,20})(\/|$)/); return m ? { k: "ig", id: m[2], src: "https://www.instagram.com/" + m[1] + "/" + m[2] + "/embed/", r: "9/17", v: true } : null; }
+    if (h === "facebook.com" || h === "fb.com") {
+      var id = (m = p.match(/\/reel\/(\d{6,25})(\/|$)/)) ? m[1] : (m = p.match(/\/videos\/(\d{6,25})(\/|$)/)) ? m[1] : /^\/watch\/?$/.test(p) && /^\d{6,25}$/.test(x.searchParams.get("v") || "") ? x.searchParams.get("v") : null;
+      if (!id) return null;
+      var rl = /\/reel\//.test(p);
+      return { k: "fb", id: id, src: "https://www.facebook.com/plugins/video.php?href=" + encodeURIComponent("https://www.facebook.com/" + (rl ? "reel/" + id : "watch/?v=" + id)) + "&show_text=false", r: rl ? "9/16" : "16/9", v: rl };
+    }
+    return null;
+  },
+  // ¿Es un link corto (el que da el botón Compartir) que no se puede incrustar?
+  vidShort: function (u) { return /^(https?:\/\/)?(vm\.tiktok\.com|vt\.tiktok\.com|fb\.watch|on\.fb\.me|l\.facebook\.com|(www\.)?instagram\.com\/share\/|(www\.)?facebook\.com\/share\/|(www\.)?tiktok\.com\/t\/)/i.test(String(u || "").trim()); },
   coverOf: function (type, cover, w) {
     if (cover === "none") return "";
     if (typeof cover === "string" && cover.indexOf("data:image/") === 0) return cover;

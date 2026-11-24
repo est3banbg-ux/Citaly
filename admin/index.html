@@ -261,6 +261,7 @@ function edRender(){var nw=!E.id,W=E.web;$("main").hidden=true;$("ed").hidden=fa
     +'<label for="wSn">Nota debajo de los precios</label><input id="wSn" maxlength="160" value="'+esc(W.svcNote||"")+'" placeholder="Ej: Si el carro es otro tipo, el precio se ajusta al real.">'
     +'<label for="wHn">Nota del servicio a domicilio</label><input id="wHn" maxlength="160" value="'+esc(W.homeNote||"")+'" placeholder="Ej: Trabajamos en tu casa o en el parqueo de tu trabajo.">'
     +'<label>Preguntas frecuentes</label><div id="wFq"></div><button class="btn ghost" id="wFqA" style="margin-top:8px">+ Agregar pregunta</button>'
+    +'<label for="wVd">Videos (links, uno por línea, máximo 3)</label><textarea id="wVd" style="min-height:70px" placeholder="https://www.tiktok.com/@negocio/video/123…&#10;https://www.youtube.com/watch?v=…">'+esc((W.videos||[]).map(function(v){return v.u}).join("\n"))+'</textarea><p class="hint" style="margin-top:-2px">TikTok, Instagram, Facebook o YouTube. Link completo, no el corto. Solo se ven si enciendes el módulo «Videos en la web» abajo.</p>'
     +'<label>Reseñas de clientes reales</label><p class="hint" style="margin-top:-2px">Copia reseñas reales (Google, Facebook, Instagram) y pon de dónde salen.</p><div id="wRv"></div><button class="btn ghost" id="wRvA" style="margin-top:8px">+ Agregar reseña</button>'
     +'<label for="wGr">Link para dejar reseña en Google</label><input id="wGr" inputmode="url" value="'+esc(W.greview||"")+'" placeholder="https://g.page/r/…">'
     +'<div class="r3"><div><label for="wIg">Instagram</label><input id="wIg" inputmode="url" value="'+esc(W.ig||"")+'" placeholder="instagram.com/…"></div><div><label for="wFb">Facebook</label><input id="wFb" inputmode="url" value="'+esc(W.fb||"")+'" placeholder="facebook.com/…"></div></div>'
@@ -383,7 +384,7 @@ function collect(){E.name=$("eN").value.trim();E.type=$("eT").value;E.wa=telN($(
   E.hours=[0,1,2,3,4,5,6].map(function(d){return {on:document.querySelector('[data-hd="'+d+'"]').getAttribute("aria-pressed")==="true",a:$("ha"+d).value||"08:00",b:$("hb"+d).value||"18:00"}});
   E.tagline=$("wTg").value.trim();E.blurb=$("wBl").value.trim();E.promo=$("wPr").value.trim();
   var W=E.web;W.promoNote=$("wPn").value.trim();W.feats=lines($("wFt").value).slice(0,4).join("\n");W.about=$("wAb").value.trim();W.svcNote=$("wSn").value.trim();W.homeNote=$("wHn").value.trim();
-  W.greview=$("wGr").value.trim();W.ig=$("wIg").value.trim();W.fb=$("wFb").value.trim();W.tt=$("wTt").value.trim();W.email=$("wEm").value.trim();
+  var vOld=W.videos||[];W.videos=lines($("wVd").value).slice(0,3).map(function(u){var o=vOld.filter(function(x){return x.u===u})[0];return o&&o.c?{u:u,c:o.c}:{u:u}});W.greview=$("wGr").value.trim();W.ig=$("wIg").value.trim();W.fb=$("wFb").value.trim();W.tt=$("wTt").value.trim();W.email=$("wEm").value.trim();
   var pl=$("pPl").value;E.demo=pl==="demo";E.plan=E.demo?"standard":pl;E.total=E.demo?0:Math.max(0,+$("pTo").value||0);
   if($("pSp"))E.paidNow=E.demo?0:Math.min(E.total,Math.max(0,+$("pSp").value||0))}
 function fail(id,msg){$("eErr").textContent=msg;var el=id&&$(id);if(el){el.classList.add("bad");el.scrollIntoView({behavior:"smooth",block:"center"});el.addEventListener("input",function(){el.classList.remove("bad")},{once:true})}return false}
@@ -397,6 +398,7 @@ function validate(){$("eErr").textContent="";
   if(E.hours.some(function(h){return h.on&&tm(h.b)-tm(h.a)<30}))return fail(null,"Revisa el horario: el cierre debe ser después de la apertura.");
   if(!E.hours.some(function(h){return h.on}))return fail(null,"Marca al menos un día en el horario.");
   if(!E.tagline)return fail("wTg","Escribe la frase principal de la página.");
+  var bv=(E.web.videos||[]).filter(function(v){return !C.vid(v.u)})[0];if(bv)return fail("wVd",C.vidShort(bv.u)?"Un video tiene link corto: abre el video en el navegador y copia la dirección completa.":"No reconozco el link de un video. Usa TikTok, Instagram, Facebook o YouTube.");
   if(E.mods.vehiculo&&!E.veh.some(function(v){return String(v.n).trim()}))return fail("eVhA","Agrega al menos un tipo de vehículo.");
   return true}
 function pubOf(b,bid){return {biz:bid,web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
