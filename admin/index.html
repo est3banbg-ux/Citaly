@@ -91,7 +91,7 @@
 
   <div id="main" hidden>
     <div class="kpis" id="kpis"></div>
-    <div class="chips" id="tabs"><button class="chip" data-t="neg" aria-pressed="true">Negocios</button><button class="chip" data-t="cob" aria-pressed="false">Cobros</button><button class="chip" data-t="met" aria-pressed="false">Métricas</button><button class="chip" data-t="pro" aria-pressed="false">Prospectos</button><button class="chip" data-t="rep" aria-pressed="false">Reporte</button></div>
+    <div class="chips" id="tabs"><button class="chip" data-t="neg" aria-pressed="true">Negocios</button><button class="chip" data-t="cob" aria-pressed="false">Cobros</button><button class="chip" data-t="met" aria-pressed="false">Métricas</button><button class="chip" data-t="pro" aria-pressed="false">Prospectos</button><button class="chip" data-t="rep" aria-pressed="false">Reporte</button><button class="chip" data-t="resp" aria-pressed="false">Respuestas</button></div>
     <div id="t-neg">
     <button class="btn" id="newB">+ Nuevo negocio</button>
     <button class="btn ghost" id="expM" style="margin-top:8px">📧 Exportar correos para promos</button>
@@ -103,7 +103,7 @@
     <div id="list"></div>
     <div class="card"><h2>Pagos recibidos</h2><div id="pays"></div></div>
     </div>
-    <div id="t-cob" hidden></div><div id="t-met" hidden></div><div id="t-pro" hidden></div><div id="t-rep" hidden></div>
+    <div id="t-cob" hidden></div><div id="t-met" hidden></div><div id="t-pro" hidden></div><div id="t-rep" hidden></div><div id="t-resp" hidden></div>
   </div>
 
   <div id="ed" class="ed" hidden></div>
@@ -486,6 +486,6 @@ function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Ca
   Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
     .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
-<script src="extra.js?v=4"></script>
+<script src="extra.js?v=5"></script>
 </body>
 </html>
