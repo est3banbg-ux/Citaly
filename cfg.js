@@ -420,3 +420,85 @@ var CITALY = {
     return this.coverUrl((this.covers[type] || this.covers.otro)[0], w);
   }
 };
+
+/* ===== Selector de íconos por grupos (compartido: admin y app) ===== */
+(function (C) {
+  var CAR = ["lav", "vid", "tal"];
+  C.iconGroups = [
+    { id: "lav", n: "Lavado y detailing", ic: ["lavados", "tapiceria", "suv4x4", "brillo_final", "ceramico", "ppf", "polarizado", "accesorios", "pulidora", "pulidora_azul", "gotaseca"] },
+    { id: "vid", n: "Vidrios y focos", ic: ["foco_polimero_real", "foco_pulidora", "parabrisas_real", "parabrisas_pulido", "parabrisas_brillo", "parabrisas_pulidora", "rayones_real", "gotaseca", "vidrios", "polarizado", "pulidora", "pulidora_azul", "brillo_final"] },
+    { id: "tal", n: "Taller", ic: ["diagnostico", "aceite", "frenos", "accesorios"] },
+    { id: "bar", n: "Barbería", ic: ["tijeras", "navaja", "poste", "peine"] },
+    { id: "sal", n: "Salón", ic: ["secador", "tinte", "peine", "crema", "tijeras"] },
+    { id: "uni", n: "Uñas", ic: ["esmalte", "pie", "gema", "lampara"] },
+    { id: "spa", n: "Spa", ic: ["piedras", "facial", "loto", "crema"] },
+    { id: "sld", n: "Salud", ic: ["estetoscopio", "clipboard"] },
+    { id: "gen", n: "General", ic: ["calendario", "clipboard", "gema"] }
+  ];
+  C.iconTypeGroups = {
+    barberia: ["bar", "gen"], salon: ["sal", "gen"], unas: ["uni", "gen"], spa: ["spa", "gen"], salud: ["sld", "gen"],
+    lavacar: ["lav", "vid", "tal", "gen"], detailing: ["lav", "vid", "tal", "gen"], pulido: ["vid", "lav", "tal", "gen"],
+    polarizado: ["lav", "vid", "tal", "gen"], autos: ["lav", "vid", "tal", "gen"], taller: ["tal", "lav", "vid", "gen"]
+  };
+  C.iconKw = {
+    tijeras: "tijera corte cabello barberia salon", navaja: "navaja afeitar barba", poste: "barbero poste barberia", peine: "peine cepillo cabello peinado",
+    secador: "secador pelo secado cabello", tinte: "tinte color cabello", crema: "crema tratamiento facial hidratante", esmalte: "esmalte uñas manicure",
+    pie: "pie pedicure", gema: "gema diamante acrilicas joya", lampara: "lampara uv semipermanente uñas", piedras: "piedras masaje spa relajante",
+    facial: "facial limpieza mascarilla cara", loto: "loto flor spa relajacion", estetoscopio: "estetoscopio consulta medico doctor salud",
+    clipboard: "lista control chequeo revision formulario", calendario: "cita calendario agenda reserva", aceite: "aceite cambio motor lata",
+    frenos: "frenos disco revision", diagnostico: "diagnostico scanner motor engranaje revision", gotaseca: "gota seca agua manchas vidrio",
+    crema_: "", rayones_real: "rayones rayas vidrio pulido", foco_polimero_real: "foco faro polimero liquido pulido luz",
+    foco_pulidora: "foco faro pulidora pulido", parabrisas_real: "parabrisas vidrio pulido", parabrisas_pulido: "parabrisas vidrio pulido",
+    parabrisas_brillo: "parabrisas vidrio brillo", parabrisas_pulidora: "parabrisas pulidora vidrio", pulidora_azul: "pulidora maquina pulir",
+    pulidora: "pulidora maquina pulir correccion pintura", brillo_final: "brillo final encerado cera", lavados: "lavado lavacar carro agua",
+    tapiceria: "tapiceria interior asientos limpieza", vidrios: "vidrios parabrisas ventana", ceramico: "ceramico proteccion nano escudo",
+    ppf: "ppf proteccion pintura pelicula", polarizado: "polarizado lamina vidrios", accesorios: "accesorios ruedas aros llantas", suv4x4: "suv 4x4 chasis carro"
+  };
+  C.pickHtml = function (type, cur) {
+    var gs = C.iconTypeGroups[type], byId = {}, rec = [], used = {};
+    C.iconGroups.forEach(function (g) { byId[g.id] = g; });
+    var ids = gs || ["gen"].concat(C.iconGroups.map(function (g) { return g.id; }).filter(function (i) { return i !== "gen"; }));
+    try { rec = JSON.parse(localStorage.getItem("cz_ric") || "[]").filter(function (n) { return /^img:/.test(n); }).slice(0, 8); } catch (e) {}
+    var all = [];
+    ids.concat(C.iconGroups.map(function (g) { return g.id; })).forEach(function (i) { (byId[i] ? byId[i].ic : []).forEach(function (n) { if (all.indexOf(n) < 0) all.push(n); }); });
+    var first = ids[0];
+    var tabs = (rec.length ? ['<button type="button" class="ipt" data-ipt="rec">🕘 Recientes</button>'] : [])
+      .concat(ids.map(function (i) { return '<button type="button" class="ipt" data-ipt="' + i + '">' + byId[i].n + '</button>'; }))
+      .concat(['<button type="button" class="ipt" data-ipt="*">Ver todos</button>']).join("");
+    var btns = all.map(function (n) {
+      var gl = C.iconGroups.filter(function (g) { return g.ic.indexOf(n) >= 0; }).map(function (g) { return g.id; }).join(" ");
+      var cls = (rec.indexOf("img:" + n) >= 0 ? " rec" : "");
+      return '<button type="button" class="ipb" data-ic="img:' + n + '" data-g="' + gl + (cls ? " rec" : "") + '" data-kw="' + (n + " " + (C.iconKw[n] || "")).replace(/"/g, "") + '" aria-pressed="' + (cur === "img:" + n) + '">' + C.ico("img:" + n) + '</button>';
+    }).join("");
+    var curExtra = /^i:/.test(String(cur || "")) ? '<button type="button" class="ipb ipcur" data-ic="' + cur + '" aria-pressed="true" title="Actual">' + C.ico(cur) + '</button>' : "";
+    return '<div class="ipk" data-first="' + (rec.length ? "rec" : first) + '"><input type="search" class="ipq" placeholder="🔍 Buscar ícono: foco, tijera, lavado…" autocomplete="off" aria-label="Buscar ícono"><div class="ipts">' + tabs + '</div><div class="ipg">' + curExtra + btns + '</div><p class="ipn mute small" hidden>No encontré ese ícono. Prueba otra palabra o toca «Ver todos».</p></div>';
+  };
+  function norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+  function apply(k) {
+    var t = k.querySelector(".ipt.on"), tab = t ? t.dataset.ipt : "*", q = norm(k.querySelector(".ipq").value).trim(), n = 0;
+    k.querySelectorAll(".ipb").forEach(function (b) {
+      var show = b.classList.contains("ipcur") || (q ? q.split(/\s+/).every(function (w) { return norm(b.dataset.kw).indexOf(w) >= 0; }) : (tab === "*" || (" " + b.dataset.g + " ").indexOf(" " + tab + " ") >= 0));
+      b.hidden = !show; if (show) n++;
+    });
+    var p = k.querySelector(".ipn"); if (p) p.hidden = n > 0 || !q;
+  }
+  function init(k) {
+    if (k.dataset.ready) return; k.dataset.ready = 1;
+    var f = k.querySelector('.ipt[data-ipt="' + k.dataset.first + '"]') || k.querySelector(".ipt");
+    if (f) f.classList.add("on"); apply(k);
+  }
+  if (typeof document !== "undefined") {
+    var st = document.createElement("style");
+    st.textContent = ".ipk{display:block}.ipq{width:100%;margin:0 0 8px;padding:10px 12px;border-radius:12px}.ipts{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}.ipts::-webkit-scrollbar{display:none}.ipt{flex:none;border:1.5px solid rgba(128,128,150,.35);background:transparent;color:inherit;border-radius:99px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}.ipt.on{background:#7c5cff;border-color:#7c5cff;color:#fff}.ipg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.ipb{aspect-ratio:1;min-height:48px;border-radius:12px;border:2px solid transparent;background:rgba(128,128,150,.12);display:grid;place-items:center;padding:5px;cursor:pointer;color:inherit}.ipb[hidden]{display:none}.ipb[aria-pressed=true]{border-color:#7c5cff}.ipb .ico-img,.ipb .ics{width:100%;height:100%;object-fit:contain}.ipn{margin:8px 0 0}";
+    document.head.appendChild(st);
+    var run = function () { document.querySelectorAll(".ipk:not([data-ready])").forEach(init); };
+    new MutationObserver(run).observe(document.documentElement, { childList: true, subtree: true });
+    document.addEventListener("click", function (e) {
+      var t = e.target.closest && e.target.closest(".ipt");
+      if (t) { var k = t.closest(".ipk"); k.querySelector(".ipq").value = ""; k.querySelectorAll(".ipt").forEach(function (x) { x.classList.remove("on"); }); t.classList.add("on"); apply(k); return; }
+      var b = e.target.closest && e.target.closest(".ipk .ipb");
+      if (b) { try { var r = JSON.parse(localStorage.getItem("cz_ric") || "[]").filter(function (x) { return x !== b.dataset.ic; }); r.unshift(b.dataset.ic); localStorage.setItem("cz_ric", JSON.stringify(r.slice(0, 8))); } catch (x) {} }
+    }, true);
+    document.addEventListener("input", function (e) { var q = e.target.closest && e.target.closest(".ipq"); if (q) apply(q.closest(".ipk")); });
+  }
+})(CITALY);
