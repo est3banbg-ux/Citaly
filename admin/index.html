@@ -408,9 +408,10 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
   var mods={};Object.keys(C.mods).forEach(function(k){mods[k]=!!E.mods[k]});
   var veh=E.veh.filter(function(v){return String(v.n).trim()}).slice(0,8).map(function(v){return {n:String(v.n).trim().slice(0,30),x:Math.max(0,+v.x||0)}});
   var zones=E.home?E.zones.filter(function(z){return String(z.n).trim()}).slice(0,40).map(function(z){return {n:String(z.n).trim().slice(0,40),fee:Math.max(0,+z.fee||0)}}):[];
-  var W=E.web,web={promoNote:W.promoNote||"",feats:W.feats||"",about:W.about||"",svcNote:W.svcNote||"",homeNote:W.homeNote||"",greview:W.greview||"",ig:W.ig||"",fb:W.fb||"",tt:W.tt||"",email:W.email||"",
+  var W=E.web,web=Object.assign({},W,{promoNote:W.promoNote||"",feats:W.feats||"",about:W.about||"",svcNote:W.svcNote||"",homeNote:W.homeNote||"",greview:W.greview||"",ig:W.ig||"",fb:W.fb||"",tt:W.tt||"",email:W.email||"",
     faqs:W.faqs.filter(function(f){return String(f.q).trim()&&String(f.a).trim()}).slice(0,20).map(function(f){return {q:String(f.q).trim(),a:String(f.a).trim()}}),
-    reviews:W.reviews.filter(function(r){return String(r.t).trim()}).slice(0,12).map(function(r){return {t:String(r.t).trim(),n:String(r.n||"").trim(),src:String(r.src||"").trim()}})};
+    reviews:W.reviews.filter(function(r){return String(r.t).trim()}).slice(0,12).map(function(r){return {t:String(r.t).trim(),n:String(r.n||"").trim(),src:String(r.src||"").trim()}}),
+    videos:(W.videos||[]).filter(function(v){return v&&C.vid(v.u)}).slice(0,3).map(function(v){return v.c?{u:String(v.u).trim(),c:String(v.c).slice(0,60)}:{u:String(v.u).trim()}})});
   var x=E.extra||{};
   var biz={name:E.name,type:E.type,wa:E.wa,addr:E.addr,slug:E.slug,color:E.color,logo:E.logo,services:services,hours:E.hours,home:E.home,zones:zones,tagline:E.tagline,blurb:E.blurb,promo:E.promo,web:web,email:E.email,team:team,mods:mods,veh:veh,
     open:x.open!==false,ahead:x.ahead||21,lead:x.lead==null?2:x.lead,showPrices:x.showPrices!==false,askHow:x.askHow!==false};
