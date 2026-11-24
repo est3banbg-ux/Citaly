@@ -742,3 +742,22 @@ var CITALY = {
     document.head.appendChild(st);
   }
 })(CITALY);
+
+
+/* ===== Cupos: varios clientes a la misma hora ===== */
+/* Cada bloque de 30 min es un doc slots/{dia_HHMM} (cupo 1) o slots/{dia_HHMM_k} (cupos 2, 3...). */
+(function (C) {
+  C.laneBase = function (id) { return String(id).split("_").slice(0, 2).join("_"); };
+  C.lanes = function (b) { var n = Math.round(+(b && b.lanes) || 1); return n < 1 ? 1 : n > 10 ? 10 : n; };
+  /* docs: [{id, job}] de los slots; job: id de la cita que se guarda (sus propios slots se reutilizan) */
+  C.laneAssign = function (bases, docs, job) {
+    var taken = {}, mine = {}, out = [];
+    (docs || []).forEach(function (d) { if (job != null && String(d.job) === String(job)) mine[d.id] = 1; else taken[d.id] = 1; });
+    bases.forEach(function (b) {
+      var own = Object.keys(mine).filter(function (id) { return C.laneBase(id) === b && out.indexOf(id) < 0; })[0];
+      if (own) { out.push(own); return; }
+      for (var k = 0; k < 50; k++) { var id = k ? b + "_" + k : b; if (!taken[id] && !mine[id] && out.indexOf(id) < 0) { out.push(id); return; } }
+    });
+    return { ids: out, mine: Object.keys(mine) };
+  };
+})(CITALY);

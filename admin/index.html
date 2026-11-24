@@ -419,7 +419,7 @@ function validate(){$("eErr").textContent="";
   if(E.mods.vehiculo&&!E.veh.some(function(v){return String(v.n).trim()}))return fail("eVhA","Agrega al menos un tipo de vehículo.");
   return true}
 function capVid(s,plan){var pl=(s&&s.plan)||plan;if((s&&s.status==="trial")||pl==="trial")return 6;var t=s&&s.tier&&C.plans[s.tier]?s.tier:(pl==="mensual"?"arranque":"nitro");return [6,12,24][["arranque","turbo","nitro"].indexOf(t)]||6}
-function pubOf(b,bid){return {biz:bid,cap:{vid:capVid(SUBS[bid],E&&E.plan)},web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[]}}
+function pubOf(b,bid){return {biz:bid,cap:{vid:capVid(SUBS[bid],E&&E.plan)},web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,lanes:C.lanes(b),brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[],cierre:b.cierre||{}}}
 function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.id||db.collection("biz").doc().id,now=TS.now();
   var team=emails(E.team).filter(function(x){return x!==E.email}),all=(E.email?[E.email]:[]).concat(team);
   var services=E.services.filter(function(s){return String(s.n).trim()}).map(function(s,i){var o={id:s.id||"s"+(i+1),n:String(s.n).trim().slice(0,80),p:Math.max(0,+s.p||0),d:+s.d||60,ic:(String(s.ic||"").indexOf("data:image/")===0&&String(s.ic).length<90000)?String(s.ic):String(s.ic||"").slice(0,40)};if(s.vx&&E.mods.vehiculo){o.vx=true;var vp=C.vpClean(s,E.veh.filter(function(v){return String(v.n).trim()}));if(vp)o.vp=vp}return o});
@@ -439,7 +439,7 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     taken=taken.filter(Boolean);if(taken.length)throw {msg:"Este correo ya entra a otro negocio: "+taken.join(", ")+". Usa otro o quítalo del otro negocio."};
     var bt=db.batch();
     if(nw){biz.created=now;bt.set(db.doc("biz/"+bid),biz)}else bt.set(db.doc("biz/"+bid),biz,{merge:true});
-    bt.set(db.doc("pub/"+E.slug),pubOf(biz,bid));
+    bt.set(db.doc("pub/"+E.slug),pubOf(Object.assign({},nw?{}:(BIZ[bid]||{}),biz),bid),{merge:true});
     var mon=E.plan==="trial"||E.plan==="mensual",sub=mon?{name:E.name,email:E.email,plan:E.plan,total:0,demo:false}:{name:E.name,email:E.email,plan:E.plan,total:E.total,demo:E.demo,until:FAR()};
     if(nw){sub.start=now;sub.status=E.plan==="trial"?"trial":"active";if(mon)sub.until=TS.fromMillis(Date.now()+(E.plan==="trial"?(C.trialDays||30)*864e5:31*864e5))}
     bt.set(db.doc("subs/"+bid),sub,{merge:true});

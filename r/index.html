@@ -377,12 +377,13 @@ $("cli").oninput=$("tel").oninput=$("ad").oninput=upd;
 
 /* Día y hora */
 function loadBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P.ahead||21));
-  return db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};sn.forEach(function(d){BUSY[d.id]=1});renderDays()},function(){BUSY={};renderDays()})}
+  return db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};SLD=[];sn.forEach(function(d){var b=C.laneBase(d.id);BUSY[b]=(BUSY[b]||0)+1;SLD.push({id:d.id,job:(d.data()||{}).job})});renderDays()},function(){BUSY={};SLD=[];renderDays()})}
+var SLD=[];function bz(k){return (BUSY[k]||0)>=C.lanes(P)}
 function zDayOff(day){var z=S.zone>=0&&P.zones?P.zones[S.zone]:null;return !!(z&&z.days&&z.days.length&&z.days.length<7&&z.days.indexOf(pd(day).getDay())<0)}
 function segs(a,z){var b=P.brk;if(b&&b.a&&b.b){var x=tm(b.a),y=tm(b.b);if(y>x){if(x>a&&x<z)return y<z?[[a,x],[y,z]]:[[a,x]];if(x<=a&&y>a)return y<z?[[y,z]]:[]}}return [[a,z]]}
 function freeStarts(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0||zDayOff(day))return [];var a=tm(h.a),z=tm(h.b),d=dur(),out=[],now=new Date(),min=now.getHours()*60+now.getMinutes()+(+P.lead||0)*60,today=ymd(now);
   var dayOff=Math.round((pd(day)-pd(today))/864e5);
-  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(P.last&&m>tm(P.last))break;if(ci!=null&&m>=ci*60)continue;if(dayOff*1440+m<min)continue;var ok=true;for(var k=0;k<d;k+=30)if(BUSY[day+"_"+hm(m+k).replace(":","")]){ok=false;break}if(ok)out.push(hm(m))}});return out}
+  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(P.last&&m>tm(P.last))break;if(ci!=null&&m>=ci*60)continue;if(dayOff*1440+m<min)continue;var ok=true;for(var k=0;k<d;k+=30)if(bz(day+"_"+hm(m+k).replace(":",""))){ok=false;break}if(ok)out.push(hm(m))}});return out}
 function closedDay(s){var h=(P.hours||[])[pd(s).getDay()];return !h||!h.on||(P.cierre||{})[s]===0}
 function renderDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeStarts(s).length;if(f&&!first)first=s;
     h+='<button data-d="'+s+'" aria-pressed="'+(s===S.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):zDayOff(s)?"no vamos":closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
@@ -442,14 +443,14 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
     veh:vehOn()||carsAll().some(function(c){return c.mod})?carsAll().map(carFull).join(" + ").slice(0,120):"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",zask:!!(z&&z.ask),how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
   var tk=newTok();S.tk=tk;S.job=id;
   function mk(wt){var bt=db.batch(),jd=Object.assign({},job);if(wt)jd.tk=tk;bt.set(db.doc("biz/"+BID+"/jobs/"+id),jd);
-    blocks().forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
+    C.laneAssign(blocks(),SLD,null).ids.forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
     bt.set(db.doc("biz/"+BID+"/holds/"+tel),{job:id,until:firebase.firestore.Timestamp.fromDate(end),at:at});
     if(wt)bt.set(db.doc("biz/"+BID+"/mine/"+tk),{job:id,cli:job.cli,tel:tel,date:S.day,time:S.t,dur:dur(),items:job.items,total:job.total,zone:job.zone,st:"activa",at:at});
     return bt}
   /* Si las reglas nuevas todavía no están publicadas, reintenta sin el link de "Mi cita" */
   mk(true).commit().then(done,function(){S.tk=null;mk(false).commit().then(done,fail)});
   function fail(){loadBusy().then(function(){b.disabled=false;b.textContent="Confirmar cita";
-    var taken=blocks().some(function(k){return BUSY[k]});
+    var taken=blocks().some(function(k){return bz(k)});
     if(taken){S.t=null;show(STEPS.indexOf("when"));err("Uy, alguien acaba de tomar esa hora. Elige otra, por favor.")}
     else{upd();err("Ya tienes una cita pendiente con este número. Para cambiarla o agendar otra, escríbenos por WhatsApp.")}})}}
 /* Aviso al dueño (app gratuita ntfy): solo manda día, hora y servicio, sin datos personales */
@@ -494,11 +495,11 @@ function renderMine(){var left=atMs(MC.date,MC.time)-Date.now(),can=MC.st==="act
   $("mcMove").onclick=startMove;$("mcCancel").onclick=askCancel}
 function mBlocks(day,t,d){var r=[],s=tm(t);for(var k=0;k<d;k+=30)r.push(day+"_"+hm(s+k).replace(":",""));return r}
 function freeFor(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0)return [];var a=tm(h.a),z=tm(h.b),d=Math.max(30,+MC.dur||60),out=[];
-  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(P.last&&m>tm(P.last))break;if(ci!=null&&m>=ci*60)continue;var t=hm(m);if(atMs(day,t)-Date.now()<Math.max(2,+P.lead||0)*36e5)continue;if(day===MC.date&&t===MC.time)continue;if(!mBlocks(day,t,d).some(function(k){return BUSY[k]}))out.push(t)}});return out}
+  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(P.last&&m>tm(P.last))break;if(ci!=null&&m>=ci*60)continue;var t=hm(m);if(atMs(day,t)-Date.now()<Math.max(2,+P.lead||0)*36e5)continue;if(day===MC.date&&t===MC.time)continue;if(!mBlocks(day,t,d).some(function(k){return bz(k)}))out.push(t)}});return out}
 function startMove(){MS={day:"",t:null};mcBox('<h2>Elige el nuevo día</h2><p class="mute">Solo te mostramos las horas libres.</p><div class="days" id="mdays"></div><div class="hours" id="mhrs"></div><div id="mhe"></div><p class="err" id="mer"></p><button class="btn big" id="mGo" disabled>Confirmar el cambio</button><button class="btn ghost" id="mBack" style="margin-top:8px">Volver</button>');
   $("mBack").onclick=renderMine;$("mGo").onclick=doMove;loadMBusy()}
 function loadMBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P.ahead||21));
-  db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};sn.forEach(function(d){if(String((d.data()||{}).job)!==String(MC.job))BUSY[d.id]=1});renderMDays()},function(){BUSY={};renderMDays()})}
+  db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};SLD=[];sn.forEach(function(d){var jb=(d.data()||{}).job;SLD.push({id:d.id,job:jb});if(String(jb)!==String(MC.job)){var b=C.laneBase(d.id);BUSY[b]=(BUSY[b]||0)+1}});renderMDays()},function(){BUSY={};SLD=[];renderMDays()})}
 function renderMDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeFor(s).length;if(f&&!first)first=s;
     h+='<button data-d="'+s+'" aria-pressed="'+(s===MS.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
   $("mdays").innerHTML=h;if(!MS.day)MS.day=first;Array.prototype.forEach.call($("mdays").children,function(b){b.setAttribute("aria-pressed",b.dataset.d===MS.day);b.onclick=function(){if(b.disabled)return;MS.day=b.dataset.d;MS.t=null;renderMDays()}});
@@ -508,6 +509,7 @@ function renderMDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){va
 function doMove(){var b=$("mGo");if(MS.t==null)return;b.disabled=true;b.textContent="Cambiando tu cita…";$("mer").textContent="";
   var d=Math.max(30,+MC.dur||60),O=mBlocks(MC.date,MC.time,d),N=mBlocks(MS.day,MS.t,d),at=Date.now(),bt=db.batch(),J=String(MC.job),before=niceDay(MC.date)+", "+fh(MC.time);
   bt.update(db.doc("biz/"+BID+"/jobs/"+J),{date:MS.day,time:MS.t,st:"Por confirmar",key:MCQ,chg:"movida",chgAt:firebase.firestore.FieldValue.serverTimestamp()});
+  var LA=C.laneAssign(N,SLD,J);O=LA.mine.length?LA.mine:O;N=LA.ids;
   O.forEach(function(k){if(N.indexOf(k)<0)bt.delete(db.doc("biz/"+BID+"/slots/"+k))});
   N.forEach(function(k){if(O.indexOf(k)<0)bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:MS.day,t:k.split("_")[1],job:J,at:at})});
   bt.update(db.doc("biz/"+BID+"/mine/"+MCQ),{date:MS.day,time:MS.t,upd:at});
@@ -516,11 +518,11 @@ function doMove(){var b=$("mGo");if(MS.t==null)return;b.disabled=true;b.textCont
    function(){b.disabled=false;b.textContent="Confirmar el cambio";$("mer").innerHTML=atMs(MC.date,MC.time)-Date.now()<12*36e5?"Ya faltan menos de 12 horas. Escríbenos por WhatsApp para cambiarla.":"No se pudo cambiar: puede que esa hora se acabe de ocupar. Elige otra o escríbenos por WhatsApp.";loadMBusy()})}
 function askCancel(){mcBox('<h2>¿Cancelar tu cita?</h2>'+mcSum()+'<p class="mute">La hora queda libre para otra persona. También puedes cambiarla de día.</p><button class="btn big" id="cY" style="background:var(--bad)">Sí, cancelar mi cita</button><button class="btn alt" id="cM" style="margin-top:8px">🔁 Mejor cambiar el día</button><button class="btn ghost" id="cN" style="margin-top:8px">No, dejarla como está</button><p class="err" id="mer"></p>');
   $("cN").onclick=renderMine;$("cM").onclick=startMove;$("cY").onclick=function(){var b=this;b.disabled=true;b.textContent="Cancelando…";
-    var bt=db.batch(),J=String(MC.job);bt.update(db.doc("biz/"+BID+"/jobs/"+J),{st:"Cancelada",key:MCQ,chg:"cancelada",chgAt:firebase.firestore.FieldValue.serverTimestamp()});
-    mBlocks(MC.date,MC.time,Math.max(30,+MC.dur||60)).forEach(function(k){bt.delete(db.doc("biz/"+BID+"/slots/"+k))});if(MC.tel)bt.delete(db.doc("biz/"+BID+"/holds/"+MC.tel));
+    var bt=db.batch(),J=String(MC.job);db.collection("biz/"+BID+"/slots").where("date","==",MC.date).get().then(function(sn){var ids=[];sn.forEach(function(d){if(String((d.data()||{}).job)===J)ids.push(d.id)});return ids},function(){return []}).then(function(ids){bt.update(db.doc("biz/"+BID+"/jobs/"+J),{st:"Cancelada",key:MCQ,chg:"cancelada",chgAt:firebase.firestore.FieldValue.serverTimestamp()});
+    (ids.length?ids:mBlocks(MC.date,MC.time,Math.max(30,+MC.dur||60))).forEach(function(k){bt.delete(db.doc("biz/"+BID+"/slots/"+k))});if(MC.tel)bt.delete(db.doc("biz/"+BID+"/holds/"+MC.tel));
     bt.update(db.doc("biz/"+BID+"/mine/"+MCQ),{st:"cancelada",upd:Date.now()});
     bt.commit().then(function(){pushOwner("chg",J);MC.st="cancelada";mcBox('<h2>Tu cita quedó cancelada</h2><p class="mute">Gracias por avisar. Cuando quieras, reserva otra.</p><a class="btn big" href="?n='+slug+'&go=1">Reservar una cita nueva</a><a class="btn wa" style="margin-top:8px" target="_blank" rel="noopener" href="'+waUrl(P.wa,"¡Hola "+P.name+"! 👋 Cancelé mi cita del "+niceDay(MC.date)+", "+fh(MC.time)+". 👤 "+MC.cli)+'">Avisar por WhatsApp</a>')},
-     function(){b.disabled=false;b.textContent="Sí, cancelar mi cita";$("mer").textContent="No se pudo cancelar. Si faltan menos de 12 horas, escríbenos por WhatsApp."})}}
+     function(){b.disabled=false;b.textContent="Sí, cancelar mi cita";$("mer").textContent="No se pudo cancelar. Si faltan menos de 12 horas, escríbenos por WhatsApp."})})}}
 </script>
 <a class="wafab" id="wafab" target="_blank" rel="noopener" aria-label="Escríbenos por WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></svg></a>
 <script>
