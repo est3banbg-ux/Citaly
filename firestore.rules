@@ -179,8 +179,8 @@ service cloud.firestore {
       match /slots/{sid} {
         allow read: if true;
         allow create: if isOwner(bid) || (
-          subOk(bid)
-          && laneOk(bid, sid)
+          // la cita (job) ya revisa que el negocio esté activo; aquí basta con que exista
+          laneOk(bid, sid)
           && request.resource.data.keys().hasOnly(['date', 't', 'job', 'at'])
           && str(request.resource.data.job, 30)
           && getAfter(/databases/$(database)/documents/biz/$(bid)/jobs/$(request.resource.data.job)).data.date == request.resource.data.date
