@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124d"></script>
+<script src="../cfg.js?v=20261124e"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -759,7 +759,7 @@ function render(){if(!B)return;renderOnb();instNote();pagoOk();
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
   if(low.length)$("trial").innerHTML='<div class="banner hot" id="trB">📦<span style="flex:1">Se está acabando: <b>'+esc(low.map(function(x){return x.n}).join(", "))+'</b></span><b>Ver</b></div>';
-  else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba":dl===1?"<b>Último día</b> de prueba":"Tu prueba terminó")+(dl<=3&&recPlan()!=="arranque"?" · te recomendamos <b>"+C.plans[recPlan()].n+"</b>":" · activá desde <b>"+promoTxt()+"</b>")+'</span><b>'+(dl<=3?"Ver plan":"Activar")+'</b></div>'}
+  else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba":dl===1?"<b>Último día</b> de prueba":"Tu prueba terminó")+(dl<=3&&recPlan()!=="arranque"?" · te recomendamos <b>"+C.plans[recPlan()].n+"</b>":" · activá desde <b>"+promoTxt()+"</b>")+'</span><b>'+(dl<=3&&recPlan()!=="arranque"?"Ver plan":"Activar")+'</b></div>'}
   else $("trial").innerHTML="";
   if($("trB"))$("trB").onclick=function(){insSheet()};
   var dl=daysLeft();
@@ -1566,7 +1566,7 @@ function svcSheet(){var L=(B.services||[]).map(function(s){return Object.assign(
       $("svA").onclick=function(){L.push({id:"s"+Date.now(),n:"",p:"",d:60,ic:"✨"});box.innerHTML=rows();var ins=box.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
       $("svS").onclick=function(){var out=L.filter(function(s){return String(s.n).trim()}).map(function(s,i){var o={id:s.id||"s"+i,n:String(s.n).trim().slice(0,80),p:Math.max(0,+s.p||0),d:+s.d||60,ic:(String(s.ic||"").indexOf("data:image/")===0&&String(s.ic).length<90000)?String(s.ic):String(s.ic||"").slice(0,20)};if(s.vx)o.vx=true;var vp=C.vpClean(s,B.veh||[]);if(vp)o.vp=vp;if(s.hot)o.hot=true;if(String(s.g||"").trim())o.g=String(s.g).trim().slice(0,30);if(+s.re>0)o.re=+s.re;return o});
         if(!out.length){$("svE").textContent="Agrega al menos un servicio.";return}
-        var mx=C.plans[tier()].svcMax;if(out.length>mx){closeSheet();setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:44px">⚡</div><h2>Tu plan permite '+mx+' servicios</h2><p class="mute">Con Turbo tenés servicios ilimitados, página web completa y más.</p></div><button class="btn" id="upGo">Ver planes</button>',function(){$("upGo").onclick=function(){closeSheet();setTimeout(planSheet,250)}})},250);return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
+        var mx=C.plans[tier()].svcMax;if(out.length>mx){closeSheet();setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:44px">⚡</div><h2>Tu plan permite '+mx+' servicios</h2><p class="mute">'+(tier()==="arranque"?'Con Turbo tenés hasta '+C.plans.turbo.svcMax+' servicios, página web completa y más.':'Con Nitro tenés hasta '+C.plans.nitro.svcMax+' servicios.')+'</p></div><button class="btn" id="upGo">Ver planes</button>',function(){$("upGo").onclick=function(){closeSheet();setTimeout(planSheet,250)}})},250);return}saveBiz({services:out}).then(function(){closeSheet();toast("Servicios guardados ✓")})}})}
 
 function vehSheet(){var L=(B.veh||[]).map(function(o){return {n:o.n,x:+o.x||0,o:o.n}});
   function rows(){return L.map(function(v,i){return '<div class="svcrow" style="grid-template-columns:1fr 112px 38px"><input data-i="'+i+'" data-k="n" value="'+esc(v.n)+'" maxlength="40" placeholder="Ej: Pick-up"><input type="number" inputmode="numeric" data-i="'+i+'" data-k="x" value="'+(v.x||"")+'" placeholder="₡ extra"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div>'}).join("")}
@@ -1659,7 +1659,7 @@ function upsell(f){upPlan(FEAT[f])}
 function upPlan(k,why){var P=C.plans[k];sheet('<div style="text-align:center"><div style="font-size:48px">'+P.ic+'</div><h2>'+(why||"Esto viene en el plan "+P.n)+'</h2><p class="mute">Mejorá tu plan y desbloqueá:</p></div><ul class="plist">'+P.inc.map(function(x){return /pr[oó]ximamente/i.test(x)?'<li class="soon">'+esc(x)+"</li>":"<li>"+esc(x)+"</li>"}).join("")+'</ul><button class="btn" id="upGo">Ver planes</button>',function(){$("upGo").onclick=function(){closeSheet();setTimeout(planSheet,250)}})}
 /* Qué funciones de pago usó el negocio (sirve para recomendar plan al terminar la prueba) */
 function usedFeats(){var u=[],b=B||{},w=b.web||{},T=function(n,k){u.push({n:n,k:k||"turbo"})},tm0=(b.team||[]).length;
-  if((b.services||[]).length>C.plans.arranque.svcMax)T("Más de "+C.plans.arranque.svcMax+" servicios ("+b.services.length+")");
+  var ns=(b.services||[]).length;if(ns>C.plans.turbo.svcMax)T(ns+" servicios","nitro");else if(ns>C.plans.arranque.svcMax)T("Más de "+C.plans.arranque.svcMax+" servicios ("+ns+")");
   if(tm0+1>C.plans.turbo.staff)T("Equipo de "+(tm0+1)+" personas","nitro");else if(tm0)T("Equipo ("+(tm0+1)+" personas)");
   if(b.home)T("Servicio a domicilio con zonas");if(b.dep)T("Adelanto por SINPE");if(refOn())T("Referidos");
   if((b.services||[]).some(function(s){return +s.re>0}))T("Avisos de «toca volver»");if(C.lanes(b)>1)T("Varios clientes a la misma hora");

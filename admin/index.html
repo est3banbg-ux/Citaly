@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124d"></script>
+<script src="../cfg.js?v=20261124e"></script>
 <style>
 .wrap{max-width:720px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
@@ -420,7 +420,8 @@ function validate(){$("eErr").textContent="";
   if(E.mods.vehiculo&&!E.veh.some(function(v){return String(v.n).trim()}))return fail("eVhA","Agrega al menos un tipo de vehículo.");
   return true}
 function capVid(s,plan){var pl=(s&&s.plan)||plan;if((s&&s.status==="trial")||pl==="trial")return 6;var t=s&&s.tier&&C.plans[s.tier]?s.tier:(pl==="mensual"?"arranque":"nitro");return [6,12,24][["arranque","turbo","nitro"].indexOf(t)]||6}
-function pubOf(b,bid){return {biz:bid,cap:{vid:capVid(SUBS[bid],E&&E.plan)},web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:b.services,hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:!!b.home,zones:b.zones||[],cierre:b.cierre||{}}}
+function tierOf(s){if(!s)return "arranque";if(s.status==="trial"||s.plan==="trial")return "nitro";if(s.tier&&C.plans[s.tier])return s.tier;return s.plan==="mensual"?"arranque":"nitro"}
+function pubOf(b,bid){var tr=tierOf(SUBS[bid]),dom=tr!=="arranque";return {biz:bid,cap:{vid:capVid(SUBS[bid],E&&E.plan)},web:b.web||{},mods:b.mods||{},veh:b.veh||[],name:b.name,type:b.type,wa:b.wa,addr:b.addr||"",color:b.color,logo:b.logo||"",services:(b.services||[]).slice(0,(C.plans[tr]||{}).svcMax||999),hours:b.hours,open:b.open!==false,ahead:b.ahead||21,lead:b.lead==null?2:b.lead,slot:b.slot||30,brk:b.brk||null,last:b.last||"",tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",showPrices:b.showPrices!==false,askHow:b.askHow!==false,home:dom&&!!b.home,zones:dom?(b.zones||[]):[],cierre:b.cierre||{}}}
 function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.id||db.collection("biz").doc().id,now=TS.now();
   var team=emails(E.team).filter(function(x){return x!==E.email}),all=(E.email?[E.email]:[]).concat(team);
   var services=E.services.filter(function(s){return String(s.n).trim()}).map(function(s,i){var o={id:s.id||"s"+(i+1),n:String(s.n).trim().slice(0,80),p:Math.max(0,+s.p||0),d:+s.d||60,ic:(String(s.ic||"").indexOf("data:image/")===0&&String(s.ic).length<90000)?String(s.ic):String(s.ic||"").slice(0,40)};if(s.vx&&E.mods.vehiculo){o.vx=true;var vp=C.vpClean(s,E.veh.filter(function(v){return String(v.n).trim()}));if(vp)o.vp=vp}return o});
@@ -489,6 +490,6 @@ function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Ca
   Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
     .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
-<script src="extra.js?v=6"></script>
+<script src="extra.js?v=7"></script>
 </body>
 </html>
