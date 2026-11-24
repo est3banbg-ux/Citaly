@@ -733,7 +733,7 @@ var CITALY = {
   C.vpClean = function (s, vehs) {
     if (!s.vx) return null;
     var names = (vehs || []).map(function (v) { return String(v.n).trim(); });
-    var L = (s.vp || []).filter(function (x) { return x && names.indexOf(x.n) >= 0 && +x.p > 0; }).map(function (x) { return { n: String(x.n).slice(0, 40), p: Math.round(+x.p) }; });
+    var L = (s.vp || []).filter(function (x) { return x && names.indexOf(String(x.n).trim()) >= 0 && +x.p > 0; }).map(function (x) { return { n: String(x.n).trim().slice(0, 40), p: Math.round(+x.p) }; });
     return L.length ? L : null;
   };
   if (typeof document !== "undefined") {

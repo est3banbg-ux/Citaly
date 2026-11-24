@@ -446,7 +446,7 @@ function render(){if((P.web||{}).layout!=="clasica")return renderPro();
   var whyH=why.length?'<section class="s alt sec-why" id="porque"><div class="c rv"><div class="kick">Por qué elegirnos</div><h2 class="t">'+hlt(W.whyTitle||"Tranquilidad en cada servicio")+'</h2><div class="grid g3" style="margin-top:18px">'+why.map(function(x){return '<div class="wy"><b>'+esc(x.q)+'</b><span>'+esc(x.a)+'</span></div>'}).join("")+'</div></div></section>':"";
   // servicios
   if(svcs.length)h+='<section class="s" id="servicios"><div class="c rv"><div class="kick">Servicios'+(showP?" y precios":"")+'</div><h2 class="t">'+hlt(W.svcTitle||"¿Qué necesitas?")+'</h2><p class="sub">'+esc(W.svcSub||(OPEN?"Elige y reserva en línea. Solo ves las horas libres.":"Escríbenos y te agendamos."))+'</p><div class="grid g2">'
-    +svcs.map(function(s){return '<a class="svc" href="'+(OPEN?bookUrl():wa)+'"'+(OPEN?"":' target="_blank" rel="noopener"')+'><span class="ic">'+C.ico(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+durTxt(+s.d||60)+'</span></span><span class="p">'+(showP?(s.p?(s.vx&&vehOn&&C.vrange(s,P.veh)[1]>C.vrange(s,P.veh)[0]?'<small style="display:inline;color:var(--mute)">desde </small>':"")+crc(vehOn?C.vrange(s,P.veh)[0]:s.p):"Consultar"):"")+'<small>'+(OPEN?"Reservar →":"Consultar →")+'</small></span></a>'}).join("")
+    +svcs.map(function(s){return '<a class="svc" href="'+(OPEN?bookUrl():wa)+'"'+(OPEN?"":' target="_blank" rel="noopener"')+'><span class="ic">'+C.ico(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+durTxt(+s.d||60)+'</span></span><span class="p">'+(showP?((vehOn?C.vrange(s,P.veh)[0]:+s.p)?(s.vx&&vehOn&&C.vrange(s,P.veh)[1]>C.vrange(s,P.veh)[0]?'<small style="display:inline;color:var(--mute)">desde </small>':"")+crc(vehOn?C.vrange(s,P.veh)[0]:s.p):"Consultar"):"")+'<small>'+(OPEN?"Reservar →":"Consultar →")+'</small></span></a>'}).join("")
     +'</div>'+(W.svcNote?'<p class="mute small" style="margin-top:14px">'+esc(W.svcNote)+'</p>':"")+'</div></section>';
   h+=stpH;
   // trabajos
@@ -588,7 +588,7 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
     var plan=function(s,i){var best=hot.indexOf(i)>=0,x=s.vx&&vehOn,bl=lines(s.desc||s.ds).slice(0,4);
       if(!bl.length)bl=[ty.bl,"Duración: "+durTxt(+s.d||60),OPEN?"Reserva en 1 minuto":"Agenda por WhatsApp","Te confirmamos por WhatsApp"];
       return '<article class="pr-plan'+(best?" best":"")+'"><span class="pr-lbl">'+(best?"El más completo":"")+'</span><div class="pr-ph"><span class="pr-pic">'+C.ico(s.ic||"✨")+'</span><h3>'+esc(s.n)+'</h3></div>'
-        +(showP?(+s.p?'<div class="pr-amt">'+(x&&C.vrange(s,P.veh)[1]>C.vrange(s,P.veh)[0]?"<small>desde</small>":"")+'<span>'+crc(x?C.vrange(s,P.veh)[0]:s.p)+'</span></div>':'<div class="pr-amt q"><span>Consultar</span></div>'):"")
+        +(showP?((x?C.vrange(s,P.veh)[0]:+s.p)?'<div class="pr-amt">'+(x&&C.vrange(s,P.veh)[1]>C.vrange(s,P.veh)[0]?"<small>desde</small>":"")+'<span>'+crc(x?C.vrange(s,P.veh)[0]:s.p)+'</span></div>':'<div class="pr-amt q"><span>Consultar</span></div>'):"")
         +'<ul>'+bl.map(function(b){return '<li>'+pIc("check")+esc(b)+'</li>'}).join("")+'</ul>'+bk(best?"pr-cta":"pr-line","Agendar",s.n)+'</article>'};
     var grp=[],gi={};svcs.forEach(function(s,i){var g=String(s.g||"").trim(),key=g||"\u0001";if(!(key in gi)){gi[key]=grp.length;grp.push({n:g,ix:[]})}grp[gi[key]].ix.push(i)});
     if(grp.length>1)grp.sort(function(a,b){return (a.n?0:1)-(b.n?0:1)});
