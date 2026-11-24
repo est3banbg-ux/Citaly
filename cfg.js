@@ -626,7 +626,7 @@ var CITALY = {
   /* px: lista de {d: array RGBA, w: peso, logo: bool}. Devuelve {ok, neutral, props:[{n,a,h,bg,pm}]} */
   C.paletasPx = function (srcs) {
     var B = [], i, k, n = 24, dark = 0, tot = 0;
-    for (i = 0; i < n; i++) B.push({ w: 0, r: 0, g: 0, b: 0 });
+    for (i = 0; i < n; i++) B.push({ w: 0, r: 0, g: 0, b: 0, ms: 0 });
     (srcs || []).forEach(function (s) {
       var d = s.d, w = s.w || 1;
       for (k = 0; k + 3 < d.length; k += 4) {
@@ -635,11 +635,14 @@ var CITALY = {
         if (s.logo) { tot++; if (t[2] < .5) dark++; }
         if (t[1] < .18 || t[2] < .12 || t[2] > .92) continue;
         var q = Math.floor(t[0] / (360 / n)) % n, wt = t[1] * w;
-        B[q].w += wt; B[q].r += d[k] * wt; B[q].g += d[k + 1] * wt; B[q].b += d[k + 2] * wt;
+        if (t[1] > B[q].ms) B[q].ms = t[1]; B[q].w += wt; B[q].r += d[k] * wt; B[q].g += d[k + 1] * wt; B[q].b += d[k + 2] * wt;
       }
     });
     var pm = tot ? (dark / tot > .5 ? "dark" : "light") : "dark";
-    var list = B.filter(function (b) { return b.w > 0; }).map(function (b) { var c = hx(b.r / b.w, b.g / b.w, b.b / b.w), r = rgbOf(c), t = hslOf(r[0], r[1], r[2]); return { w: b.w, c: c, h: t[0], s: t[1], l: t[2] }; }).sort(function (x, y) { return y.w - x.w; });
+    var list = B.filter(function (b) { return b.w > 0; }).map(function (b) { var c = hx(b.r / b.w, b.g / b.w, b.b / b.w), r = rgbOf(c), t = hslOf(r[0], r[1], r[2]);
+      /* el promedio apaga los colores: si el logo tiene ese color vivo, se devuelve vivo */
+      if (b.ms > .55) { t[1] = Math.max(t[1], Math.min(.95, b.ms * .92)); t[2] = Math.max(.42, Math.min(.6, t[2])); c = fromHsl(t[0], t[1], t[2]); }
+      return { w: b.w, c: c, h: t[0], s: t[1], l: t[2] }; }).sort(function (x, y) { return y.w - x.w; });
     var sum = list.reduce(function (a, b) { return a + b.w; }, 0), cols = [];
     list.forEach(function (c) { if (cols.length >= 4 || c.w < sum * .03) return; for (var j = 0; j < cols.length; j++) if (hueGap(cols[j].h, c.h) < 40) return; cols.push(c); });
     var out = [], neutral = !cols.length;
