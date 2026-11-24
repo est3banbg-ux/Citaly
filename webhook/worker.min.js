@@ -227,6 +227,178 @@ async function ack(req, env) {
   return jr(req, { ok: true });
 }
 
+/* ---------- Correos automáticos del ciclo de vida (bienvenida, prueba, resumen semanal) ----------
+   Se disparan solos con un Cron Trigger cada hora (Cloudflare → Worker → Configuración → Disparadores → Cron: 0 * * * *).
+   Usan Resend (RESEND_KEY y MAIL_FROM). Cada envío queda anotado en biz/{id}.mailLog para no repetirse.
+   Quien se da de baja (link al pie → /baja/…) queda con noPromo=true y no recibe ninguno. */
+const SITE = "https://citalyapp.com", ADMIN_MAIL = "est3banbg@gmail.com";
+const COLON = (n) => "₡" + Math.round(n).toLocaleString("es-CR").replace(/,/g, ".");
+const hesc = (t) => String(t == null ? "" : t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function dec(f) {
+  const o = {};
+  for (const k in f || {}) o[k] = decv(f[k]);
+  return o;
+}
+function decv(v) {
+  if (!v) return null;
+  if ("stringValue" in v) return v.stringValue;
+  if ("integerValue" in v) return Number(v.integerValue);
+  if ("doubleValue" in v) return Number(v.doubleValue);
+  if ("booleanValue" in v) return v.booleanValue;
+  if ("timestampValue" in v) return Date.parse(v.timestampValue);
+  if ("mapValue" in v) return dec(v.mapValue.fields);
+  if ("arrayValue" in v) return (v.arrayValue.values || []).map(decv);
+  return null;
+}
+async function listDocs(env, tk, path) {
+  const out = []; let pt = "";
+  for (let i = 0; i < 20; i++) {
+    const r = await fetch(`${fs(env)}/${path}?pageSize=300${pt ? "&pageToken=" + encodeURIComponent(pt) : ""}`, { headers: { authorization: "Bearer " + tk } });
+    if (!r.ok) break;
+    const j = await r.json();
+    (j.documents || []).forEach((d) => out.push({ id: d.name.split("/").pop(), ...dec(d.fields) }));
+    if (!j.nextPageToken) break;
+    pt = j.nextPageToken;
+  }
+  return out;
+}
+async function bajaTok(env, bid) {
+  const k = await crypto.subtle.importKey("raw", new TextEncoder().encode("baja:" + (env.RESEND_KEY || "x")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const s = new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(bid)));
+  return Array.from(s).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 24);
+}
+
+/* ----- Plantilla visual (compatible con Gmail/Outlook: tablas y estilos en línea) ----- */
+function shell({ pre, hero, title, body, cta, ctaUrl, baja }) {
+  const btn = cta ? `<tr><td align="center" style="padding:6px 28px 30px"><a href="${hesc(ctaUrl)}" style="background:#7c5cff;color:#ffffff;font:700 16px Arial,sans-serif;text-decoration:none;padding:15px 30px;border-radius:999px;display:inline-block">${hesc(cta)}</a></td></tr>` : "";
+  return `<!doctype html><html><body style="margin:0;background:#eeeaf9;padding:0"><div style="display:none;max-height:0;overflow:hidden;opacity:0">${hesc(pre || "")}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eeeaf9"><tr><td align="center" style="padding:22px 12px">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:22px;overflow:hidden">
+<tr><td style="background:#1b1240;padding:20px 28px"><span style="font:800 24px Arial,sans-serif;color:#ffffff;letter-spacing:-.5px">citaly</span><span style="font:13px Arial,sans-serif;color:#b9a9ff;float:right;padding-top:8px">citalyapp.com</span></td></tr>
+<tr><td align="center" style="background:linear-gradient(135deg,#3a23a8,#7c5cff);background-color:#5a3fd6;padding:34px 24px"><div style="font-size:54px;line-height:1">${hero}</div><div style="font:800 25px/1.25 Arial,sans-serif;color:#ffffff;margin-top:14px">${title}</div></td></tr>
+<tr><td style="padding:28px 28px 14px;font:16px/1.6 Arial,sans-serif;color:#2a2540">${body}</td></tr>${btn}
+<tr><td style="background:#f6f4ff;padding:18px 28px;font:12px/1.6 Arial,sans-serif;color:#8a84a8">Citaly · el sistema de citas para negocios de carros en Costa Rica.<br>${baja ? `¿No querés recibir estos correos? <a href="${hesc(baja)}" style="color:#7c5cff">Darme de baja</a>. Los avisos de tus reservas seguirán llegando.` : ""}</td></tr>
+</table></td></tr></table></body></html>`;
+}
+const P = (t) => `<p style="margin:0 0 14px">${t}</p>`;
+const STEP = (n, t, d) => `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px"><tr><td width="44" valign="top"><div style="width:34px;height:34px;border-radius:50%;background:#efeaff;color:#5a3fd6;font:800 16px/34px Arial,sans-serif;text-align:center">${n}</div></td><td style="font:15px/1.5 Arial,sans-serif;color:#2a2540"><b>${t}</b><br><span style="color:#6c6788">${d}</span></td></tr></table>`;
+const nameOf = (b) => hesc(String(b.owner || "").trim().split(/\s+/)[0] || "");
+const hola = (b) => (nameOf(b) ? `¡Hola ${nameOf(b)}! ` : "¡Hola! ");
+
+/* ----- Los 5 correos ----- */
+const MAILS = {
+  demo: (b, o) => ({
+    subject: "📅 ¡Nueva reserva en " + (b.name || "tu negocio") + "! (así te avisa Citaly)",
+    html: shell({ ...o, pre: "Ok, no fue Don Turbo, peeero… así te llegan los avisos.", hero: "🏎️", title: "¡Reservaron una cita contigo!",
+      body: `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e4defa;border-radius:16px;margin:0 0 18px"><tr><td style="padding:16px 18px;font:15px/1.7 Arial,sans-serif;color:#2a2540"><span style="background:#efeaff;color:#5a3fd6;font:700 11px Arial,sans-serif;padding:3px 9px;border-radius:999px">EJEMPLO</span><br><b style="font-size:18px">Don Turbo Rodríguez</b><br>🔧 Pulido de focos + lavado de motor<br>📅 Hoy · 4:00 pm<br>📱 8888-0000</td></tr></table>`
+        + P(`${hola(b)}Ok, no fue Don Turbo, peeero… <b>así es como te vas a enterar</b> cada vez que alguien reserve en ${hesc(b.name || "tu negocio")}: al celular, a este correo y dentro de la app.`)
+        + P("Olvidate de estar todo el día contestando WhatsApp. Tus clientes eligen el servicio, el día y la hora solos, y vos solo llegás a trabajar. 🔧")
+        + P("<b>Lo único que falta:</b> compartir tu link de reservas. ¡Ponelo en tu perfil de Instagram y en el estado de WhatsApp hoy mismo!"),
+      cta: "Ver mi link de reservas", ctaUrl: SITE + "/app/" }) }),
+  web: (b, o) => ({
+    subject: "🛠️ Prepará tu página y empezá a recibir citas",
+    html: shell({ ...o, pre: "Te faltan unos minutos para dejar tu negocio listo.", hero: "🌐", title: "Prepará tu página y recibí citas",
+      body: P(`${hola(b)}Te entregamos una página para que tus clientes agenden solos mientras vos te enfocás en atenderlos. Con <b>3 pasos</b> queda lista:`)
+        + STEP(1, "Poné tus servicios y precios", "Con foto o ícono, la duración y cuánto cobrás.")
+        + STEP(2, "Definí tu horario", "Los días y horas en que atendés. Citaly no deja que te dupliquen una cita.")
+        + STEP(3, "Subí tu logo y tu color", "Para que se vea como tu marca, no como la de otro.")
+        + P("Toma menos de <b>10 minutos</b>, y si te trabás en algo, respondé este correo o escribime por WhatsApp y te ayudo."),
+      cta: "Dejar mi negocio listo", ctaUrl: SITE + "/app/" }) }),
+  trial2: (b, o) => ({
+    subject: "⏳ Te quedan 2 días de prueba gratis en Citaly",
+    html: shell({ ...o, pre: "Elegí tu plan y mantené tu agenda funcionando sin interrupciones.", hero: "⏳", title: "Quedan 2 días para usar tu cuenta de prueba",
+      body: P(`${hola(b)}¿Ya pudiste usar Citaly para manejar tus <b>citas, clientes y cobros</b>? Si todavía no empezás, entrá hoy y dejá tu negocio listo.`)
+        + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f4ff;border-radius:16px;margin:4px 0 16px"><tr><td style="padding:16px 18px;font:15px/1.6 Arial,sans-serif;color:#2a2540">🔥 <b>Promo de lanzamiento:</b> plan <b>Arranque</b> por solo <b>${COLON(500)} al mes</b> los primeros 3 meses (después ${COLON(4900)}).<br><span style="color:#6c6788">Sin contratos: cancelás cuando quieras.</span></td></tr></table>`
+        + P("Si no elegís un plan, tu página de reservas se pausa cuando termine la prueba y tus clientes no podrán agendar."),
+      cta: "Elegir mi plan con descuento", ctaUrl: SITE + "/app/" }) }),
+  trial0: (b, o) => ({
+    subject: "🚨 Hoy termina tu prueba gratis de Citaly",
+    html: shell({ ...o, pre: "Que tus clientes no se queden sin poder reservar.", hero: "🚨", title: "Hoy termina tu prueba gratis",
+      body: P(`${hola(b)}Tu prueba de Citaly termina hoy. Si elegís un plan ahora, <b>todo queda como lo dejaste</b>: tus servicios, tu horario, tus clientes y tu historial.`)
+        + P(`🔥 La promo sigue activa: plan <b>Arranque</b> por <b>${COLON(500)} al mes</b> los primeros 3 meses.`)
+        + P("¿Tenés dudas o preferís pagar por SINPE Móvil? Respondé este correo y te ayudo en el momento."),
+      cta: "Quedarme con Citaly", ctaUrl: SITE + "/app/" }) }),
+  week: (b, o, st) => {
+    const d = (a, c) => (c > 0 ? Math.round(((a - c) / c) * 100) : a > 0 ? 100 : 0);
+    const dl = d(st.res, st.prevRes), arrow = dl >= 0 ? "▲" : "▼", col = dl >= 0 ? "#1d9a5a" : "#d04545";
+    const cell = (lbl, val, sub) => `<td width="50%" style="padding:6px"><div style="background:#f6f4ff;border-radius:14px;padding:14px 16px;font:13px Arial,sans-serif;color:#6c6788">${lbl}<br><b style="font:800 26px Arial,sans-serif;color:#2a2540">${val}</b>${sub || ""}</div></td>`;
+    return {
+      subject: `📊 Tu resumen semanal de ${b.name || "Citaly"}`,
+      html: shell({ ...o, pre: `${st.res} reservas la semana pasada.`, hero: "📊", title: "Tu resumen semanal",
+        body: P(`${hola(b)}Así le fue a <b>${hesc(b.name || "tu negocio")}</b> del <b>${hesc(st.from)}</b> al <b>${hesc(st.to)}</b>:`)
+          + `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 -6px 12px">`
+          + `<tr>${cell("Reservas", st.res, ` <span style="font:700 13px Arial,sans-serif;color:${col}">${arrow} ${Math.abs(dl)}%</span>`)}${cell("Clientes nuevos", st.nuevos)}</tr>`
+          + `<tr>${cell("Citas atendidas", st.listas)}${cell("Canceladas / no vinieron", st.cancel)}</tr>`
+          + `<tr>${cell("Ganado esta semana", COLON(st.ganado))}${cell("Por confirmar", st.pend)}</tr></table>`
+          + P(st.res === 0 ? "Esta semana no hubo reservas. 💡 <b>Consejo:</b> compartí tu link de reservas en tu estado de WhatsApp y en tu perfil de Instagram." : st.pend > 0 ? `💡 Tenés <b>${st.pend}</b> cita(s) por confirmar. Confirmarlas rápido baja las ausencias.` : "¡Buen ritmo! 🙌 Seguí compartiendo tu link para llenar la agenda."),
+        cta: "Abrir mi agenda", ctaUrl: SITE + "/app/" }) };
+  },
+};
+
+async function mandar(env, to, subject, html) {
+  if (!env.RESEND_KEY) return false;
+  const r = await fetch("https://api.resend.com/emails", { method: "POST", headers: { authorization: "Bearer " + env.RESEND_KEY, "content-type": "application/json" },
+    body: JSON.stringify({ from: env.MAIL_FROM || "Citaly <onboarding@resend.dev>", to: [to], reply_to: "citalyapp.cr@gmail.com", subject, html }) });
+  return r.ok;
+}
+const crDay = (ms) => new Date(ms - 6 * 3600e3).toISOString().slice(0, 10);
+const crFmt = (iso) => { const [y, m, d] = iso.split("-").map(Number); return d + " " + MESES[m - 1]; };
+function weekStats(jobs, nowMs) {
+  const cr = new Date(nowMs - 6 * 3600e3), dow = (cr.getUTCDay() + 6) % 7; // lunes=0
+  const mon = new Date(Date.UTC(cr.getUTCFullYear(), cr.getUTCMonth(), cr.getUTCDate() - dow));
+  const iso = (dt) => dt.toISOString().slice(0, 10), add = (dt, n) => new Date(dt.getTime() + n * 864e5);
+  const from = iso(add(mon, -7)), to = iso(add(mon, -1)), pFrom = iso(add(mon, -14)), pTo = iso(add(mon, -8));
+  const inR = (j, a, z) => j.date >= a && j.date <= z, ok = (j) => j.st !== "Cancelada" && j.st !== "No vino";
+  const wk = jobs.filter((j) => inR(j, from, to)), pv = jobs.filter((j) => inR(j, pFrom, pTo) && ok(j));
+  const first = {}; jobs.forEach((j) => { const k = String(j.tel || j.cli || "").toLowerCase(); if (k && (!first[k] || j.date < first[k])) first[k] = j.date; });
+  const nuevos = Object.keys(first).filter((k) => first[k] >= from && first[k] <= to).length;
+  return { from: crFmt(from), to: crFmt(to), res: wk.filter(ok).length, prevRes: pv.length, listas: wk.filter((j) => j.st === "Lista").length,
+    cancel: wk.filter((j) => !ok(j)).length, pend: wk.filter((j) => j.st === "Por confirmar").length, ganado: wk.filter((j) => j.st === "Lista").reduce((a, j) => a + (+j.total || 0), 0), nuevos, weekKey: from };
+}
+async function enviarCiclo(env, tk, b, kind, extra) {
+  const em = String(b.email || "").trim().toLowerCase();
+  const baja = `https://${new URL(env.SELF_URL || "https://bitter-brook-9ee2.citalyapp-cr.workers.dev").host}/baja/${b.id}/${await bajaTok(env, b.id)}`;
+  const m = MAILS[kind](b, { baja }, extra);
+  return mandar(env, em, m.subject, m.html);
+}
+async function marcar(env, tk, b, key, val) {
+  const log = Object.assign({}, b.mailLog || {}, { [key]: val });
+  const fields = {}; for (const k in log) fields[k] = V(String(log[k]));
+  await patch(env, tk, `biz/${b.id}`, { mailLog: { mapValue: { fields } } });
+  b.mailLog = log;
+}
+async function ciclo(env) {
+  if (!env.RESEND_KEY) return;
+  const tk = await token(env), now = Date.now(), cr = new Date(now - 6 * 3600e3), hr = cr.getUTCHours(), dow = cr.getUTCDay();
+  const [biz, subs] = [await listDocs(env, tk, "biz"), await listDocs(env, tk, "subs")], S = {}; subs.forEach((s) => (S[s.id] = s));
+  let n = 0;
+  for (const b of biz) {
+    if (n >= 40) break;
+    const em = String(b.email || "").trim().toLowerCase(), s = S[b.id], log = b.mailLog || {};
+    if (!/^\S+@\S+\.\S+$/.test(em) || b.noPromo || !s || s.demo || s.status === "suspended") continue;
+    const start = +s.start || 0, age = now - start, left = (+s.until || 0) - now, day = hr >= 8 && hr <= 19;
+    let kind = "", key = "", val = "";
+    if (!log.demo && start && age < 3 * 864e5 && age > 3 * 60e3) { kind = "demo"; key = "demo"; val = String(now); }
+    else if (!log.web && day && age > 20 * 36e5 && age < 5 * 864e5 && !((b.onb || {}).hor && (b.onb || {}).svc)) { kind = "web"; key = "web"; val = String(now); }
+    else if (s.status === "trial" && day && left > 0 && left <= 2.3 * 864e5 && left > 1 * 864e5 && !log.t2) { kind = "trial2"; key = "t2"; val = String(now); }
+    else if (s.status === "trial" && day && left <= 1 * 864e5 && left > -2 * 864e5 && !log.t0) { kind = "trial0"; key = "t0"; val = String(now); }
+    else if (dow === 1 && hr >= 8 && hr <= 12 && (s.status === "active" || s.status === "trial") && age > 6 * 864e5) {
+      const jobs = await listDocs(env, tk, `biz/${b.id}/jobs`), st = weekStats(jobs, now);
+      if (log.week === st.weekKey) continue;
+      if (await enviarCiclo(env, tk, b, "week", st)) { await marcar(env, tk, b, "week", st.weekKey); n++; }
+      continue;
+    }
+    if (!kind) continue;
+    if (await enviarCiclo(env, tk, b, kind)) { await marcar(env, tk, b, key, val); n++; }
+  }
+}
+async function baja(env, bid, tok) {
+  const pg = (t) => new Response(`<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><body style="font-family:Arial,sans-serif;background:#eeeaf9;display:grid;place-items:center;min-height:100vh;margin:0"><div style="background:#fff;border-radius:22px;padding:34px 28px;max-width:420px;text-align:center"><div style="font-size:44px">${t[0]}</div><h2 style="color:#2a2540">${t[1]}</h2><p style="color:#6c6788;line-height:1.5">${t[2]}</p></div>`, { headers: { "content-type": "text/html;charset=utf-8" } });
+  if (!/^[\w-]{1,60}$/.test(bid) || tok !== (await bajaTok(env, bid))) return pg(["⚠️", "Link no válido", "Este link de baja no es válido o ya venció."]);
+  const tk = await token(env); await patch(env, tk, `biz/${bid}`, { noPromo: V(true) });
+  return pg(["✅", "Listo, ya no te escribiremos", "No recibirás más correos de novedades de Citaly. Los avisos de tus reservas seguirán llegando normalmente."]);
+}
+
 export default {
   async fetch(req, env) {
     const path = new URL(req.url).pathname;
@@ -234,6 +406,8 @@ export default {
     if (im) return ics(env, im[1], im[2]);
     if (path === "/ack") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ack(req, env) : new Response("ok");
     if (path === "/push") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? push(req, env) : new Response("ok");
+    const bm = path.match(/^\/baja\/([\w-]{1,60})\/(\w{10,64})$/);
+    if (bm) return baja(env, bm[1], bm[2]);
     if (path === "/ia") return req.method === "OPTIONS" ? new Response(null, { status: 204, headers: cors(req) }) : req.method === "POST" ? ia(req, env) : new Response("ok");
     if (req.method !== "POST") return new Response("ok");
     const body = await req.text();
@@ -260,4 +434,5 @@ export default {
     await patch(env, tk, "subs/" + bid, { plan: V("mensual"), demo: V(false), tier: V(tier), status: V("active"), price: V(promo ? PROMO.price : TIERS[tier]), months: V(months + 1), until: T(addMonth(base)) });
     return new Response("plan activado");
   },
+  async scheduled(ev, env, ctx) { ctx.waitUntil(ciclo(env)); },
 };
