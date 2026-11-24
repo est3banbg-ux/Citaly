@@ -30,13 +30,13 @@
 .prog{height:5px;background:var(--line);border-radius:9px;overflow:hidden;margin:14px 0 6px}.prog i{display:block;height:100%;background:var(--acc);border-radius:9px;transition:width .35s}
 .pt{font-size:13px;color:var(--mute);font-weight:600}
 .step{display:none}.step.on{display:block;animation:fade .35s ease both}
-.cats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.cat{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;min-height:128px;background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px 8px;cursor:pointer;color:var(--ink);font:inherit;box-shadow:var(--sh);transition:all .15s}
-.cat .ic{width:58px;height:58px;border-radius:17px;background:var(--soft);display:grid;place-items:center;font-size:30px}
-.cat b{font-size:15px;line-height:1.2}.cat small{color:var(--mute);font-size:12px}
-.cat .bd{position:absolute;top:8px;right:8px;min-width:24px;height:24px;border-radius:12px;background:var(--acc);color:#fff;font:800 12px Figtree,sans-serif;display:grid;place-items:center;padding:0 7px}
-.cat.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,var(--card))}
-.cbk{display:inline-flex;align-items:center;gap:6px;background:none;border:0;color:var(--acc);font:700 14px Figtree,sans-serif;padding:4px 0 10px;cursor:pointer}
+.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.cat{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 4px 8px;cursor:pointer;color:var(--ink);font:inherit;box-shadow:var(--sh);transition:all .15s;min-width:0}
+.cat .ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:23px}
+.cat b{font-size:11.5px;line-height:1.15;word-break:break-word}
+.cat .bd{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--acc);color:#fff;font:800 11px Figtree,sans-serif;display:grid;place-items:center;padding:0 5px}
+.cat.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--card))}
+.cat.on .ic{background:var(--acc);filter:none}
 .svc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:13px;margin-bottom:9px;cursor:pointer;color:var(--ink);font:inherit;transition:all .15s;box-shadow:var(--sh)}
 .svc .ic{width:46px;height:46px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:23px;flex:none}
 .svc .m{flex:1}.svc .m b{display:block}.svc .m span{font-size:13px;color:var(--mute)}
@@ -286,7 +286,7 @@ function start(){memFill();$("land").hidden=true;$("flow").hidden=false;$("bar")
 $("go1").onclick=$("go2").onclick=$("stk").onclick=start;
 (function(){var g=$("go1"),k=$("stk");function f(){var on=!$("land").hidden&&!g.hidden&&g.getBoundingClientRect().bottom<0&&$("flow").hidden;k.hidden=!on;document.body.classList.toggle("hasstk",on)}addEventListener("scroll",f,{passive:true});addEventListener("resize",f);setInterval(f,600)})();
 
-$("svcs").onclick=function(e){var ct=e.target.closest("[data-cat]");if(ct){S.cat=ct.dataset.cat;renderSvcs();window.scrollTo(0,0);return}if(e.target.closest("[data-back]")){S.cat=null;renderSvcs();return}var b=e.target.closest(".svc");if(!b)return;var i=+b.dataset.i,k=S.pick.indexOf(i);if(k>=0)S.pick.splice(k,1);else S.pick.push(i);b.setAttribute("aria-pressed",k<0);S.t=null;upd()};
+$("svcs").onclick=function(e){var ct=e.target.closest("[data-cat]");if(ct){S.cat=ct.dataset.cat;renderSvcs();return}var b=e.target.closest(".svc");if(!b)return;var i=+b.dataset.i,k=S.pick.indexOf(i);if(k>=0)S.pick.splice(k,1);else S.pick.push(i);b.setAttribute("aria-pressed",k<0);S.t=null;if(P.services.some(function(x){return gOf(x)}))renderSvcs();upd()};
 /* Detecta el tipo de vehículo (sedán, SUV, pick-up, camión) por marca y modelo; el año no importa */
 var PICKRX=["hilux","tacoma","tundra","frontier","navara","np ?300","d-?max","dmax","ranger","l ?200","triton","amarok","colorado","silverado","sierra","f-?150","f-?250","f-?350","ram","dakota","ridgeline","maverick","santa ?cruz","saveiro","strada","toro","oroch","montana","bt-?50","luv","pick ?up","pickup","doble ?cabina","cabina doble","hilux"];
 var CAMRX=["camion","truck","cabezal","rastra","trailer","tractomula","furgon","hino","fuso","canter","npr","nqr","nkr","fvr","ftr","fvz","mack","freightliner","kenworth","international","volvo ?f[hm]","scania","dina","buseta","bus","microbus","atego","actros","cargo","camioncito","cami[oó]n"];
@@ -334,9 +334,9 @@ function cats(){var o=[],m={};(P.services||[]).forEach(function(s,i){var g=gOf(s
 function renderSvcs(){var L=P.services||[],C=cats(),el=$("svcs");
   if(!L.length){el.innerHTML='<p class="mute">Este negocio todavía no tiene servicios. Escríbele por WhatsApp.</p>';return}
   if(C.length<2||!L.some(function(s){return gOf(s)})){S.cat=null;el.className="";el.innerHTML=L.map(svcCard).join("");return}
-  var c=S.cat!=null?C.filter(function(x){return x.n===S.cat})[0]:null;
-  if(c){el.className="";el.innerHTML='<button type="button" class="cbk" data-back="1">← Todas las categorías</button><h3 style="margin:0 0 10px">'+esc(c.ic)+" "+esc(c.n)+'</h3>'+c.ix.map(function(i){return svcCard(L[i],i)}).join("");return}
-  S.cat=null;el.className="cats";el.innerHTML=C.map(function(x){var n=x.ix.filter(function(i){return S.pick.indexOf(i)>=0}).length;return '<button type="button" class="cat'+(n?" on":"")+'" data-cat="'+esc(x.n)+'">'+(n?'<span class="bd">'+n+'</span>':"")+'<span class="ic">'+esc(x.ic)+'</span><b>'+esc(x.n)+'</b><small>'+x.ix.length+(x.ix.length===1?" servicio":" servicios")+'</small></button>'}).join("")}
+  if(S.cat==null||!C.some(function(x){return x.n===S.cat}))S.cat=C[0].n;
+  var c=C.filter(function(x){return x.n===S.cat})[0];el.className="";
+  el.innerHTML='<div class="cats">'+C.map(function(x){var n=x.ix.filter(function(i){return S.pick.indexOf(i)>=0}).length;return '<button type="button" class="cat'+(x.n===S.cat?" on":"")+'" data-cat="'+esc(x.n)+'">'+(n?'<span class="bd">'+n+'</span>':"")+'<span class="ic">'+esc(x.ic)+'</span><b>'+esc(x.n)+'</b></button>'}).join("")+'</div>'+c.ix.map(function(i){return svcCard(L[i],i)}).join("")}
 function subT(){return lines().reduce(function(a,l){return a+l.p},0)}
 function fee(){return S.zone>=0&&P.zones&&P.zones[S.zone]&&!P.zones[S.zone].ask?+P.zones[S.zone].fee||0:0}
 function total(){return subT()+fee()}

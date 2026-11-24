@@ -401,6 +401,7 @@ var CITALY = {
   /* Portada de un negocio: "none" = sin foto; un id o link elegido; si no eligió nada, la primera de su tipo */
   coverOf: function (type, cover, w) {
     if (cover === "none") return "";
+    if (typeof cover === "string" && cover.indexOf("data:image/") === 0) return cover;
     var all = [].concat.apply([], Object.keys(this.covers).map(function (k) { return this.covers[k]; }, this));
     if (cover && all.indexOf(cover) >= 0) return this.coverUrl(cover, w);
     return this.coverUrl((this.covers[type] || this.covers.otro)[0], w);
