@@ -219,7 +219,7 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .nt .ck{width:24px;height:24px;flex:none;border-radius:7px;border:2px solid var(--line);background:var(--card);color:#fff;font-weight:800;cursor:pointer;display:grid;place-items:center;font-size:13px;margin-top:1px}
 .nt.done .ck{background:var(--ok);border-color:var(--ok)}.nt.done b{text-decoration:line-through;opacity:.55}
 .nt .m{flex:1;min-width:0}.nt .m b{display:block;font-weight:600}.nt .m span{font-size:12.5px;color:var(--mute)}
-.zrow{display:grid;grid-template-columns:1fr 100px 36px;gap:7px;margin-bottom:7px}.zrow input{padding:9px 10px}
+.zrow{display:grid;grid-template-columns:1fr 100px 36px;gap:7px;margin-bottom:7px}.zrow input{padding:9px 10px}.zc{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:8px;background:var(--card)}.zt{display:grid;grid-template-columns:1fr 36px;gap:7px}.zt input,.zm input,.zm select{padding:9px 10px;width:100%}.zm{display:grid;grid-template-columns:1fr;gap:7px;margin-top:7px}.zm:has(input){grid-template-columns:1.3fr 1fr}.zd{display:flex;gap:5px;align-items:center;margin-top:8px;flex-wrap:wrap}.zd .chip{min-width:34px;padding:6px 0;text-align:center}.zcat{border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-top:6px}.zcat summary{font-weight:700;cursor:pointer}.zch{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.zbulk{display:flex;gap:6px;align-items:center;margin-top:12px;flex-wrap:wrap}
 .toast.act{pointer-events:auto}.toast .ub{background:none;border:0;color:var(--acc2);font:800 14px Figtree,sans-serif;margin-left:8px;cursor:pointer;padding:4px}
 .cvBig{aspect-ratio:16/8;border-radius:16px;overflow:hidden;background:var(--soft);display:grid;place-items:center;color:var(--mute)}.cvBig img{width:100%;height:100%;object-fit:cover}
 .cvL{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}.cvL button{flex:none;width:84px;height:56px;border-radius:12px;overflow:hidden;border:2px solid transparent;padding:0;background:var(--soft);cursor:pointer;font-size:12px;color:var(--mute);line-height:1.1}
@@ -1007,7 +1007,9 @@ function tileLayer(ll){var p=ll.split(","),la=+p[0],lo=+p[1],z=16,n=Math.pow(2,z
 var PINSVG='<svg class="pin" viewBox="0 0 30 38" aria-hidden="true"><path d="M15 37C15 37 28 24.5 28 14A13 13 0 0 0 2 14C2 24.5 15 37 15 37Z" fill="#e5484d" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
 function mapThumb(t,small){var p=parseLoc(t);if(!p)return "";var lab=p.ll?"Ubicación del cliente":p.url?"Ubicación en Maps":p.q;
   return '<a class="mapc'+(small?' smc':'')+'" href="'+esc(gmaps(t))+'" target="_blank" rel="noopener" aria-label="Abrir ubicación: '+esc(lab)+'">'+fakeMap(hs(p.ll||p.url||p.q))+(p.ll?tileLayer(p.ll):'')+'<span class="mpu"></span>'+PINSVG+'<span class="mcap"><span>📍 '+esc(lab)+'</span><span>Abrir ›</span></span></a>'}
-function routeUrl(L){var P=L.map(function(j){var p=parseLoc(locOf(j));return !p?null:p.ll?p.ll:(p.q||null)}).filter(Boolean);if(!P.length)return null;
+function hav(a,b){var A=a.split(",").map(Number),B2=b.split(",").map(Number),r=Math.PI/180,x=(B2[1]-A[1])*r*Math.cos((A[0]+B2[0])/2*r),y=(B2[0]-A[0])*r;return Math.sqrt(x*x+y*y)}
+function nearOrder(P){var ll=function(x){return /^-?\d+\.\d+,-?\d+\.\d+$/.test(x)},C=P.filter(ll),O=P.filter(function(x){return !ll(x)});if(C.length<3)return P;var out=[C.shift()];while(C.length){var l=out[out.length-1],bi=0,bd=1e9;C.forEach(function(c,i){var d=hav(l,c);if(d<bd){bd=d;bi=i}});out.push(C.splice(bi,1)[0])}return out.concat(O)}
+function routeUrl(L,near){var P=L.map(function(j){var p=parseLoc(locOf(j));return !p?null:p.ll?p.ll:(p.q||null)}).filter(Boolean);if(!P.length)return null;if(near)P=nearOrder(P);
   var u="https://www.google.com/maps/dir/?api=1&travelmode=driving&destination="+encodeURIComponent(P[P.length-1]);if(P.length>1)u+="&waypoints="+encodeURIComponent(P.slice(0,-1).join("|"));return u}
 
 /* ---------- INICIO DEL DÍA ---------- */
@@ -1017,12 +1019,12 @@ function renderHero(){var t=ymd(new Date()),n=new Date(),nowM=n.getHours()*60+n.
   else if(T.length&&done===T.length){line="Terminaste las citas de hoy";big="¡Buen trabajo! 🎉"}
   else if(T.length){line="Ya pasaron las citas de hoy";big="Márcalas como atendidas";sub="Así tus números quedan al día"}
   else{line="No tienes citas hoy";big="Día libre ☀️";sub="Buen momento para escribirle a clientes que hace rato no vienen"}
-  var money=T.reduce(function(a,j){return a+(+j.total||0)},0),due=dueNotes().length,ru=B.home?routeUrl(T.filter(function(j){return j.st!=="Lista"})):null;
+  var money=T.reduce(function(a,j){return a+(+j.total||0)},0),due=dueNotes().length,ru=B.home?routeUrl(T.filter(function(j){return j.st!=="Lista"})):null,ru2=B.home?routeUrl(T.filter(function(j){return j.st!=="Lista"}),true):null,nStops=T.filter(function(j){return j.st!=="Lista"&&/^-?\d+\.\d+,-?\d+\.\d+/.test(locOf(j).trim())}).length;
   $("hero").innerHTML='<div class="hero fade"><div class="hg">'+DN[n.getDay()].replace(/^./,function(c){return c.toUpperCase()})+" "+n.getDate()+" de "+MN[n.getMonth()]+'</div><div class="hn">'+line+'</div><div class="hc">'+big+'</div>'+(sub?'<div class="hs">'+sub+'</div>':'')
    +(nx&&locOf(nx)?mapThumb(locOf(nx),true):'')
    +(T.length?'<div class="hbar"><i id="hb"></i></div><div class="hs">'+done+' de '+T.length+' atendidas · '+crc(money)+'</div>':'')
    +(due?'<button class="hnote" id="hNotes">📌 '+due+(due===1?" recordatorio pendiente":" recordatorios pendientes")+'</button>':'')
-   +((nx&&(locOf(nx)||(B.home&&nx.tel)))||ru?'<div class="hrow">'+(nx&&locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(gmaps(locOf(nx)))+'">📍 Cómo llegar</a>':'')+(B.home&&nx&&nx.tel?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("go",nx)))+'">🚗 Voy en camino</a>':'')+(B.home&&nx&&nx.tel&&!locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("loc",nx)))+'">📍 Pedir ubicación</a>':'')+(ru?'<a target="_blank" rel="noopener" href="'+esc(ru)+'">🗺️ Ruta del día</a>':'')+'</div>':'')+'</div>';
+   +((nx&&(locOf(nx)||(B.home&&nx.tel)))||ru?'<div class="hrow">'+(nx&&locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(gmaps(locOf(nx)))+'">📍 Cómo llegar</a>':'')+(B.home&&nx&&nx.tel?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("go",nx)))+'">🚗 Voy en camino</a>':'')+(B.home&&nx&&nx.tel&&!locOf(nx)?'<a target="_blank" rel="noopener" href="'+esc(waUrl(nx.tel,msgFor("loc",nx)))+'">📍 Pedir ubicación</a>':'')+(ru?'<a target="_blank" rel="noopener" href="'+esc(ru)+'">🗺️ Ruta del día</a>':'')+(ru2&&nStops>=3?'<a target="_blank" rel="noopener" href="'+esc(ru2)+'">⚡ Ruta más corta</a>':'')+'</div>':'')+'</div>';
   var hb=$("hb");if(hb)requestAnimationFrame(function(){requestAnimationFrame(function(){hb.style.width=(T.length?done/T.length*100:0)+"%"})});
   if($("hNotes"))$("hNotes").onclick=function(){go("clientes")}}
 function shareDay(){var L=dayJobs(SEL).filter(active);if(!L.length){toast("No hay citas este día");return}
@@ -1531,17 +1533,46 @@ function setExtra(s){
     +'<div style="height:16px"></div><div class="row"><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(webLink())+'">Ver mi página</a><button class="btn" id="ptSv">Guardar</button></div>',
     function(){$("cvW").onclick=function(e){var b=e.target.closest("[data-cv]");if(!b)return;CV=b.dataset.cv===mine[0]?"":b.dataset.cv;$("cvW").innerHTML=cvH()};
       $("ptSv").onclick=function(){saveBiz({web:Object.assign({},B.web||{},{cover:CV}),tagline:$("ptT").value.trim(),blurb:$("ptS").value.trim(),promo:$("ptP").value.trim(),showPrices:$("ptSp").checked,askHow:$("ptH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}})}
-  if(s==="dom"){var Z=(B.zones||[]).map(function(z){return {n:z.n,fee:z.fee}});
-    function zr(){return Z.map(function(z,i){return '<div class="zrow"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(z.n)+'" placeholder="Zona (ej: Heredia centro)"><input data-i="'+i+'" data-k="fee" type="number" inputmode="numeric" min="0" step="500" value="'+(z.fee||"")+'" placeholder="₡ extra"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div>'}).join("")}
+  if(s==="dom"){var Z=(B.zones||[]).map(function(z){var o={n:z.n,fee:+z.fee||0};if(z.ask)o.ask=true;if(z.days&&z.days.length)o.days=z.days.slice();return o}),CAT=zCatalog(),ZS={};
+    var DL=["D","L","K","M","J","V","S"],DN7=[1,2,3,4,5,6,0];
+    function zr(){return Z.map(function(z,i){var md=z.ask?2:z.fee>0||z.m===1?1:0;
+      return '<div class="zc"><div class="zt"><input data-i="'+i+'" data-k="n" maxlength="40" value="'+esc(z.n)+'" placeholder="Zona (ej: Heredia centro)"><button class="ib" data-rm="'+i+'" aria-label="Quitar">✕</button></div>'
+       +'<div class="zm"><select data-i="'+i+'" data-k="mode"><option value="0"'+(md===0?" selected":"")+'>Gratis</option><option value="1"'+(md===1?" selected":"")+'>Con costo extra</option><option value="2"'+(md===2?" selected":"")+'>Consultar por WhatsApp</option></select>'
+       +(md===1?'<input data-i="'+i+'" data-k="fee" type="number" inputmode="numeric" min="0" step="500" value="'+(z.fee||"")+'" placeholder="₡ extra">':"")+'</div>'
+       +'<div class="zd"><span class="mute small">Días:</span>'+DN7.map(function(d){var on=!z.days||!z.days.length||z.days.indexOf(d)>=0;return '<button type="button" class="chip sm" data-i="'+i+'" data-d="'+d+'" aria-pressed="'+on+'">'+DL[d]+'</button>'}).join("")+'</div></div>'}).join("")||'<p class="mute small">Aún no tienes zonas. Carga las de Costa Rica o agrega una.</p>'}
+    function catH(){return CAT.map(function(p,pi){var all=ZS[p.p];return '<details class="zcat"><summary>'+esc(p.p)+'</summary><div class="zch"><button type="button" class="chip sm" data-sp="'+pi+'" aria-pressed="'+!!ZS["P:"+p.p]+'"><b>Toda la provincia</b></button>'
+      +p.c.map(function(c){return '<button type="button" class="chip sm" data-sc="'+esc(c)+'" aria-pressed="'+!!ZS[c]+'">'+esc(c)+'</button>'}).join("")+'</div></details>'}).join("")}
     sheet('<h2>Servicio a domicilio</h2><div class="between"><div><b>Voy donde está el cliente</b><div class="mute small">La página le pide su ubicación al reservar</div></div><label class="toggle"><input type="checkbox" id="dH"'+(B.home?" checked":"")+'><span></span></label></div>'
-     +'<div id="dZ"'+(B.home?"":" hidden")+'><label>Zonas que atiendes (opcional)</label><p class="mute small" style="margin:-2px 0 8px">Si cobras extra por distancia, pon el monto. Déjalo vacío si es gratis.</p><div id="zl">'+zr()+'</div><button class="btn ghost" id="zA">+ Agregar zona</button></div>'
+     +'<div id="dZ"'+(B.home?"":" hidden")+'><label>Zonas que atiendes</label><p class="mute small" style="margin:-2px 0 8px">El cliente ve su zona detectada con el GPS. Si está fuera de tus zonas, la página le dice que aún no llegas y lo manda a tu WhatsApp. Marca solo los días que vas a cada zona.</p>'
+     +'<button class="btn alt" id="zCB" style="width:100%">🇨🇷 Cargar zonas de Costa Rica</button><div id="zCat" hidden><p class="mute small" style="margin:10px 0 6px">Toca las que atiendes y luego «Agregar».</p><div id="zCl">'+catH()+'</div><button class="btn" id="zCA" style="margin-top:10px;width:100%">Agregar las marcadas</button></div>'
+     +'<div class="zbulk"><span class="mute small">Poner a todas:</span><button type="button" class="btn sm alt" data-bk="0">Gratis</button><button type="button" class="btn sm alt" data-bk="1">+ ₡ extra</button><button type="button" class="btn sm alt" data-bk="2">Consultar</button></div>'
+     +'<div id="zl">'+zr()+'</div><button class="btn ghost" id="zA">+ Agregar zona a mano</button></div>'
      +'<div style="height:16px"></div><button class="btn" id="dSv">Guardar</button>',
      function(){$("dH").onchange=function(){$("dZ").hidden=!this.checked};var zl=$("zl");
-       zl.oninput=function(e){var t=e.target;if(t.dataset.k==null)return;Z[+t.dataset.i][t.dataset.k]=t.dataset.k==="fee"?+t.value||0:t.value};
-       zl.onclick=function(e){var b=e.target.closest("[data-rm]");if(!b)return;Z.splice(+b.dataset.rm,1);zl.innerHTML=zr()};
-       $("zA").onclick=function(){Z.push({n:"",fee:0});zl.innerHTML=zr();var ins=zl.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
-       $("dSv").onclick=function(){var out=Z.filter(function(z){return String(z.n).trim()}).slice(0,40).map(function(z){return {n:String(z.n).trim().slice(0,40),fee:Math.max(0,+z.fee||0)}});
-         saveBiz({home:$("dH").checked,zones:out}).then(function(){closeSheet();toast("Guardado ✓")})}})}}
+       function redraw(){zl.innerHTML=zr()}
+       zl.oninput=function(e){var t=e.target;if(t.dataset.k==null||t.tagName==="SELECT")return;Z[+t.dataset.i][t.dataset.k]=t.dataset.k==="fee"?+t.value||0:t.value};
+       zl.onchange=function(e){var t=e.target;if(t.dataset.k!=="mode")return;var z=Z[+t.dataset.i],m=+t.value;if(m===2){z.ask=true;z.fee=0;delete z.m}else{delete z.ask;if(m===0){z.fee=0;delete z.m}else z.m=1}redraw()};
+       zl.onclick=function(e){var b=e.target.closest("[data-rm]");if(b){Z.splice(+b.dataset.rm,1);redraw();return}
+         var d=e.target.closest("[data-d]");if(d){var z=Z[+d.dataset.i],n=+d.dataset.d,cur=z.days&&z.days.length?z.days.slice():[0,1,2,3,4,5,6],k=cur.indexOf(n);if(k>=0)cur.splice(k,1);else cur.push(n);if(!cur.length)cur=[0,1,2,3,4,5,6];if(cur.length===7)delete z.days;else z.days=cur;redraw()}};
+       $("zA").onclick=function(){Z.push({n:"",fee:0});redraw();var ins=zl.querySelectorAll('[data-k="n"]');ins[ins.length-1].focus()};
+       $("zCB").onclick=function(){$("zCat").hidden=!$("zCat").hidden};
+       $("zCl").onclick=function(e){var c=e.target.closest("[data-sc]"),p=e.target.closest("[data-sp]");if(c){var k=c.dataset.sc;ZS[k]=!ZS[k];c.setAttribute("aria-pressed",!!ZS[k])}else if(p){var pr=CAT[+p.dataset.sp],k2="P:"+pr.p;ZS[k2]=!ZS[k2];p.setAttribute("aria-pressed",!!ZS[k2])}};
+       $("zCA").onclick=function(){var have={};Z.forEach(function(z){have[String(z.n).toLowerCase()]=1});var add=0;
+         CAT.forEach(function(p){if(ZS["P:"+p.p]){var nm="Provincia de "+p.p;if(!have[nm.toLowerCase()]){Z.push({n:nm,fee:0});add++;have[nm.toLowerCase()]=1}}p.c.forEach(function(c){if(ZS[c]&&!have[c.toLowerCase()]){Z.push({n:c,fee:0});add++;have[c.toLowerCase()]=1}})});
+         ZS={};$("zCl").innerHTML=catH();$("zCat").hidden=true;redraw();toast(add?add+" zonas agregadas. Ponles su costo abajo.":"No marcaste ninguna zona.")};
+       $("dZ").addEventListener("click",function(e){var b=e.target.closest("[data-bk]");if(!b)return;var m=+b.dataset.bk,fee=0;if(m===1){var v=prompt("¿Cuántos colones de extra? (ej: 3000)","3000");if(v===null)return;fee=Math.max(0,+String(v).replace(/\D/g,"")||0);if(!fee)return}
+         Z.forEach(function(z){delete z.m;if(m===2){z.ask=true;z.fee=0}else{delete z.ask;z.fee=fee}});redraw()});
+       $("dSv").onclick=function(){var out=Z.filter(function(z){return String(z.n).trim()}).slice(0,90).map(function(z){var o={n:String(z.n).trim().slice(0,40),fee:z.ask?0:Math.max(0,+z.fee||0)};if(z.ask)o.ask=true;if(z.days&&z.days.length&&z.days.length<7)o.days=z.days.filter(function(d){return d>=0&&d<=6});return o});
+         saveBiz({home:$("dH").checked,zones:out}).then(function(){closeSheet();toast("Guardado ✓ ya se ve en tu página de reservas");render()})}})}}
+
+function zCatalog(){return [
+ {p:"San José",c:["San José","Escazú","Desamparados","Puriscal","Tarrazú","Aserrí","Mora","Goicoechea","Santa Ana","Alajuelita","Vázquez de Coronado","Acosta","Tibás","Moravia","Montes de Oca","Turrubares","Dota","Curridabat","Pérez Zeledón","León Cortés"]},
+ {p:"Alajuela",c:["Alajuela","San Ramón","Grecia","San Mateo","Atenas","Naranjo","Palmares","Poás","Orotina","San Carlos","Zarcero","Sarchí","Upala","Los Chiles","Guatuso","Río Cuarto"]},
+ {p:"Cartago",c:["Cartago","Paraíso","La Unión","Jiménez","Turrialba","Alvarado","Oreamuno","El Guarco"]},
+ {p:"Heredia",c:["Heredia","Barva","Santo Domingo","Santa Bárbara","San Rafael","San Isidro","Belén","Flores","San Pablo","Sarapiquí"]},
+ {p:"Guanacaste",c:["Liberia","Nicoya","Santa Cruz","Bagaces","Carrillo","Cañas","Abangares","Tilarán","Nandayure","La Cruz","Hojancha"]},
+ {p:"Puntarenas",c:["Puntarenas","Esparza","Buenos Aires","Montes de Oro","Osa","Quepos","Golfito","Coto Brus","Parrita","Corredores","Garabito","Monteverde"]},
+ {p:"Limón",c:["Limón","Pococí","Siquirres","Talamanca","Matina","Guácimo"]}]}
 
 /* ---------- PAGO ---------- */
 /* En la app de Play Store no se muestran instrucciones de pago (política de pagos de Google Play) */

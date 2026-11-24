@@ -88,7 +88,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .bar .tot.warn{color:var(--acc);font-weight:700}.bar .tot.warn b{color:var(--ink)}
 .cta-s{text-align:center;margin:8px 0 2px;font-size:13px;color:var(--mute)}
 .stk{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;max-width:528px;margin:0 auto}body.hasstk .wafab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-.zok{margin-top:8px;padding:11px 14px;border-radius:13px;border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}.zok b{display:block;color:var(--ok)}.zok span{font-size:13px;color:var(--mute)}
+.zok{margin-top:8px;padding:11px 14px;border-radius:13px;border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}.zok.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 9%,var(--card))}.zok.bad b{color:var(--bad)}.zok.ask{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--card))}.zok.ask b{color:var(--acc)}.zok a.btn{margin-top:8px;display:block;text-align:center}.zok b{display:block;color:var(--ok)}.zok span{font-size:13px;color:var(--mute)}
 #zsel{width:100%}.idea{display:block;text-align:center;margin:14px auto 4px;font:600 13px Figtree,sans-serif;color:var(--mute);text-decoration:none;border:1px dashed var(--line);border-radius:12px;padding:9px 12px;max-width:360px}.idea b{color:var(--ink)}
 .cls{display:flex;align-items:center;gap:8px;justify-content:center;margin:0 auto 12px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--acc2) 14%,var(--card));font:600 13px Figtree,sans-serif;max-width:360px}
 .zn{display:flex;justify-content:space-between;align-items:center;width:100%;border:2px solid var(--line);background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:7px;font:600 15px Figtree,sans-serif;color:var(--ink);cursor:pointer}
@@ -272,7 +272,7 @@ function init(open){setTimeout(function(){Array.prototype.forEach.call(document.
   STEPS=(vehOn()?["veh"]:[]).concat(["svc"]).concat(P.home?["loc"]:[]).concat(["when","you","sum"]);
   renderSvcs();
   if(vehOn()){renderVehCards();$("addCar").hidden=false}else $("addCar").hidden=false
-  if((P.zones||[]).length)$("zones").innerHTML='<select id="zsel" aria-label="Zona"><option value="-1">Elige dónde está tu vehículo…</option>'+P.zones.map(function(z,i){return '<option value="'+i+'">'+esc(z.n)+" · "+(z.fee?"+"+crc(z.fee):"gratis")+'</option>'}).join("")+'</select><div class="zok" id="zok" hidden></div>';else $("zW").hidden=true;
+  if((P.zones||[]).length)$("zones").innerHTML='<select id="zsel" aria-label="Zona"><option value="-1">Elige dónde está tu vehículo…</option>'+P.zones.map(function(z,i){return '<option value="'+i+'">'+esc(z.n)+" · "+(z.ask?"consultar":z.fee?"+"+crc(z.fee):"gratis")+'</option>'}).join("")+'<option value="-2">Mi zona no aparece en la lista</option></select><div class="zok" id="zok" hidden></div>';else $("zW").hidden=true;
   if(P.askHow!==false)$("how").innerHTML=HOW.map(function(h){return '<button class="chip" data-h="'+esc(h)+'" aria-pressed="false">'+esc(h)+'</button>'}).join("");else $("howW").hidden=true;
   if(/[?&]go=1/.test(location.search))start()}
 function start(){memFill();$("land").hidden=true;$("flow").hidden=false;$("bar").hidden=false;show(0)}
@@ -323,7 +323,7 @@ function sp(l){return l.p}
 function spc(s){return (+s.p||0)+(s.vx?vehX():0)}
 function renderSvcs(){$("svcs").innerHTML=(P.services||[]).map(function(s,i){var p=spc(s);return '<button class="svc" data-i="'+i+'" aria-pressed="'+(S.pick.indexOf(i)>=0)+'"><span class="ic">'+esc(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+(p?crc(p)+(s.vx&&vehOn()&&S.veh<0?" o más":"")+" · ":"")+durTxt(+s.d||60)+'</span>'+(s.hot?'<em class="hotb">⭐ Más pedido</em>':"")+'</span><span class="ck">✓</span></button>'}).join("")||'<p class="mute">Este negocio todavía no tiene servicios. Escríbele por WhatsApp.</p>'}
 function subT(){return lines().reduce(function(a,l){return a+l.p},0)}
-function fee(){return S.zone>=0&&P.zones&&P.zones[S.zone]?+P.zones[S.zone].fee||0:0}
+function fee(){return S.zone>=0&&P.zones&&P.zones[S.zone]&&!P.zones[S.zone].ask?+P.zones[S.zone].fee||0:0}
 function total(){return subT()+fee()}
 function durReal(){return lines().reduce(function(a,l){return a+l.d},0)}
 function dur(){return Math.max(30,Math.ceil(durReal()/30)*30)}
@@ -331,13 +331,13 @@ function dur(){return Math.max(30,Math.ceil(durReal()/30)*30)}
 var LBL={veh:"Tu vehículo",svc:"Servicios",when:"Día y hora",loc:"Ubicación",you:"Tus datos",sum:"Último paso"};
 function show(i){S.step=i;var k=STEPS[i];["veh","svc","loc","when","you","sum"].forEach(function(x){$("s-"+x).classList.toggle("on",x===k)});
   $("pt").textContent=(i<STEPS.length-1?"Paso "+(i+1)+" de "+(STEPS.length-1)+" · ":"")+LBL[k];$("pg").style.width=((i+1)/STEPS.length*100)+"%";
-  $("nx").textContent=k==="sum"?"Confirmar cita":"Siguiente";err("");if(k==="when"){loadBusy();var nc=carsAll().length;$("whenN").hidden=nc<2;if(nc>1)$("whenN").textContent="Son "+nc+" carros: necesitamos unas "+durTxt(dur())+" en total."}$("bar").hidden=false;if(k==="sum")renderSum();upd();window.scrollTo(0,0)}
+  $("nx").textContent=k==="sum"?"Confirmar cita":"Siguiente";err("");if(k==="when"){loadBusy();var nc=carsAll().length;var zz=S.zone>=0&&P.zones?P.zones[S.zone]:null,zd=zDays(zz),nt=(nc>1?"Son "+nc+" carros: necesitamos unas "+durTxt(dur())+" en total. ":"")+(zd?"En "+zz.n+" atendemos "+zd+".":"");$("whenN").hidden=!nt;$("whenN").textContent=nt}$("bar").hidden=false;if(k==="sum")renderSum();upd();window.scrollTo(0,0)}
 $("bk").onclick=function(){if(S.step>0)show(S.step-1);else{$("flow").hidden=true;$("bar").hidden=true;$("land").hidden=false;window.scrollTo(0,0)}};
 $("nx").onclick=function(){if(!okStep()){hint();return}if(S.step<STEPS.length-1)show(S.step+1);else submit()};
 function missing(){var k=STEPS[S.step];
   if(k==="veh")return S.veh<0?"elige el tipo de vehículo":"";
   if(k==="svc")return S.pick.length>0||S.cars.length>0&&!S.pick.length?"":"elige al menos un servicio";
-  if(k==="loc")return (P.zones||[]).length&&S.zone<0?"elige tu zona":!S.ll&&$("ad").value.trim().length<6?"envía tu ubicación o escribe tu dirección":"";
+  if(k==="loc")return (P.zones||[]).length&&S.zone===-2?"esa zona aún no la cubrimos (escríbenos)":(P.zones||[]).length&&S.zone<0?"elige tu zona":!S.ll&&$("ad").value.trim().length<6?"envía tu ubicación o escribe tu dirección":"";
   if(k==="when")return !S.day?"elige el día":S.t==null?"elige la hora":"";
   if(k==="you")return $("cli").value.trim().length<2?"escribe tu nombre":!/^[2-8]\d{7}$/.test(telN($("tel").value))?"tu WhatsApp (8 dígitos)":"";
   return ""}
@@ -361,12 +361,13 @@ $("cli").oninput=$("tel").oninput=$("ad").oninput=upd;
 /* Día y hora */
 function loadBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P.ahead||21));
   return db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};sn.forEach(function(d){BUSY[d.id]=1});renderDays()},function(){BUSY={};renderDays()})}
-function freeStarts(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0)return [];var a=tm(h.a),z=tm(h.b),d=dur(),out=[],now=new Date(),min=now.getHours()*60+now.getMinutes()+(+P.lead||0)*60,today=ymd(now);
+function zDayOff(day){var z=S.zone>=0&&P.zones?P.zones[S.zone]:null;return !!(z&&z.days&&z.days.length&&z.days.length<7&&z.days.indexOf(pd(day).getDay())<0)}
+function freeStarts(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0||zDayOff(day))return [];var a=tm(h.a),z=tm(h.b),d=dur(),out=[],now=new Date(),min=now.getHours()*60+now.getMinutes()+(+P.lead||0)*60,today=ymd(now);
   var dayOff=Math.round((pd(day)-pd(today))/864e5);
   for(var m=a;m+d<=z;m+=30){if(ci!=null&&m>=ci*60)continue;if(dayOff*1440+m<min)continue;var ok=true;for(var k=0;k<d;k+=30)if(BUSY[day+"_"+hm(m+k).replace(":","")]){ok=false;break}if(ok)out.push(hm(m))}return out}
 function closedDay(s){var h=(P.hours||[])[pd(s).getDay()];return !h||!h.on||(P.cierre||{})[s]===0}
 function renderDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeStarts(s).length;if(f&&!first)first=s;
-    h+='<button data-d="'+s+'" aria-pressed="'+(s===S.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
+    h+='<button data-d="'+s+'" aria-pressed="'+(s===S.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):zDayOff(s)?"no vamos":closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
   $("days").innerHTML=h;if(!S.day||!freeStarts(S.day).length){S.day=first;S.t=null}
   Array.prototype.forEach.call($("days").children,function(b){b.setAttribute("aria-pressed",b.dataset.d===S.day)});
   var sel=$("days").querySelector('[aria-pressed="true"]');if(sel)sel.scrollIntoView({inline:"center",block:"nearest"});renderHours()}
@@ -380,10 +381,27 @@ $("hrs").onclick=function(e){var b=e.target.closest("button");if(!b)return;S.t=b
 $("gps").onclick=function(){var m=$("gpsM");if(!navigator.geolocation){m.textContent="Tu celular no permite compartir la ubicación. Escribe tu dirección abajo.";return}
   m.textContent="";m.style.color="";this.disabled=true;var b=this;b.textContent="📍 Buscando tu ubicación…";
   navigator.geolocation.getCurrentPosition(function(p){b.disabled=false;S.ll=p.coords.latitude.toFixed(6)+","+p.coords.longitude.toFixed(6);S.acc=Math.round(p.coords.accuracy||0);
-    m.textContent="✓ Ubicación lista";m.style.color="var(--ok)";b.textContent="📍 Actualizar mi ubicación";
+    m.textContent="✓ Ubicación lista";m.style.color="var(--ok)";b.textContent="📍 Actualizar mi ubicación";detectZone(p.coords.latitude,p.coords.longitude);
     $("gpsV").innerHTML='<a class="mapc" href="https://www.google.com/maps/search/?api=1&query='+S.ll+'" target="_blank" rel="noopener">'+fakeMap(hs(S.ll))+tileLayer(S.ll)+'<span class="mpu"></span>'+PINSVG+'<span class="mcap"><span>📍 Tu ubicación'+(S.acc?' · precisión ±'+S.acc+' m':'')+'</span><span>Ver ›</span></span></a>';upd()},
    function(e){b.disabled=false;b.textContent="📍 Usar mi ubicación actual";m.style.color="var(--bad)";m.textContent=e.code===1?"No diste permiso para ver tu ubicación. Puedes escribir tu dirección abajo.":"No pudimos obtener tu ubicación. Escribe tu dirección abajo."},{enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
-$("zones").onchange=function(e){if(e.target.id!=="zsel")return;S.zone=+e.target.value;var z=S.zone>=0?P.zones[S.zone]:null,b=$("zok");b.hidden=!z;if(z)b.innerHTML='<b>✓ '+esc(z.n)+': '+(z.fee?"+"+crc(z.fee)+" por traslado":"domicilio gratis")+'</b><span>'+(z.fee?"Se suma al total de tu cita.":"Llegamos sin costo extra.")+'</span>';upd()};
+var DN=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+function zDays(z){var d=z&&z.days||[];return d.length&&d.length<7?d.slice().sort(function(a,b){return (a||7)-(b||7)}).map(function(x){return DN[x]}).join(", "):""}
+function nrm(x){return String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\b(canton|provincia|distrito|municipalidad|de|del|la)\b/g," ").replace(/\s+/g," ").trim()}
+function zoneFor(a){var lv=[[a.county,a.city,a.town,a.municipality,a.city_district,a.suburb,a.village],[a.state_district,a.state]];
+  for(var l=0;l<lv.length;l++)for(var i=0;i<P.zones.length;i++){var zn=nrm(P.zones[i].n);if(!zn)continue;for(var k=0;k<lv[l].length;k++){var nv=nrm(lv[l][k]);if(nv&&(nv===zn||(nv.length>3&&zn.length>3&&(nv.indexOf(zn)>=0||zn.indexOf(nv)>=0))))return i}}return -1}
+function setZone(i,place){S.zone=i;S.zq=place||S.zq||"";var sel=$("zsel"),b=$("zok");if(sel)sel.value=String(i);if(!b)return;
+  var z=i>=0?P.zones[i]:null;b.className="zok";b.hidden=i===-1;
+  if(z){var dt=zDays(z);b.classList.toggle("ask",!!z.ask);
+    b.innerHTML=z.ask?'<b>📲 '+esc(z.n)+': el traslado se confirma</b><span>Reserva tu hora y te confirmamos por WhatsApp si lleva costo extra.'+(dt?' Atendemos '+esc(dt)+'.':'')+'</span>'
+      :'<b>✓ '+esc(z.n)+': '+(z.fee?"+"+crc(z.fee)+" por traslado":"domicilio gratis")+'</b><span>'+(z.fee?"Se suma al total de tu cita.":"Llegamos sin costo extra.")+(dt?' Atendemos '+esc(dt)+'.':'')+'</span>'}
+  else if(i===-2){b.classList.add("bad");var pl=S.zq?esc(S.zq):"esa zona";b.innerHTML='<b>Aún no llegamos a '+pl+'</b><span>Escríbenos y vemos si podemos ir hasta donde estás.</span><a class="btn alt" target="_blank" rel="noopener" href="'+esc(waUrl(P.wa,"Hola "+P.name+", quisiera una cita pero estoy en "+(S.zq||"otra zona")+". ¿Pueden llegar?"))+'">📲 Preguntar por WhatsApp</a>'}
+  S.t=null;upd()}
+$("zones").onchange=function(e){if(e.target.id!=="zsel")return;S.zq="";setZone(+e.target.value)};
+function detectZone(lat,lon){if(!(P.zones||[]).length||!window.fetch)return;var m=$("gpsM"),ac=window.AbortController?new AbortController():null,tm_=setTimeout(function(){ac&&ac.abort()},7000);
+  fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=12&addressdetails=1&accept-language=es&lat="+lat+"&lon="+lon,ac?{signal:ac.signal}:{}).then(function(r){return r.json()}).then(function(j){clearTimeout(tm_);var a=j&&j.address;if(!a)return;
+    var place=a.county||a.city||a.town||a.municipality||a.state||"",i=zoneFor(a);place=String(place).replace(/^(Cant[oó]n|Provincia de)\s+/i,"");
+    if(i>=0){setZone(i,place);m.textContent="✓ Ubicación lista · detectamos tu zona: "+P.zones[i].n}
+    else if(place){setZone(-2,place);m.textContent="✓ Ubicación lista · estás en "+place}},function(){clearTimeout(tm_)}).catch(function(){})}
 $("how").onclick=function(e){var b=e.target.closest(".chip");if(!b)return;var on=b.getAttribute("aria-pressed")!=="true";S.how=on?b.dataset.h:"";Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",on&&x===b)})};
 
 /* Resumen y envío */
@@ -393,7 +411,7 @@ function renderSum(){var z=S.zone>=0?P.zones[S.zone]:null,A=carsAll(),multi=A.le
   $("sum").innerHTML=svc
   +(P.home?'<div class="li"><span>🚗 Domicilio'+(z?" · "+esc(z.n):"")+'</span><span>'+(fee()?crc(fee()):"Gratis")+'</span></div>':"")
   +'<div class="li"><span>📅 '+niceDay(S.day)+'</span><b>'+fh(S.t)+'</b></div><div class="li"><span>⏱️ Duración</span><span>'+durTxt(durReal())+'</span></div>'
-  +(P.home?'<div class="li"><span>📍 '+(S.ll?"Ubicación enviada":"Dirección")+'</span><span style="text-align:right;max-width:60%">'+esc($("ad").value.trim()||"✓")+(z?'<br><small style="color:var(--ok)">'+esc(z.n)+" · "+(z.fee?"+"+crc(z.fee):"domicilio gratis")+'</small>':"")+'</span></div>':"")
+  +(P.home?'<div class="li"><span>📍 '+(S.ll?"Ubicación enviada":"Dirección")+'</span><span style="text-align:right;max-width:60%">'+esc($("ad").value.trim()||"✓")+(z?'<br><small style="color:var(--ok)">'+esc(z.n)+" · "+(z.ask?"traslado por confirmar":z.fee?"+"+crc(z.fee):"domicilio gratis")+'</small>':"")+'</span></div>':"")
   +'<div class="li"><span>👤 '+esc($("cli").value.trim())+'</span><span>'+esc(telN($("tel").value))+'</span></div><div class="li"><b>Total</b><b>'+crc(total())+'</b></div>'}
 function blocks(){var r=[],s=tm(S.t);for(var k=0;k<dur();k+=30)r.push(S.day+"_"+hm(s+k).replace(":",""));return r}
 function submit(){var b=$("nx");if(b.disabled)return;err("");
@@ -403,7 +421,7 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
   var id=String(Date.now()*100+Math.floor(Math.random()*100)),tel=telN($("tel").value),L=lines().map(function(l){return {n:l.n,p:l.p}}),at=Date.now(),z=S.zone>=0?P.zones[S.zone]:null;
   var end=pd(S.day);end.setMinutes(tm(S.t)+dur());
   var job={id:id,cli:$("cli").value.trim().slice(0,60),tel:tel,items:L.map(function(l){return l.n}),lines:L,date:S.day,time:S.t,dur:dur(),sub:subT(),disc:0,fee:fee(),total:total(),
-    veh:vehOn()||carsAll().some(function(c){return c.mod})?carsAll().map(carFull).join(" + ").slice(0,120):"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
+    veh:vehOn()||carsAll().some(function(c){return c.mod})?carsAll().map(carFull).join(" + ").slice(0,120):"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",zask:!!(z&&z.ask),how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
   var tk=newTok();S.tk=tk;S.job=id;
   function mk(wt){var bt=db.batch(),jd=Object.assign({},job);if(wt)jd.tk=tk;bt.set(db.doc("biz/"+BID+"/jobs/"+id),jd);
     blocks().forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
