@@ -47,6 +47,19 @@ var CITALY_NEWS={
   {d:"2026-11-06",ic:"✏️",t:"Mi cita",x:"Tu cliente cambia o cancela su cita desde su link, hasta 12 horas antes."},
   {d:"2026-11-05",ic:"🎯",t:"Metas y notas",x:"Metas de ingresos, notas, ubicación y portada de tus reservas."}
  ],
+ fixes:[
+  {d:"2026-11-24",x:"En tu página web, a veces la sección de precios no se veía al bajar con el dedo. Ya aparece siempre."},
+  {d:"2026-11-24",x:"En el diseño Pro, si el título de tu página era largo, se encimaba con el logo. Ya se acomoda bien."},
+  {d:"2026-11-24",x:"Si el nombre de un servicio era largo, se cortaba. Ahora se ve completo."},
+  {d:"2026-11-23",x:"Los íconos de imagen de tus servicios ya se guardan bien."},
+  {d:"2026-11-23",x:"El botón de WhatsApp de tu página ya manda el mensaje completo, sin frases cortadas."},
+  {d:"2026-11-23",x:"El botón «Nueva cita» ya no tapa el botón «Cerrar este día» en la agenda."},
+  {d:"2026-11-19",x:"Al activar los avisos, el recuadro que decía «Activá los avisos» se quita enseguida."},
+  {d:"2026-11-18",x:"Al ver los planes desde el celular, la ventana se cortaba por arriba. Ya se ve completa."},
+  {d:"2026-11-18",x:"Los emojis en los mensajes de WhatsApp salían como un cuadrito con «?». Ya salen bien."},
+  {d:"2026-11-18",x:"Los días que no atendés ahora dicen «cerrado», y «Mi plan» muestra el plan que tenés activo."},
+  {d:"2026-11-18",x:"Si te faltaba un dato al crear tu cuenta, el aviso sale junto a ese dato."}
+ ],
  soon:[
   {ic:"🧱",t:"Editor de páginas por niveles",x:"Personalizá tu página sección por sección, con más opciones en los planes altos.",s:"En camino"},
   {ic:"📣",t:"Avisos fáciles de arreglar",x:"Una guía paso a paso para que los avisos te lleguen bien en iPhone, Huawei y Android.",s:"En camino"},
@@ -74,14 +87,15 @@ function newsSheet(tab){
     var old=ds.indexOf(i.d)>=2;if(old)nOld++;
     return (old?'<div class="nold" hidden>':'<div>')+h+'<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+(isNew(i)?' <span class="npill">Nuevo</span>':'')+'</b><p>'+esc(i.x)+'</p></div></div></div>'}).join("")+(nOld?'<button type="button" class="btn alt" id="nMore" style="width:100%;margin-top:12px">Ver novedades anteriores ('+nOld+')</button>':'');
   var so=N.soon.map(function(i){return '<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+' <span class="nst'+(i.s==="En camino"?' go':'')+'">'+esc(i.s)+'</span></b><p>'+esc(i.x)+'</p></div></div>'}).join("");
+  var fxl="",fl="";(N.fixes||[]).forEach(function(i){if(i.d!==fl){fl=i.d;fxl+='<div class="ngh">'+esc(newsDate(i.d))+'</div>'}fxl+='<div class="nw"><span class="ic">🛠️</span><div><p style="margin:0;color:var(--ink)">'+esc(i.x)+'</p></div></div>'});
   sheet('<h2>🚀 Novedades</h2><p class="mute small" style="margin-top:-4px">Lo que mejoramos en Citaly y lo que viene.</p>'
-    +'<div class="chips ntabs" role="tablist"><button type="button" class="chip" role="tab" id="ntN" data-nt="new" aria-selected="true">✨ Lo nuevo</button><button type="button" class="chip" role="tab" id="ntS" data-nt="soon" aria-selected="false">🔜 Próximamente</button></div>'
+    +'<div class="chips ntabs" role="tablist"><button type="button" class="chip" role="tab" id="ntN" data-nt="new" aria-selected="true">✨ Lo nuevo</button><button type="button" class="chip" role="tab" id="ntS" data-nt="soon" aria-selected="false">🔜 Próximamente</button>'+((N.fixes||[]).length?'<button type="button" class="chip" role="tab" id="ntF" data-nt="fix" aria-selected="false">🛠️ Arreglos</button>':'')+'</div>'
     +'<div id="nBody" role="tabpanel" aria-live="polite"></div>'
     +'<div class="acts"><a class="btn alt" id="nIdea" target="_blank" rel="noopener">💡 Sugerir algo</a><button type="button" class="btn" id="nOk">Entendido</button></div>',
   function(){
-    function pick(t){$("ntN").setAttribute("aria-selected",t==="new");$("ntS").setAttribute("aria-selected",t==="soon");$("nBody").innerHTML=t==="soon"?so:nw;more()}
+    function pick(t){$("ntN").setAttribute("aria-selected",t==="new");$("ntS").setAttribute("aria-selected",t==="soon");if($("ntF"))$("ntF").setAttribute("aria-selected",t==="fix");$("nBody").innerHTML=t==="soon"?so:t==="fix"?fxl:nw;more()}
     function more(){var m=$("nMore");if(m)m.onclick=function(){Array.prototype.forEach.call(document.querySelectorAll("#nBody .nold"),function(x){x.hidden=false});m.remove()}}
-    $("ntN").onclick=function(){pick("new")};$("ntS").onclick=function(){pick("soon")};$("nOk").onclick=function(){closeSheet()};
+    $("ntN").onclick=function(){pick("new")};$("ntS").onclick=function(){pick("soon")};if($("ntF"))$("ntF").onclick=function(){pick("fix")};$("nOk").onclick=function(){closeSheet()};
     $("nIdea").href=waUrl(C.wa,"¡Hola! Tengo una idea para mejorar Citaly 💡\nNegocio: "+(B&&B.name||"")+"\nMi idea: ");
     pick(tab==="soon"?"soon":"new");newsMark()});
 }
