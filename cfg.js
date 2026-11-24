@@ -616,4 +616,83 @@ var CITALY = {
     }
     return total;
   };
+  /* ===== Paletas de marca: colores del logo (y fotos) -> 3 propuestas ===== */
+  function hx(r, g, b) { return "#" + [r, g, b].map(function (v) { v = Math.max(0, Math.min(255, Math.round(v))); return ("0" + v.toString(16)).slice(-2); }).join(""); }
+  function rgbOf(h) { var m = /^#([0-9a-f]{6})$/i.exec(String(h || "")); if (!m) return null; var n = parseInt(m[1], 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+  function hslOf(r, g, b) { r /= 255; g /= 255; b /= 255; var mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn, h = 0, s = 0; if (d) { s = d / (1 - Math.abs(2 * l - 1)); if (mx === r) h = ((g - b) / d + 6) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; } return [h, s, l]; }
+  function fromHsl(h, s, l) { h = ((h % 360) + 360) % 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l)); var c = (1 - Math.abs(2 * l - 1)) * s, x = c * (1 - Math.abs((h / 60) % 2 - 1)), m = l - c / 2, r = 0, g = 0, b = 0; if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; } else if (h < 180) { g = c; b = x; } else if (h < 240) { g = x; b = c; } else if (h < 300) { r = x; b = c; } else { r = c; b = x; } return hx((r + m) * 255, (g + m) * 255, (b + m) * 255); }
+  function tweak(h, dh, ds, dl) { var c = rgbOf(h); if (!c) return h; var t = hslOf(c[0], c[1], c[2]); return fromHsl(t[0] + dh, t[1] * ds, t[2] + dl); }
+  function hueGap(a, b) { var d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; }
+  /* px: lista de {d: array RGBA, w: peso, logo: bool}. Devuelve {ok, neutral, props:[{n,a,h,bg,pm}]} */
+  C.paletasPx = function (srcs) {
+    var B = [], i, k, n = 24, dark = 0, tot = 0;
+    for (i = 0; i < n; i++) B.push({ w: 0, r: 0, g: 0, b: 0 });
+    (srcs || []).forEach(function (s) {
+      var d = s.d, w = s.w || 1;
+      for (k = 0; k + 3 < d.length; k += 4) {
+        if (d[k + 3] <= 128) continue;
+        var t = hslOf(d[k], d[k + 1], d[k + 2]);
+        if (s.logo) { tot++; if (t[2] < .5) dark++; }
+        if (t[1] < .18 || t[2] < .12 || t[2] > .92) continue;
+        var q = Math.floor(t[0] / (360 / n)) % n, wt = t[1] * w;
+        B[q].w += wt; B[q].r += d[k] * wt; B[q].g += d[k + 1] * wt; B[q].b += d[k + 2] * wt;
+      }
+    });
+    var pm = tot ? (dark / tot > .5 ? "dark" : "light") : "dark";
+    var list = B.filter(function (b) { return b.w > 0; }).map(function (b) { var c = hx(b.r / b.w, b.g / b.w, b.b / b.w), r = rgbOf(c), t = hslOf(r[0], r[1], r[2]); return { w: b.w, c: c, h: t[0], s: t[1], l: t[2] }; }).sort(function (x, y) { return y.w - x.w; });
+    var sum = list.reduce(function (a, b) { return a + b.w; }, 0), cols = [];
+    list.forEach(function (c) { if (cols.length >= 4 || c.w < sum * .03) return; for (var j = 0; j < cols.length; j++) if (hueGap(cols[j].h, c.h) < 40) return; cols.push(c); });
+    var out = [], neutral = !cols.length;
+    if (neutral) {
+      out = [{ n: "Negro y dorado", a: "#d4a84b", h: "#f2dfa6", bg: "#1a1710", pm: "dark" }, { n: "Negro y azul", a: "#3b82f6", h: "#93c5fd", bg: "#0f172a", pm: "dark" }, { n: "Claro y sobrio", a: "#1f2937", h: "#b8892b", bg: "#e5e7eb", pm: "light" }];
+    } else {
+      var c1 = cols[0].c, c2 = cols[1] ? cols[1].c : tweak(c1, 35, 1, .12);
+      var lightest = cols.slice().sort(function (x, y) { return y.l - x.l; })[0];
+      var gold = lightest.l > .6 && cols.length > 1 ? lightest.c : "#d9b45a";
+      out = [
+        { n: "Fiel a tu logo", a: c1, h: c2, bg: tweak(c1, 0, 1, -.22), pm: pm },
+        { n: "Contraste", a: c2, h: c1, bg: tweak(c2, 0, 1, -.22), pm: pm },
+        { n: "Elegante", a: tweak(c1, 0, .6, -.1), h: gold, bg: tweak(c1, 0, .5, -.25), pm: "dark" }
+      ];
+    }
+    /* limpia: hex valido, bg oscuro, sin propuestas repetidas */
+    var seen = {};
+    out = out.map(function (o, j) {
+      var a = /^#[0-9a-f]{6}$/i.test(o.a) ? o.a.toLowerCase() : "#6c4cf5", h = /^#[0-9a-f]{6}$/i.test(o.h) ? o.h.toLowerCase() : "#d9b45a", bg = /^#[0-9a-f]{6}$/i.test(o.bg) ? o.bg.toLowerCase() : "";
+      if (h === a) h = tweak(a, 40, 1, .15);
+      var key = a + h + o.pm;
+      if (seen[key]) { a = tweak(a, 20 * j, 1, .06 * j); key = a + h + o.pm; }
+      seen[key] = 1;
+      return { n: o.n, a: a, h: h, bg: bg, pm: o.pm === "light" ? "light" : "dark" };
+    });
+    return { ok: true, neutral: neutral, props: out };
+  };
+  /* urls: [logo, foto1, foto2, foto3]; cb({ok, neutral, props, msg}) */
+  C.paletas = function (urls, cb) {
+    var list = (urls || []).filter(function (u) { return typeof u === "string" && /^(data:image\/|https:\/\/)/.test(u); }).slice(0, 4), res = [], left = list.length, done = false;
+    function fin() {
+      if (done) return; done = true;
+      var got = res.filter(Boolean);
+      if (!got.length) return cb({ ok: false, props: [], msg: "No pudimos leer la imagen. Elige los colores a mano." });
+      try { var r = C.paletasPx(got); if (r.neutral) r.msg = "Tu logo casi no tiene colores. Te proponemos paletas elegantes."; cb(r); }
+      catch (e) { cb({ ok: false, props: [], msg: "No pudimos sacar los colores. Elígelos a mano." }); }
+    }
+    if (!left) return cb({ ok: false, props: [], msg: "Sube tu logo primero." });
+    list.forEach(function (u, i) {
+      var im = new Image();
+      im.onload = function () {
+        try {
+          var cv = document.createElement("canvas"); cv.width = 96; cv.height = 96;
+          var cx = cv.getContext("2d"), sc = Math.min(96 / im.width, 96 / im.height), w = im.width * sc, h = im.height * sc;
+          cx.drawImage(im, (96 - w) / 2, (96 - h) / 2, w, h);
+          res[i] = { d: cx.getImageData(0, 0, 96, 96).data, w: i ? .35 : 1, logo: !i };
+        } catch (e) { res[i] = null; }
+        if (--left === 0) fin();
+      };
+      im.onerror = function () { res[i] = null; if (--left === 0) fin(); };
+      if (/^https:/.test(u)) im.crossOrigin = "anonymous";
+      im.src = u;
+    });
+    setTimeout(fin, 8000);
+  };
 })(CITALY);
