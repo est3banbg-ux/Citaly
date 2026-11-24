@@ -143,7 +143,7 @@ Reglas:
 async function importar(req, env) {
   if (!env.ANTHROPIC_API_KEY || !env.FB_PROJECT) return jr(req, { error: "no_config" }, 503);
   let b; try { b = await req.json(); } catch (e) { return jr(req, { error: "datos" }, 400); }
-  const idToken = clip(b.idToken, 4000), text = String(b.text || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, " ").trim().slice(0, 6000);
+  const idToken = clip(b.idToken, 4000), text = String(b.text || "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, " ").replace(/<\/?mensajes>/gi, " ").trim().slice(0, 6000);
   if (!idToken) return jr(req, { error: "sesion" }, 401);
   if (text.length < 10) return jr(req, { error: "vacio" }, 400);
   const u = await fbUser(idToken, env);
