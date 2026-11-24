@@ -1472,17 +1472,17 @@ function fotSheet(){
     if($("fotV"))$("fotV").onclick=function(){if(dirty){$("fotE").textContent="Primero toca «Guardar cambios» para no perder tus fotos.";return}closeSheet();setTimeout(function(){vidSheet(fotSheet)},250)};
     if($("fotBA"))$("fotBA").onclick=function(){toast("Elige 2 fotos: primero la de antes y luego la de después");setTimeout(function(){$("fotG").click()},300)};
     $("fotG").onchange=function(){var fs=Array.prototype.slice.call(this.files,0,2);this.value="";if(fs.length<2){$("fotE").textContent="Elige 2 fotos juntas: la de antes y la de después.";return}
-      $("fotE").textContent="Uniendo tus fotos…";baImg(fs[0],fs[1]).then(function(u){E.push({img:u,cap:"Antes y después"});save(true)},function(){$("fotE").textContent="No se pudieron unir. Prueba con otras fotos."})};
+      $("fotE").textContent="Uniendo tus fotos…";baImg(fs[0],fs[1]).then(function(u){E.push({img:u,cap:"Antes y después",ba:true});save(true)},function(){$("fotE").textContent="No se pudieron unir. Prueba con otras fotos."})};
     if($("fotU"))$("fotU").onclick=function(){closeSheet();setTimeout(planSheet,250)};
     $("fotF").onchange=function(){var fs=Array.prototype.slice.call(this.files,0,MX-E.length);this.value="";if(!fs.length)return;$("fotE").textContent="Preparando fotos…";
       fs.reduce(function(p,f){return p.then(function(){return fitImg(f,1200).then(function(u){E.push({img:u,cap:""})},function(){})})},Promise.resolve()).then(function(){save(true)})};
     $("fotS").onclick=function(){save(false)}}
   function save(stay){if(busy)return;busy=true;if($("fotS"))$("fotS").disabled=true;$("fotE").textContent="Guardando…";
       var ops=del.map(function(id){return function(){return db.doc(col+"/"+id).delete()}});
-      E.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;return ref.set({img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i})})});
+      E.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;var o={img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i};if(f.ba===true)o.ba=true;return ref.set(o)})});
       ops.reduce(function(p,op){return p.then(op)},Promise.resolve()).then(function(){busy=false;del=[];dirty=false;if(stay){draw();toast("Fotos guardadas ✓ ya se ven en tu página")}else{closeSheet();toast("Cambios guardados ✓")}},function(e){busy=false;console.error(e);draw();$("fotE").textContent=errEs(e)})}
   sheet('<h2>📸 Fotos y videos de tus trabajos</h2><p class="mute small" style="margin-top:-4px">Salen juntos en tu página web, en la sección «Nuestro trabajo». La primera foto es la portada. Tu plan permite hasta '+MX+' fotos y '+lim("vid")+' videos.</p><div id="fotB" class="mute">Cargando…</div>',function(){
-    db.collection(col).orderBy("i").get().then(function(q){E=q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||""}});draw()},function(e){console.error(e);$("fotB").textContent="No se pudieron cargar las fotos. Intenta otra vez."})})}
+    db.collection(col).orderBy("i").get().then(function(q){E=q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||"",ba:x.ba===true}});draw()},function(e){console.error(e);$("fotB").textContent="No se pudieron cargar las fotos. Intenta otra vez."})})}
 var LISTS={
   rev:{key:"rev",wk:"reviews",title:"⭐ Reseñas de clientes",intro:"Escribe lo que de verdad te han dicho tus clientes. Salen en tu página web. Usa solo reseñas reales.",add:"Agregar reseña",max:12,need:"t",
     f:[{k:"n",l:"Nombre del cliente",ph:"Ej: Carlos M.",max:40},{k:"t",l:"Lo que dijo",ph:"Ej: Excelente servicio, el carro quedó como nuevo.",max:300,area:1},{k:"src",l:"¿Dónde lo dijo? (opcional)",ph:"Ej: Google, WhatsApp, Facebook",max:30}]},

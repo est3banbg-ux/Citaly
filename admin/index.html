@@ -210,7 +210,7 @@ function blank(){var t=C.types.otro;return {id:null,name:"",type:"",slug:"",slug
 function openEd(id){
   if(!id){E=blank();edRender();return}
   var b=BIZ[id],s=SUBS[id]||{};if(!b)return;$("load").hidden=false;
-  db.collection("pub/"+b.slug+"/fotos").orderBy("i").get().then(function(q){return q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||""}})},function(){return []}).then(function(fotos){$("load").hidden=true;
+  db.collection("pub/"+b.slug+"/fotos").orderBy("i").get().then(function(q){return q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||"",ba:x.ba===true}})},function(){return []}).then(function(fotos){$("load").hidden=true;
     E={id:id,name:b.name||"",type:b.type||"otro",slug:b.slug,slugOk:true,wa:b.wa||"",addr:b.addr||"",email:b.email||"",team:(b.team||[]).join("\n"),color:b.color||C.colors[0],logo:b.logo||"",
       services:(b.services||[]).map(function(x){return Object.assign({},x)}),hours:(b.hours||blank().hours).map(function(h){return Object.assign({},h)}),home:!!b.home,zones:(b.zones||[]).map(function(z){return Object.assign({},z)}),
       tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",web:JSON.parse(JSON.stringify(b.web||{})),fotos:fotos,delFotos:[],
@@ -439,7 +439,7 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     return bt.commit()}).then(function(){
     // fotos, una por una (cada una es un documento)
     var col="pub/"+E.slug+"/fotos",ops=E.delFotos.map(function(id){return function(){return db.doc(col+"/"+id).delete()}});
-    E.fotos.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;return ref.set({img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i})})});
+    E.fotos.forEach(function(f,i){ops.push(function(){var ref=f.id?db.doc(col+"/"+f.id):db.collection(col).doc();f.id=ref.id;var o={img:f.img,cap:String(f.cap||"").trim().slice(0,60),i:i};if(f.ba===true)o.ba=true;return ref.set(o)})});
     return ops.reduce(function(p,op){return p.then(op)},Promise.resolve())}).then(function(){
     toast(nw?"¡Negocio creado! 🎉":"Cambios guardados ✓");var s=E.slug,em=E.email,n=E.name;closeEd();
     if(nw)setTimeout(function(){if(confirm("Listo: citalyapp.com/"+s+"\n\n"+(em?"El dueño entra a citalyapp.com/app con "+em+".":"Es una demo sin dueño: cuando el negocio contrate, edítala, ponle su correo y cámbiale el plan.")+"\n\n¿Abrir la página web del negocio?"))window.open("../"+s,"_blank")},300)
