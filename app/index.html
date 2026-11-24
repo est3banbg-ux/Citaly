@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124e"></script>
+<script src="../cfg.js?v=20261124e"></script><script src="novedades.js?v=20261124b"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -35,6 +35,14 @@
 .pcard.pop{border-color:var(--acc);box-shadow:0 14px 30px -18px var(--acc)}.pcard.on{border-color:var(--ok)}
 .pcard .pp{font:800 30px "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;margin-top:6px}.pcard .pp small{font:600 14px Figtree,sans-serif;color:var(--mute)}
 .plist{list-style:none;padding:0;margin:10px 0;display:grid;gap:6px;font-size:14px}.plist li{padding-left:22px;position:relative}.plist li.soon{opacity:.75}.plist li.soon:before{content:"⏳"!important;color:inherit!important}.plist li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+#newsTop{position:relative}.nd{position:absolute;top:-4px;right:-4px;width:12px;height:12px;border-radius:50%;background:var(--acc2);box-shadow:0 0 0 2px var(--bg)}
+.npill{display:inline-block;font:800 10.5px Figtree,sans-serif;letter-spacing:.03em;text-transform:uppercase;background:var(--acc2);color:#fff;border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:middle;flex:none}
+.ntabs{margin:12px 0 2px}.ntabs .chip[aria-selected=true]{background:var(--acc);border-color:var(--acc);color:#fff}
+.ngh{font:800 12px Figtree,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:16px 0 2px}
+.nw{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}#nBody>div:last-of-type .nw,#nBody>.nw:last-of-type{border-bottom:0}
+.nw .ic{width:38px;height:38px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:19px;flex:none}
+.nw b{font-size:15px}.nw p{margin:3px 0 0;font-size:13.5px;color:var(--mute);line-height:1.4}
+.nst{display:inline-block;font:700 11px Figtree,sans-serif;border-radius:999px;padding:2px 8px;margin-left:4px;vertical-align:middle;background:var(--soft);color:var(--mute)}.nst.go{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
 .set .lk{font-size:11px;font-weight:800;background:var(--soft);color:var(--acc);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:middle}
 /* primeros pasos */
 .onb{background:linear-gradient(135deg,#1b1240,#3a23a8);color:#fff;border-radius:22px;padding:16px;margin-bottom:12px;position:relative;box-shadow:0 18px 40px -22px #3a23a8}
@@ -80,7 +88,7 @@
 .top{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
 .top .av{width:46px;height:46px;border-radius:14px;background:var(--acc);color:#fff;display:grid;place-items:center;font:800 20px "Bricolage Grotesque",sans-serif;overflow:hidden;flex:none}
 .top .av img{width:100%;height:100%;object-fit:cover}
-.top h1{font-size:21px}
+.top h1{font-size:21px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-bottom:2px}.top .ib{flex:none}
 .banner{display:flex;align-items:center;gap:10px;border-radius:14px;padding:11px 13px;margin-bottom:12px;font-size:14px;background:var(--soft);color:var(--ink);border:1px solid var(--line);cursor:pointer}
 .banner b{color:var(--acc)}
 .banner.hot{background:color-mix(in srgb,var(--acc2) 18%,var(--card));border-color:color-mix(in srgb,var(--acc2) 40%,var(--line))}
@@ -443,7 +451,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
     <div class="top">
       <div class="av" id="av"></div>
       <div style="flex:1;min-width:0"><div class="mute small" id="hi">Hola</div><h1 id="bn"></h1></div>
-      <button class="ib" id="srTop" aria-label="Buscar">🔍</button><button class="ib" id="aiTop" data-s="ia" aria-label="Asistente IA">✨</button><button class="ib" id="shareTop" aria-label="Compartir link de reservas">↗</button>
+      <button class="ib" id="srTop" aria-label="Buscar">🔍</button><button class="ib" id="aiTop" data-s="ia" aria-label="Asistente IA">✨</button><button class="ib" id="newsTop" data-s="nov" aria-label="Novedades">🚀<span class="nd" id="newsDot" hidden></span></button><button class="ib" id="shareTop" aria-label="Compartir link de reservas">↗</button>
     </div>
     <div id="trial"></div>
 
@@ -518,6 +526,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
         <button class="set" data-s="res"><span class="ic">📅</span><span class="m"><b>Reglas de reserva</b><span>Anticipación y días disponibles</span></span>›</button>
       </div>
       <div class="card" style="padding:4px 14px">
+        <button class="set" data-s="nov"><span class="ic">🚀</span><span class="m"><b>Novedades</b><span>Lo nuevo y lo que viene en Citaly</span></span><span class="npill" id="newsPill" hidden>Nuevo</span>›</button>
         <button class="set" data-s="plan"><span class="ic">⭐</span><span class="m"><b>Mi plan</b><span id="planN"></span></span>›</button>
         <button class="set" data-s="help"><span class="ic">💬</span><span class="m"><b>Ayuda y soporte</b><span>Pregunta lo que sea, te respondemos al instante</span></span>›</button>
         <button class="set" id="out"><span class="ic">🚪</span><span class="m"><b>Cerrar sesión</b><span id="em"></span></span></button>
@@ -741,7 +750,7 @@ var PAGO_OK=/[?&]pago=ok/.test(location.search);
 function pagoOk(){if(!PAGO_OK)return;PAGO_OK=false;try{window.fbq&&fbq("track","Purchase",{value:4900,currency:"CRC"})}catch(e){}try{history.replaceState(null,"",location.pathname)}catch(e){}
   setTimeout(function(){sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Gracias por tu pago!</h2><p class="mute">Recibimos tu suscripción. En unos minutos activamos tu plan y te avisamos por WhatsApp.</p></div><a class="btn wa" target="_blank" rel="noopener" href="'+waUrl(C.wa,"¡Hola! Acabo de pagar Citaly con tarjeta 💳\nNegocio: "+(B?B.name:"")+"\nCorreo: "+(U&&U.email||""))+'">Avisar a Citaly por WhatsApp</a>')},900)}
 function start(fresh){var uid=BID,first=true;
-  UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;syncPub();if(first){first=false;setTimeout(pushRefresh,2500);show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}}render()},dbErr));
+  UNS.push(db.doc("biz/"+uid).onSnapshot(function(d){B=d.data()||B;syncPub();if(first){first=false;setTimeout(pushRefresh,2500);show(subValid()?"main":"pay");if(fresh){setTimeout(function(){openSet("welcome")},600)}else setTimeout(function(){if(typeof newsAuto==="function")newsAuto()},1800)}render()},dbErr));
   UNS.push(db.doc("subs/"+uid).onSnapshot(function(d){SUB=d.exists?d.data():null;syncPub();if(B)show(subValid()?"main":"pay");render()},dbErr));
   UNS.push(db.collection("biz/"+uid+"/jobs").onSnapshot(function(s){var seen0=window.__jobsSeen;if(seen0){s.docChanges().forEach(function(c){var x=c.doc.data();if(c.type==="added"&&x.web&&!seen0[c.doc.id]&&Math.abs(Date.now()-(+x.at||0))<10*60e3)appBeep("📅 Nueva reserva: "+(x.cli||"un cliente"))})}window.__jobsSeen=window.__jobsSeen||{};s.docs.forEach(function(d){window.__jobsSeen[d.id]=1});JOBS=s.docs.map(function(d){var x=d.data();x._id=d.id;return x});render();
     var cq=(location.search.match(/[?&]cita=([\w-]+)/)||[])[1];if(cq){var cj=JOBS.filter(function(x){return x._id===cq})[0];if(cj){try{history.replaceState(null,"",location.pathname)}catch(e){}setTimeout(function(){openJob(cj)},300)}}},dbErr));
@@ -765,7 +774,7 @@ function render(){if(!B)return;renderOnb();instNote();pagoOk();
   var dl=daysLeft();
   if(false)$("trial").innerHTML='<div class="banner'+(dl<=3?" hot":"")+'" id="trB">⏳<span style="flex:1">Te quedan <b>'+dl+(dl===1?" día":" días")+'</b> de prueba</span><b>Ver</b></div>';
   else if(SUB&&SUB.status==="active"&&dl<=5)$("trial").innerHTML='<div class="banner hot" id="trP">🔔<span style="flex:1">Tu mensualidad vence en <b>'+dl+(dl===1?" día":" días")+'</b></span><b>Pagar</b></div>';
-  renderPay();
+  renderPay();if(typeof newsDot==="function")newsDot();
   if($("trP"))$("trP").onclick=function(){planSheet()};
   var p=JOBS.filter(function(j){return j.st==="Por confirmar"}).length;$("pb").hidden=!p;$("pb").textContent=p;
   updBadges();if(VIEW==="agenda")renderAg();else if(VIEW==="clientes")renderCli();else if(VIEW==="numeros")renderNum();else renderSet()}
@@ -1215,6 +1224,7 @@ function saveBiz(p){var ok=p.hours?"hor":p.services?"svc":(p.logo!=null||p.color
 Array.prototype.forEach.call(document.querySelectorAll("[data-s]"),function(b){b.onclick=function(){openSet(b.dataset.s)}});
 $("out").onclick=$("payOut").onclick=function(){if(confirm("¿Cerrar sesión?"))auth.signOut()};
 function openSet(s){
+  if(s==="nov"){if(typeof newsSheet==="function")newsSheet();return}
   if(s==="plan"){planSheet();return}
   if(FEAT[s]&&!can(s)){upsell(s);return}
   setExtra(s);
@@ -1736,7 +1746,7 @@ if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(
 
 /* ===== Buscador y atajos ===== */
 (function(){
-  var AL={svc:"precios servicios catalogo lista cobrar",hor:"horario horas abrir cerrar dias atencion",gcal:"calendario google agenda sincronizar",ntf:"notificaciones avisos alertas sonido celular push",fot:"fotos videos galeria trabajos antes despues imagenes tiktok youtube instagram reels",ia:"inteligencia artificial asistente textos redactar",dep:"adelanto sinpe pago deposito reserva",mode:"oscuro claro modo tema apariencia noche color colores",web:"portada frase promocion pagina web",neg:"negocio nombre whatsapp direccion telefono",look:"logo color marca",est:"estilo diseno pagina",rev:"resenas opiniones estrellas google",faq:"preguntas frecuentes dudas",dom:"domicilio zonas ubicacion",ref:"referidos recomendar premio",plan:"plan precio suscripcion pagar",help:"ayuda soporte contacto",res:"reglas anticipacion dias reservar",stp:"pasos como funciona",why:"por que elegirte garantia"};
+  var AL={nov:"novedades actualizaciones nuevo nuevas proximamente futuro cambios mejoras version",svc:"precios servicios catalogo lista cobrar",hor:"horario horas abrir cerrar dias atencion",gcal:"calendario google agenda sincronizar",ntf:"notificaciones avisos alertas sonido celular push",fot:"fotos videos galeria trabajos antes despues imagenes tiktok youtube instagram reels",ia:"inteligencia artificial asistente textos redactar",dep:"adelanto sinpe pago deposito reserva",mode:"oscuro claro modo tema apariencia noche color colores",web:"portada frase promocion pagina web",neg:"negocio nombre whatsapp direccion telefono",look:"logo color marca",est:"estilo diseno pagina",rev:"resenas opiniones estrellas google",faq:"preguntas frecuentes dudas",dom:"domicilio zonas ubicacion",ref:"referidos recomendar premio",plan:"plan precio suscripcion pagar",help:"ayuda soporte contacto",res:"reglas anticipacion dias reservar",stp:"pasos como funciona",why:"por que elegirte garantia"};
   var el=$("srch"),inp=$("srI"),list=$("srL"),items=[],cur=0,shown=[];
   function norm(t){return String(t||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"")}
   function build(){items=[];
