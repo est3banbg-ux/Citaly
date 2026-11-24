@@ -421,16 +421,16 @@ var CITALY = {
   }
 };
 
-/* ===== Selector de íconos por grupos (compartido: admin y app) ===== */
+/* ===== Selector de iconos por grupos (compartido: admin y app) ===== */
 (function (C) {
   var CAR = ["lav", "vid", "tal"];
   C.iconGroups = [
     { id: "lav", n: "Lavado y detailing", ic: ["lavados", "tapiceria", "suv4x4", "brillo_final", "ceramico", "ppf", "polarizado", "accesorios", "pulidora", "pulidora_azul", "gotaseca"] },
     { id: "vid", n: "Vidrios y focos", ic: ["foco_polimero_real", "foco_pulidora", "parabrisas_real", "parabrisas_pulido", "parabrisas_brillo", "parabrisas_pulidora", "rayones_real", "gotaseca", "vidrios", "polarizado", "pulidora", "pulidora_azul", "brillo_final"] },
     { id: "tal", n: "Taller", ic: ["diagnostico", "aceite", "frenos", "accesorios"] },
-    { id: "bar", n: "Barbería", ic: ["tijeras", "navaja", "poste", "peine"] },
-    { id: "sal", n: "Salón", ic: ["secador", "tinte", "peine", "crema", "tijeras"] },
-    { id: "uni", n: "Uñas", ic: ["esmalte", "pie", "gema", "lampara"] },
+    { id: "bar", n: "Barber\u00eda", ic: ["tijeras", "navaja", "poste", "peine"] },
+    { id: "sal", n: "Sal\u00f3n", ic: ["secador", "tinte", "peine", "crema", "tijeras"] },
+    { id: "uni", n: "U\u00f1as", ic: ["esmalte", "pie", "gema", "lampara"] },
     { id: "spa", n: "Spa", ic: ["piedras", "facial", "loto", "crema"] },
     { id: "sld", n: "Salud", ic: ["estetoscopio", "clipboard"] },
     { id: "gen", n: "General", ic: ["calendario", "clipboard", "gema"] }
@@ -442,8 +442,8 @@ var CITALY = {
   };
   C.iconKw = {
     tijeras: "tijera corte cabello barberia salon", navaja: "navaja afeitar barba", poste: "barbero poste barberia", peine: "peine cepillo cabello peinado",
-    secador: "secador pelo secado cabello", tinte: "tinte color cabello", crema: "crema tratamiento facial hidratante", esmalte: "esmalte uñas manicure",
-    pie: "pie pedicure", gema: "gema diamante acrilicas joya", lampara: "lampara uv semipermanente uñas", piedras: "piedras masaje spa relajante",
+    secador: "secador pelo secado cabello", tinte: "tinte color cabello", crema: "crema tratamiento facial hidratante", esmalte: "esmalte u\u00f1as manicure",
+    pie: "pie pedicure", gema: "gema diamante acrilicas joya", lampara: "lampara uv semipermanente u\u00f1as", piedras: "piedras masaje spa relajante",
     facial: "facial limpieza mascarilla cara", loto: "loto flor spa relajacion", estetoscopio: "estetoscopio consulta medico doctor salud",
     clipboard: "lista control chequeo revision formulario", calendario: "cita calendario agenda reserva", aceite: "aceite cambio motor lata",
     frenos: "frenos disco revision", diagnostico: "diagnostico scanner motor engranaje revision", gotaseca: "gota seca agua manchas vidrio",
@@ -462,7 +462,7 @@ var CITALY = {
     var all = [];
     ids.concat(C.iconGroups.map(function (g) { return g.id; })).forEach(function (i) { (byId[i] ? byId[i].ic : []).forEach(function (n) { if (all.indexOf(n) < 0) all.push(n); }); });
     var first = ids[0];
-    var tabs = (rec.length ? ['<button type="button" class="ipt" data-ipt="rec">🕘 Recientes</button>'] : [])
+    var tabs = (rec.length ? ['<button type="button" class="ipt" data-ipt="rec">\ud83d\udd58 Recientes</button>'] : [])
       .concat(ids.map(function (i) { return '<button type="button" class="ipt" data-ipt="' + i + '">' + byId[i].n + '</button>'; }))
       .concat(['<button type="button" class="ipt" data-ipt="*">Ver todos</button>']).join("");
     var btns = all.map(function (n) {
@@ -471,7 +471,7 @@ var CITALY = {
       return '<button type="button" class="ipb" data-ic="img:' + n + '" data-g="' + gl + (cls ? " rec" : "") + '" data-kw="' + (n + " " + (C.iconKw[n] || "")).replace(/"/g, "") + '" aria-pressed="' + (cur === "img:" + n) + '">' + C.ico("img:" + n) + '</button>';
     }).join("");
     var curExtra = /^i:/.test(String(cur || "")) ? '<button type="button" class="ipb ipcur" data-ic="' + cur + '" aria-pressed="true" title="Actual">' + C.ico(cur) + '</button>' : "";
-    return '<div class="ipk" data-first="' + (rec.length ? "rec" : first) + '"><input type="search" class="ipq" placeholder="🔍 Buscar ícono: foco, tijera, lavado…" autocomplete="off" aria-label="Buscar ícono"><div class="ipts">' + tabs + '</div><div class="ipg">' + curExtra + btns + '</div><p class="ipn mute small" hidden>No encontré ese ícono. Prueba otra palabra o toca «Ver todos».</p></div>';
+    return '<div class="ipk" data-first="' + (rec.length ? "rec" : first) + '"><input type="search" class="ipq" placeholder="\ud83d\udd0d Buscar \u00edcono: foco, tijera, lavado\u2026" autocomplete="off" aria-label="Buscar \u00edcono"><div class="ipts">' + tabs + '</div><div class="ipg">' + curExtra + btns + '</div><p class="ipn mute small" hidden>No encontr\u00e9 ese \u00edcono. Prueba otra palabra o toca \u00abVer todos\u00bb.</p></div>';
   };
   function norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
   function apply(k) {
