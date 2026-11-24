@@ -426,7 +426,7 @@ var CITALY = {
       if ((m = p.match(/^\/(embed|live)\/([\w-]{11})(\/|$)/))) return yt(m[2]);
       m = x.searchParams.get("v"); return m && /^[\w-]{11}$/.test(m) ? yt(m) : null;
     }
-    if (h === "tiktok.com") { m = p.match(/\/video\/(\d{8,25})(\/|$)/); return m ? { k: "tt", id: m[1], src: "https://www.tiktok.com/embed/v2/" + m[1], r: "9/16", v: true } : null; }
+    if (h === "tiktok.com") { m = p.match(/\/video\/(\d{8,25})(\/|$)/) || p.match(/^\/v\/(\d{8,25})\.html$/); return m ? { k: "tt", id: m[1], src: "https://www.tiktok.com/embed/v2/" + m[1], r: "9/16", v: true } : null; }
     if (h === "instagram.com") { m = p.match(/\/(reel|p|tv)\/([\w-]{5,20})(\/|$)/); return m ? { k: "ig", id: m[2], src: "https://www.instagram.com/" + m[1] + "/" + m[2] + "/embed/", r: "9/17", v: true } : null; }
     if (h === "facebook.com" || h === "fb.com") {
       var id = (m = p.match(/\/reel\/(\d{6,25})(\/|$)/)) ? m[1] : (m = p.match(/\/videos\/(\d{6,25})(\/|$)/)) ? m[1] : /^\/watch\/?$/.test(p) && /^\d{6,25}$/.test(x.searchParams.get("v") || "") ? x.searchParams.get("v") : null;

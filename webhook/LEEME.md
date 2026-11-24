@@ -38,8 +38,8 @@ Cada uso queda contado en la colección `ia` de Firestore (negocio + día). Si s
 ## Llenar un negocio con los mensajes del cliente (ruta /importar del mismo Worker, solo admin)
 En el panel /admin, al editar o crear un negocio, el cuadro "✨ Llenar con los mensajes del cliente" lee lo que el dueño te escribió por WhatsApp y llena servicios, precios, horario, dirección y textos de la web. No guarda nada hasta que toques Guardar.
 
-1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar. No necesita variables nuevas (usa `ANTHROPIC_API_KEY`, `FB_PROJECT` y la cuenta de servicio que ya tienes).
-2. Opcional: `ADMIN_EMAIL` (por defecto est3banbg@gmail.com) e `IMPORT_MODEL` (por defecto `claude-sonnet-5-5`).
+1. Vuelve a pegar el `worker.js` nuevo en Cloudflare → Implementar. Usa `ANTHROPIC_API_KEY`, `FB_PROJECT` y la cuenta de servicio que ya tienes.
+2. Agrega la variable `ADMIN_EMAIL` (tipo Texto) con el correo con el que entras al admin. Sin ella, /importar responde error. Opcional: `IMPORT_MODEL` (por defecto `claude-sonnet-5-5`).
 3. Solo responde si entras al admin con la cuenta del admin; cualquier otra recibe error.
 
 

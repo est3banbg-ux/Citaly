@@ -250,7 +250,7 @@ function render(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.
   var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,telephone:"+"+waNum(P.wa),url:location.origin+"/"+slug};if(P.addr)ld.address=P.addr;
   var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc);
   // fotos en grande
-  if($("vids"))$("vids").onclick=function(e){var b=e.target.closest(".vf");if(!b||b.querySelector("iframe"))return;var v=vids[+b.dataset.i];if(!v)return;b.innerHTML='<iframe src="'+esc(v.src)+'" title="'+esc(v.c||"Video")+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"></iframe>';b.style.backgroundImage="none"};
+  if($("vids"))$("vids").onclick=function(e){var b=e.target.closest(".vf");if(!b||b.querySelector("iframe"))return;var v=vids[+b.dataset.i];if(!v)return;var d=document.createElement("div");d.className=b.className;d.style.aspectRatio=v.r;d.innerHTML='<iframe src="'+esc(v.src)+'" title="'+esc(v.c||"Video")+'" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox"></iframe>';b.replaceWith(d)};
   if($("vMore"))$("vMore").onclick=function(){$("vids").classList.add("all");this.parentNode.remove()};
   if($("gal"))$("gal").onclick=function(e){var b=e.target.closest("button");if(!b)return;var f=FOTOS[+b.dataset.i];$("lbI").src=img(f.img);$("lbI").alt=f.cap||"";$("lbP").textContent=f.cap||"";$("lb").classList.add("on")};
   // barra inferior y animaciones
