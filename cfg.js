@@ -440,7 +440,7 @@ var CITALY = {
   vidShort: function (u) { return /^(https?:\/\/)?(vm\.tiktok\.com|vt\.tiktok\.com|fb\.watch|on\.fb\.me|l\.facebook\.com|(www\.)?instagram\.com\/share\/|(www\.)?facebook\.com\/share\/|(www\.)?tiktok\.com\/t\/)/i.test(String(u || "").trim()); },
   coverOf: function (type, cover, w) {
     if (cover === "none") return "";
-    if (typeof cover === "string" && cover.indexOf("data:image/") === 0) return cover;
+    if (typeof cover === "string" && cover.indexOf("data:image/") === 0) return CITALY.safeImg(cover);
     var all = [].concat.apply([], Object.keys(this.covers).map(function (k) { return this.covers[k]; }, this));
     if (cover && all.indexOf(cover) >= 0) return this.coverUrl(cover, w);
     return this.coverUrl((this.covers[type] || this.covers.otro)[0], w);
@@ -761,3 +761,9 @@ var CITALY = {
     return { ids: out, mine: Object.keys(mine) };
   };
 })(CITALY);
+
+/* Solo deja pasar imágenes seguras para src="..." (base64 de imagen, https sin comillas, o rutas del sitio) */
+CITALY.safeImg = function (u) {
+  u = String(u || "");
+  return /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u) || /^https:\/\/[^\s"'<>()\\]+$/.test(u) || /^(\.\.\/|\/)[\w\/.-]+$/.test(u) ? u : "";
+};

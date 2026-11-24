@@ -49,7 +49,7 @@ function openMsgs(id){var b=BIZ[id],s=SUBS[id];if(!b)return;if(!b.wa){toast("Est
 /* ---------- pestañas ---------- */
 var TABS={neg:"Negocios",cob:"Cobros",met:"Métricas",pro:"Prospectos",rep:"Reporte",resp:"Respuestas"};
 function cobrosList(){var out={late:[],soon:[],trialEnd:[],trialLate:[],ok:0};
-  rowsOf().forEach(function(x){var s=x.s;if(!s||s.demo||s.status==="suspended"||!monthly(s))return;var d=daysTo(untilMs(s)),o={id:x.id,b:x.b,s:s,d:d};
+  rowsOf().forEach(function(x){var s=x.s;if(!s||s.demo||s.status==="suspended"||!monthly(s))return;var d=untilMs(s)<Date.now()?-1:daysTo(untilMs(s)),o={id:x.id,b:x.b,s:s,d:d};
     if(s.plan==="trial"){if(d<0)out.trialLate.push(o);else if(d<=3)out.trialEnd.push(o);else out.ok++}
     else{if(d<0)out.late.push(o);else if(d<=7)out.soon.push(o);else out.ok++}});
   ["late","soon","trialEnd","trialLate"].forEach(function(k){out[k].sort(function(a,b){return a.d-b.d})});return out}

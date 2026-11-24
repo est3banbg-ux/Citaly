@@ -19,7 +19,7 @@ html[data-th=glass] .hero .shot{max-width:640px;width:100%}
 html[data-th=glass] .dim{color:#6f9396}
 html[data-th=glass] h1 .dim,html[data-th=glass] h2 .dim{display:block}
 html[data-th=glass] h1 .dim{font-size:.62em;margin-bottom:.12em}
-html[data-th=glass] .hl{position:relative;display:inline-block;padding:0 .14em;margin:.04em 0;white-space:nowrap;color:var(--ink)}
+html[data-th=glass] .hl{position:relative;display:inline-block;padding:0 .14em;margin:.04em 0;white-space:normal;color:var(--ink)}
 html[data-th=glass] .hl::before{content:"";position:absolute;inset:-.02em -.02em .04em;border:2px solid var(--hi);border-radius:6px;background:color-mix(in srgb,var(--hi) 10%,transparent);box-shadow:0 0 24px color-mix(in srgb,var(--hi) 20%,transparent) inset}
 html[data-th=glass] .hl>span{position:relative}
 html[data-th=glass] .kick{color:var(--hi)}
@@ -104,3 +104,7 @@ html[data-th=fresco] .gal button{border-radius:24px}
 html[data-th=fresco] section.s.alt{background:var(--soft);border:0}
 html[data-th=fresco] .final{border-radius:34px;background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 55%,#ff8a5b))}
 html[data-th=fresco] .sec-steps .stp i{border-radius:14px}
+
+/* textos largos en el hero no deben ensanchar la columna en celular */
+html[data-th] .hero .c>div{min-width:0;max-width:100%}
+html[data-th] .hl{overflow-wrap:anywhere}

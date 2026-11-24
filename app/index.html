@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124c"></script>
+<script src="../cfg.js?v=20261124d"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -586,7 +586,7 @@ function enter(u){U=u;show("load");
     if(!u.email||(pw&&!u.emailVerified)){signup();return}
     return db.doc("own/"+u.email.toLowerCase()).get().then(function(o){if(!o.exists||!o.data().biz){signup();return}BID=o.data().biz;ROL=o.data().rol||"equipo";start()})
   }).catch(function(e){console.error(e);show("auth");$("aErr").textContent=errEs(e)})}
-function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];BID=null;B=null;SUB=null;JOBS=[];EXP=[]}
+function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];LASTT=null;BID=null;B=null;SUB=null;JOBS=[];EXP=[]}
 
 /* ---------- ACCESO ---------- */
 var aNew=false;
@@ -656,7 +656,7 @@ $("teamRow").onclick=teamSheet;
 $("insRow").onclick=function(){if(!can("insumos")){upsell("insumos");return}insSheet()};
 
 /* ---------- REGISTRO EN UN PASO: crea la cuenta y el negocio con prueba gratis ---------- */
-var RESERVED=["app","admin","r","w","demo","www","api","citaly","ayuda","precios","login","privacidad","terminos","img"];
+var RESERVED=["app","admin","r","w","demo","www","api","citaly","ayuda","precios","login","privacidad","terminos","img","docs","eliminar-datos","webhook","404"];
 var SU={type:""};
 function signup(){show("signup");var inn=!!U;
   $("suG").hidden=inn;$("suMail").hidden=inn;$("suPw").hidden=inn;$("suHave").hidden=inn;$("suTeam").hidden=!inn;
@@ -779,7 +779,7 @@ function dayJobs(s){return JOBS.filter(function(j){return j.date===s}).sort(func
 function active(j){return j.st!=="Cancelada"&&j.st!=="No vino"}
 function renderAg(){renderHero();renderMonthGrid();renderDaySum();renderCierre();var t=ymd(new Date()),m=monday(SEL),html="";
   var pend=JOBS.filter(function(j){return j.st==="Por confirmar"}).sort(function(a,b){return (a.date+a.time).localeCompare(b.date+b.time)});
-  $("pend").innerHTML=pend.length?'<div class="pbtns">'+pend.slice(0,4).map(function(j){return '<div class="banner hot" data-p="'+j._id+'">🔔<span style="flex:1"><b>'+esc(j.cli||"Reserva nueva")+'</b> por confirmar<small>'+esc(niceDay(j.date))+' · '+fh(j.time)+'</small></span>Ver</div>'}).join("")+(pend.length>4?'<p class="mute small" style="margin:0;text-align:center">y '+(pend.length-4)+' más</p>':"")+'</div>':"";
+  $("pend").innerHTML=pend.length?'<div class="pbtns">'+pend.slice(0,4).map(function(j){return '<div class="banner hot" data-p="'+esc(j._id)+'">🔔<span style="flex:1"><b>'+esc(j.cli||"Reserva nueva")+'</b> por confirmar<small>'+esc(niceDay(j.date))+' · '+fh(j.time)+'</small></span>Ver</div>'}).join("")+(pend.length>4?'<p class="mute small" style="margin:0;text-align:center">y '+(pend.length-4)+' más</p>':"")+'</div>':"";
   Array.prototype.forEach.call(document.querySelectorAll("#pend [data-p]"),function(b){b.onclick=function(){goJob(b.dataset.p)}});
   var pk=pend.map(function(j){return j._id}).sort().join(",");if(window.PSEEN!=null&&pk!==window.PSEEN&&pend.length){var nw=pend.filter(function(j){return (","+window.PSEEN+",").indexOf(","+j._id+",")<0})[0];if(nw)setTimeout(function(){goJob(nw._id)},300)}window.PSEEN=pk;
   var e=pd(m);e.setDate(e.getDate()+6);$("wT").textContent=pd(m).getDate()+" "+MN[pd(m).getMonth()].slice(0,3)+" – "+e.getDate()+" "+MN[e.getMonth()].slice(0,3);
@@ -790,13 +790,13 @@ function renderAg(){renderHero();renderMonthGrid();renderDaySum();renderCierre()
   if(!L.length){$("dayList").innerHTML='<div class="empty fade"><div>'+(hrs&&hrs.on?"☀️":"😴")+'</div>'+(hrs&&hrs.on?"No hay citas este día.<br>Toca <b>+ Nueva cita</b> o comparte tu link.":"Este día está cerrado según tu horario.")+'</div>';return}
   var inc=L.filter(active).reduce(function(a,j){return a+paidOf(j)},0),exp=L.filter(active).reduce(function(a,j){return a+(+j.total||0)},0);
   $("dayList").innerHTML=L.map(function(j){var end=hm(tm(j.time)+(+j.dur||60)),act=active(j),o=['Por confirmar','Confirmada','Lista','No vino','Cancelada'].filter(function(x){return x!=="Por confirmar"||j.st==="Por confirmar"});
-    return '<div class="jc fade st-'+esc(j.st)+'"><div class="job st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'
+    return '<div class="jc fade st-'+esc(j.st)+'"><div class="job st-'+esc(j.st)+'" data-id="'+esc(j._id)+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'
      +'<div class="ja">'+(j.tel?'<a class="btn sm alt" href="tel:'+esc(telN(j.tel))+'">📞 Llamar</a>'+(j.st!=="Lista"?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor(j.st==="Por confirmar"?"conf":"rec",j)))+'">💬 '+(j.st==="Por confirmar"?"Confirmar":"Recordar")+'</a>':""):"")
      +(j.tel&&B.home&&act&&j.st!=="Lista"?'<a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("go",j)))+'">🚗 En camino</a>':"")
      +(j.tel&&j.st==="Lista"?'<a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("ty",j)))+'">⭐ Agradecer</a>':"")
-     +(active(j)?'<button class="btn sm alt" data-py="'+j._id+'">'+(j.st==="Lista"?(dueOf(j)?'⏳ Debe '+crc(dueOf(j)):'✅ Pagado'):paidOf(j)?'💰 Adelanto '+crc(paidOf(j)):'💰 Cobrar')+'</button>':"")
-     +'<button class="btn sm alt" data-ed="'+j._id+'">Editar</button><a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(calUrl(j))+'">📅 Calendario</a>'
-     +'<select data-st="'+j._id+'" aria-label="Estado">'+o.map(function(x){return '<option'+(x===j.st?" selected":"")+'>'+x+'</option>'}).join("")+'</select><button class="btn sm alt" data-dl="'+j._id+'" style="color:var(--bad)">Borrar</button></div></div>'}).join("")
+     +(active(j)?'<button class="btn sm alt" data-py="'+esc(j._id)+'">'+(j.st==="Lista"?(dueOf(j)?'⏳ Debe '+crc(dueOf(j)):'✅ Pagado'):paidOf(j)?'💰 Adelanto '+crc(paidOf(j)):'💰 Cobrar')+'</button>':"")
+     +'<button class="btn sm alt" data-ed="'+esc(j._id)+'">Editar</button><a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(calUrl(j))+'">📅 Calendario</a>'
+     +'<select data-st="'+esc(j._id)+'" aria-label="Estado">'+o.map(function(x){return '<option'+(x===j.st?" selected":"")+'>'+x+'</option>'}).join("")+'</select><button class="btn sm alt" data-dl="'+esc(j._id)+'" style="color:var(--bad)">Borrar</button></div></div>'}).join("")
    +'<p class="mute small" style="text-align:center">'+L.filter(active).length+(L.filter(active).length===1?' cita':' citas')+' · '+crc(exp)+' en total'+(inc?' · '+crc(inc)+' cobrado':'')+'</p>';
   var jb=function(id){return JOBS.find(function(x){return x._id===id})};
   Array.prototype.forEach.call(document.querySelectorAll("#dayList .job"),function(el){el.onclick=function(){openJob(jb(el.dataset.id))}});
@@ -805,11 +805,11 @@ function renderAg(){renderHero();renderMonthGrid();renderDaySum();renderCierre()
   Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-st]"),function(e){e.onchange=function(){var j0=jb(e.dataset.st),d=Object.assign({},j0);delete d._id;d.id=d.id||j0._id;d.st=e.value;writeJob(d,j0).then(function(){if(e.value==="Lista"&&!Array.isArray(j0.pays)){var jj=Object.assign({},j0,{st:"Lista"});setTimeout(function(){paySheet(jj,true)},200)}toast(e.value==="Lista"?"¡Atendida! 💸":"Estado: "+e.value);if(e.value==="Lista"&&j0.st!=="Lista")setTimeout(function(){askRev(d)},900)},function(er){toast(errEs(er));renderAg()})}});
   Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-dl]"),function(b){b.onclick=function(){var j0=jb(b.dataset.dl);if(!confirm("¿Eliminar la cita de "+(j0.cli||"este cliente")+"?"))return;var cp=Object.assign({},j0);delJob(j0).then(function(){undoToast("Cita eliminada",function(){restoreJob(cp)})},function(er){toast(errEs(er))})}});}
 function calUrl(j){var f=function(m){return String(j.date).replace(/-/g,"")+"T"+pad(Math.floor(m/60))+pad(m%60)+"00"},a=tm(j.time);return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent((B.name||"Cita")+": "+(j.cli||""))+"&dates="+f(a)+"/"+f(a+(+j.dur||60))+"&details="+encodeURIComponent((j.items||[]).join(" + ")+" · "+crc(j.total))+"&location="+encodeURIComponent(j.ubic&&parseLoc(j.ubic)?j.ubic:(j.addr||B.addr||""))}
-function goJob(id){var j=JOBS.find(function(x){return x._id===id});if(!j)return;go("agenda");SEL=j.date;MG=false;renderAg();setTimeout(function(){var el=document.querySelector('#dayList .job[data-id="'+id+'"]');if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("pcf")}},80)}
+function goJob(id){var j=JOBS.find(function(x){return x._id===id});if(!j)return;go("agenda");SEL=j.date;MG=false;renderAg();setTimeout(function(){var el=document.querySelector('#dayList .job[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("pcf")}},80)}
 var MG=false;
 function agSearch(){var q=$("agq").value.trim().toLowerCase(),d=q.replace(/\D/g,"");if(q.length<2){$("agr").innerHTML="";return}
   var L=JOBS.filter(function(j){var h=((j.cli||"")+" "+(j.items||[]).join(" ")+" "+(j.veh||"")+" "+(j.note||"")).toLowerCase();return CITALY.fz(q,h)>0||(d.length>=3&&String(j.tel||"").indexOf(d)>=0)}).sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)}).slice(0,12);
-  $("agr").innerHTML=L.length?L.map(function(j){return '<div class="job st-'+esc(j.st)+'" data-id="'+j._id+'"><div class="t">'+pd(j.date).getDate()+'<small>'+MN[pd(j.date).getMonth()].slice(0,3)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+fh(j.time)+' · '+esc((j.items||[]).join(" + ")||"—")+'</span></div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join(""):'<p class="mute small" style="text-align:center">No encontré citas con eso.</p>';
+  $("agr").innerHTML=L.length?L.map(function(j){return '<div class="job st-'+esc(j.st)+'" data-id="'+esc(j._id)+'"><div class="t">'+pd(j.date).getDate()+'<small>'+MN[pd(j.date).getMonth()].slice(0,3)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+fh(j.time)+' · '+esc((j.items||[]).join(" + ")||"—")+'</span></div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'}).join(""):'<p class="mute small" style="text-align:center">No encontré citas con eso.</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#agr .job"),function(el){el.onclick=function(){$("agq").value="";$("agr").innerHTML="";goJob(el.dataset.id)}})}
 $("agq").oninput=agSearch;
 function renderMonthGrid(){var w=$("mgW");$("moB").setAttribute("aria-expanded",MG);$("moB").firstChild.textContent=MG?"📅 Ocultar el mes":"📅 Ver el mes completo";w.hidden=!MG;if(!MG)return;
@@ -849,9 +849,9 @@ function paySheet(j,justDone){var P=Array.isArray(j.pays)?j.pays.slice():(j.st==
       +'<p class="err" id="pyE"></p>',function(){
       if($("pyM"))$("pyM").onclick=function(e){var b=e.target.closest("[data-m]");if(!b)return;met=b.dataset.m;Array.prototype.forEach.call($("pyM").children,function(x){x.setAttribute("aria-pressed",x===b)})};
       $("shC").querySelectorAll("[data-rp]").forEach(function(b){b.onclick=function(){P.splice(+b.dataset.rp,1);savePays(j,P).then(draw)}});
-      if($("pyG"))$("pyG").onclick=function(){var a=Math.round(+$("pyA").value||0);if(a<=0){$("pyE").textContent="Escribe cuánto te pagó.";return}
+      if($("pyG"))$("pyG").onclick=function(){var bt=this;if(bt.disabled)return;var a=Math.round(+$("pyA").value||0);if(a<=0){$("pyE").textContent="Escribe cuánto te pagó.";return}bt.disabled=true;
         P=P.filter(function(p){return !p.leg});P.push({m:met,a:a,at:Date.now()});if(met!==B.lastPay){B.lastPay=met;db.doc("biz/"+BID).set({lastPay:met},{merge:true}).catch(function(){})}
-        savePays(j,P).then(function(){var d=Math.max(0,(+j.total||0)-P.reduce(function(x,p){return x+(+p.a||0)},0));toast(d?"Abono guardado ✓ falta "+crc(d):"¡Pagado completo! 💸");if(d)draw();else closeSheet()},function(e){$("pyE").textContent=errEs(e)})};
+        savePays(j,P).then(function(){var d=Math.max(0,(+j.total||0)-P.reduce(function(x,p){return x+(+p.a||0)},0));toast(d?"Abono guardado ✓ falta "+crc(d):"¡Pagado completo! 💸");if(d)draw();else closeSheet()},function(e){bt.disabled=false;$("pyE").textContent=errEs(e)})};
       if($("pyD"))$("pyD").onclick=function(){savePays(j,[]).then(function(){closeSheet();toast("Anotado: te debe "+crc(j.total))})};
       if($("pyOk"))$("pyOk").onclick=closeSheet})}
   draw()}
@@ -883,7 +883,7 @@ $("today").onclick=function(){SEL=ymd(new Date());renderAg()};
 $("fab").onclick=function(){openJob(null,VIEW==="agenda"?{date:SEL}:{})};
 
 /* ---------- HOJA ---------- */
-function sheet(h,onOpen){$("shC").innerHTML=h;$("sh").classList.add("on");document.body.style.overflow="hidden";if(onOpen)onOpen();history.pushState({sh:1},"")}
+function sheet(h,onOpen){$("shC").innerHTML=h;$("sh").classList.add("on");document.body.style.overflow="hidden";if(onOpen)onOpen();if(!(history.state&&history.state.sh))history.pushState({sh:1},"")}
 function closeSheet(fromPop){if(!$("sh").classList.contains("on"))return;$("sh").classList.remove("on");document.body.style.overflow="";if(!fromPop&&history.state&&history.state.sh)history.back()}
 $("shBd").onclick=function(){closeSheet()};
 window.addEventListener("popstate",function(){closeSheet(true)});
@@ -933,7 +933,7 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
    +'<label for="jT">WhatsApp</label><input id="jT" inputmode="tel" value="'+esc(j.tel)+'" maxlength="15" placeholder="8888 8888">'
    +(VH.length?'<label for="jV">Vehículo</label><select id="jV">'+(vi<0?'<option value="-1">Sin dato</option>':"")+VH.map(function(v,i){return '<option value="'+i+'"'+(i===vi?" selected":"")+'>'+esc(v.n)+(+v.x?" (+"+crc(v.x)+")":"")+'</option>'}).join("")+'</select>':"")
    +'<label>Servicios</label><div class="svcpick" id="jS">'+(svc||'<span class="mute small">Agrega servicios en Ajustes.</span>')+'</div>'
-   +'<div class="row"><div><label for="jD">Día</label><input id="jD" type="date" value="'+j.date+'"></div><div><label for="jH">Hora</label><select id="jH"></select></div></div>'
+   +'<div class="row"><div><label for="jD">Día</label><input id="jD" type="date" value="'+esc(j.date)+'"></div><div><label for="jH">Hora</label><select id="jH"></select></div></div>'
    +'<div class="row"><div><label for="jDu">Duración</label><select id="jDu">'+DURS.map(function(m){return '<option value="'+m+'">'+durTxt(m)+'</option>'}).join("")+'</select></div><div><label for="jP">Precio (₡)</label><input id="jP" type="number" inputmode="numeric" min="0" step="500" value="'+(sub||"")+'"></div></div>'
    +'<div class="row"><div><label for="jDs">Descuento (₡)</label><input id="jDs" type="number" inputmode="numeric" min="0" step="500" value="'+(+j.disc||"")+'" placeholder="0"></div><div><label>&nbsp;</label><div class="sum" id="jSum" style="margin:0"></div></div></div>'
    +'<div id="jW"></div>'
@@ -1045,6 +1045,7 @@ function fillHours(cur){var d=$("jD").value,h=B.hours&&B.hours[pd(d).getDay()],a
   if(cur&&(tm(cur)<a||tm(cur)>=z)){a=Math.min(a,tm(cur));z=Math.max(z,tm(cur)+30)}
   var busy=dayJobs(d).filter(function(x){return active(x)&&(!J||x._id!==J.j._id)});
   for(var m=a;m<z;m+=30){var t=hm(m),cl=busy.some(function(x){var s=tm(x.time),e=s+(+x.dur||60);return m<e&&m+dur>s});o+='<option value="'+t+'"'+(t===cur?" selected":"")+'>'+fh(t)+(cl?" · ocupado":"")+'</option>'}
+  if(cur&&o.indexOf('value="'+cur+'"')<0)o='<option value="'+esc(cur)+'" selected>'+fh(cur)+'</option>'+o;
   $("jH").innerHTML=o||'<option value="">Cerrado</option>';if(!cur){var f=Array.prototype.find.call($("jH").options,function(op){return op.text.indexOf("ocupado")<0&&(d!==ymd(new Date())||tm(op.value)>new Date().getHours()*60+new Date().getMinutes())});if(f)$("jH").value=f.value}
   if(h&&!h.on)$("jW").innerHTML='<div class="warnbox">Ese día está cerrado según tu horario, pero igual puedes agendar.</div>';else clashMsg()}
 function clashMsg(){var d=$("jD").value,t=$("jH").value,dur=+$("jDu").value||60;if(!t){$("jW").innerHTML="";return}
@@ -1145,7 +1146,7 @@ function renderNum(){renderRef();var y=MON.getFullYear(),m=MON.getMonth(),days=n
   var S={},sn=0;c.J.filter(active).forEach(function(j){if(!j.how)return;S[j.how]=(S[j.how]||0)+1;sn++});var sk=Object.keys(S).sort(function(a,b){return S[b]-S[a]});
   $("srcs").innerHTML=sk.length?sk.map(function(k){var pc=Math.round(S[k]/sn*100);return '<div class="src"><div class="between"><span>'+esc(k)+'</span><b>'+S[k]+' · '+pc+'%</b></div><div class="sb"><i style="width:'+pc+'%"></i></div></div>'}).join(""):'<p class="mute small" style="margin:0">Cuando anotes "¿Cómo nos conoció?" en las citas, aquí ves qué te trae más clientes.</p>';
   c.E.sort(function(a,b){return String(b.date).localeCompare(a.date)});
-  $("exps").innerHTML=c.E.length?c.E.map(function(e){return '<div class="li" data-id="'+e._id+'" style="cursor:pointer"><span>'+esc(e.desc)+'<br><span class="mute small">'+pd(e.date).getDate()+" "+MN[pd(e.date).getMonth()].slice(0,3)+(e.cat?" · "+esc(e.cat):"")+'</span></span><b>'+crc(e.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:6px 0 0">Anota lo que gastas (materiales, alquiler, luz…) para saber tu ganancia real.</p>';
+  $("exps").innerHTML=c.E.length?c.E.map(function(e){return '<div class="li" data-id="'+esc(e._id)+'" style="cursor:pointer"><span>'+esc(e.desc)+'<br><span class="mute small">'+pd(e.date).getDate()+" "+MN[pd(e.date).getMonth()].slice(0,3)+(e.cat?" · "+esc(e.cat):"")+'</span></span><b>'+crc(e.amt)+'</b></div>'}).join(""):'<p class="mute small" style="margin:6px 0 0">Anota lo que gastas (materiales, alquiler, luz…) para saber tu ganancia real.</p>';
   Array.prototype.forEach.call(document.querySelectorAll("#exps .li"),function(el){el.onclick=function(){openExp(EXP.find(function(x){return x._id===el.dataset.id}))}})}
 function stat(l,v,d){return '<div class="stat"><span>'+l+'</span><b>'+v+'</b>'+(d||"")+'</div>'}
 function renderGoal(c,y,m){var G=+B.goal||0,now=new Date(),cur=y===now.getFullYear()&&m===now.getMonth(),Cc=263.9,pct=G?Math.min(1,c.inc/G):0,dl=new Date(y,m+1,0).getDate()-now.getDate()+1;
@@ -1163,8 +1164,8 @@ function openExp(e){var nw=!e;e=e||{desc:"",amt:"",date:ymd(new Date()),cat:"Mat
    +'<div class="row"><div><label for="eA">Monto (₡)</label><input id="eA" type="number" inputmode="numeric" min="0" value="'+esc(e.amt)+'"></div><div><label for="eF">Fecha</label><input id="eF" type="date" value="'+e.date+'"></div></div>'
    +'<label for="eC">Categoría</label><select id="eC">'+["Materiales","Alquiler","Servicios (luz, agua, internet)","Transporte","Publicidad","Salarios","Otros"].map(function(c){return '<option'+(c===e.cat?" selected":"")+'>'+c+'</option>'}).join("")+'</select>'
    +'<p class="err" id="eErr"></p><div class="acts"><button class="btn full" id="eS">Guardar</button>'+(nw?"":'<button class="btn danger full" id="eX">Eliminar</button>')+'</div>',
-   function(){$("eS").onclick=function(){var d=$("eD").value.trim(),a=+$("eA").value;if(!d||!(a>0)){$("eErr").textContent="Escribe en qué y el monto.";return}
-      var id=e._id||String(Date.now());db.doc("biz/"+BID+"/exp/"+id).set({desc:d,amt:a,date:$("eF").value||ymd(new Date()),cat:$("eC").value,at:Date.now()}).then(function(){closeSheet();toast("Gasto guardado")},function(x){$("eErr").textContent=errEs(x)})};
+   function(){var eid=e._id||String(Date.now());$("eS").onclick=function(){var bt=this;if(bt.disabled)return;var d=$("eD").value.trim(),a=+$("eA").value;if(!d||!(a>0)){$("eErr").textContent="Escribe en qué y el monto.";return}
+      var id=eid;bt.disabled=true;db.doc("biz/"+BID+"/exp/"+id).set({desc:d,amt:a,date:$("eF").value||ymd(new Date()),cat:$("eC").value,at:Date.now()}).then(function(){closeSheet();toast("Gasto guardado")},function(x){bt.disabled=false;$("eErr").textContent=errEs(x)})};
     if($("eX"))$("eX").onclick=function(){if(confirm("¿Eliminar este gasto?"))db.doc("biz/"+BID+"/exp/"+e._id).delete().then(function(){closeSheet();toast("Gasto eliminado")})}})}
 
 /* ---------- AJUSTES ---------- */

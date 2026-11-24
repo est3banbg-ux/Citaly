@@ -11,11 +11,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
-<link rel="stylesheet" href="../themes.css?v=1">
+<link rel="stylesheet" href="../themes.css?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124c"></script>
+<script src="../cfg.js?v=20261124d"></script>
 <style>
 html{scroll-behavior:smooth;scroll-padding-top:70px}
 body{overflow-x:hidden}
@@ -348,7 +348,7 @@ html[data-pm=light] .pr-stat:nth-child(2) strong{color:#1a9e4d}
 /* pie */
 .pr .pr-ft{padding:44px 0 36px;border-top:1px solid var(--hair);color:var(--mute);font-size:14.5px;text-align:left;margin:0}
 .pr-ft a{text-decoration:none}
-.pr-foot{display:grid;gap:28px}
+.pr-foot{display:grid;gap:28px;grid-template-columns:minmax(0,1fr)}.pr-foot>*{min-width:0}
 @media(min-width:800px){.pr-foot{grid-template-columns:1.4fr 1fr 1fr}}
 .pr-foot p{margin-top:12px;max-width:38ch}
 .pr-foot .pr-logo{color:var(--ink)}
@@ -386,8 +386,8 @@ function tm(s){var p=String(s||"0:0").split(":");return +p[0]*60+ +p[1]}
 function fh(s){var m=tm(s),h=Math.floor(m/60),mi=m%60;return (h%12||12)+(mi?":"+(mi<10?"0":"")+mi:"")+" "+(h<12?"am":"pm")}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
 function waNum(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)return t;return t.length===8?"506"+t:t}
-function waUrl(t,m){return "https://api.whatsapp.com/send?phone="+waNum(t)+(m?"&text="+encodeURIComponent(m):"")}
-function img(u){u=String(u||"");return /^data:image\/(png|jpe?g|webp|gif);base64,/.test(u)||/^https:\/\//.test(u)?u:""}
+function waUrl(t,m){if(waNum(t).length<8)return OPEN&&typeof bookUrl==="function"?bookUrl():"#";return "https://api.whatsapp.com/send?phone="+waNum(t)+(m?"&text="+encodeURIComponent(m):"")}
+function img(u){return C.safeImg(u)}
 function url(u){u=String(u||"").trim();if(!u)return "";if(!/^https?:\/\//i.test(u))u="https://"+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:""}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
 var WA_SVG='<svg class="wasvg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.5s1.1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.2-.7.2-1.3.2-1.4-.1-.1-.3-.2-.6-.3zM12 2C6.5 2 2 6.5 2 12c0 1.8.5 3.5 1.3 4.9L2 22l5.3-1.4c1.4.8 3 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 15 3.7 13.5 3.7 12c0-4.6 3.7-8.3 8.3-8.3s8.3 3.7 8.3 8.3-3.7 8.2-8.3 8.2z"/></svg>';
@@ -408,10 +408,10 @@ function hoursSummary(H){var on=[];for(var d=0;d<7;d++)if(H[d]&&H[d].on)on.push(
   var order=[1,2,3,4,5,6,0],groups=[];order.forEach(function(d){var h=H[d];if(!h||!h.on)return;var key=h.a+"-"+h.b,g=groups[groups.length-1];
     if(g&&g.key===key&&order.indexOf(g.last)+1===order.indexOf(d)){g.last=d}else groups.push({key:key,first:d,last:d,a:h.a,b:h.b})});
   return groups.map(function(g){return DS[g.first]+(g.first!==g.last?" a "+DS[g.last]:"")+" "+fh(g.a)+" – "+fh(g.b)}).join(" · ")}
-function openNow(H){var n=new Date(),h=H[n.getDay()];if(!h||!h.on)return false;var m=n.getHours()*60+n.getMinutes();return m>=tm(h.a)&&m<tm(h.b)}
+function openNow(H){var n=crNow(),h=H[n.d];if(!h||!h.on)return false;return n.m>=tm(h.a)&&n.m<tm(h.b)}
 
 var TH=["glass","atrevido","elegante","fresco"];
-function hlt(t){t=String(t||"").trim();var w=t.split(/\s+/);if(w.length<2)return esc(t);var k=w.length>=4?2:1;return '<span class="dim">'+esc(w.slice(0,-k).join(" "))+'</span> <span class="hl"><b></b><span>'+esc(w.slice(-k).join(" "))+'</span><b></b></span>'}
+function hlt(t){t=String(t||"").trim();var w=t.split(/\s+/);if(w.length<2)return esc(t);var k=w.length>=4&&(w[w.length-2]+" "+w[w.length-1]).length<=16?2:1;return '<span class="dim">'+esc(w.slice(0,-k).join(" "))+'</span> <span class="hl"><b></b><span>'+esc(w.slice(-k).join(" "))+'</span><b></b></span>'}
 var STEPS0=[["Elige tu servicio","Mira los servicios y precios y escoge el que necesitas."],["Reserva tu hora","Escoge el día y la hora que mejor te queden, en 1 minuto."],["Te atendemos","Te confirmamos por WhatsApp y llegamos a tu cita."]];
 function render(){if((P.web||{}).layout!=="clasica")return renderPro();
   var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.name||"";
@@ -438,7 +438,7 @@ function render(){if((P.web||{}).layout!=="clasica")return renderPro();
     +(P.promo?'<div class="promo"><span>🎁</span><div><b>'+esc(P.promo)+'</b>'+(W.promoNote?'<small>'+esc(W.promoNote)+'</small>':"")+'</div></div>':"")
     +'<div class="ctas">'+bookBtn("light big")+'<a class="btn glass" target="_blank" rel="noopener" href="'+wa+'">'+WA_SVG+' WhatsApp</a></div>'
     +(feats.length?'<div class="feats">'+feats.map(function(f){return '<span>'+esc(f)+'</span>'}).join("")+'</div>':"")
-    +'</div><div>'+(hero1?'<div class="shot"><img alt="'+esc(hero1.cap||name)+'" src="'+img(hero1.img)+'">'+(hero1.cap?'<span class="cap">'+esc(hero1.cap)+'</span>':"")+'</div>':cov?'<div class="shot"><img alt="" src="'+cov+'" onerror="this.parentNode.outerHTML=\'<div class=bigl>\'+document.getElementById(\'lgT\').innerHTML+\'</div>\'"></div><template id="lgT">'+lg+'</template>':'<div class="bigl">'+lg+'</div>')+'</div></div></section>';
+    +'</div><div>'+(hero1?'<div class="shot"><img alt="'+esc(hero1.cap||name)+'" src="'+img(hero1.img)+'">'+(hero1.cap?'<span class="cap">'+esc(hero1.cap)+'</span>':"")+'</div>':cov?'<div class="shot"><img alt="" src="'+esc(cov)+'" onerror="this.parentNode.outerHTML=\'<div class=bigl>\'+document.getElementById(\'lgT\').innerHTML+\'</div>\'"></div><template id="lgT">'+lg+'</template>':'<div class="bigl">'+lg+'</div>')+'</div></div></section>';
   // cómo funciona (3 pasos) y por qué elegirnos
   var stp=(W.steps||[]).filter(function(x){return x&&x.q&&x.a}),why=(W.why||[]).filter(function(x){return x&&x.q&&x.a});
   if(!stp.length&&OPEN&&W.hideSteps!==true)stp=STEPS0.map(function(x){return {q:x[0],a:x[1]}});
@@ -571,7 +571,7 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
   // 4. datos rápidos
   var prices=svcs.map(function(s){return +s.p||0}).filter(function(p){return p>0}),minP=prices.length?Math.min.apply(null,prices):0,days=0,k,stats=[];
   for(k=0;k<7;k++)if(H[k]&&H[k].on)days++;
-  stats.push(showP&&minP?[crc(minP),"precio desde"]:[String(svcs.length||1),svcs.length===1?"servicio":"servicios"]);
+  stats.push(showP&&minP?[crc(minP),"precio desde"]:svcs.length?[String(svcs.length),svcs.length===1?"servicio":"servicios"]:["1 min","para agendar"]);
   if(P.home){var fz=zones.filter(function(z){return !z.ask}).map(function(z){return +z.fee||0}),mf=fz.length?Math.min.apply(null,fz):-1;stats.push(mf<0?["🏠","Vamos donde estés"]:mf===0?["₡0","de traslado a domicilio"]:[crc(mf),"traslado desde"])}
   else stats.push(zoneShort(P.addr)?["📍",zoneShort(P.addr)]:["💬","Te respondemos por WhatsApp"]);
   stats.push(days?[String(days),days===1?"día a la semana":"días a la semana"]:(OPEN?["1 min","para agendar"]:["💬","Escríbenos por WhatsApp"]));
