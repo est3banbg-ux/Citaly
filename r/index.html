@@ -74,6 +74,9 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .how3 span{font-size:13px;color:var(--mute)}
 .plist{padding:4px 14px}.plist .li{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);gap:12px}.plist .li:last-child{border-bottom:0}
 .mini{display:flex;align-items:center;gap:10px;padding:10px 0 2px}.mini .lg{width:36px;height:36px;border-radius:11px;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden}.mini .lg img{width:100%;height:100%;object-fit:cover}
+.zok{margin-top:8px;padding:11px 14px;border-radius:13px;border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}.zok b{display:block;color:var(--ok)}.zok span{font-size:13px;color:var(--mute)}
+#zsel{width:100%}.idea{display:block;text-align:center;margin:14px auto 4px;font:600 13px Figtree,sans-serif;color:var(--mute);text-decoration:none;border:1px dashed var(--line);border-radius:12px;padding:9px 12px;max-width:360px}.idea b{color:var(--ink)}
+.cls{display:flex;align-items:center;gap:8px;justify-content:center;margin:0 auto 12px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--acc2) 14%,var(--card));font:600 13px Figtree,sans-serif;max-width:360px}
 .zn{display:flex;justify-content:space-between;align-items:center;width:100%;border:2px solid var(--line);background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:7px;font:600 15px Figtree,sans-serif;color:var(--ink);cursor:pointer}
 .zn b{color:var(--acc)}.zn[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}
 .or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:16px 0 10px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
@@ -137,7 +140,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="step" id="s-when"><h2 style="margin-top:12px">Elige el día</h2><div class="days" id="days"></div><h2 id="hT">Elige la hora</h2><div class="hours" id="hrs"></div><div id="hEmpty"></div></div>
 
     <div class="step" id="s-loc"><h2 style="margin-top:12px">¿Dónde te atendemos?</h2><p class="mute small" style="margin-top:-6px">Llegamos a tu casa, trabajo o donde nos digas.</p>
-      <button class="btn alt" id="gps">📍 Enviar mi ubicación actual</button>
+      <button class="btn wa big" id="gps">📍 Usar mi ubicación actual</button>
       <p class="small" id="gpsM" style="margin:6px 0 0"></p><div id="gpsV"></div>
       <div id="zW"><div class="or"><span>elige tu zona</span></div><div id="zones"></div></div>
       <label for="ad">Dirección y señas</label><textarea id="ad" maxlength="200" placeholder="Ej: Residencial Los Robles, casa 14, portón negro"></textarea>
@@ -158,6 +161,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
       <p class="mute small">Al confirmar, apartamos tu hora y te confirmamos por WhatsApp.</p>
     </div>
     <p class="err" id="er"></p>
+    <a class="idea" id="idea" target="_blank" rel="noopener" hidden>💡 ¿Ideas para mejorar esta página? <b>Escríbenos</b></a>
     <div class="foot">Reservas con <a href="../" target="_blank">citaly</a><span class="mlk"></span></div>
   </div>
 
@@ -240,13 +244,15 @@ function init(open){setTimeout(function(){Array.prototype.forEach.call(document.
   $("toWeb").href="/"+slug;$("toWeb").textContent="🌐 Ver más de "+P.name;
   var hi="Hola "+P.name+", quiero agendar una cita";$("waTop").href=$("waC").href=waUrl(P.wa,hi);
   $("pk").innerHTML=(P.home?'<span>🚗 Vamos donde estés</span>':P.addr?'<span>📍 '+esc(P.addr)+'</span>':'')+'<span>⏱️ Reservas en 1 minuto</span><span>💬 Confirmación por WhatsApp</span>';
-  $("h3").innerHTML='<div><b>Elige servicio y hora</b><span>Solo ves las horas libres</span></div>'+(P.home?'<div><b>Mándanos tu ubicación</b><span>Con un toque, desde tu celular</span></div>':'<div><b>Déjanos tu nombre</b><span>Y tu WhatsApp para confirmarte</span></div>')+'<div><b>¡Listo!</b><span>'+(P.home?"Llegamos y tú sigues en lo tuyo":"Te esperamos a tu hora")+'</span></div>';
+  $("h3").innerHTML=(P.home?'<div><b>Elige servicio y mándanos tu ubicación</b><span>Con un toque, desde tu celular</span></div><div><b>Elige día y hora</b><span>Solo ves las horas libres</span></div>':'<div><b>Elige servicio, día y hora</b><span>Solo ves las horas libres</span></div><div><b>Déjanos tu nombre</b><span>Y tu WhatsApp para confirmarte</span></div>')+'<div><b>¡Listo!</b><span>'+(P.home?"Llegamos y tú sigues en lo tuyo":"Te esperamos a tu hora")+'</span></div>';
   if(P.showPrices!==false&&(P.services||[]).length)$("prices").innerHTML='<h2 class="sec">Precios</h2><div class="card plist">'+P.services.map(function(s){return '<div class="li"><span>'+esc(s.ic||"✨")+' '+esc(s.n)+'<br><span class="mute small">'+durTxt(+s.d||60)+'</span></span><b>'+(s.p?(s.vx&&vehOn()?"desde ":"")+crc(s.p):"Consultar")+'</b></div>'}).join("")+((P.zones||[]).length?'<div class="li"><span>🚗 Domicilio<br><span class="mute small">Según tu zona</span></span><b>'+(P.zones.some(function(z){return !z.fee})?"Desde gratis":"Desde "+crc(Math.min.apply(null,P.zones.map(function(z){return z.fee}))))+'</b></div>':P.home?'<div class="li"><span>🚗 Domicilio</span><b>Gratis</b></div>':'')+'</div>';
   if(!open){$("closed").hidden=false;$("go1").hidden=true;$("landMore").hidden=true;return}
-  STEPS=["svc","when"].concat(P.home?["loc"]:[]).concat(["you","sum"]);
+  if(P.wa){$("idea").href=waUrl(P.wa,"Hola "+P.name+", tengo una sugerencia para mejorar su página de reservas: ");$("idea").hidden=false}
+  try{var t0=ymd(new Date());if(!closedDay(t0)&&!freeStarts(t0).length){var c=document.createElement("div");c.className="cls fade";c.textContent="🕘 Ya cerramos por hoy · agenda para mañana";$("go1").parentNode.insertBefore(c,$("go1"))}}catch(e){}
+  STEPS=["svc"].concat(P.home?["loc"]:[]).concat(["when","you","sum"]);
   renderSvcs();
   if(vehOn()){$("vehBox").hidden=false;$("vehs").innerHTML=P.veh.map(function(v,i){return '<button class="chip" data-v="'+i+'" aria-pressed="false">'+esc(v.n)+'</button>'}).join("")}
-  if((P.zones||[]).length)$("zones").innerHTML=P.zones.map(function(z,i){return '<button class="zn" data-z="'+i+'" aria-pressed="false"><span>'+esc(z.n)+'</span><b>'+(z.fee?"+"+crc(z.fee):"Gratis")+'</b></button>'}).join("");else $("zW").hidden=true;
+  if((P.zones||[]).length)$("zones").innerHTML='<select id="zsel" aria-label="Zona"><option value="-1">Elige dónde está tu vehículo…</option>'+P.zones.map(function(z,i){return '<option value="'+i+'">'+esc(z.n)+" · "+(z.fee?"+"+crc(z.fee):"gratis")+'</option>'}).join("")+'</select><div class="zok" id="zok" hidden></div>';else $("zW").hidden=true;
   if(P.askHow!==false)$("how").innerHTML=HOW.map(function(h){return '<button class="chip" data-h="'+esc(h)+'" aria-pressed="false">'+esc(h)+'</button>'}).join("");else $("howW").hidden=true;
   if(/[?&]go=1/.test(location.search))start()}
 function start(){memFill();$("land").hidden=true;$("flow").hidden=false;$("bar").hidden=false;show(0)}
@@ -315,12 +321,12 @@ $("hrs").onclick=function(e){var b=e.target.closest("button");if(!b)return;S.t=b
 
 /* Ubicación */
 $("gps").onclick=function(){var m=$("gpsM");if(!navigator.geolocation){m.textContent="Tu celular no permite compartir la ubicación. Escribe tu dirección abajo.";return}
-  m.textContent="Buscando tu ubicación…";m.style.color="";this.disabled=true;var b=this;
+  m.textContent="";m.style.color="";this.disabled=true;var b=this;b.textContent="📍 Buscando tu ubicación…";
   navigator.geolocation.getCurrentPosition(function(p){b.disabled=false;S.ll=p.coords.latitude.toFixed(6)+","+p.coords.longitude.toFixed(6);S.acc=Math.round(p.coords.accuracy||0);
-    m.textContent="✓ Ubicación lista"+(S.acc?" · precisión ±"+S.acc+" m":"");m.style.color="var(--ok)";b.textContent="📍 Actualizar mi ubicación";
-    $("gpsV").innerHTML='<a class="mapc" href="https://www.google.com/maps/search/?api=1&query='+S.ll+'" target="_blank" rel="noopener">'+fakeMap(hs(S.ll))+tileLayer(S.ll)+'<span class="mpu"></span>'+PINSVG+'<span class="mcap"><span>📍 Tu ubicación</span><span>Ver ›</span></span></a>';upd()},
-   function(e){b.disabled=false;m.style.color="var(--bad)";m.textContent=e.code===1?"No diste permiso para ver tu ubicación. Puedes escribir tu dirección abajo.":"No pudimos obtener tu ubicación. Escribe tu dirección abajo."},{enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
-$("zones").onclick=function(e){var b=e.target.closest(".zn");if(!b)return;S.zone=+b.dataset.z;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)});upd()};
+    m.textContent="✓ Ubicación lista";m.style.color="var(--ok)";b.textContent="📍 Actualizar mi ubicación";
+    $("gpsV").innerHTML='<a class="mapc" href="https://www.google.com/maps/search/?api=1&query='+S.ll+'" target="_blank" rel="noopener">'+fakeMap(hs(S.ll))+tileLayer(S.ll)+'<span class="mpu"></span>'+PINSVG+'<span class="mcap"><span>📍 Tu ubicación'+(S.acc?' · precisión ±'+S.acc+' m':'')+'</span><span>Ver ›</span></span></a>';upd()},
+   function(e){b.disabled=false;b.textContent="📍 Usar mi ubicación actual";m.style.color="var(--bad)";m.textContent=e.code===1?"No diste permiso para ver tu ubicación. Puedes escribir tu dirección abajo.":"No pudimos obtener tu ubicación. Escribe tu dirección abajo."},{enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
+$("zones").onchange=function(e){if(e.target.id!=="zsel")return;S.zone=+e.target.value;var z=S.zone>=0?P.zones[S.zone]:null,b=$("zok");b.hidden=!z;if(z)b.innerHTML='<b>✓ '+esc(z.n)+': '+(z.fee?"+"+crc(z.fee)+" por traslado":"domicilio gratis")+'</b><span>'+(z.fee?"Se suma al total de tu cita.":"Llegamos sin costo extra.")+'</span>';upd()};
 $("how").onclick=function(e){var b=e.target.closest(".chip");if(!b)return;var on=b.getAttribute("aria-pressed")!=="true";S.how=on?b.dataset.h:"";Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",on&&x===b)})};
 
 /* Resumen y envío */
@@ -328,7 +334,7 @@ function renderSum(){var z=S.zone>=0?P.zones[S.zone]:null;
   $("sum").innerHTML=(vehOn()&&S.veh>=0?'<div class="li"><span>🚙 Vehículo</span><span>'+esc(P.veh[S.veh].n)+'</span></div>':"")+picked().map(function(s){return '<div class="li"><span>'+esc(s.ic||"")+" "+esc(s.n)+'</span><span>'+crc(sp(s))+'</span></div>'}).join("")
   +(P.home?'<div class="li"><span>🚗 Domicilio'+(z?" · "+esc(z.n):"")+'</span><span>'+(fee()?crc(fee()):"Gratis")+'</span></div>':"")
   +'<div class="li"><span>📅 '+niceDay(S.day)+'</span><b>'+fh(S.t)+'</b></div><div class="li"><span>⏱️ Duración</span><span>'+durTxt(durReal())+'</span></div>'
-  +(P.home?'<div class="li"><span>📍 '+(S.ll?"Ubicación enviada":"Dirección")+'</span><span style="text-align:right;max-width:60%">'+esc($("ad").value.trim()||"✓")+'</span></div>':"")
+  +(P.home?'<div class="li"><span>📍 '+(S.ll?"Ubicación enviada":"Dirección")+'</span><span style="text-align:right;max-width:60%">'+esc($("ad").value.trim()||"✓")+(z?'<br><small style="color:var(--ok)">'+esc(z.n)+" · "+(z.fee?"+"+crc(z.fee):"domicilio gratis")+'</small>':"")+'</span></div>':"")
   +'<div class="li"><span>👤 '+esc($("cli").value.trim())+'</span><span>'+esc(telN($("tel").value))+'</span></div><div class="li"><b>Total</b><b>'+crc(total())+'</b></div>'}
 function blocks(){var r=[],s=tm(S.t);for(var k=0;k<dur();k+=30)r.push(S.day+"_"+hm(s+k).replace(":",""));return r}
 function submit(){var b=$("nx");if(b.disabled)return;err("");
