@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124b"></script>
+<script src="../cfg.js?v=20261124c"></script>
 <style>
 .wrap{padding-bottom:130px}
 .head{text-align:center;padding:22px 0 8px}
@@ -443,7 +443,7 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
     veh:vehOn()||carsAll().some(function(c){return c.mod})?carsAll().map(carFull).join(" + ").slice(0,120):"",ubic:S.ll||"",addr:P.home?$("ad").value.trim().slice(0,200):"",zone:z?z.n:"",zask:!!(z&&z.ask),how:S.ref?"Referido: "+S.ref:(S.how||""),note:$("nt").value.trim().slice(0,300),st:"Por confirmar",web:true,src:"web",at:at};
   var tk=newTok();S.tk=tk;S.job=id;
   function mk(wt){var bt=db.batch(),jd=Object.assign({},job);if(wt)jd.tk=tk;bt.set(db.doc("biz/"+BID+"/jobs/"+id),jd);
-    C.laneAssign(blocks(),SLD,null).ids.forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
+    S.lastIds=C.laneAssign(blocks(),SLD,null).ids;S.lastIds.forEach(function(k){bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:S.day,t:k.split("_")[1],job:id,at:at})});
     bt.set(db.doc("biz/"+BID+"/holds/"+tel),{job:id,until:firebase.firestore.Timestamp.fromDate(end),at:at});
     if(wt)bt.set(db.doc("biz/"+BID+"/mine/"+tk),{job:id,cli:job.cli,tel:tel,date:S.day,time:S.t,dur:dur(),items:job.items,total:job.total,zone:job.zone,st:"activa",at:at});
     return bt}
@@ -451,6 +451,7 @@ function submit(){var b=$("nx");if(b.disabled)return;err("");
   mk(true).commit().then(done,function(){S.tk=null;mk(false).commit().then(done,fail)});
   function fail(){loadBusy().then(function(){b.disabled=false;b.textContent="Confirmar cita";
     var taken=blocks().some(function(k){return bz(k)});
+    if(!taken&&!S.retried&&(S.lastIds||[]).some(function(id){return SLD.some(function(d){return d.id===id})})){S.retried=1;submit();return}S.retried=0;
     if(taken){S.t=null;show(STEPS.indexOf("when"));err("Uy, alguien acaba de tomar esa hora. Elige otra, por favor.")}
     else{upd();err("Ya tienes una cita pendiente con este número. Para cambiarla o agendar otra, escríbenos por WhatsApp.")}})}}
 /* Aviso al dueño (app gratuita ntfy): solo manda día, hora y servicio, sin datos personales */

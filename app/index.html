@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124b"></script>
+<script src="../cfg.js?v=20261124c"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -982,17 +982,18 @@ function saveJob(forceSt){var c=$("jC").value.trim(),t=telN($("jT").value),d=$("
   writeJob(data,old).then(function(){closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓");if(st==="Lista"&&(!old||old.st!=="Lista"))setTimeout(function(){askRev(data)},900)},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
 function writeJob(data,old){old=old||{};var id=data.id,st=data.st,oldB=old._id&&active(old)?blocks(old.date,old.time,old.dur):[],newB=st==="Cancelada"||st==="No vino"?[]:blocks(data.date,data.time,data.dur);
   var ds=[];if(newB.length)ds.push(data.date);if(oldB.length&&ds.indexOf(old.date)<0)ds.push(old.date);
-  return slotDocs(ds).then(function(docs){
-  var LA=C.laneAssign(newB,docs,id),mine=LA.mine.length?LA.mine:oldB;newB=LA.ids;
+  return slotDocs(ds).then(function(d){return {docs:d}},function(){return null}).then(function(R){
+  /* Sin poder leer (sin internet): se guarda como antes, en el primer cupo */
+  var LA=R?C.laneAssign(newB,R.docs,id):{ids:newB,mine:oldB},mine=R?LA.mine:oldB;newB=LA.ids;
   var bt=db.batch();bt.set(db.doc("biz/"+BID+"/jobs/"+id),data,{merge:true});
   mine.forEach(function(b){if(newB.indexOf(b)<0)bt.delete(db.doc("biz/"+BID+"/slots/"+b))});
   newB.forEach(function(b){if(mine.indexOf(b)<0)bt.set(db.doc("biz/"+BID+"/slots/"+b),{date:data.date,t:b.split("_")[1],job:id,at:Date.now()})});
   if(old.tel&&st!=="Por confirmar"&&st!=="Confirmada")bt.delete(db.doc("biz/"+BID+"/holds/"+old.tel));
   return bt.commit()})}
 /* Slots (bloques ocupados) de ciertos días, con la cita a la que pertenecen */
-function slotDocs(days){return Promise.all(days.map(function(d){return db.collection("biz/"+BID+"/slots").where("date","==",d).get().then(function(sn){var r=[];sn.forEach(function(x){r.push({id:x.id,job:(x.data()||{}).job})});return r},function(){return []})})).then(function(a){return [].concat.apply([],a)})}
+function slotDocs(days){return Promise.all(days.map(function(d){return db.collection("biz/"+BID+"/slots").where("date","==",d).get().then(function(sn){var r=[];sn.forEach(function(x){r.push({id:x.id,job:(x.data()||{}).job})});return r})})).then(function(a){return [].concat.apply([],a)})}
 function restoreJob(cp){var d=Object.assign({},cp);delete d._id;writeJob(d,{}).then(function(){toast("Cita recuperada ✓")},function(e){toast(errEs(e))})}
-function delJob(j){return slotDocs(j.date?[j.date]:[]).then(function(docs){var bt=db.batch();bt.delete(db.doc("biz/"+BID+"/jobs/"+j._id));var mine=docs.filter(function(d){return String(d.job)===String(j._id)}).map(function(d){return d.id});if(!mine.length&&active(j))mine=blocks(j.date,j.time,j.dur);mine.forEach(function(b){bt.delete(db.doc("biz/"+BID+"/slots/"+b))});if(j.tel)bt.delete(db.doc("biz/"+BID+"/holds/"+j.tel));return bt.commit()})}
+function delJob(j){return slotDocs(j.date?[j.date]:[]).then(function(d){return d},function(){return null}).then(function(docs){var bt=db.batch();bt.delete(db.doc("biz/"+BID+"/jobs/"+j._id));var mine=docs?docs.filter(function(d){return String(d.job)===String(j._id)}).map(function(d){return d.id}):(active(j)?blocks(j.date,j.time,j.dur):[]);mine.forEach(function(b){bt.delete(db.doc("biz/"+BID+"/slots/"+b))});if(j.tel)bt.delete(db.doc("biz/"+BID+"/holds/"+j.tel));return bt.commit()})}
 function undoToast(msg,fn){var e=$("toast");e.innerHTML=esc(msg)+' <button class="ub">Deshacer</button>';e.classList.add("on","act");clearTimeout(toast.t);
   e.querySelector(".ub").onclick=function(){e.classList.remove("on","act");clearTimeout(toast.t);fn()};toast.t=setTimeout(function(){e.classList.remove("on","act")},6000)}
 

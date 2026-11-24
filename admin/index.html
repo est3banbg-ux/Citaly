@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124b"></script>
+<script src="../cfg.js?v=20261124c"></script>
 <style>
 .wrap{max-width:720px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
@@ -439,7 +439,7 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     taken=taken.filter(Boolean);if(taken.length)throw {msg:"Este correo ya entra a otro negocio: "+taken.join(", ")+". Usa otro o quítalo del otro negocio."};
     var bt=db.batch();
     if(nw){biz.created=now;bt.set(db.doc("biz/"+bid),biz)}else bt.set(db.doc("biz/"+bid),biz,{merge:true});
-    bt.set(db.doc("pub/"+E.slug),pubOf(Object.assign({},nw?{}:(BIZ[bid]||{}),biz),bid),{merge:true});
+    var po=pubOf(Object.assign({},nw?{}:(BIZ[bid]||{}),biz),bid);bt.set(db.doc("pub/"+E.slug),po,nw?{}:{mergeFields:Object.keys(po).map(function(k){return k==="cap"?"cap.vid":k})});
     var mon=E.plan==="trial"||E.plan==="mensual",sub=mon?{name:E.name,email:E.email,plan:E.plan,total:0,demo:false}:{name:E.name,email:E.email,plan:E.plan,total:E.total,demo:E.demo,until:FAR()};
     if(nw){sub.start=now;sub.status=E.plan==="trial"?"trial":"active";if(mon)sub.until=TS.fromMillis(Date.now()+(E.plan==="trial"?(C.trialDays||30)*864e5:31*864e5))}
     bt.set(db.doc("subs/"+bid),sub,{merge:true});
