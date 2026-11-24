@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<defs><clipPath id="h"><path id="hp" d="M118,92 L470,60 C492,58 500,78 488,96 L404,238 C392,256 376,264 352,266 L150,276 C118,278 100,260 98,232 L90,130 C88,108 100,94 118,92 Z"/></clipPath></defs>
+<g stroke="#111" stroke-linecap="round" stroke-linejoin="round">
+ <!-- carcasa -->
+ <path d="M118,92 L470,60 C492,58 500,78 488,96 L404,238 C392,256 376,264 352,266 L150,276 C118,278 100,260 98,232 L90,130 C88,108 100,94 118,92 Z" fill="#fff" stroke-width="13"/>
+ <g clip-path="url(#h)">
+  <!-- sombra inferior grabada -->
+  <path d="M80,250 C200,236 330,232 420,214 L420,300 L80,300 Z" fill="#111" stroke="none"/>
+  <path d="M120,262 C210,250 320,246 396,232" stroke="#fff" stroke-width="6" stroke-dasharray="1 13" fill="none"/>
+  <!-- rayado diagonal (vidrio) -->
+  <g stroke-width="3.5"><path d="M300,80 L250,150 M326,78 L276,148 M352,76 L302,146"/></g>
+  <!-- direccional -->
+  <path d="M400,70 L478,64 L430,140 L372,144 Z" fill="none" stroke-width="6"/>
+  <path d="M392,96 L456,92 M382,118 L440,114" stroke-width="4"/>
+ </g>
+ <!-- bisel -->
+ <path d="M130,112 L360,96 C372,96 376,104 372,114 L330,228 C326,238 318,242 306,242 L148,250 C132,250 122,240 120,226 L116,130 C116,120 122,113 130,112 Z" fill="none" stroke-width="7"/>
+ <!-- proyector -->
+ <circle cx="196" cy="176" r="58" fill="#fff" stroke-width="10"/>
+ <circle cx="196" cy="176" r="44" fill="none" stroke-width="5"/>
+ <circle cx="196" cy="176" r="31" fill="#111" stroke-width="5"/>
+ <path d="M176,160 A22,22 0 0 1 204,152" stroke="#fff" stroke-width="7" fill="none"/>
+ <circle cx="210" cy="188" r="5" fill="#fff" stroke="none"/>
+ <!-- luz alta -->
+ <circle cx="306" cy="164" r="34" fill="#fff" stroke-width="8"/>
+ <circle cx="306" cy="164" r="21" fill="none" stroke-width="5"/>
+ <circle cx="306" cy="164" r="9" fill="#111" stroke-width="3"/>
+ <!-- brillos -->
+ <path d="M60,40 L68,64 L92,72 L68,80 L60,104 L52,80 L28,72 L52,64 Z" fill="#111" stroke-width="3"/>
+ <path d="M470,150 L475,164 L489,169 L475,174 L470,188 L465,174 L451,169 L465,164 Z" fill="#111" stroke-width="2"/>
+
+ <!-- nube de vapor -->
+ <path d="M196,290 C176,292 168,272 182,262 C178,244 200,236 212,246 C220,232 244,236 246,252 C262,250 270,270 256,280 C258,296 236,302 226,292 C218,302 200,302 196,290 Z" fill="#fff" stroke-width="7"/>
+ <path d="M200,276 C204,266 214,264 220,268" fill="none" stroke-width="4"/>
+
+ <!-- taza evaporadora -->
+ <!-- pico -->
+ <path d="M178,392 C186,364 194,340 196,312 L214,314 C212,342 210,372 202,396 Z" fill="#fff" stroke-width="9"/>
+ <path d="M194,314 L216,316" stroke-width="12"/>
+ <!-- asa -->
+ <path d="M48,390 C14,392 8,440 26,458 C36,468 50,468 62,462" fill="none" stroke-width="13"/>
+ <!-- cuerpo -->
+ <path d="M58,384 L66,486 C98,504 158,504 190,486 L198,384 Z" fill="#fff" stroke-width="12"/>
+ <path d="M156,390 L162,496 C176,494 184,490 190,486 L198,386 Z" fill="#111" stroke="none"/>
+ <path d="M78,400 L84,478" stroke-width="5"/>
+ <path d="M62,424 C96,436 158,436 196,424 M64,456 C98,468 156,468 194,456" fill="none" stroke-width="5"/>
+ <!-- tapa -->
+ <ellipse cx="128" cy="384" rx="72" ry="17" fill="#fff" stroke-width="11"/>
+ <path d="M84,378 C92,348 164,348 172,378" fill="#fff" stroke-width="10"/>
+ <path d="M104,364 C112,356 124,354 134,356" fill="none" stroke-width="4"/>
+ <circle cx="128" cy="344" r="9" fill="#111" stroke-width="4"/>
+ <!-- cable -->
+ <path d="M178,494 C210,508 250,500 262,478" fill="none" stroke-width="7"/>
+ <rect x="254" y="450" width="20" height="28" rx="4" fill="#111" stroke-width="3" transform="rotate(20 264 464)"/>
+</g>
+</svg>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+<defs><clipPath id="w"><path d="M92,90 C200,70 312,70 420,90 C436,93 446,102 450,116 L496,286 C500,302 490,314 472,316 C330,334 182,334 40,316 C22,314 12,302 16,286 L62,116 C66,102 76,93 92,90 Z"/></clipPath></defs>
+<g stroke="#111" stroke-linecap="round" stroke-linejoin="round">
+ <!-- parabrisas -->
+ <path d="M92,90 C200,70 312,70 420,90 C436,93 446,102 450,116 L496,286 C500,302 490,314 472,316 C330,334 182,334 40,316 C22,314 12,302 16,286 L62,116 C66,102 76,93 92,90 Z" fill="#fff" stroke-width="13"/>
+ <g clip-path="url(#w)">
+  <!-- franja negra inferior (serigrafía) -->
+  <path d="M0,300 C170,318 342,318 512,300 L512,360 L0,360 Z" fill="#111" stroke="none"/>
+  <path d="M30,302 C180,320 332,320 482,302" stroke="#fff" stroke-width="5" stroke-dasharray="1 11" fill="none"/>
+  <!-- zona opaca rayada (antes) a la izquierda -->
+  <g stroke-width="3.5" fill="none"><path d="M60,140 L44,196 M84,128 L60,214 M108,122 L78,232 M132,118 L98,244 M156,116 L120,250"/></g>
+  <!-- reflejos limpios -->
+  <path d="M236,108 L180,236 M268,106 L214,226" stroke-width="9"/>
+  <!-- sensor / retrovisor -->
+  <path d="M232,82 h48 v26 a8,8 0 0 1 -8,8 h-32 a8,8 0 0 1 -8,-8 z" fill="#111" stroke-width="4"/>
+ </g>
+ <!-- marco interior -->
+ <path d="M104,110 C204,94 308,94 408,110 L446,272 C320,288 192,288 66,272 Z" fill="none" stroke-width="5"/>
+ <!-- brillos -->
+ <path d="M448,18 L456,42 L480,50 L456,58 L448,82 L440,58 L416,50 L440,42 Z" fill="#111" stroke-width="3"/>
+ <path d="M310,150 L315,164 L329,169 L315,174 L310,188 L305,174 L291,169 L305,164 Z" fill="#111" stroke-width="2"/>
+
+ <!-- pulidora rotativa -->
+ <g transform="translate(-10,-40)">
+ <!-- pad de lana -->
+ <ellipse cx="240" cy="420" rx="110" ry="34" fill="#fff" stroke-width="11"/>
+ <path d="M146,418 C134,412 138,402 146,400 M166,442 C156,442 154,432 162,430 M316,444 C326,444 330,434 322,432 M342,416 C354,412 352,402 344,400 M240,454 C236,446 244,440 250,446" fill="none" stroke-width="5"/>
+ <ellipse cx="240" cy="414" rx="74" ry="20" fill="#111" stroke="none"/>
+ <path d="M196,414 C212,404 246,402 272,407" stroke="#fff" stroke-width="5" fill="none"/>
+ <!-- eje -->
+ <path d="M222,380 L220,404 L260,404 L258,380 Z" fill="#fff" stroke-width="8"/>
+ <!-- cuerpo / motor hacia atrás -->
+ <path d="M262,352 L440,272 C462,262 486,270 494,290 C502,310 492,330 470,338 L292,394 Z" fill="#fff" stroke-width="11"/>
+ <path d="M300,346 L456,280" stroke-width="4"/>
+ <path d="M380,312 L398,356 L418,348 L400,304 Z" fill="#111" stroke-width="4"/>
+ <path d="M340,330 L352,362 M352,324 L364,356" stroke-width="4"/>
+ <circle cx="470" cy="304" r="8" fill="#111" stroke-width="3"/>
+ <!-- cabezal -->
+ <path d="M196,350 C196,334 210,326 228,326 L268,326 C286,326 296,338 294,354 L290,374 C288,386 278,392 264,392 L222,392 C206,392 196,384 196,370 Z" fill="#fff" stroke-width="11"/>
+ <path d="M204,374 L288,374" stroke-width="5"/>
+ <circle cx="226" cy="352" r="8" fill="#111" stroke-width="3"/>
+ <!-- asa en D sobre el cabezal -->
+ <path d="M206,330 C198,280 214,250 248,250 L300,250 C330,250 344,276 336,322" fill="none" stroke-width="15"/>
+ <path d="M216,316 C212,284 224,266 248,266" fill="none" stroke="#fff" stroke-width="4"/>
+ <!-- cable -->
+ <path d="M494,300 C510,316 510,346 498,366" fill="none" stroke-width="7"/>
+ </g>
+</g>
+</svg>
