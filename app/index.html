@@ -136,7 +136,7 @@ html.hasbg[data-mode=dark] .top .mute,html.hasbg[data-mode=dark] .top h1,html.ha
 .week button i s{width:4px;height:4px;border-radius:50%;background:var(--acc2)}
 .sq{position:relative;margin-bottom:10px}.sq input{padding-left:38px}.sq:before{content:"🔍";position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.7;pointer-events:none}
 .sres{margin-bottom:12px}.sres .job{margin-bottom:8px}.sres small.d{display:block;color:var(--mute);font-size:12px;font-weight:600}
-.nw{white-space:nowrap}.fxc{padding:12px 14px;margin-bottom:12px}.fxr{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}.fxr small{display:block;color:var(--mute);font-size:12px;font-weight:600}.fxr .btn{flex:none}
+.nwr{white-space:nowrap}.fxc{padding:12px 14px;margin-bottom:12px}.fxr{display:flex;gap:8px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}.fxr small{display:block;color:var(--mute);font-size:12px;font-weight:600}.fxr .btn{flex:none}
 .cpk{display:flex;flex-direction:column;gap:4px;margin:6px 0 0;max-height:260px;overflow:auto}.cpk button{display:flex;justify-content:space-between;gap:8px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--card);color:inherit;border-radius:12px;padding:9px 12px;font:600 14px Figtree,sans-serif;cursor:pointer}.cpk button small{color:var(--mute);font-weight:600;font-size:12px}
 .pbtns{display:grid;gap:6px;margin-bottom:12px}.pbtns .banner{margin:0}.pbtns .banner span small{display:block;color:var(--mute);font-size:12px}
 @keyframes pcf{0%,100%{box-shadow:0 0 0 0 transparent}30%{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc2) 70%,transparent)}}.job.pcf{animation:pcf 1.6s ease 2}
@@ -535,7 +535,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
 
     <div id="v-clientes" class="view" hidden>
       <div id="notesC"></div>
-      <div class="between" style="margin:0 0 10px;gap:8px;flex-wrap:wrap"><h2 style="margin:0">Clientes</h2><div class="row" style="flex:none;gap:6px"><button class="btn sm alt nw" id="cBulk">📥 Varios</button><button class="btn sm nw" id="cAdd">+ Nuevo cliente</button></div></div>
+      <div class="between" style="margin:0 0 10px;gap:8px;flex-wrap:wrap"><h2 style="margin:0">Clientes</h2><div class="row" style="flex:none;gap:6px"><button class="btn sm alt nwr" id="cBulk">📥 Varios</button><button class="btn sm nwr" id="cAdd">+ Nuevo cliente</button></div></div>
       <div class="chips" id="cF" style="margin-bottom:10px"></div>
       <input id="cq" type="search" placeholder="Buscar por nombre o número">
       <div class="card" style="margin-top:12px;padding:4px 14px" id="cList"></div>
@@ -1002,7 +1002,7 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
    +(qa?'<div class="qa">'+qa+'</div>':"")
    +(!nw&&locOf(j)?mapThumb(locOf(j)):"")
    +(!nw&&(j.zone||j.addr)?'<p class="small" style="margin:6px 0 0">'+(j.zone?'🗺️ <b>'+esc(j.zone)+'</b> ':'')+(j.addr?'· '+esc(j.addr):'')+'</p>':"")
-   +'<div class="between" style="margin-top:12px;gap:6px"><label for="jC" style="margin:0">Cliente</label><div class="row" style="flex:none;gap:6px"><button type="button" class="btn sm alt nw" id="jCm">👥 Mis clientes</button>'+(nw?'<button type="button" class="btn sm alt nw" id="jCn">+ Nuevo cliente</button>':'')+'</div></div><input id="jC" value="'+esc(j.cli)+'" maxlength="60" placeholder="'+(carBiz()?"Nombre, número o placa":"Escribe el nombre o búscalo")+'" autocomplete="off"><div class="cpk" id="jCs"></div><div id="jCh"></div>'
+   +'<div class="between" style="margin-top:12px;gap:6px"><label for="jC" style="margin:0">Cliente</label><div class="row" style="flex:none;gap:6px"><button type="button" class="btn sm alt nwr" id="jCm">👥 Mis clientes</button>'+(nw?'<button type="button" class="btn sm alt nwr" id="jCn">+ Nuevo cliente</button>':'')+'</div></div><input id="jC" value="'+esc(j.cli)+'" maxlength="60" placeholder="'+(carBiz()?"Nombre, número o placa":"Escribe el nombre o búscalo")+'" autocomplete="off"><div class="cpk" id="jCs"></div><div id="jCh"></div>'
    +'<label for="jT">WhatsApp</label><input id="jT" inputmode="tel" value="'+esc(j.tel)+'" maxlength="15" placeholder="8888 8888">'
    +'<label for="jRp">🔁 ¿Cada cuánto viene? <span class="mute small">(opcional)</span></label><select id="jRp">'+cadaOpts(rpv)+'</select>'
    +(VH.length?'<label for="jV">Vehículo</label><select id="jV">'+(vi<0?'<option value="-1">Sin dato</option>':"")+VH.map(function(v,i){return '<option value="'+i+'"'+(i===vi?" selected":"")+'>'+esc(v.n)+(+v.x?" (+"+crc(v.x)+")":"")+'</option>'}).join("")+'</select>':"")
