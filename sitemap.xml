@@ -30,4 +30,8 @@
   <url><loc>https://citalyapp.com/polarizados-camareno/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://citalyapp.com/refrigeracion-cruz/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://citalyapp.com/taller-pineda-cruz/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://citalyapp.com/para/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/detailing/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/lavacar/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/pulido/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>
