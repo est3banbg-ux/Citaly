@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.citalyapp.app",
+      "sha256_cert_fingerprints": [
+        "DF:9B:77:C9:11:3C:2F:33:5A:A9:F8:44:DD:F5:62:32:1B:C9:E8:A9:97:98:8E:9F:D3:94:BF:64:9F:1F:16:38"
+      ]
+    }
+  }
+]

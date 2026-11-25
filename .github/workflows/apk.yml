@@ -1,0 +1,157 @@
+# .github/workflows/apk.yml — Genera el APK (y AAB) de Citaly como TWA con Bubblewrap.
+# Se corre a mano: GitHub > Actions > "APK Android" > Run workflow.
+# Secrets requeridos (Settings > Secrets and variables > Actions):
+#   KEYSTORE_B64      keystore .jks en base64 (salida de generar_keystore.sh)
+#   KEYSTORE_PASSWORD contraseña del keystore
+#   KEY_ALIAS         alias de la llave (ej. citaly)
+#   KEY_PASSWORD      contraseña de la llave (puede ser igual a KEYSTORE_PASSWORD)
+name: APK Android
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_name:
+        description: "Versión visible (ej. 1.0.0)"
+        required: true
+        default: "1.0.0"
+
+permissions:
+  contents: write   # para crear/reemplazar el Release android-latest
+
+concurrency:
+  group: apk
+  cancel-in-progress: false
+
+env:
+  PACKAGE_ID: com.citalyapp.app      # NO cambiar nunca después de la 1a publicación
+  HOST: citalyapp.com
+  MANIFEST_URL: https://citalyapp.com/app/manifest.json
+  RELEASE_TAG: android-latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 17 (Bubblewrap exige 17 exacto)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Android SDK (cmdline-tools + licencias)
+        uses: android-actions/setup-android@v3
+
+      - name: Aceptar licencias y build-tools
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-35" > /dev/null
+
+      - name: Instalar Bubblewrap y apuntarlo al JDK/SDK del runner (evita preguntas)
+        run: |
+          npm install -g @bubblewrap/cli
+          mkdir -p ~/.bubblewrap
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}\n' "$JAVA_HOME" "$ANDROID_HOME" > ~/.bubblewrap/config.json
+          cat ~/.bubblewrap/config.json
+          bubblewrap --version || true
+
+      - name: Restaurar keystore desde Secrets (nunca se guarda en el repo)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          mkdir -p twa
+          echo "$KEYSTORE_B64" | base64 -d > twa/citaly.jks
+          test -s twa/citaly.jks || { echo "KEYSTORE_B64 vacío"; exit 1; }
+
+      - name: Escribir twa-manifest.json (sin el wizard interactivo de 'init')
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ github.run_number }}   # siempre sube: requisito de Android/Play
+        run: |
+          cat > twa/twa-manifest.json <<JSON
+          {
+            "packageId": "${PACKAGE_ID}",
+            "host": "${HOST}",
+            "name": "Citaly",
+            "launcherName": "Citaly",
+            "display": "standalone",
+            "orientation": "portrait",
+            "themeColor": "#5a3be8",
+            "themeColorDark": "#5a3be8",
+            "navigationColor": "#5a3be8",
+            "navigationColorDark": "#5a3be8",
+            "navigationDividerColor": "#5a3be8",
+            "navigationDividerColorDark": "#5a3be8",
+            "backgroundColor": "#f4f2fb",
+            "enableNotifications": true,
+            "startUrl": "/app/",
+            "iconUrl": "https://citalyapp.com/icon-512.png",
+            "maskableIconUrl": "https://citalyapp.com/icon-maskable-512.png",
+            "monochromeIconUrl": "",
+            "splashScreenFadeOutDuration": 300,
+            "signingKey": { "path": "./citaly.jks", "alias": "${KEY_ALIAS}" },
+            "appVersionName": "${VERSION_NAME}",
+            "appVersionCode": ${VERSION_CODE},
+            "shortcuts": [],
+            "generatorApp": "bubblewrap-cli",
+            "webManifestUrl": "${MANIFEST_URL}",
+            "fallbackType": "customtabs",
+            "features": {},
+            "alphaDependencies": { "enabled": false },
+            "enableSiteSettingsShortcut": true,
+            "isChromeOSOnly": false,
+            "isMetaQuest": false,
+            "fullScopeUrl": "https://citalyapp.com/app/",
+            "minSdkVersion": 21,
+            "fingerprints": [],
+            "additionalTrustedOrigins": [],
+            "retainedBundles": [],
+            "appVersion": "${VERSION_NAME}"
+          }
+          JSON
+          cat twa/twa-manifest.json
+
+      - name: Generar proyecto Android desde twa-manifest.json
+        working-directory: twa
+        run: bubblewrap update --skipVersionUpgrade --manifest=./twa-manifest.json
+
+      - name: Compilar y firmar (APK + AAB)
+        working-directory: twa
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          bubblewrap build --skipPwaValidation --manifest=./twa-manifest.json
+          ls -la *.apk *.aab
+          cp app-release-signed.apk ../citaly.apk
+          cp app-release-bundle.aab ../citaly.aab
+
+      - name: Mostrar SHA-256 (para .well-known/assetlinks.json)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: |
+          keytool -list -v -keystore twa/citaly.jks -alias "$KEY_ALIAS" -storepass "$KEYSTORE_PASSWORD" \
+            | grep -E "SHA256:" | tee sha256.txt
+
+      - name: Publicar en Release fijo 'android-latest' (enlace de descarga estable)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION_NAME: ${{ inputs.version_name }}
+        run: |
+          gh release delete "$RELEASE_TAG" --yes --cleanup-tag || true
+          gh release create "$RELEASE_TAG" citaly.apk citaly.aab sha256.txt \
+            --title "Citaly para Android v${VERSION_NAME} (build ${{ github.run_number }})" \
+            --notes "Descarga directa: https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/citaly.apk" \
+            --latest=false
+
+      - name: Limpiar keystore del runner
+        if: always()
+        run: rm -f twa/citaly.jks
