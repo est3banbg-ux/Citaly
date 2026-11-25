@@ -2,8 +2,9 @@
    Para publicar algo nuevo: agregá una línea ARRIBA en items (la más nueva primero) y cambiá "v".
    Al cambiar "v", a cada dueño le sale el aviso una sola vez. */
 var CITALY_NEWS={
- v:"2026-11-24b",
+ v:"2026-11-24c",
  items:[
+  {d:"2026-11-24",ic:"🎨",t:"Mi apariencia",x:"Más de 18 temas exclusivos, fondos con escenas, tu propia foto y fondos animados. Lo encontrás en Ajustes → Mi apariencia."},
   {d:"2026-11-24",ic:"🎬",t:"Videos en tu página web",x:"Pegá links de TikTok, Instagram, Facebook o YouTube y se ven junto a tus fotos en «Nuestro trabajo». Según tu plan: 6, 12 o 24 videos."},
   {d:"2026-11-24",ic:"✨",t:"Diseño Pro para tu página",x:"Una página más profesional, con textos ya listos para tu tipo de negocio. Lo elegís en Ajustes → Estilo de tu página."},
   {d:"2026-11-24",ic:"🎨",t:"Colores de tu marca",x:"Subí tu logo y Citaly te propone 3 paletas con sus colores para tu página."},

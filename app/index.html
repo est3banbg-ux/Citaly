@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124h"></script><script src="novedades.js?v=20261124d"></script><script src="frases.js?v=20261124a"></script>
+<script src="../cfg.js?v=20261124h"></script><script src="novedades.js?v=20261124e"></script><script src="frases.js?v=20261124a"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -49,6 +49,29 @@
 .qd{display:flex;align-items:flex-start;gap:8px;margin:0 2px 10px;padding:2px 4px;cursor:pointer;color:var(--mute);font:italic 600 13.5px/1.4 Figtree,sans-serif;-webkit-tap-highlight-color:transparent}
 .qd .qi{flex:none;font-style:normal;font-size:14px;margin-top:1px}.qd .qt{transition:opacity .16s;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .qd:active .qt{opacity:.6}
+html{background:var(--bg)}
+#bgx{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}#bgx>i{position:absolute;inset:0}#bgx>canvas{position:absolute;inset:0;width:100%;height:100%;display:none}
+html.hasbg body,html.hasbg .screen{background:transparent}
+html.glass .card,html.glass .sheet .pn{background:color-mix(in srgb,var(--card) 80%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.15);backdrop-filter:blur(14px) saturate(1.15)}
+html.fx-clasica body,html.fx-clasica button,html.fx-clasica input,html.fx-clasica select,html.fx-clasica textarea{font-family:Georgia,"Times New Roman",serif}
+html.fx-sistema body,html.fx-sistema button,html.fx-sistema input,html.fx-sistema select,html.fx-sistema textarea,html.fx-sistema h1,html.fx-sistema h2,html.fx-sistema h3{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+html.fx-redonda body,html.fx-redonda button,html.fx-redonda input,html.fx-redonda h1,html.fx-redonda h2,html.fx-redonda h3{font-family:ui-rounded,"SF Pro Rounded","Nunito","Quicksand","Varela Round",system-ui,sans-serif}
+html.glass .nhd{background:transparent;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+html.hasbg[data-mode=dark] .top .mute,html.hasbg[data-mode=dark] .top h1,html.hasbg[data-mode=dark] .qd{text-shadow:0 1px 8px rgba(0,0,0,.55)}
+@media(min-width:1024px){.apG3{grid-template-columns:repeat(4,1fr)}.apG{grid-template-columns:repeat(3,1fr)}.apB{aspect-ratio:4/5}}
+.apH{margin:18px 0 8px}.apTabs{margin-bottom:4px}
+.apG{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.apG3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.apT{display:grid;grid-template-columns:34px 1fr;column-gap:10px;align-items:center;text-align:left;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:9px 10px;cursor:pointer;font-family:inherit}
+.apT i{grid-row:1/3;width:34px;height:34px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35),0 2px 8px -2px rgba(0,0,0,.4)}
+.apT b{font-size:13.5px;line-height:1.15}.apT small{font-size:11px;color:var(--mute);line-height:1.2}
+.apT[aria-pressed=true],.apB[aria-pressed=true]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.apB{position:relative;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:0;overflow:hidden;cursor:pointer;aspect-ratio:3/4;display:block;width:100%;color:#fff;font-family:inherit}
+.apB i{position:absolute;inset:0;display:block}.apB span{position:absolute;left:0;right:0;bottom:0;padding:16px 6px 6px;font:700 11.5px/1.15 Figtree,sans-serif;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.65));text-shadow:0 1px 2px rgba(0,0,0,.5)}
+.apFoto{display:flex;gap:12px;align-items:center}.apFoto small{display:block;margin-top:6px;font-size:12px}
+.apS{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;font-size:14px;font-weight:600}.apS input{flex:1;max-width:60%}
+.apR{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer}.apR b{display:block;font-size:14px}.apR small{color:var(--mute);font-size:12px}.apR input{width:22px;height:22px;accent-color:var(--acc)}
+.apAc{display:flex;flex-wrap:wrap;gap:10px;align-items:center}.apA{width:38px;height:38px;border-radius:50%;border:3px solid var(--card);box-shadow:0 0 0 1.5px var(--line);cursor:pointer;padding:0}
+.apA[aria-pressed=true]{box-shadow:0 0 0 3px var(--ink)}.apCu{display:grid;place-items:center;background:conic-gradient(red,yellow,lime,aqua,blue,magenta,red);position:relative;font-size:15px}.apCu input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
 .ngh{font:800 12px Figtree,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:16px 0 2px}
 .nw{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}#nBody>div:last-of-type .nw,#nBody>.nw:last-of-type{border-bottom:0}
 .nw .ic{width:38px;height:38px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:19px;flex:none}
@@ -547,7 +570,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
         <button class="set" data-s="why"><span class="ic">🛡️</span><span class="m"><b>Por qué elegirte</b><span>Garantía, calidad, lo que te hace distinto</span></span>›</button>
         <button class="set" data-s="dep"><span class="ic">💸</span><span class="m"><b>Adelanto por SINPE</b><span id="depN">Para asegurar la hora del cliente</span></span>›</button>
         <button class="set" data-s="gcal"><span class="ic">📅</span><span class="m"><b>Google Calendar</b><span>Tus citas aparecen solas en tu calendario</span></span>›</button>
-        <button class="set" data-s="mode"><span class="ic">🌓</span><span class="m"><b>Apariencia</b><span>Modo claro, oscuro o automático</span></span>›</button>
+        <button class="set" data-s="mode"><span class="ic">🌓</span><span class="m"><b>Mi apariencia</b><span>Temas, fondos, colores y animaciones</span></span>›</button>
         <button class="set" data-s="inst"><span class="ic">📲</span><span class="m"><b>Instalar la app</b><span id="instN">Con un toque, sin tienda</span></span>›</button>
         <button class="set" data-s="ntf"><span class="ic">🔔</span><span class="m"><b>Avisos de reservas nuevas</b><span id="ntfN">Te llegan al celular y a la compu</span></span>›</button>
         <button class="set" data-s="fot"><span class="ic">📸</span><span class="m"><b>Fotos y videos de mis trabajos</b><span id="fotN">Se ven en tu página web</span></span>›</button>
@@ -798,7 +821,7 @@ function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.n
 function render(){if(!B)return;renderOnb();instNote();if(typeof renderFrase==="function"&&!$("qd").firstChild)renderFrase();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
-  if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();renderFavs();
+  if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();if(typeof APA!=="undefined"){APA.fromBiz();}renderFavs();
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
   $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
@@ -1289,7 +1312,7 @@ function openSet(s){
   if(s==="stp")listEd(LISTS.stp);
   if(s==="why")listEd(LISTS.why);
   if(s==="dep")depSheet();
-  if(s==="mode"){var cur=localStorage.getItem("citaly_mode")||"auto",ct=curTheme();sheet('<h2>🎨 Apariencia</h2><p class="mute small" style="margin-top:-4px">Elegí cómo querés ver la app. Se guarda en tu cuenta y se ve igual en el celular y en la computadora.</p><h3 style="margin:14px 0 8px">Claro u oscuro</h3><div class="chips" id="mdC">'+[["auto","📱 Automático"],["light","☀️ Claro"],["dark","🌙 Oscuro"]].map(function(o){return '<button class="chip" data-md="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>'}).join("")+'</div><h3 style="margin:18px 0 8px">Color de la app</h3><div class="thg" id="thG">'+THEMES.map(function(t){return '<button type="button" class="thb" data-th="'+t.id+'" aria-pressed="'+(ct===t.id)+'"><i style="background:'+thSw(t)+'"></i><b>'+t.n+'</b><small>'+t.d+'</small></button>'}).join("")+'</div>',function(){$("mdC").onclick=function(e){var b=e.target.closest("[data-md]");if(!b)return;setMode(b.dataset.md);Array.prototype.forEach.call($("mdC").children,function(x){x.setAttribute("aria-pressed",x===b)})};$("thG").onclick=function(e){var b=e.target.closest("[data-th]");if(!b)return;setTheme(b.dataset.th);Array.prototype.forEach.call($("thG").children,function(x){x.setAttribute("aria-pressed",x===b)})}})}
+  if(s==="mode"){if(typeof APA!=="undefined"){APA.sheet("t");return}var cur=localStorage.getItem("citaly_mode")||"auto",ct=curTheme();sheet('<h2>🎨 Apariencia</h2><p class="mute small" style="margin-top:-4px">Elegí cómo querés ver la app. Se guarda en tu cuenta y se ve igual en el celular y en la computadora.</p><h3 style="margin:14px 0 8px">Claro u oscuro</h3><div class="chips" id="mdC">'+[["auto","📱 Automático"],["light","☀️ Claro"],["dark","🌙 Oscuro"]].map(function(o){return '<button class="chip" data-md="'+o[0]+'" aria-pressed="'+(cur===o[0])+'">'+o[1]+'</button>'}).join("")+'</div><h3 style="margin:18px 0 8px">Color de la app</h3><div class="thg" id="thG">'+THEMES.map(function(t){return '<button type="button" class="thb" data-th="'+t.id+'" aria-pressed="'+(ct===t.id)+'"><i style="background:'+thSw(t)+'"></i><b>'+t.n+'</b><small>'+t.d+'</small></button>'}).join("")+'</div>',function(){$("mdC").onclick=function(e){var b=e.target.closest("[data-md]");if(!b)return;setMode(b.dataset.md);Array.prototype.forEach.call($("mdC").children,function(x){x.setAttribute("aria-pressed",x===b)})};$("thG").onclick=function(e){var b=e.target.closest("[data-th]");if(!b)return;setTheme(b.dataset.th);Array.prototype.forEach.call($("thG").children,function(x){x.setAttribute("aria-pressed",x===b)})}})}
   if(s==="gcal")gcalSheet();
   if(s==="help")helpSheet();
   if(s==="inst"){instSheet();return}
@@ -1879,5 +1902,6 @@ function favSheet(){sheet('<div id="fvW"><h2>⭐ Mis atajos</h2><p class="mute s
 if($("favEd"))$("favEd").onclick=favSheet;
 if(typeof B!=="undefined"&&B)renderFavs();
 </script>
+<script src="temas.js?v=2"></script><script src="apariencia.js?v=2"></script>
 </body>
 </html>
