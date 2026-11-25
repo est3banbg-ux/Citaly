@@ -88,14 +88,14 @@ function newsSheet(tab){
     return (old?'<div class="nold" hidden>':'<div>')+h+'<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+(isNew(i)?' <span class="npill">Nuevo</span>':'')+'</b><p>'+esc(i.x)+'</p></div></div></div>'}).join("")+(nOld?'<button type="button" class="btn alt" id="nMore" style="width:100%;margin-top:12px">Ver novedades anteriores ('+nOld+')</button>':'');
   var so=N.soon.map(function(i){return '<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+' <span class="nst'+(i.s==="En camino"?' go':'')+'">'+esc(i.s)+'</span></b><p>'+esc(i.x)+'</p></div></div>'}).join("");
   var fxl="",fl="";(N.fixes||[]).forEach(function(i){if(i.d!==fl){fl=i.d;fxl+='<div class="ngh">'+esc(newsDate(i.d))+'</div>'}fxl+='<div class="nw"><span class="ic">🛠️</span><div><p style="margin:0;color:var(--ink)">'+esc(i.x)+'</p></div></div>'});
-  sheet('<h2>🚀 Novedades</h2><p class="mute small" style="margin-top:-4px">Lo que mejoramos en Citaly y lo que viene.</p>'
+  sheet('<div class="nhd"><h2>🚀 Novedades</h2><button type="button" class="nclose" id="nX" aria-label="Cerrar">✕</button></div><p class="mute small" style="margin-top:-4px">Lo que mejoramos en Citaly y lo que viene.</p>'
     +'<div class="chips ntabs" role="tablist"><button type="button" class="chip" role="tab" id="ntN" data-nt="new" aria-selected="true">✨ Lo nuevo</button><button type="button" class="chip" role="tab" id="ntS" data-nt="soon" aria-selected="false">🔜 Próximamente</button>'+((N.fixes||[]).length?'<button type="button" class="chip" role="tab" id="ntF" data-nt="fix" aria-selected="false">🛠️ Arreglos</button>':'')+'</div>'
     +'<div id="nBody" role="tabpanel" aria-live="polite"></div>'
     +'<div class="acts"><a class="btn alt" id="nIdea" target="_blank" rel="noopener">💡 Sugerir algo</a><button type="button" class="btn" id="nOk">Entendido</button></div>',
   function(){
     function pick(t){$("ntN").setAttribute("aria-selected",t==="new");$("ntS").setAttribute("aria-selected",t==="soon");if($("ntF"))$("ntF").setAttribute("aria-selected",t==="fix");$("nBody").innerHTML=t==="soon"?so:t==="fix"?fxl:nw;more()}
     function more(){var m=$("nMore");if(m)m.onclick=function(){Array.prototype.forEach.call(document.querySelectorAll("#nBody .nold"),function(x){x.hidden=false});m.remove()}}
-    $("ntN").onclick=function(){pick("new")};$("ntS").onclick=function(){pick("soon")};if($("ntF"))$("ntF").onclick=function(){pick("fix")};$("nOk").onclick=function(){closeSheet()};
+    $("ntN").onclick=function(){pick("new")};$("ntS").onclick=function(){pick("soon")};if($("ntF"))$("ntF").onclick=function(){pick("fix")};$("nOk").onclick=function(){closeSheet()};$("nX").onclick=function(){closeSheet()};
     $("nIdea").href=waUrl(C.wa,"¡Hola! Tengo una idea para mejorar Citaly 💡\nNegocio: "+(B&&B.name||"")+"\nMi idea: ");
     pick(tab==="soon"?"soon":"new");newsMark()});
 }
@@ -108,6 +108,18 @@ function newsAuto(){
     if(!m||!m.classList.contains("on")||$("sh").classList.contains("on")||(sr&&!sr.hidden))return;
     var c=B&&B.created&&B.created.toMillis?B.created.toMillis():0;
     if(newsGet("citaly_news")===null&&c&&Date.now()-c<864e5){newsMark();return}
-    newsSheet();
+    newsBanner();
   }catch(e){}
+}
+/* Aviso discreto: una franja chiquita que no tapa la app, se quita con la X o sola a los 9 segundos */
+function newsBanner(){
+  var old=document.getElementById("nBan");if(old)old.remove();
+  var b=document.createElement("div");b.id="nBan";b.className="nban";b.setAttribute("role","status");
+  b.innerHTML='<span class="nbi">🚀</span><span class="nbt"><b>Hay novedades en Citaly</b></span><button type="button" class="nbv" id="nBanV">Ver</button><button type="button" class="nbx" id="nBanX" aria-label="Cerrar">✕</button>';
+  document.body.appendChild(b);
+  var t;function bye(mark){clearTimeout(t);b.classList.remove("on");setTimeout(function(){b.remove()},250);if(mark)newsMark()}
+  requestAnimationFrame(function(){requestAnimationFrame(function(){b.classList.add("on")})});
+  document.getElementById("nBanX").onclick=function(){bye(true)};
+  document.getElementById("nBanV").onclick=function(){bye(false);newsSheet()};
+  t=setTimeout(function(){bye(true)},9000);
 }
