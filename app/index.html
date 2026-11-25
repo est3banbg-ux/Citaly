@@ -230,6 +230,20 @@ nav.tabs .badge{position:absolute;top:2px;left:calc(50% + 6px);background:var(--
 .hbar{height:8px;border-radius:99px;background:rgba(255,255,255,.2);margin:12px 0 6px;overflow:hidden}.hbar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#ffd166,#fff1b8);transition:width 1s cubic-bezier(.2,.8,.2,1)}
 .hero .mapc{border-color:rgba(255,255,255,.25);position:relative;z-index:1}
 .hrow{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;position:relative;z-index:1}
+.hfree{padding:18px 18px 16px;text-align:left;background:radial-gradient(120% 90% at 100% 0%,rgba(255,255,255,.22),transparent 55%),radial-gradient(90% 80% at 0% 100%,rgba(255,180,120,.28),transparent 60%),linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 50%,#120c2e))}
+.hfree .hc1,.hfree .hc2{position:absolute;border-radius:50%;border:1.5px solid rgba(255,255,255,.14);pointer-events:none}
+.hfree .hc1{width:210px;height:210px;right:-70px;top:-80px}.hfree .hc2{width:130px;height:130px;right:-20px;top:-30px;border-color:rgba(255,255,255,.1)}
+.hftop{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hpill{font:700 12.5px Figtree,sans-serif;letter-spacing:.02em;padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hbadge{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;font-size:25px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);box-shadow:0 8px 18px -8px rgba(0,0,0,.35)}
+.hfn{position:relative;z-index:1;font:600 15px/1.2 Figtree,sans-serif;opacity:.88;margin-top:14px}
+.hfc{position:relative;z-index:1;font:800 38px/1.05 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.8px;margin-top:2px}
+.hfs{position:relative;z-index:1;font-size:14px;line-height:1.45;opacity:.9;margin-top:8px;max-width:30ch}
+.hfst{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.hfst span{font-size:12.5px;padding:6px 11px;border-radius:10px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.12)}.hfst b{font-weight:800;font-size:14px}
+.hfa{position:relative;z-index:1;display:flex;gap:7px;margin-top:14px}
+.hfa button{flex:1 1 0;white-space:nowrap;font:700 13.5px Figtree,sans-serif;border-radius:13px;padding:11px 6px;cursor:pointer;border:1px solid rgba(255,255,255,.3);color:#fff;background:rgba(255,255,255,.16);-webkit-tap-highlight-color:transparent}
+.hfa .hfp{flex:1.5 1 0;background:#fff;color:#2a1a7a;border-color:#fff;box-shadow:0 10px 22px -10px rgba(0,0,0,.5)}.hfa button:active{transform:scale(.97)}
 .hrow a,.hnote{background:rgba(255,255,255,.17);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 11px;font:700 13px Figtree,sans-serif;text-decoration:none;cursor:pointer}
 .hnote{display:block;width:100%;margin-top:10px;position:relative;z-index:1}
 .qa{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:7px;margin:12px 0 2px}.qa .btn{width:100%}
@@ -1060,6 +1074,19 @@ function renderHero(){var t=ymd(new Date()),n=new Date(),nowM=n.getHours()*60+n.
   else if(T.length){line="Ya pasaron las citas de hoy";big="Márcalas como atendidas";sub="Así tus números quedan al día"}
   else{line="No tienes citas hoy";big="Día libre ☀️";sub="Buen momento para escribirle a clientes que hace rato no vienen"}
   var money=T.reduce(function(a,j){return a+(+j.total||0)},0),due=dueNotes().length,ru=B.home?routeUrl(T.filter(function(j){return j.st!=="Lista"})):null,ru2=B.home?routeUrl(T.filter(function(j){return j.st!=="Lista"}),true):null,nStops=T.filter(function(j){return j.st!=="Lista"&&/^-?\d+\.\d+,-?\d+\.\d+/.test(locOf(j).trim())}).length;
+  if(line==="No tienes citas hoy"){
+    var tm1=dayJobs(addD(ymd(n),1)).filter(active).length,wk=0;for(var di=1;di<=7;di++)wk+=dayJobs(addD(ymd(n),di)).filter(active).length;
+    var nite=n.getHours()>=19||n.getHours()<5;
+    $("hero").innerHTML='<div class="hero hfree fade"><i class="hc1"></i><i class="hc2"></i>'
+     +'<div class="hftop"><span class="hpill">'+DN[n.getDay()].replace(/^./,function(c){return c.toUpperCase()})+" "+n.getDate()+" de "+MN[n.getMonth()]+'</span><span class="hbadge" aria-hidden="true">'+(nite?"🌙":"☀️")+'</span></div>'
+     +'<div class="hfn">No tienes citas hoy</div><div class="hfc">Día libre</div>'
+     +'<div class="hfs">Buen momento para escribirle a clientes que hace rato no vienen.</div>'
+     +'<div class="hfst"><span><b>'+tm1+'</b> mañana</span><span><b>'+wk+'</b> en los próximos 7 días</span></div>'
+     +'<div class="hfa"><button type="button" class="hfp" id="hfNew">＋ Nueva cita</button><button type="button" class="hfg" id="hfCli">💬 Clientes</button><button type="button" class="hfg" id="hfLink">🔗 Mi link</button></div>'
+     +(due?'<button class="hnote" id="hNotes">📌 '+due+(due===1?" recordatorio pendiente":" recordatorios pendientes")+'</button>':'')+'</div>';
+    $("hfNew").onclick=function(){$("fab").click()};$("hfCli").onclick=function(){go("clientes")};$("hfLink").onclick=function(){share()};
+    if($("hNotes"))$("hNotes").onclick=function(){go("clientes")};
+    return}
   $("hero").innerHTML='<div class="hero fade"><div class="hg">'+DN[n.getDay()].replace(/^./,function(c){return c.toUpperCase()})+" "+n.getDate()+" de "+MN[n.getMonth()]+'</div><div class="hn">'+line+'</div><div class="hc">'+big+'</div>'+(sub?'<div class="hs">'+sub+'</div>':'')
    +(nx&&locOf(nx)?mapThumb(locOf(nx),true):'')
    +(T.length?'<div class="hbar"><i id="hb"></i></div><div class="hs">'+done+' de '+T.length+' atendidas · '+crc(money)+'</div>':'')
