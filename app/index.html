@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124h"></script><script src="novedades.js?v=20261124d"></script>
+<script src="../cfg.js?v=20261124h"></script><script src="novedades.js?v=20261124d"></script><script src="frases.js?v=20261124a"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -46,6 +46,9 @@
 .nban .nbv{border:0;background:var(--acc);color:#fff;font:700 14px Figtree,sans-serif;padding:9px 16px;border-radius:12px;cursor:pointer}
 .nban .nbx{border:0;background:none;color:var(--mute);font-size:16px;width:36px;height:36px;border-radius:50%;cursor:pointer}
 @media(min-width:900px){.nban{left:auto;right:24px;bottom:24px;margin:0}}
+.qd{display:flex;align-items:flex-start;gap:8px;margin:0 2px 10px;padding:2px 4px;cursor:pointer;color:var(--mute);font:italic 600 13.5px/1.4 Figtree,sans-serif;-webkit-tap-highlight-color:transparent}
+.qd .qi{flex:none;font-style:normal;font-size:14px;margin-top:1px}.qd .qt{transition:opacity .16s;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.qd:active .qt{opacity:.6}
 .ngh{font:800 12px Figtree,sans-serif;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:16px 0 2px}
 .nw{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}#nBody>div:last-of-type .nw,#nBody>.nw:last-of-type{border-bottom:0}
 .nw .ic{width:38px;height:38px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:19px;flex:none}
@@ -476,7 +479,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
     <div id="v-agenda" class="view">
       <div class="agA"><div id="pbn"></div>
       <div id="onb"></div>
-      <div id="hero"></div></div>
+      <div class="qd" id="qd"></div><div id="hero"></div></div>
       <div class="agB"><div class="sq"><input id="agq" type="search" placeholder="Buscar cita, nombre o teléfono" autocomplete="off"></div>
       <div id="agr" class="sres"></div>
       <div id="pend"></div>
@@ -778,7 +781,7 @@ function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until
 function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.now())/864e5):0}
 
 /* ---------- RENDER GENERAL ---------- */
-function render(){if(!B)return;renderOnb();instNote();pagoOk();
+function render(){if(!B)return;renderOnb();instNote();if(typeof renderFrase==="function"&&!$("qd").firstChild)renderFrase();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();renderFavs();
