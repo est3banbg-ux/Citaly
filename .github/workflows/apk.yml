@@ -55,6 +55,10 @@ jobs:
       - name: Instalar Bubblewrap y apuntarlo al JDK/SDK del runner (evita preguntas)
         run: |
           npm install -g @bubblewrap/cli
+          # Bubblewrap valida que existan tools/ y build-tools/ dentro del SDK
+          sudo mkdir -p "$ANDROID_HOME/tools/bin"
+          sudo cp "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "$ANDROID_HOME/tools/bin/sdkmanager" || true
+          ls -la "$ANDROID_HOME" "$ANDROID_HOME/build-tools" || true
           mkdir -p ~/.bubblewrap
           printf '{"jdkPath":"%s","androidSdkPath":"%s"}\n' "$JAVA_HOME" "$ANDROID_HOME" > ~/.bubblewrap/config.json
           cat ~/.bubblewrap/config.json
