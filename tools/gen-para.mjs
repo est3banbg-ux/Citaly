@@ -55,7 +55,7 @@ const TIPOS = {
     extra: [["¿Sirve para quitar la gota seca del parabrisas?", "Sí. Cargás «Remoción de gota seca» como un servicio más, con su precio y duración, y el cliente lo elige al reservar."], ["¿Sirve si trabajo a domicilio?", "Sí. El plan Turbo trae servicio a domicilio con zonas, tiempo de traslado y aviso de «voy en camino»."]]
   },
   polarizado: {"corto": "polarizado de vidrios", "unico": {"t": "Pensado para polarizado de vidrios", "items": [["Citas de varias horas sin traslapes", "Un polarizado completo toma horas. Cada servicio tiene su duración y nadie más puede reservar encima de ese tiempo."], ["Precio por tipo de vehículo", "Sedán, SUV o pick-up: el cliente elige su vehículo y ve el precio exacto antes de reservar."], ["Retiro y parabrisas como servicios aparte", "Polarizado completo, parabrisas y retiro de polarizado, cada uno con su precio y su duración."], ["Adelanto por SINPE", "Con el plan Turbo podés pedir un adelanto para asegurar la hora de un trabajo largo."]]}, "h1": "Sistema de citas para polarizado de vidrios en Costa Rica", "title": "Sistema de citas para polarizado de vidrios | Citaly", "desc": "Agenda y página de reservas para polarizado de vidrios. Tus clientes reservan solos. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.", "lead": "Tus clientes eligen su vehículo y reservan el polarizado sin escribirte, y vos ves en el celular qué carro entra cada hora.", "dolor": ["El cliente pregunta cuánto cuesta el polarizado de su carro, y vos contestás lo mismo todos los días.", "Un trabajo de varias horas mal agendado deja el taller parado o a un cliente esperando.", "Sin recordatorio, el cliente se olvida y esa hora no se vuelve a vender."], "serviciosTitulo": "Servicios típicos de polarizado", "extra": [["¿Puedo cobrar distinto según el vehículo?", "Sí. Marcás los servicios que cambian de precio y el cliente elige su tipo de vehículo al reservar: ve el precio exacto antes de confirmar."], ["¿Puedo cargar el retiro de polarizado?", "Sí. «Retiro de polarizado» es un servicio más, con su precio y duración."]]},
-  taller: {"corto": "taller mecánico", "unico": {"t": "Pensado para talleres", "items": [["Un servicio por cada trabajo", "Diagnóstico, cambio de aceite, revisión de frenos: cada uno con su precio y duración para que el cliente elija."], ["Cupos por hora", "Con el plan Turbo definís cuántos vehículos recibís al mismo tiempo y la agenda no deja reservar de más."], ["El cliente cuenta qué necesita", "Al reservar deja una nota con lo que le pasa a su carro, y llegás sabiendo qué va a revisar."], ["Historial por vehículo", "Buscás por placa y ves qué le hiciste a cada carro la última vez."]]}, "h1": "Sistema de citas para taller mecánico en Costa Rica", "title": "Sistema de citas para taller mecánico | Citaly", "desc": "Agenda y página de reservas para talleres mecánicos. Tus clientes reservan solos. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.", "lead": "Tus clientes reservan su cita y te cuentan qué necesita el carro, mientras vos y tus mecánicos siguen con las manos en el motor.", "dolor": ["Con las manos llenas de grasa nadie contesta WhatsApp, y el cliente se va con otro taller.", "Los carros llegan sin cita y el taller se llena un día y queda vacío al siguiente.", "Sin historial, cada visita empieza de cero y el cliente tiene que volver a explicar todo."], "serviciosTitulo": "Servicios típicos de un taller", "extra": [["¿Puedo manejar varios carros a la vez?", "Sí. En el plan Turbo definís cuántos vehículos atendés al mismo tiempo (cupos) y la agenda no deja reservar de más."], ["¿El cliente puede explicar qué le pasa al carro?", "Sí. Al reservar puede dejar una nota para que sepas qué va a revisar."]]}
+  taller: {"corto": "taller mecánico", "unico": {"t": "Pensado para talleres", "items": [["Un servicio por cada trabajo", "Diagnóstico, cambio de aceite, revisión de frenos: cada uno con su precio y duración para que el cliente elija."], ["Cupos por hora", "Con el plan Turbo definís cuántos vehículos recibís al mismo tiempo y la agenda no deja reservar de más."], ["El cliente cuenta qué necesita", "Al reservar deja una nota con lo que le pasa a su carro, y cuando entra el carro ya sabés qué revisar."], ["Historial del cliente", "Buscás al cliente por nombre o placa y ves todo lo que le has hecho."]]}, "h1": "Sistema de citas para taller mecánico en Costa Rica", "title": "Sistema de citas y agenda para taller mecánico | Citaly", "desc": "Agenda y página de reservas para talleres mecánicos. Tus clientes reservan solos. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.", "lead": "Tus clientes reservan su cita y te cuentan qué necesita el carro, mientras vos y tus mecánicos siguen con las manos en el motor.", "dolor": ["Con las manos llenas de grasa nadie contesta WhatsApp, y el cliente se va con otro taller.", "Los carros llegan sin cita y el taller se llena un día y queda vacío al siguiente.", "Sin historial, cada visita empieza de cero y el cliente tiene que volver a explicar todo."], "serviciosTitulo": "Servicios típicos de un taller", "extra": [["¿Puedo manejar varios carros a la vez?", "Sí. En el plan Turbo definís cuántos vehículos atendés al mismo tiempo (cupos) y la agenda no deja reservar de más."], ["¿El cliente puede explicar qué le pasa al carro?", "Sí. Al reservar puede dejar una nota para que sepás qué revisar."]]}
 };
 
 const css = `
@@ -134,18 +134,18 @@ function planes() {
     const precio = k === C.promoPlan
       ? `<div class="sub">Primeros ${C.monthly.promoMonths} meses</div><div class="amt">${crc(C.monthly.promo)}<small>/mes</small></div><div class="sub">después ${crc(p.crc)}/mes</div>`
       : `<div class="sub">Precio mensual</div><div class="amt">${crc(p.crc)}<small>/mes</small></div>`;
-    return `<div class="card plan${p.pop ? " pop" : ""}"><h3>${esc(p.n)}</h3><div class="sub">${esc(p.tag)}</div>${precio}<ul>${sel[k].map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`;
+    return `<div class="card plan${p.pop ? " pop" : ""}"><h3>${esc(p.n)}</h3><div class="sub">${esc(p.tag)}</div>${precio}<ul>${sel[k].map(x => `<li>${esc(x.replace("que tú editas", "que vos editás"))}</li>`).join("")}</ul></div>`;
   }).join("");
 }
 
 function paginaTipo(tipo, T) {
-  const svc = (C.types[tipo] && C.types[tipo].svc || []).map(s => s[0]);
+  const S = (C.types[tipo] && C.types[tipo].svc) || [], svc = S.map(s => s[0]), sv = S.find(s => s[4]), rubro = (C.types[tipo] && C.types[tipo].n) || T.corto;
   const faq = [
     ["¿Necesito tarjeta para probar Citaly?", `No. Son ${C.trialDays} días gratis con el plan Nitro completo, sin tarjeta y sin contrato. Después elegís tu plan.`],
     ["¿Cuánto cuesta?", `El plan Arranque cuesta ${crc(C.monthly.promo)} al mes los primeros ${C.monthly.promoMonths} meses y después ${crc(C.plans.arranque.crc)}. Si una sola cita al mes que hoy se te pierde vale más que eso, el plan se paga solo.`],
     ["¿Sigo usando mi WhatsApp?", "Sí. Confirmar y recordar citas con un toque desde tu propio WhatsApp es gratis en todos los planes. Citaly agenda; vos seguís hablando con tus clientes como siempre."],
     ["¿Funciona en iPhone y Android?", "Sí. Se instala desde el navegador del celular y también se usa en computadora."],
-    ["¿Es difícil de configurar?", `Elegís «${T.corto}» al crear tu cuenta y Citaly carga servicios de ejemplo para que solo cambiés nombres, precios y horario. Si te trabás, te ayudamos por WhatsApp al ${WA_TXT}.`],
+    ["¿Es difícil de configurar?", `Elegís «${rubro}» al crear tu cuenta y Citaly carga servicios de ejemplo para que solo cambiés nombres, precios y horario. Si te trabás, te ayudamos por WhatsApp al ${WA_TXT}.`],
     ...T.extra
   ];
   const ld = { "@context": "https://schema.org", "@graph": [
@@ -167,14 +167,14 @@ function paginaTipo(tipo, T) {
 <div><div class="mock" aria-label="Ejemplo de la página de reservas">
 <div class="sub">Así reserva tu cliente (ejemplo)</div>
 <div><div class="sub">Tipo de vehículo</div><div class="chips"><span class="chip">Sedán o hatchback</span><span class="chip on">SUV</span><span class="chip">Pick-up o 4x4</span></div></div>
-<div class="card"><b>${esc(svc[0] || "Tu servicio")}</b><div class="sub">El precio cambia según el vehículo elegido</div></div>
+<div class="card"><b>${esc((sv || S[0] || ["Tu servicio"])[0])}</b><div class="sub">${sv ? "El precio cambia según el vehículo elegido" : "Duración y precio a la vista"}</div></div>
 <div><div class="sub">Horas libres</div><div class="chips"><span class="chip">8:00 am</span><span class="chip on">10:00 am</span><span class="chip">1:00 pm</span></div></div>
 <span class="btn" style="background:var(--bb);color:#fff">Confirmar reserva</span></div></div></div></div>
 
 <div class="band"><div class="w"><section style="padding:36px 0"><h2 style="font-size:26px;margin-bottom:16px">Lo que le pasa a casi todo negocio de ${esc(T.corto)}</h2><div class="grid">${T.dolor.map(d => `<p style="margin:0">${esc(d)}</p>`).join("")}</div></section></div></div>
 
 <div class="w"><section><h2>Cómo funciona</h2><ol class="steps" style="margin-top:22px">
-<li><h3>Creás tu cuenta</h3><p>Elegís «${esc(T.corto)}» y en 2 minutos tenés tu página con servicios de ejemplo.</p></li>
+<li><h3>Creás tu cuenta</h3><p>Elegís «${esc(rubro)}» y en 2 minutos tenés tu página con servicios de ejemplo.</p></li>
 <li><h3>Ajustás lo tuyo</h3><p>Cambiás servicios, precios, horario, logo y color. Sin programar nada.</p></li>
 <li><h3>Compartís tu link</h3><p>Lo ponés en WhatsApp, Instagram y TikTok. Tus clientes reservan solos, a toda hora.</p></li></ol></section></div>
 
@@ -217,7 +217,7 @@ function paginaIndice() {
 <h1 style="margin-top:8px">Un sistema de citas hecho para tu tipo de negocio</h1>
 <p class="lead" style="margin-top:14px">Elegís tu rubro y Citaly te arma la página de reservas, la agenda y los servicios de ejemplo. ${C.trialDays} días gratis, sin tarjeta.</p></section></div>
 <div class="w"><div class="grid" style="padding-bottom:56px">${Object.entries(TIPOS).map(([k, v]) => `<div class="card"><h2 style="font-size:24px"><a href="/para/${k}/" style="text-decoration:none">Sistema de citas para ${esc(v.corto)}</a></h2><p>${esc(v.lead)}</p><p style="margin-top:14px"><a href="/para/${k}/">Ver cómo funciona para ${esc(v.corto)} →</a></p></div>`).join("")}</div></div>
-<div class="w"><section style="padding-top:0"><p class="sub">¿Tu negocio es de otro tipo, como polarizado, taller o refrigeración? También funciona. Escribinos por WhatsApp al <a href="${WA}" target="_blank" rel="noopener">${WA_TXT}</a>.</p></section></div></main>` + foot + dock("inicio") + `
+<div class="w"><section style="padding-top:0"><p class="sub">¿Tu negocio es de otro tipo, como refrigeración, barbería o consultorio? También funciona. Escribinos por WhatsApp al <a href="${WA}" target="_blank" rel="noopener">${WA_TXT}</a>.</p></section></div></main>` + foot + dock("inicio") + `
 </body></html>
 `;
 }
