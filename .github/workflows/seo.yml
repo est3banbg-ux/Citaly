@@ -1,0 +1,22 @@
+# Cada 6 horas (y a mano) crea/actualiza la página de cada negocio para Google y el sitemap.
+name: SEO de negocios
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+concurrency: seo
+permissions:
+  contents: write
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node tools/gen-seo.mjs
+      - name: Subir cambios
+        run: |
+          git config user.name "citaly-bot"; git config user.email "bot@citalyapp.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "SEO: páginas de negocios y sitemap" && git pull --rebase -q && git push)
