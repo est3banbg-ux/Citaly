@@ -1,18 +1,26 @@
 {
  "para/index.html": {
-  "h": "2ae215c590f85705ef8c6713112fa0b31de1d7a9",
+  "h": "db9363552f770f741578b770ee648e5d0a42caa5",
   "d": "2026-11-25"
  },
  "para/detailing/index.html": {
-  "h": "28251a0b3b87fb0a18c3b7ac993684f941d0fac6",
+  "h": "806dbe0085cf5fab45c6c834f73a1465c9b5dd1c",
   "d": "2026-11-25"
  },
  "para/lavacar/index.html": {
-  "h": "923e99e7d1991e1cfe10cdfbd0b4fe13cf3d71e9",
+  "h": "6d3fb8d1ee7469ae6f3445412bcb645760f4aa33",
   "d": "2026-11-25"
  },
  "para/pulido/index.html": {
-  "h": "2b2948a542b7d34a03e0d6163075805856c2d63c",
+  "h": "9fc1bd35624f1d347fa062509fe088ac261bf162",
+  "d": "2026-11-25"
+ },
+ "para/polarizado/index.html": {
+  "h": "bbcbe380bd502543d5a7b881b359c77b7bfc0b57",
+  "d": "2026-11-25"
+ },
+ "para/taller/index.html": {
+  "h": "7e112da7ce196cc66d1756d6059a104336838e11",
   "d": "2026-11-25"
  }
 }

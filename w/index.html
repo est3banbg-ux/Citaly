@@ -387,7 +387,7 @@ function fh(s){var m=tm(s),h=Math.floor(m/60),mi=m%60;return (h%12||12)+(mi?":"+
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
 function waNum(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)return t;return t.length===8?"506"+t:t}
 function waUrl(t,m){if(waNum(t).length<8)return OPEN&&typeof bookUrl==="function"?bookUrl():"#";return "https://api.whatsapp.com/send?phone="+waNum(t)+(m?"&text="+encodeURIComponent(m):"")}
-function hechoCon(){var T={detailing:"detailing",lavacar:"lavacar",pulido:"pulido de focos y vidrios"},t=P&&T[P.type],q="?desde="+encodeURIComponent(slug);return t?'Hecho con <a href="/para/'+P.type+'/'+q+'" target="_blank" rel="noopener">Citaly, sistema de citas para '+t+'</a>':'Hecho con <a href="/'+q+'" target="_blank" rel="noopener">Citaly</a>'}
+function hechoCon(){var T={detailing:"detailing",lavacar:"lavacar",pulido:"pulido de focos y vidrios",polarizado:"polarizado de vidrios",taller:"taller mecánico"},t=P&&T[P.type],q="?desde="+encodeURIComponent(slug);return t?'Hecho con <a href="/para/'+P.type+'/'+q+'" target="_blank" rel="noopener">Citaly, sistema de citas para '+t+'</a>':'Hecho con <a href="/'+q+'" target="_blank" rel="noopener">Citaly</a>'}
 function img(u){return C.safeImg(u)}
 function url(u){u=String(u||"").trim();if(!u)return "";if(!/^https?:\/\//i.test(u))u="https://"+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:""}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
