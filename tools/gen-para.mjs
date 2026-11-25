@@ -23,7 +23,7 @@ const WA_TXT = "6150-6610";
 const TIPOS = {
   detailing: {
     corto: "detailing",
-    unico: { t: "Pensado para servicios largos y de precio alto", items: [["Citas de varias horas sin traslapes", "Cada servicio tiene su duración. Una corrección de pintura larga bloquea ese tiempo y nadie más puede reservar encima."], ["Precio según el tamaño del vehículo", "Sedán, SUV o pick-up: el cliente elige su vehículo y ve el precio exacto antes de reservar."], ["Adelanto por SINPE", "Con el plan Turbo podés pedir un adelanto para asegurar la hora de servicios grandes, como un tratamiento cerámico."], ["Tus trabajos a la vista", "El detailing se vende con fotos y videos. Tu página muestra tus trabajos y videos de TikTok, Instagram, Facebook o YouTube."]] },
+    unico: { t: "Pensado para servicios largos y de precio alto", items: [["Citas de varias horas sin traslapes", "Cada servicio tiene su duración. Una corrección de pintura larga bloquea ese tiempo y nadie más puede reservar encima."], ["Precio según el tamaño del vehículo", "Sedán, SUV o pick-up: el cliente elige su vehículo y ve el precio exacto antes de reservar."], ["Adelanto por SINPE", "Con el plan Turbo podés pedir un adelanto para asegurar la hora de servicios grandes, como un tratamiento cerámico."], ["Antes y después que venden", "El detailing se vende con resultados. Tu página muestra tus mejores trabajos para que el cliente llegue convencido."]] },
     h1: "Sistema de citas para detailing en Costa Rica",
     title: "Sistema de citas para detailing en Costa Rica | Citaly",
     desc: "Tus clientes eligen su vehículo, ven el precio y reservan solos. Página web y app incluidas. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.",
