@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124j"></script><script src="novedades-auto.js?v=1"></script><script src="novedades.js?v=20261125a"></script><script src="frases.js?v=20261124a"></script>
+<script src="../cfg.js?v=20261124j"></script><script src="novedades-auto.js?v=1"></script><script src="novedades.js?v=20261125b"></script><script src="frases.js?v=20261124a"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -873,7 +873,7 @@ function renderAg(){renderHero();renderMonthGrid();renderDaySum();renderCierre()
   Array.prototype.forEach.call(document.querySelectorAll("#dayList .job"),function(el){el.onclick=function(){openJob(jb(el.dataset.id))}});
   Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-ed]"),function(b){b.onclick=function(){openJob(jb(b.dataset.ed))}});
   Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-py]"),function(b){b.onclick=function(){paySheet(jb(b.dataset.py))}});
-  Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-st]"),function(e){e.onchange=function(){var j0=jb(e.dataset.st),d=Object.assign({},j0);delete d._id;d.id=d.id||j0._id;d.st=e.value;writeJob(d,j0).then(function(){if(e.value==="Lista"&&!Array.isArray(j0.pays)){var jj=Object.assign({},j0,{st:"Lista"});setTimeout(function(){paySheet(jj,true)},200)}toast(e.value==="Lista"?"¡Atendida! 💸":"Estado: "+e.value);if(e.value==="Lista"&&j0.st!=="Lista")setTimeout(function(){askRev(d)},900)},function(er){toast(errEs(er));renderAg()})}});
+  Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-st]"),function(e){e.onchange=function(){var j0=jb(e.dataset.st),d=Object.assign({},j0);delete d._id;d.id=d.id||j0._id;d.st=e.value;writeJob(d,j0).then(function(){if(e.value==="Lista"&&!Array.isArray(j0.pays)){var jj=Object.assign({},j0,{st:"Lista"});setTimeout(function(){paySheet(jj,true)},200)}toast(e.value==="Lista"?"¡Atendida! 💸":"Estado: "+e.value);if(e.value==="Lista"&&j0.st!=="Lista")setTimeout(function(){askFijo(d,function(){whenFree(function(){askRev(d)})})},900)},function(er){toast(errEs(er));renderAg()})}});
   Array.prototype.forEach.call(document.querySelectorAll("#dayList [data-dl]"),function(b){b.onclick=function(){var j0=jb(b.dataset.dl);if(!confirm("¿Eliminar la cita de "+(j0.cli||"este cliente")+"?"))return;var cp=Object.assign({},j0);delJob(j0).then(function(){undoToast("Cita eliminada",function(){restoreJob(cp)})},function(er){toast(errEs(er))})}});}
 function calUrl(j){var f=function(m){return String(j.date).replace(/-/g,"")+"T"+pad(Math.floor(m/60))+pad(m%60)+"00"},a=tm(j.time);return "https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent((B.name||"Cita")+": "+(j.cli||""))+"&dates="+f(a)+"/"+f(a+(+j.dur||60))+"&details="+encodeURIComponent((j.items||[]).join(" + ")+" · "+crc(j.total))+"&location="+encodeURIComponent(j.ubic&&parseLoc(j.ubic)?j.ubic:(j.addr||B.addr||""))}
 function goJob(id){var j=JOBS.find(function(x){return x._id===id});if(!j)return;go("agenda");SEL=j.date;MG=false;renderAg();setTimeout(function(){var el=document.querySelector('#dayList .job[data-id="'+(window.CSS&&CSS.escape?CSS.escape(id):id)+'"]');if(el){el.scrollIntoView({behavior:"smooth",block:"center"});el.classList.add("pcf")}},80)}
@@ -955,7 +955,7 @@ $("fab").onclick=function(){openJob(null,VIEW==="agenda"?{date:SEL}:{})};
 
 /* ---------- HOJA ---------- */
 function sheet(h,onOpen){$("shC").innerHTML=h;$("sh").classList.add("on");document.body.style.overflow="hidden";if(onOpen)onOpen();if(!(history.state&&history.state.sh))history.pushState({sh:1},"")}
-function closeSheet(fromPop){if(!$("sh").classList.contains("on"))return;$("sh").classList.remove("on");document.body.style.overflow="";if(!fromPop&&history.state&&history.state.sh)history.back()}
+function closeSheet(fromPop){fromPop=fromPop===true;if(!$("sh").classList.contains("on"))return;$("sh").classList.remove("on");document.body.style.overflow="";if(!fromPop&&history.state&&history.state.sh)history.back()}
 $("shBd").onclick=function(){closeSheet()};
 window.addEventListener("popstate",function(){closeSheet(true)});
 
@@ -1002,7 +1002,7 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
    +(qa?'<div class="qa">'+qa+'</div>':"")
    +(!nw&&locOf(j)?mapThumb(locOf(j)):"")
    +(!nw&&(j.zone||j.addr)?'<p class="small" style="margin:6px 0 0">'+(j.zone?'🗺️ <b>'+esc(j.zone)+'</b> ':'')+(j.addr?'· '+esc(j.addr):'')+'</p>':"")
-   +'<div class="between" style="margin-top:12px;gap:6px"><label for="jC" style="margin:0">Cliente</label><div class="row" style="flex:none;gap:6px"><button type="button" class="btn sm alt nw" id="jCm">👥 Mis clientes</button>'+(nw?'<button type="button" class="btn sm alt nw" id="jCn">+ Nuevo cliente</button>':'')+'</div></div><input id="jC" value="'+esc(j.cli)+'" maxlength="60" placeholder="Escribe el nombre o búscalo" autocomplete="off"><div class="cpk" id="jCs"></div><div id="jCh"></div>'
+   +'<div class="between" style="margin-top:12px;gap:6px"><label for="jC" style="margin:0">Cliente</label><div class="row" style="flex:none;gap:6px"><button type="button" class="btn sm alt nw" id="jCm">👥 Mis clientes</button>'+(nw?'<button type="button" class="btn sm alt nw" id="jCn">+ Nuevo cliente</button>':'')+'</div></div><input id="jC" value="'+esc(j.cli)+'" maxlength="60" placeholder="'+(carBiz()?"Nombre, número o placa":"Escribe el nombre o búscalo")+'" autocomplete="off"><div class="cpk" id="jCs"></div><div id="jCh"></div>'
    +'<label for="jT">WhatsApp</label><input id="jT" inputmode="tel" value="'+esc(j.tel)+'" maxlength="15" placeholder="8888 8888">'
    +'<label for="jRp">🔁 ¿Cada cuánto viene? <span class="mute small">(opcional)</span></label><select id="jRp">'+cadaOpts(rpv)+'</select>'
    +(VH.length?'<label for="jV">Vehículo</label><select id="jV">'+(vi<0?'<option value="-1">Sin dato</option>':"")+VH.map(function(v,i){return '<option value="'+i+'"'+(i===vi?" selected":"")+'>'+esc(v.n)+(+v.x?" (+"+crc(v.x)+")":"")+'</option>'}).join("")+'</select>':"")
@@ -1034,7 +1034,7 @@ function bindJob(){if($("jV"))$("jV").onchange=function(){J.vi=+this.value;$("jS
   $("jD").onchange=function(){fillHours($("jH").value)};$("jH").onchange=clashMsg;$("jDu").onchange=function(){fillHours($("jH").value)};
   $("jC").oninput=function(){var v=$("jC").value.trim().toLowerCase(),c=clients().find(function(x){return String(x.cli||"").toLowerCase()===v});if(c){jRpSet(c);if(!$("jT").value)$("jT").value=c.tel||"";if($("jU")&&!$("jU").value&&c.ubic){$("jU").value=c.ubic;updU()}if(!$("jHow").value&&c.how)$("jHow").value="Cliente que vuelve"}jSug(v?0:-1)};
   $("jCm").onclick=function(){jSug($("jCs").dataset.on==="all"?-1:1)};
-  if($("jCn"))$("jCn").onclick=function(){var pre={cli:$("jC").value.trim(),tel:telN($("jT").value),ubic:$("jU")?$("jU").value.trim():"",cada:+$("jRp").value||0},dt=$("jD").value,hr=$("jH").value,nt=$("jN").value,pk=J.pick.slice();closeSheet();setTimeout(function(){cliForm(null,pre,function(x){openJob(null,{cli:x.n,tel:x.tel,ubic:x.ubic,svc:x.svc,picks:pk,cada:x.cada,date:dt,time:hr,note:nt})})},50)};
+  if($("jCn"))$("jCn").onclick=function(){var pre={cli:$("jC").value.trim(),tel:telN($("jT").value),ubic:$("jU")?$("jU").value.trim():"",cada:+$("jRp").value||0,svcs:J.pick.slice()},dt=$("jD").value,hr=$("jH").value,nt=$("jN").value,pk=J.pick.slice();closeSheet();setTimeout(function(){cliForm(null,pre,function(x){openJob(null,{cli:x.n,tel:x.tel,ubic:x.ubic,svc:x.svc,picks:pk.length?pk:svcPicks(x),cada:x.cada,date:dt,time:hr,note:nt})})},50)};
   if($("jU")){$("jU").oninput=updU;$("jUp").onclick=function(){try{navigator.clipboard.readText().then(function(t){if(t){$("jU").value=t.trim();updU();toast("Ubicación pegada ✓")}},function(){toast("Mantén presionado el campo y toca Pegar")})}catch(e){toast("Mantén presionado el campo y toca Pegar")}}}
   $("jSave").onclick=function(){saveJob()};
   if($("jDone"))$("jDone").onclick=function(){saveJob("Lista")};
@@ -1043,7 +1043,7 @@ function bindJob(){if($("jV"))$("jV").onchange=function(){J.vi=+this.value;$("jS
   Array.prototype.forEach.call(document.querySelectorAll("#shC [data-wa]"),function(a){var k=a.dataset.wa,j=J.j;a.href=waUrl(j.tel,msgFor(k,j));
     a.onclick=function(){if(k==="rev"&&!j.rv&&j._id){j.rv=1;db.doc("biz/"+BID+"/jobs/"+j._id).update({rv:1}).catch(function(){})}if(k==="conf"&&j.st==="Por confirmar")setTimeout(function(){db.doc("biz/"+BID+"/jobs/"+j._id).update({st:"Confirmada"});toast("Marcada como confirmada")},400)}})}
 function askRev(j){if(!B.rev||!j||!j.tel||j.rv)return;var id=j.id||j._id;
-  sheet('<div style="text-align:center"><div style="font-size:44px">⭐</div><h2>¿Le pedís la reseña a '+esc(first(j.cli))+'?</h2><p class="mute">Es el mejor momento: acaba de ver el resultado. Cada reseña te sube en Google Maps.</p></div><a class="btn wa" id="rvGo" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("rev",j)))+'">Pedir reseña por WhatsApp</a><button class="btn alt" id="rvNo">Ahora no</button>',
+  sheet('<div style="text-align:center"><div style="font-size:44px">⭐</div><h2>¿Le pides la reseña a '+esc(first(j.cli))+'?</h2><p class="mute">Es el mejor momento: acaba de ver el resultado. Cada reseña te sube en Google Maps.</p></div><a class="btn wa" id="rvGo" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("rev",j)))+'">Pedir reseña por WhatsApp</a><button class="btn alt" id="rvNo">Ahora no</button>',
     function(){$("rvGo").onclick=function(){if(id)db.doc("biz/"+BID+"/jobs/"+id).update({rv:1}).catch(function(){});setTimeout(closeSheet,400)};$("rvNo").onclick=function(){closeSheet()}})}
 function first(n){return String(n||"").trim().split(/\s+/)[0]||""}
 function lines(){return (B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).map(function(s){return {n:s.n,p:sp(s)}})}
@@ -1056,7 +1056,7 @@ function saveJob(forceSt){var c=$("jC").value.trim(),t=telN($("jT").value),d=$("
   if(st==="Lista"&&!old.doneAt)data.doneAt=Date.now();
   var rp=$("jRp")&&$("jRp").value!==J.rp0?$("jRp").value:null;
   $("jSave").disabled=true;
-  writeJob(data,old).then(function(){if(rp!=null)syncFijo(data,rp);closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓");if(st==="Lista"&&(!old||old.st!=="Lista"))setTimeout(function(){askRev(data)},900)},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
+  writeJob(data,old).then(function(){if(rp!=null)syncFijo(data,rp);closeSheet();SEL=d;if(VIEW!=="agenda")go("agenda");else renderAg();toast(st==="Lista"?"¡Cita atendida! "+crc(tot)+" 💸":J.nw?"Cita guardada ✓":"Cambios guardados ✓");if(st==="Lista"&&(!old||old.st!=="Lista"))setTimeout(function(){if(rp!=null)askRev(data);else askFijo(data,function(){whenFree(function(){askRev(data)})})},900)},function(e){$("jSave").disabled=false;$("jErr").textContent=errEs(e)})}
 function writeJob(data,old){old=old||{};var id=data.id,st=data.st,oldB=old._id&&active(old)?blocks(old.date,old.time,old.dur):[],newB=st==="Cancelada"||st==="No vino"?[]:blocks(data.date,data.time,data.dur);
   var ds=[];if(newB.length)ds.push(data.date);if(oldB.length&&ds.indexOf(old.date)<0)ds.push(old.date);
   return slotDocs(ds).then(function(d){return {docs:d}},function(){return null}).then(function(R){
@@ -1162,17 +1162,20 @@ $("cF").onclick=function(e){var b=e.target.closest("button");if(!b)return;CF=b.d
 function renderCli(){renderNotes();var q=$("cq").value.trim().toLowerCase(),A=clients(),odN=A.filter(function(c){return c.od}).length,tcN=A.filter(function(c){return c.rdue!=null}).length,fjN=A.filter(isFijo).length;
   if(CF==="toca"&&!tcN)CF="all";
   $("cF").innerHTML='<button class="chip" data-f="all" aria-pressed="'+(CF==="all")+'">Todos · '+A.length+'</button>'+(tcN?'<button class="chip" data-f="toca" aria-pressed="'+(CF==="toca")+'">🔔 Les toca · '+tcN+'</button>':"")+'<button class="chip" data-f="fijo" aria-pressed="'+(CF==="fijo")+'">🔁 Fijos · '+fjN+'</button><button class="chip" data-f="od" aria-pressed="'+(CF==="od")+'">💤 Para reactivar · '+odN+'</button><button class="chip" data-f="top" aria-pressed="'+(CF==="top")+'">⭐ Mejores</button>';
-  var L=A.filter(function(c){return (CF!=="od"||c.od)&&(CF!=="toca"||c.rdue!=null)&&(CF!=="fijo"||isFijo(c))&&(!q||CITALY.fz(q,c.cli)>0||String(c.tel).indexOf(q.replace(/\D/g,"")||"~")>=0)});
+  var L=A.filter(function(c){return (CF!=="od"||c.od)&&(CF!=="toca"||c.rdue!=null)&&(CF!=="fijo"||isFijo(c))&&(!q||CITALY.fz(q,c.cli)>0||(c.d&&c.d.pl&&q.replace(/[\s-]/g,"").length>=2&&String(c.d.pl).toLowerCase().replace(/[\s-]/g,"").indexOf(q.replace(/[\s-]/g,""))>=0)||String(c.tel).indexOf(q.replace(/\D/g,"")||"~")>=0)});
   if(CF==="top")L.sort(function(a,b){return b.spent-a.spent});
   if(CF==="toca")L.sort(function(a,b){return b.rdue-a.rdue});
   if(CF==="fijo")L.sort(function(a,b){return (a.rnext||"9999").localeCompare(b.rnext||"9999")});
+  var reAsk=CF==="fijo"&&B.noAskFijo?'<button class="link" id="cReAsk" style="display:block;margin:8px auto 0">🔁 Volver a preguntar «¿Cada cuánto vuelve?» al terminar citas</button>':"";
   $("cList").innerHTML=L.length?L.map(function(c,i){return '<div class="cl" data-i="'+i+'"><div class="ini">'+esc(String(c.cli||"?").charAt(0).toUpperCase())+'</div><div class="m"><b>'+esc(c.cli)+'</b><span>'+(c.rdue!=null?'<span style="color:var(--warn);font-weight:700">🔔 '+esc(tocaTxt(c))+'</span>':c.due?'<span style="color:var(--warn);font-weight:700">🔔 Le toca volver: '+esc(c.due.n)+'</span>':c.od?'<span style="color:var(--warn);font-weight:700">Hace '+c.od+' meses que no viene</span>':c.next?(isFijo(c)?"🔁 ":"")+"📅 Próxima cita "+pd(c.next).getDate()+" "+MN[pd(c.next).getMonth()].slice(0,3):isFijo(c)?"🔁 "+cadaTxt(c.d.cada)+(c.rnext?" · le toca el "+pd(c.rnext).getDate()+" "+MN[pd(c.rnext).getMonth()].slice(0,3):""):c.n?c.n+(c.n===1?" visita":" visitas")+" · "+crc(c.spent):"Sin visitas atendidas")+'</span></div>'+(c.rdue!=null&&c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor("fijo",c)))+'" onclick="event.stopPropagation()">Escribirle</a>':c.od&&c.tel?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(c.tel,msgFor("back",c)))+'" onclick="event.stopPropagation()">Escribirle</a>':'<span class="mute small">'+(c.n?crc(c.spent):"")+'</span>')+'</div>'}).join("")
    :'<div class="empty"><div>👥</div>'+(q?"No encontramos a nadie con eso.":CF==="od"?"¡Bien! Ningún cliente se te está perdiendo.":CF==="fijo"?"Todavía no tienes clientes fijos.<br>Toca <b>+ Nuevo cliente</b> y elige <b>¿Cada cuánto viene?</b>":"Aquí aparecen tus clientes.<br>Toca <b>+ Nuevo cliente</b> para agregarlos, o se agregan solos al agendar citas.")+'</div>';
+  if(reAsk)$("cList").insertAdjacentHTML("beforeend",reAsk);if($("cReAsk"))$("cReAsk").onclick=function(){saveBiz({noAskFijo:false}).then(function(){toast("Listo, te vamos a preguntar ✓");renderCli()},function(){})};
   Array.prototype.forEach.call(document.querySelectorAll("#cList .cl"),function(el){el.onclick=function(){openCli(L[+el.dataset.i])}})}
 function openCli(c){var js=c.jobs.slice().sort(function(a,b){return (b.date+b.time).localeCompare(a.date+a.time)}),N=notesOf(c);
   sheet('<div class="between"><h2 style="margin:0">'+esc(c.cli)+'</h2><span class="mute">'+esc(c.tel||"")+'</span></div>'
    +(c.rdue!=null?'<div class="warnbox">🔔 '+esc(tocaTxt(c))+(c.d.svc?' · «'+esc(c.d.svc)+'»':'')+'. Un mensaje a tiempo y queda agendado.</div>':"")
    +(isFijo(c)?'<p class="small" style="margin:8px 0 0">🔁 <b>'+esc(cadaTxt(c.d.cada))+'</b>'+(c.d.svc?' · '+esc(c.d.svc):'')+(c.rnext&&c.rdue==null?' · le toca el '+pd(c.rnext).getDate()+" "+MN[pd(c.rnext).getMonth()]:'')+'</p>':"")
+   +(carTxt(c.d)?'<p class="small" style="margin:6px 0 0">🚗 '+esc(carTxt(c.d))+'</p>':"")
    +(c.d&&c.d.nota?'<p class="small mute" style="margin:6px 0 0">📝 '+esc(c.d.nota)+'</p>':"")
    +(c.due?'<div class="warnbox">🔔 Ya le toca volver a «'+esc(c.due.n)+'» (hace '+c.due.m+(c.due.m===1?" mes":" meses")+'). Un mensaje a tiempo lo trae de vuelta.<div style="margin-top:8px"><button class="btn sm alt" id="cNoRe">🔕 No recordarle más esta vez</button></div></div>':c.od?'<div class="warnbox">💤 Hace '+c.od+' meses que no viene. Un mensaje a tiempo lo puede traer de vuelta.</div>':"")
    +'<div class="stats" style="margin-top:12px"><div class="stat"><span>Visitas</span><b>'+c.n+'</b></div><div class="stat"><span>Ha gastado</span><b>'+crc(c.spent)+'</b></div></div>'
@@ -1193,60 +1196,82 @@ var CADAS=[[0,"No es fijo"],[7,"Cada semana"],[15,"Cada 15 días"],[22,"Cada 22 
 function CLIS(){return (B&&B.clis||[]).slice()}
 function cliK(n,t){return telN(t)||("n:"+String(n||"").toLowerCase().trim())}
 function dirOf(c){if(!c)return null;var k=cliK(c.cli,c.tel),nm=String(c.cli||"").toLowerCase().trim();return CLIS().filter(function(x){return cliK(x.n,x.tel)===k})[0]||(nm?CLIS().filter(function(x){return !x.tel&&String(x.n||"").toLowerCase().trim()===nm})[0]:null)||null}
+function svcsOf(x){if(!x)return [];if(x.svcs&&x.svcs.length)return x.svcs.slice();return x.svc?[x.svc]:[]}
+function svcPicks(x){var S=B.services||[];return svcsOf(x).filter(function(n){return S.some(function(s){return s.n===n})})}
+function carBiz(){return !!((C.types[B.type]||{}).car||modOn("vehiculo"))}
+function carTxt(x){return x?[x.car,x.pl].filter(Boolean).join(" · "):""}
 function isFijo(c){return !!(c&&c.d&&+c.d.cada>0)}
 function cadaTxt(d){d=+d||0;var o=CADAS.filter(function(x){return x[0]===d})[0];return o?o[1]:"Cada "+d+" días"}
 function cadaOpts(v){v=+v||0;var has=CADAS.some(function(o){return o[0]===v});return CADAS.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===v?" selected":"")+'>'+(o[0]?"🔁 ":"")+o[1]+'</option>'}).join("")+(has?"":'<option value="'+v+'" selected>🔁 Cada '+v+' días</option>')}
 function addCada(s,d){d=+d;var M={30:1,60:2,90:3,180:6,365:12}[d];if(!M)return addD(s,d);var x=pd(s),dd=x.getDate();x.setDate(1);x.setMonth(x.getMonth()+M);var last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(dd,last));return ymd(x)}
 function tocaTxt(c){var r=c.rdue;return r>0?"Le tocaba hace "+r+(r===1?" día":" días"):r===0?"Le toca hoy":"Le toca "+niceDay(c.rnext).toLowerCase()}
-function preOf(c){var t=ymd(new Date());return {cli:c.cli,tel:c.tel,ubic:c.ubic,how:c.n?"Cliente que vuelve":c.how,svc:c.d&&c.d.svc||"",date:c.rnext&&c.rnext>=t?c.rnext:undefined}}
+function preOf(c){var t=ymd(new Date());return {cli:c.cli,tel:c.tel,ubic:c.ubic,how:c.n?"Cliente que vuelve":c.how,svc:c.d&&c.d.svc||"",picks:svcPicks(c.d),date:c.rnext&&c.rnext>=t?c.rnext:undefined}}
 function newCliId(){return "c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
 function saveClis(arr){return saveBiz({clis:arr.slice(0,CLIMAX)})}
 /* Al guardar una cita: si eligió «¿Cada cuánto viene?», queda como cliente fijo */
-function syncFijo(data,rp){var cada=+rp||0,arr=CLIS(),k=cliK(data.cli,data.tel),nm=String(data.cli||"").toLowerCase().trim(),i=-1;
+function syncFijo(data,rp,quiet){var cada=+rp||0,arr=CLIS(),k=cliK(data.cli,data.tel),nm=String(data.cli||"").toLowerCase().trim(),i=-1;
   arr.forEach(function(x,n){if(i<0&&(cliK(x.n,x.tel)===k||(!x.tel&&String(x.n||"").toLowerCase().trim()===nm)))i=n});
-  var sv=String((data.items||[])[0]||"").split(" · ")[0].trim();
-  if(i<0){if(!cada||arr.length>=CLIMAX)return;arr.unshift({id:newCliId(),n:data.cli,tel:data.tel||"",cada:cada,svc:sv,prox:"",ubic:String(data.ubic||"").slice(0,200),nota:"",at:Date.now()})}
-  else{if((+arr[i].cada||0)===cada&&(arr[i].tel||!data.tel))return;arr[i]=Object.assign({},arr[i],{cada:cada,tel:arr[i].tel||data.tel||""});if(cada&&!arr[i].svc&&sv)arr[i].svc=sv}
-  saveClis(arr).then(function(){if(cada&&i<0)setTimeout(function(){toast("🔁 "+first(data.cli)+" quedó como cliente fijo")},2600)},function(){})}
+  var svl=(data.items||[]).map(function(n){return String(n).split(" · ")[0].trim()}).filter(Boolean).slice(0,8),sv=svl.join(" + ").slice(0,120);
+  if(i<0){if(!cada||arr.length>=CLIMAX)return Promise.resolve();arr.unshift({id:newCliId(),n:data.cli,tel:data.tel||"",cada:cada,svc:sv,svcs:svl,prox:"",ubic:String(data.ubic||"").slice(0,200),nota:"",at:Date.now()})}
+  else{if((+arr[i].cada||0)===cada&&(arr[i].tel||!data.tel))return Promise.resolve();arr[i]=Object.assign({},arr[i],{cada:cada,tel:arr[i].tel||data.tel||""});if(cada&&!arr[i].svc&&sv){arr[i].svc=sv;arr[i].svcs=svl}}
+  return saveClis(arr).then(function(){if(cada&&i<0&&!quiet)setTimeout(function(){toast("🔁 "+first(data.cli)+" quedó como cliente fijo")},2600)},function(){})}
+/* Clientes de paso: se guarda solo su clave (no ocupan lugar en «Mis clientes») */
+function isNoFijo(data){return (B.noFijo||[]).indexOf(cliK(data.cli,data.tel))>=0}
+function noFijo(data){var k=cliK(data.cli,data.tel),L=(B.noFijo||[]).slice();if(k==="n:"||L.indexOf(k)>=0)return;L.unshift(k);saveBiz({noFijo:L.slice(0,3000)}).catch(function(){})}
+/* Al terminar una cita: preguntar cada cuánto vuelve (si no es fijo). Espera a que no haya otra hoja abierta. */
+function busySh(){return $("sh").classList.contains("on")||!!(history.state&&history.state.sh)}
+function whenFree(fn,n){n=n||0;if(n>=240)return;if(busySh()){setTimeout(function(){whenFree(fn,n+1)},500);return}setTimeout(function(){if(busySh())whenFree(fn,n+1);else fn()},350)}
+function askFijo(data,then){var t0=then||function(){},dn=false;then=function(){if(dn)return;dn=true;t0()};if(!data||!data.cli){then();return}var dx=dirOf({cli:data.cli,tel:data.tel});
+  if(dx&&+dx.cada>0){var nx=addCada(data.date||ymd(new Date()),dx.cada);toast("🔁 A "+first(data.cli)+" le toca de nuevo el "+pd(nx).getDate()+" de "+MN[pd(nx).getMonth()]);setTimeout(then,1200);return}
+  if(B.noAskFijo||isNoFijo(data)){then();return}
+  whenFree(function(){sheet('<div style="text-align:center"><div style="font-size:44px">🔁</div><h2>¿Cada cuánto vuelve '+esc(first(data.cli))+'?</h2><p class="mute">Te avisamos en la agenda cuando le toque, con el mensaje listo para escribirle.</p></div><div class="chips" id="afC" style="justify-content:center">'+CADAS.slice(1).map(function(o){return '<button type="button" class="chip" data-c="'+o[0]+'">🔁 '+o[1]+'</button>'}).join("")+'</div><button class="btn alt" id="afNo" style="margin-top:14px">No es fijo</button><button class="link" id="afNever" style="display:block;margin:6px auto 0">No volver a preguntar</button>',
+    function(){$("afC").onclick=function(e){var b=e.target.closest("button");if(!b)return;var cd=+b.dataset.c,nx=addCada(data.date||ymd(new Date()),cd);closeSheet();syncFijo(data,cd,true).then(function(){toast("🔁 Listo: le toca el "+pd(nx).getDate()+" de "+MN[pd(nx).getMonth()])});setTimeout(then,900)};
+      var wt=setInterval(function(){if(!$("afC")||!$("sh").classList.contains("on")){clearInterval(wt);setTimeout(then,400)}},400);
+      $("afNo").onclick=function(){closeSheet();noFijo(data);setTimeout(then,400)};
+      $("afNever").onclick=function(){closeSheet();saveBiz({noAskFijo:true}).then(function(){toast("Listo, no te preguntamos más. Lo puedes activar en Clientes → Fijos.")},function(){});setTimeout(then,400)}})})}
 /* Sugerencias al escribir el nombre en «Nueva cita» (m: 1 = todos, 0 = según lo escrito, -1 = cerrar) */
 function jSug(m){var el=$("jCs");if(!el)return;var q=$("jC").value.trim(),A=clients();
   if(m<0||(m===0&&!q)){el.innerHTML="";el.dataset.on="";return}
-  var L=m===1&&!q?A.slice().sort(function(a,b){return (isFijo(b)-isFijo(a))||String(a.cli).localeCompare(String(b.cli))}):A.map(function(c){var s=CITALY.fz(q,c.cli);var d=q.replace(/\D/g,"");if(d.length>=3&&String(c.tel||"").indexOf(d)>=0)s=Math.max(s,1);return {c:c,s:s}}).filter(function(o){return o.s>0}).sort(function(a,b){return b.s-a.s}).map(function(o){return o.c});
+  var L=m===1&&!q?A.slice().sort(function(a,b){return (isFijo(b)-isFijo(a))||String(a.cli).localeCompare(String(b.cli))}):A.map(function(c){var s=CITALY.fz(q,c.cli);var d=q.replace(/\D/g,"");if(d.length>=3&&String(c.tel||"").indexOf(d)>=0)s=Math.max(s,1);if(c.d&&c.d.pl&&q.length>=2&&String(c.d.pl).toLowerCase().replace(/[\s-]/g,"").indexOf(q.toLowerCase().replace(/[\s-]/g,""))>=0)s=Math.max(s,1);return {c:c,s:s}}).filter(function(o){return o.s>0}).sort(function(a,b){return b.s-a.s}).map(function(o){return o.c});
   if(m===0&&L.length===1&&String(L[0].cli).toLowerCase()===q.toLowerCase()){el.innerHTML="";el.dataset.on="";return}
   L=L.slice(0,m===1?60:6);el.dataset.on=m===1?"all":"q";
-  el.innerHTML=L.length?L.map(function(c,i){return '<button type="button" data-k="'+i+'"><span>'+esc(c.cli)+(c.tel?' <small>· '+esc(c.tel)+'</small>':'')+'</span><small>'+(c.rdue!=null?"🔔 Le toca":isFijo(c)?"🔁 "+esc(cadaTxt(c.d.cada)):c.n?c.n+(c.n===1?" visita":" visitas"):"")+'</small></button>'}).join(""):(m===1?'<p class="mute small" style="margin:4px 0">Todavía no tienes clientes guardados. Toca <b>+ Nuevo</b>.</p>':"");
+  el.innerHTML=L.length?L.map(function(c,i){return '<button type="button" data-k="'+i+'"><span>'+esc(c.cli)+(c.tel?' <small>· '+esc(c.tel)+'</small>':'')+(c.d&&c.d.pl?' <small>· '+esc(c.d.pl)+'</small>':'')+'</span><small>'+(c.rdue!=null?"🔔 Le toca":isFijo(c)?"🔁 "+esc(cadaTxt(c.d.cada)):c.n?c.n+(c.n===1?" visita":" visitas"):"")+'</small></button>'}).join(""):(m===1?'<p class="mute small" style="margin:4px 0">Todavía no tienes clientes guardados. Toca <b>+ Nuevo</b>.</p>':"");
   Array.prototype.forEach.call(el.querySelectorAll("button[data-k]"),function(b){b.onclick=function(){jPick(L[+b.dataset.k])}})}
 function jPick(c){$("jC").value=c.cli||"";$("jT").value=c.tel||"";if($("jU")&&c.ubic){$("jU").value=c.ubic;updU()}if(c.n&&!$("jHow").value)$("jHow").value="Cliente que vuelve";
   jRpSet(c);
-  if(c.d&&c.d.svc&&!J.pick.length&&(B.services||[]).some(function(s){return s.n===c.d.svc})){J.pick=[c.d.svc];jApplyPick()}
+  if(c.d&&!J.pick.length&&svcPicks(c.d).length){J.pick=svcPicks(c.d);jApplyPick()}
   $("jCs").innerHTML="";$("jCs").dataset.on="";jHint(c)}
 function jRpSet(c){if(!$("jRp"))return;var v=c&&c.d?+c.d.cada||0:0;if(!Array.prototype.some.call($("jRp").options,function(o){return +o.value===v}))$("jRp").insertAdjacentHTML("beforeend",'<option value="'+v+'">🔁 Cada '+v+' días</option>');$("jRp").value=String(v);J.rp0=String(v)}
-function jHint(c){var el=$("jCh");if(!el)return;var t=ymd(new Date());if(!c||!J.nw||!c.rnext||c.rnext<t||c.rnext===$("jD").value){el.innerHTML="";return}
-  el.innerHTML='<button type="button" class="link" id="jChB">📅 Le toca '+esc(niceDay(c.rnext).toLowerCase())+' · usar esa fecha</button>';
-  $("jChB").onclick=function(){$("jD").value=c.rnext;fillHours($("jH").value);el.innerHTML=""}}
+function jHint(c){var el=$("jCh");if(!el)return;var t=ymd(new Date()),ct=c&&carTxt(c.d),fd=c&&J.nw&&c.rnext&&c.rnext>=t&&c.rnext!==$("jD").value;
+  el.innerHTML=(ct?'<p class="small" style="margin:6px 0 0">🚗 '+esc(ct)+'</p>':"")+(fd?'<button type="button" class="link" id="jChB">📅 Le toca '+esc(niceDay(c.rnext).toLowerCase())+' · usar esa fecha</button>':"");
+  if($("jChB"))$("jChB").onclick=function(){$("jD").value=c.rnext;fillHours($("jH").value);this.remove()}}
 function jApplyPick(){$("jS").innerHTML=svcChips();var L=lines();$("jP").value=L.reduce(function(a,l){return a+l.p},0)||"";var d=(B.services||[]).filter(function(s){return J.pick.indexOf(s.n)>=0}).reduce(function(a,s){return a+(+s.d||0)},0);
   if(d){$("jDu").value=DURS.find(function(m){return m>=d})||480}fillHours($("jH").value);jTot()}
 /* Formulario de un cliente (nuevo o editar). after(x) se llama al guardar uno nuevo */
-function cliForm(x,pre,after){pre=pre||{};var nw=!x;x=x||{id:newCliId(),n:pre.cli||"",tel:pre.tel||"",cada:+pre.cada||0,svc:pre.svc||"",prox:"",ubic:pre.ubic||"",nota:"",at:Date.now()};
+function cliForm(x,pre,after){pre=pre||{};var nw=!x;x=x||{id:newCliId(),n:pre.cli||"",tel:pre.tel||"",cada:+pre.cada||0,svc:pre.svc||"",svcs:pre.svcs||[],prox:"",ubic:pre.ubic||"",nota:"",at:Date.now()};
   var cd=+x.cada||0,std=CADAS.some(function(o){return o[0]===cd}),S=B.services||[];
   sheet('<h2 style="margin:0 0 4px">'+(nw?"Nuevo cliente":"Editar cliente")+'</h2><p class="mute small" style="margin:0 0 4px">Guárdalo una vez y después lo eliges en segundos al agendar.</p>'
    +'<label for="kN">Nombre</label><input id="kN" maxlength="60" value="'+esc(x.n)+'" placeholder="Nombre del cliente" autocomplete="off">'
    +'<label for="kT">WhatsApp</label><input id="kT" inputmode="tel" maxlength="15" value="'+esc(x.tel)+'" placeholder="8888 8888">'
-   +'<label>¿Cada cuánto viene?</label><div class="chips" id="kC">'+CADAS.map(function(o){return '<button type="button" class="chip" data-c="'+o[0]+'" aria-pressed="'+(std&&o[0]===cd)+'">'+(o[0]?"🔁 ":"")+o[1]+'</button>'}).join("")+'<button type="button" class="chip" data-c="x" aria-pressed="'+(!std)+'">✏️ Otro</button></div>'
+   +(carBiz()?'<div class="row"><div><label for="kPl">Placa</label><input id="kPl" maxlength="10" value="'+esc(x.pl||"")+'" placeholder="BCD123" style="text-transform:uppercase" autocomplete="off"></div><div style="flex:1.4"><label for="kCar">Carro</label><input id="kCar" maxlength="40" value="'+esc(x.car||"")+'" placeholder="Ej. Hilux gris"></div></div>':"")
+   +'<label for="kU">Dónde vive / ubicación <span class="mute small">(opcional)</span></label><input id="kU" maxlength="200" value="'+esc(x.ubic||"")+'" placeholder="Ej. San Rafael de Alajuela o link de Maps">'
+   +'<label>¿Cada cuánto viene? <span class="mute small">(opcional, también lo puedes poner al terminar una cita)</span></label><div class="chips" id="kC">'+CADAS.map(function(o){return '<button type="button" class="chip" data-c="'+o[0]+'" aria-pressed="'+(std&&o[0]===cd)+'">'+(o[0]?"🔁 ":"")+o[1]+'</button>'}).join("")+'<button type="button" class="chip" data-c="x" aria-pressed="'+(!std)+'">✏️ Otro</button></div>'
    +'<div id="kXw"'+(std?" hidden":"")+'><label for="kX">Cada cuántos días</label><input id="kX" type="number" inputmode="numeric" min="1" max="730" value="'+(std?"":cd)+'" placeholder="Ej. 10"></div>'
-   +(S.length?'<label for="kS">Servicio que se hace <span class="mute small">(opcional)</span></label><select id="kS"><option value="">— Varios / no sé —</option>'+S.map(function(s){return '<option'+(s.n===x.svc?" selected":"")+'>'+esc(s.n)+'</option>'}).join("")+'</select>':"")
+   +'<label>Servicios que se hace <span class="mute small">(opcional, puedes marcar varios)</span></label>'+(S.length?'<div class="chips" id="kS">'+S.map(function(s,i){return '<button type="button" class="chip" data-i="'+i+'" aria-pressed="'+(svcsOf(x).indexOf(s.n)>=0)+'">'+(s.ic?C.ico(s.ic)+" ":"")+esc(s.n)+'</button>'}).join("")+'</div>':"")
+   +'<input id="kSo" maxlength="60" value="'+esc(svcsOf(x).filter(function(n){return !S.some(function(s){return s.n===n})}).join(", "))+'" placeholder="'+(S.length?"Otro servicio (escríbelo si no está arriba)":"Ej. Lavado completo, encerado")+'" style="margin-top:8px">'
    +'<div id="kFw"'+(cd?"":" hidden")+'><label for="kP">¿Cuándo le toca la próxima vez?</label><input id="kP" type="date" value="'+esc(x.prox||"")+'"><p class="mute small" style="margin:5px 0 0">Te avisamos en la agenda cuando le toque. Si no lo sabes, déjalo vacío: contamos desde su próxima cita atendida.</p></div>'
-   +(B.home||x.ubic?'<label for="kU">Ubicación <span class="mute small">(opcional)</span></label><input id="kU" maxlength="200" value="'+esc(x.ubic||"")+'" placeholder="Dirección o link de Maps">':"")
-   +'<label for="kNo">Nota <span class="mute small">(opcional)</span></label><textarea id="kNo" maxlength="150" placeholder="Preferencias, carro, detalles…">'+esc(x.nota||"")+'</textarea>'
+   +'<label for="kNo">Nota <span class="mute small">(opcional)</span></label><textarea id="kNo" maxlength="150" placeholder="Preferencias, detalles…">'+esc(x.nota||"")+'</textarea>'
    +'<p class="err" id="kErr"></p><div class="acts"><button class="btn full" id="kSave">'+(nw?"Guardar cliente":"Guardar cambios")+'</button>'+(nw?"":'<button class="btn danger full" id="kDel">Quitar de mis clientes</button>')+'</div>',
-  function(){var cur=std?String(cd):"x";
+  function(){var cur=std?String(cd):"x";if($("kS"))$("kS").onclick=function(e){var b=e.target.closest("button");if(b)b.setAttribute("aria-pressed",b.getAttribute("aria-pressed")!=="true")};
     $("kC").onclick=function(e){var b=e.target.closest("button");if(!b)return;cur=b.dataset.c;Array.prototype.forEach.call($("kC").querySelectorAll("button"),function(o){o.setAttribute("aria-pressed",o===b)});$("kXw").hidden=cur!=="x";$("kFw").hidden=cur==="0";if(cur==="x")$("kX").focus()};
     $("kSave").onclick=function(){var n=$("kN").value.trim().slice(0,60),t=telN($("kT").value),c=cur==="x"?Math.round(+$("kX").value||0):+cur;$("kErr").textContent="";
       if(!n){$("kErr").textContent="Escribe el nombre del cliente.";return}if(t&&t.length<8){$("kErr").textContent="Revisa el WhatsApp: son 8 dígitos.";return}
       if(cur==="x"&&(c<1||c>730)){$("kErr").textContent="Escribe cada cuántos días viene (de 1 a 730).";return}
       var arr=CLIS(),dup=arr.filter(function(o){return o.id!==x.id&&(t?telN(o.tel)===t:!telN(o.tel)&&String(o.n||"").toLowerCase().trim()===n.toLowerCase())})[0];if(dup){$("kErr").textContent=t?"Ya tienes a «"+dup.n+"» con ese número.":"Ya tienes a «"+dup.n+"» sin número. Agrégale el WhatsApp o usa otro nombre.";return}
       if(nw&&arr.length>=CLIMAX){$("kErr").textContent="Llegaste al máximo de "+CLIMAX+" clientes guardados.";return}
-      var y=Object.assign({},x,{n:n,tel:t,cada:c,svc:$("kS")?$("kS").value:(x.svc||""),prox:c&&$("kP").value?$("kP").value:"",ubic:$("kU")?$("kU").value.trim().slice(0,200):(x.ubic||""),nota:$("kNo").value.trim().slice(0,150)});
+      var y=Object.assign({},x,{n:n,tel:t,cada:c,svc:"",prox:c&&$("kP").value?$("kP").value:"",ubic:$("kU")?$("kU").value.trim().slice(0,200):(x.ubic||""),nota:$("kNo").value.trim().slice(0,150),pl:$("kPl")?$("kPl").value.trim().toUpperCase().slice(0,10):(x.pl||""),car:$("kCar")?$("kCar").value.trim().slice(0,40):(x.car||"")});
+      var ss=[];if($("kS"))Array.prototype.forEach.call($("kS").querySelectorAll("button[aria-pressed=true]"),function(b){ss.push(S[+b.dataset.i].n)});
+      $("kSo").value.split(",").forEach(function(t){t=t.trim().slice(0,60);if(t&&ss.indexOf(t)<0)ss.push(t)});ss=ss.slice(0,8);y.svcs=ss;y.svc=ss.join(" + ").slice(0,120);
       var i=-1;arr.forEach(function(o,k){if(o.id===x.id)i=k});if(i>=0)arr[i]=y;else arr.unshift(y);
       $("kSave").disabled=true;saveClis(arr).then(function(){closeSheet();toast(nw?"Cliente guardado ✓":"Cambios guardados ✓");if(VIEW==="clientes")renderCli();if(after)setTimeout(function(){after(y)},250)},function(e){$("kSave").disabled=false;$("kErr").textContent=errEs(e)})};
     if($("kDel"))$("kDel").onclick=function(){if(!confirm("¿Quitar a "+x.n+" de tus clientes? Sus citas e historial no se borran."))return;var bk=CLIS(),arr=bk.filter(function(o){return o.id!==x.id});
