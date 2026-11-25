@@ -13,7 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124e"></script>
+<script src="../cfg.js?v=20261124f"></script>
 <style>
 .wrap{max-width:720px}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
@@ -490,6 +490,6 @@ function loadDemo(){var D=DEMO_GS,b=$("eDemo");b.disabled=true;b.textContent="Ca
   Promise.all([urlImg(D.logo).then(function(im){E.logo=squareImgEl(im,256)})].concat(D.fotos.map(function(f){return urlImg(f[0]).then(function(im){return {img:fitImgEl(im,1200),cap:f[1]}})})))
     .then(function(r){E.fotos=r.slice(1)},function(){toast("No se pudieron cargar las fotos de la demo")}).then(function(){edRender();checkSlug();toast("Datos de GlassStudioCR cargados. Revisa y toca Crear negocio.")})}
 </script>
-<script src="extra.js?v=7"></script>
+<script src="extra.js?v=8"></script>
 </body>
 </html>
