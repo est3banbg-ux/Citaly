@@ -23,6 +23,7 @@ const WA_TXT = "6150-6610";
 const TIPOS = {
   detailing: {
     corto: "detailing",
+    unico: { t: "Pensado para servicios largos y de precio alto", items: [["Citas de varias horas sin traslapes", "Cada servicio tiene su duración. Una corrección de pintura larga bloquea ese tiempo y nadie más puede reservar encima."], ["Precio según el tamaño del vehículo", "Sedán, SUV o pick-up: el cliente elige su vehículo y ve el precio exacto antes de reservar."], ["Adelanto por SINPE", "Con el plan Turbo podés pedir un adelanto para asegurar la hora de servicios grandes, como un tratamiento cerámico."], ["Tus trabajos a la vista", "El detailing se vende con fotos y videos. Tu página muestra tus trabajos y videos de TikTok, Instagram, Facebook o YouTube."]] },
     h1: "Sistema de citas para detailing en Costa Rica",
     title: "Sistema de citas para detailing en Costa Rica | Citaly",
     desc: "Tus clientes eligen su vehículo, ven el precio y reservan solos. Página web y app incluidas. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.",
@@ -33,9 +34,10 @@ const TIPOS = {
   },
   lavacar: {
     corto: "lavacar",
+    unico: { t: "Pensado para el día a día de un lavacar", items: [["Varios carros a la misma hora", "Con el plan Turbo definís cuántos clientes atendés al mismo tiempo y la agenda no deja reservar de más."], ["Clientes fijos y placa", "Buscás por placa y ves qué le hiciste a cada carro la última vez."], ["Avisa cuándo toca volver", "En Turbo, Citaly te muestra qué clientes ya deberían volver para escribirles por WhatsApp."], ["Agenda por día y semana", "Ves el día completo en el celular, con las horas libres y las ocupadas."]] },
     h1: "Sistema de citas para lavacar en Costa Rica",
     title: "Sistema de citas para lavacar en Costa Rica | Citaly",
-    desc: "Agenda para lavacar: tus clientes reservan solos, tú ves el día en el celular. Página web y app incluidas. 7 días gratis, sin tarjeta. Desde ₡4.900/mes.",
+    desc: "Agenda para lavacar: tus clientes reservan solos y vos ves el día en el celular. Página web y app incluidas. 7 días gratis, sin tarjeta. Desde ₡4.900/mes.",
     lead: "Que tus clientes reserven su lavado solos y que cada hora de tu día esté clara en el celular. Se acabaron los mensajes de «¿tiene campo hoy?».",
     dolor: ["Cada «¿tiene campo hoy?» es un mensaje que hay que contestar con las manos mojadas.", "Los clientes llegan todos a la misma hora y otras horas del día quedan vacías.", "Sin historial por vehículo, cada visita empieza de cero."],
     serviciosTitulo: "Servicios típicos de un lavacar",
@@ -43,6 +45,7 @@ const TIPOS = {
   },
   pulido: {
     corto: "pulido de focos y vidrios",
+    unico: { t: "Pensado para pulido de focos y vidrios", items: [["Un servicio por cada trabajo", "Focos, parabrisas, rayones y gota seca como servicios separados, cada uno con su precio y duración."], ["Servicio a domicilio", "En Turbo cargás tus zonas y el tiempo de traslado, y avisás a tus clientes cuando vas en camino."], ["Reseñas de Google con un toque", "Cuando terminás un trabajo, le pedís su reseña al cliente desde Citaly, sin escribir el mensaje."], ["Tus trabajos a la vista", "Mostrás tus fotos y hasta 6 videos de TikTok, Instagram, Facebook o YouTube en tu propia página."]] },
     h1: "Sistema de citas para pulido de focos y parabrisas",
     title: "Sistema de citas para pulido de focos y parabrisas | Citaly",
     desc: "Agenda y página de reservas para pulido de focos y parabrisas. Tus clientes reservan solos. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.",
@@ -54,7 +57,7 @@ const TIPOS = {
 };
 
 const css = `
-:root{--ink:#17123A;--mut:#5B5680;--brand:#2A1A7A;--acc:#FFB84D;--bg:#F7F5FB;--card:#fff;--line:#E3DFF1;--soft:#EFEBFA}
+:root{--bb:#2A1A7A;--ink:#17123A;--mut:#5B5680;--brand:#2A1A7A;--acc:#FFB84D;--bg:#F7F5FB;--card:#fff;--line:#E3DFF1;--soft:#EFEBFA}
 @media(prefers-color-scheme:dark){:root{--ink:#F1EFFB;--mut:#B9B4D8;--brand:#9C8CFF;--acc:#FFB84D;--bg:#100C2A;--card:#1A1540;--line:#2E2766;--soft:#221B55}}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,sans-serif;padding-bottom:84px}
@@ -73,7 +76,7 @@ h1{font-size:clamp(34px,6vw,54px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-si
 .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .sub{color:var(--mut);font-size:15px}
 .mock{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 32px rgba(42,26,122,.12)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:15px}.chip.on{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:15px}.chip.on{background:var(--bb);color:#fff;border-color:var(--bb);font-weight:700}
 .band{background:var(--card);border-block:1px solid var(--line)}
 .grid{display:flex;flex-wrap:wrap;gap:20px}.grid>*{flex:1 1 300px;min-width:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
@@ -81,15 +84,15 @@ h1{font-size:clamp(34px,6vw,54px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-si
 section{padding:56px 0}
 ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:20px;counter-reset:s}
 ol.steps li{flex:1 1 280px;counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
-ol.steps li:before{content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;margin-bottom:10px}
+ol.steps li:before{content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--bb);color:#fff;font-weight:700;margin-bottom:10px}
 .tags{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;padding:0;list-style:none}.tags li{background:var(--soft);padding:9px 16px;border-radius:999px;font-weight:600}
 .plan{display:flex;flex-direction:column;gap:8px}.plan.pop{border:2px solid var(--brand)}
 .amt{font:700 38px 'Bricolage Grotesque',sans-serif}.amt small{font:400 16px Figtree;color:var(--mut)}
 .plan ul{margin:6px 0 0;padding-left:20px;color:var(--mut)}
 details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px}
 summary{font-weight:700;cursor:pointer}details p{margin:10px 0 0;color:var(--mut)}
-.who{background:var(--brand);color:#fff;border-radius:24px;padding:36px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
-.who>div{flex:1 1 380px;min-width:0}.who p{margin:10px 0 0;color:#DAD5F5}.who a.btn{background:#fff;color:var(--brand)}
+.who{background:var(--bb);color:#fff;border-radius:24px;padding:36px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.who>div{flex:1 1 380px;min-width:0}.who p{margin:10px 0 0;color:#DAD5F5}.who a.btn{background:#fff;color:#2A1A7A}
 .links{display:flex;flex-wrap:wrap;gap:10px 22px}
 footer{border-top:1px solid var(--line);padding:28px 0;color:var(--mut);font-size:15px}
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
@@ -161,10 +164,10 @@ function paginaTipo(tipo, T) {
 </div>
 <div><div class="mock" aria-label="Ejemplo de la página de reservas">
 <div class="sub">Así reserva tu cliente (ejemplo)</div>
-<div><div class="sub">Tipo de vehículo</div><div class="chips"><span class="chip">Pequeño</span><span class="chip on">Mediano</span><span class="chip">Grande</span></div></div>
+<div><div class="sub">Tipo de vehículo</div><div class="chips"><span class="chip">Sedán o hatchback</span><span class="chip on">SUV</span><span class="chip">Pick-up o 4x4</span></div></div>
 <div class="card"><b>${esc(svc[0] || "Tu servicio")}</b><div class="sub">El precio cambia según el vehículo elegido</div></div>
 <div><div class="sub">Horas libres</div><div class="chips"><span class="chip">8:00 am</span><span class="chip on">10:00 am</span><span class="chip">1:00 pm</span></div></div>
-<span class="btn" style="background:var(--brand);color:#fff">Confirmar reserva</span></div></div></div></div>
+<span class="btn" style="background:var(--bb);color:#fff">Confirmar reserva</span></div></div></div></div>
 
 <div class="band"><div class="w"><section style="padding:36px 0"><h2 style="font-size:26px;margin-bottom:16px">Lo que le pasa a casi todo negocio de ${esc(T.corto)}</h2><div class="grid">${T.dolor.map(d => `<p style="margin:0">${esc(d)}</p>`).join("")}</div></section></div></div>
 
@@ -177,14 +180,13 @@ function paginaTipo(tipo, T) {
 <p class="lead" style="font-size:18px">Citaly te los carga como ejemplo. Vos cambiás nombres, precios y duración.</p>
 <ul class="tags">${svc.map(s => `<li>${esc(s)}</li>`).join("")}</ul></section></div>
 
-<div class="band"><div class="w"><section><h2>Lo que incluye para tu negocio</h2><div class="grid" style="margin-top:22px">
+<div class="band"><div class="w"><section><h2>${esc(T.unico.t)}</h2><div class="grid" style="margin-top:22px">${T.unico.items.map(([h, p]) => `<div class="card"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("")}</div></section></div></div>
+
+<div class="w"><section><h2>Y todo esto viene incluido</h2><div class="grid" style="margin-top:22px">
 <div class="card"><h3>Página de reservas 24/7</h3><p>El cliente elige servicio, vehículo, día y hora, y ve el precio antes de confirmar.</p></div>
-<div class="card"><h3>Página web con tus trabajos</h3><p>Fotos, reseñas, preguntas frecuentes y hasta ${C.plans.arranque.inc.find(x => /videos/.test(x)).match(/\d+/)[0]} videos de TikTok, Instagram, Facebook o YouTube.</p></div>
-<div class="card"><h3>Clientes e historial por vehículo</h3><p>Buscás por placa y ves qué servicios le hiciste a cada carro.</p></div>
-<div class="card"><h3>Aviso de cada reserva</h3><p>Te llega al celular apenas alguien reserva, y podés pedir reseñas de Google con un toque.</p></div>
-<div class="card"><h3>Avisa cuándo toca volver</h3><p>En Turbo, Citaly te muestra qué clientes ya deberían volver para escribirles por WhatsApp.</p></div>
-<div class="card"><h3>Tu equipo y tus cuentas</h3><p>Desde Turbo sumás a tu equipo y llevás cierre de caja, gastos y ganancia del mes.</p></div>
-</div></section></div></div>
+<div class="card"><h3>Página web de tu negocio</h3><p>Con tus servicios, fotos, reseñas y preguntas frecuentes, lista para compartir en tus redes.</p></div>
+<div class="card"><h3>Aviso de cada reserva</h3><p>Te llega al celular apenas alguien reserva, para que no te tome por sorpresa.</p></div>
+</div></section></div>
 
 <div class="w"><section><div class="who"><div><div class="kick" style="color:#FFB84D">Quién está detrás</div><h2 style="margin-top:6px">Hecho por un dueño de negocio de carros</h2>
 <p>Citaly nació en GlassStudioCR, mi negocio de pulido de parabrisas y focos en Alajuela. Lo armé primero para mis propias reservas y hoy lo abro a otros negocios de carros. Si algo no te funciona, me escribís por WhatsApp al ${WA_TXT} y te ayudo.</p></div>

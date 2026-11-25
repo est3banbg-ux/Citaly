@@ -16,7 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Citaly: sistema de citas para negocios de carros","url":"https://citalyapp.com/para/","hasPart":[{"@type":"WebPage","name":"Sistema de citas para detailing en Costa Rica","url":"https://citalyapp.com/para/detailing/"},{"@type":"WebPage","name":"Sistema de citas para lavacar en Costa Rica","url":"https://citalyapp.com/para/lavacar/"},{"@type":"WebPage","name":"Sistema de citas para pulido de focos y parabrisas","url":"https://citalyapp.com/para/pulido/"}]}</script>
 <style>
-:root{--ink:#17123A;--mut:#5B5680;--brand:#2A1A7A;--acc:#FFB84D;--bg:#F7F5FB;--card:#fff;--line:#E3DFF1;--soft:#EFEBFA}
+:root{--bb:#2A1A7A;--ink:#17123A;--mut:#5B5680;--brand:#2A1A7A;--acc:#FFB84D;--bg:#F7F5FB;--card:#fff;--line:#E3DFF1;--soft:#EFEBFA}
 @media(prefers-color-scheme:dark){:root{--ink:#F1EFFB;--mut:#B9B4D8;--brand:#9C8CFF;--acc:#FFB84D;--bg:#100C2A;--card:#1A1540;--line:#2E2766;--soft:#221B55}}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,sans-serif;padding-bottom:84px}
@@ -35,7 +35,7 @@ h1{font-size:clamp(34px,6vw,54px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-si
 .row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
 .sub{color:var(--mut);font-size:15px}
 .mock{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 32px rgba(42,26,122,.12)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:15px}.chip.on{background:var(--brand);color:#fff;border-color:var(--brand);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:15px}.chip.on{background:var(--bb);color:#fff;border-color:var(--bb);font-weight:700}
 .band{background:var(--card);border-block:1px solid var(--line)}
 .grid{display:flex;flex-wrap:wrap;gap:20px}.grid>*{flex:1 1 300px;min-width:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
@@ -43,15 +43,15 @@ h1{font-size:clamp(34px,6vw,54px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-si
 section{padding:56px 0}
 ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:20px;counter-reset:s}
 ol.steps li{flex:1 1 280px;counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
-ol.steps li:before{content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:700;margin-bottom:10px}
+ol.steps li:before{content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--bb);color:#fff;font-weight:700;margin-bottom:10px}
 .tags{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;padding:0;list-style:none}.tags li{background:var(--soft);padding:9px 16px;border-radius:999px;font-weight:600}
 .plan{display:flex;flex-direction:column;gap:8px}.plan.pop{border:2px solid var(--brand)}
 .amt{font:700 38px 'Bricolage Grotesque',sans-serif}.amt small{font:400 16px Figtree;color:var(--mut)}
 .plan ul{margin:6px 0 0;padding-left:20px;color:var(--mut)}
 details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px}
 summary{font-weight:700;cursor:pointer}details p{margin:10px 0 0;color:var(--mut)}
-.who{background:var(--brand);color:#fff;border-radius:24px;padding:36px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
-.who>div{flex:1 1 380px;min-width:0}.who p{margin:10px 0 0;color:#DAD5F5}.who a.btn{background:#fff;color:var(--brand)}
+.who{background:var(--bb);color:#fff;border-radius:24px;padding:36px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+.who>div{flex:1 1 380px;min-width:0}.who p{margin:10px 0 0;color:#DAD5F5}.who a.btn{background:#fff;color:#2A1A7A}
 .links{display:flex;flex-wrap:wrap;gap:10px 22px}
 footer{border-top:1px solid var(--line);padding:28px 0;color:var(--mut);font-size:15px}
 .dock{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}

@@ -39,7 +39,7 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == bid;
     }
     function reservedSlug(s) {
-      return s in ['app', 'admin', 'r', 'w', 'demo', 'www', 'api', 'citaly', 'ayuda', 'precios', 'login', 'privacidad', 'terminos', 'img', 'docs', 'eliminar-datos', 'webhook', '404'];
+      return s in ['app', 'admin', 'r', 'w', 'demo', 'www', 'api', 'citaly', 'ayuda', 'precios', 'login', 'privacidad', 'terminos', 'img', 'docs', 'eliminar-datos', 'webhook', '404', 'para', 'descargar', 'android'];
     }
     // Hora de la cita en Costa Rica (UTC-6) como fecha y hora universal
     function citaTs(f, t) {

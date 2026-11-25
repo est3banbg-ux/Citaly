@@ -486,8 +486,7 @@ function render(){if((P.web||{}).layout!=="clasica")return renderPro();
   h+='<div class="dock" id="dock">'+bookBtn("")+'<a class="btn wa" target="_blank" rel="noopener" href="'+wa+'" aria-label="WhatsApp">'+WA_SVG+'</a></div>';
   $("page").innerHTML=h;$("load").hidden=true;$("page").hidden=false;
   // datos para Google
-  var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,telephone:"+"+waNum(P.wa),url:location.origin+"/"+slug};if(P.addr)ld.address=P.addr;
-  var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc);
+  if(!document.querySelector('script[type="application/ld+json"]')){var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,url:location.origin+"/"+slug+"/"};if(waNum(P.wa).length>=8)ld.telephone="+"+waNum(P.wa);if(P.addr)ld.address=P.addr;var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc)}
   // fotos en grande
   var tb=document.querySelector("#trabajos .tabs");if(tb)tb.onclick=function(e){var b=e.target.closest("[data-t]");if(!b)return;Array.prototype.forEach.call(tb.children,function(x){x.setAttribute("aria-selected",x===b)});$("tbF").hidden=b.dataset.t!=="f";$("tbV").hidden=b.dataset.t!=="v"};
   if(location.hash==="#videos"&&$("tbV")){var vb=tb&&tb.querySelector('[data-t="v"]');if(vb)vb.click();$("trabajos").scrollIntoView()}
@@ -627,8 +626,7 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
   // 14. barra fija inferior
   h+='<div class="pr-dock">'+bk("pr-cta","Agendar en 1 minuto","",1)+'<a class="pr-btn pr-wa pr-wab" target="_blank" rel="noopener" href="'+wa+'" aria-label="WhatsApp">'+WA_SVG.replace('class="wasvg"','')+'</a></div>';
   var pg=$("page");pg.className="pr";pg.innerHTML=h;$("load").hidden=true;pg.hidden=false;
-  var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,telephone:"+"+waNum(P.wa),url:location.origin+"/"+slug};if(P.addr)ld.address=P.addr;
-  var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc);
+  if(!document.querySelector('script[type="application/ld+json"]')){var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,url:location.origin+"/"+slug+"/"};if(waNum(P.wa).length>=8)ld.telephone="+"+waNum(P.wa);if(P.addr)ld.address=P.addr;var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc)}
   Array.prototype.forEach.call(document.querySelectorAll(".pr-lay[data-i]"),function(el){var f=FOTOS[+el.dataset.i],u=img(f&&f.img).replace(/['"()\\\s<>]/g,function(c){return "%"+("0"+c.charCodeAt(0).toString(16)).slice(-2)});el.style.backgroundImage='url("'+u+'")';el.style.backgroundPosition=el.classList.contains("pr-after")?"center bottom":"center top"});
   Array.prototype.forEach.call(document.querySelectorAll(".pr-ba input"),function(r){r.addEventListener("input",function(){r.parentNode.style.setProperty("--pos",r.value+"%")})});
   $("prMode").onclick=function(){var n=document.documentElement.getAttribute("data-pm")==="dark"?"light":"dark";try{localStorage.setItem("citaly_mode",n)}catch(e){}proApply(n,col,pal);this.textContent=n==="dark"?"☀️ Modo claro":"🌙 Modo oscuro"};
