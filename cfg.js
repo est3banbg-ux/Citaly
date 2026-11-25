@@ -9,7 +9,7 @@ var CITALY = {
     appId: "1:252257950082:web:c4ffa71662111f0ae0179b"
   },
   site: "https://citalyapp.com",
-  apkReady: false,   // pasar a true cuando el APK de Android esté publicado (Releases > android-latest)
+  apkReady: true,   // pasar a true cuando el APK de Android esté publicado (Releases > android-latest)
   admin: "est3banbg@gmail.com",
   price: 0,              // (no se usa)
   // Precio: prueba gratis → promo los primeros meses → precio del plan
