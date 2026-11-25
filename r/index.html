@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124f"></script>
+<script src="../cfg.js?v=20261124h"></script>
 <style>
 .wrap{padding-bottom:130px}
 .head{text-align:center;padding:22px 0 8px}
@@ -235,6 +235,7 @@ function pd(s){var p=s.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
 function tm(s){var p=String(s).split(":");return +p[0]*60+ +p[1]}
 function hm(m){return pad(Math.floor(m/60))+":"+pad(m%60)}
 function fh(s){var m=tm(s),h=Math.floor(m/60),mi=m%60;return (h%12||12)+(mi?":"+pad(mi):"")+" "+(h<12?"am":"pm")}
+function crq(n){return +n>0?crc(n):"Por cotizar"}
 function crc(n){return "₡"+Math.round(n||0).toLocaleString("es-CR")}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return (h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":"")}
@@ -361,7 +362,7 @@ function missing(){var k=STEPS[S.step];
 function okStep(){return !missing()}
 function hint(){var m=missing();if(m)err("Falta: "+m+".")}
 var WASOK=false;
-function upd(){var L=lines(),A=carsAll(),m=missing(),ok=!m,n=L.length;$("tot").textContent=crc(total());
+function upd(){var L=lines(),A=carsAll(),m=missing(),ok=!m,n=L.length;$("tot").textContent=crq(total());
   var t=$("tl");t.textContent=!ok?"Falta: "+m:n?(A.length>1?A.length+" carros · ":"")+n+(n===1?" servicio":" servicios")+" · "+durTxt(durReal()):"Total";$("tl").parentNode.classList.toggle("warn",!ok);
   var b=$("nx");b.classList.toggle("off",!ok);if(ok&&!WASOK){b.classList.remove("rdy");void b.offsetWidth;b.classList.add("rdy")}WASOK=ok;
   var k=STEPS[S.step];$("addCarB").disabled=!(S.pick.length>0&&(!vehOn()||S.veh>=0));$("noMore").hidden=!(S.cars.length>0&&!S.pick.length);
@@ -425,13 +426,13 @@ $("how").onclick=function(e){var b=e.target.closest(".chip");if(!b)return;var on
 
 /* Resumen y envío */
 function renderSum(){var z=S.zone>=0?P.zones[S.zone]:null,A=carsAll(),multi=A.length>1,L=lines();
-  var svc=A.map(function(c,k){var rows=L.filter(function(l){return l.car===k}).map(function(l){return '<div class="li"><span>'+C.ico(l.ic||"")+" "+esc(l.base)+(l.own?'<br><small style="color:var(--mute)">Precio para '+esc(l.vn||"tu vehículo")+'</small>':l.x>0?'<br><small style="color:var(--mute)">'+crc(l.b)+" + "+crc(l.x)+" por "+esc(l.vn||"tipo de vehículo")+'</small>':"")+'</span><span>'+crc(l.p)+'</span></div>'}).join("");
+  var svc=A.map(function(c,k){var rows=L.filter(function(l){return l.car===k}).map(function(l){return '<div class="li"><span>'+C.ico(l.ic||"")+" "+esc(l.base)+(l.own?'<br><small style="color:var(--mute)">Precio para '+esc(l.vn||"tu vehículo")+'</small>':l.x>0?'<br><small style="color:var(--mute)">'+crc(l.b)+" + "+crc(l.x)+" por "+esc(l.vn||"tipo de vehículo")+'</small>':"")+'</span><span>'+crq(l.p)+'</span></div>'}).join("");
     return (vehOn()||multi?'<div class="li"><span>🚙 '+(multi?"Carro "+(k+1)+" · ":"")+esc(carFull(c,k))+'</span><span></span></div>':"")+rows}).join("");
   $("sum").innerHTML=svc
   +(P.home?'<div class="li"><span>🚗 Domicilio'+(z?" · "+esc(z.n):"")+'</span><span>'+(fee()?crc(fee()):"Gratis")+'</span></div>':"")
   +'<div class="li"><span>📅 '+niceDay(S.day)+'</span><b>'+fh(S.t)+'</b></div><div class="li"><span>⏱️ Duración</span><span>'+durTxt(durReal())+'</span></div>'
   +(P.home?'<div class="li"><span>📍 '+(S.ll?"Ubicación enviada":"Dirección")+'</span><span style="text-align:right;max-width:60%">'+esc($("ad").value.trim()||"✓")+(z?'<br><small style="color:var(--ok)">'+esc(z.n)+" · "+(z.ask?"traslado por confirmar":z.fee?"+"+crc(z.fee):"domicilio gratis")+'</small>':"")+'</span></div>':"")
-  +'<div class="li"><span>👤 '+esc($("cli").value.trim())+'</span><span>'+esc(telN($("tel").value))+'</span></div><div class="li"><b>Total</b><b>'+crc(total())+'</b></div>'}
+  +'<div class="li"><span>👤 '+esc($("cli").value.trim())+'</span><span>'+esc(telN($("tel").value))+'</span></div><div class="li"><b>Total</b><b>'+crq(total())+'</b></div>'}
 function blocks(){var r=[],s=tm(S.t);for(var k=0;k<dur();k+=30)r.push(S.day+"_"+hm(s+k).replace(":",""));return r}
 function submit(){var b=$("nx");if(b.disabled)return;err("");if(!S.day||S.t==null){show(STEPS.indexOf("when"));err("Elige el día y la hora.");return}
   if($("website").value){done();return}
@@ -461,14 +462,14 @@ function pingOwner(){pushOwner("new",S.job);try{if(!P.ntf)return;fetch("https://
 /* Adelanto por SINPE para asegurar la hora (lo configura el dueño) */
 function depBox(){var d=P.dep;if(!d||!d.tel){return}var amt=+d.amt||0,box=$("okDep");if(d.pct&&!amt)amt=Math.round(total()*d.pct/100/100)*100;
   box.hidden=false;box.innerHTML='<b>💸 Asegura tu hora con un adelanto</b><p class="mute small" style="margin:6px 0 0">'+(amt?'Envía <b>'+crc(amt)+'</b>':'Envía el adelanto')+' por SINPE Móvil al <b>'+esc(d.tel)+'</b>'+(d.name?' ('+esc(d.name)+')':'')+' y manda el comprobante por WhatsApp.'+(d.note?' '+esc(d.note):'')+'</p>'}
-function waText(){var z=S.zone>=0?P.zones[S.zone]:null;return "¡Hola "+P.name+"! 👋 Acabo de reservar por su página:\n\n📅 "+niceDay(S.day)+", "+fh(S.t)+(vehOn()||carsAll().some(function(c){return c.mod})?"\n🚙 "+carsAll().map(carFull).join(" + "):"")+"\n✨ "+picked().map(function(s){return s.n}).join(" + ")+"\n💰 "+crc(total())+"\n👤 "+$("cli").value.trim()
+function waText(){var z=S.zone>=0?P.zones[S.zone]:null;return "¡Hola "+P.name+"! 👋 Acabo de reservar por su página:\n\n📅 "+niceDay(S.day)+", "+fh(S.t)+(vehOn()||carsAll().some(function(c){return c.mod})?"\n🚙 "+carsAll().map(carFull).join(" + "):"")+"\n✨ "+picked().map(function(s){return s.n}).join(" + ")+"\n💰 "+crq(total())+"\n👤 "+$("cli").value.trim()
   +(P.home?(z?"\n🗺️ "+z.n:"")+(S.ll?"\n📍 https://maps.google.com/?q="+S.ll:"")+($("ad").value.trim()?"\n🏠 "+$("ad").value.trim():""):"")+($("nt").value.trim()?"\n📝 "+$("nt").value.trim():"")+(S.tk?"\n\n🔗 Para cambiar o cancelar mi cita: "+myLink(S.tk):"")}
 function done(){memSet({n:$("cli").value.trim().slice(0,60),t:$("tel").value.trim().slice(0,15),m:$("vmod")?$("vmod").value.trim().slice(0,40):""});pingOwner();depBox();if(S.tk){$("mylink").hidden=false;$("mlv").value=myLink(S.tk);$("mlc").onclick=function(){var v=$("mlv").value;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(function(){$("mlc").textContent="¡Copiado!"},function(){$("mlv").select()})}}$("flow").hidden=true;$("bar").hidden=true;$("ok").hidden=false;window.scrollTo(0,0);
   $("okT").textContent=P.name+" recibió tu reserva.";
-  $("okS").innerHTML='<b>'+niceDay(S.day).replace(/^./,function(c){return c.toUpperCase()})+', '+fh(S.t)+'</b><br><span class="mute">'+esc(picked().map(function(s){return s.n}).join(" + "))+" · "+crc(total())+'</span>';
+  $("okS").innerHTML='<b>'+niceDay(S.day).replace(/^./,function(c){return c.toUpperCase()})+', '+fh(S.t)+'</b><br><span class="mute">'+esc(picked().map(function(s){return s.n}).join(" + "))+" · "+crq(total())+'</span>';
   $("okWa").href=waUrl(P.wa,waText());
   var f=function(m){return S.day.replace(/-/g,"")+"T"+hm(m).replace(":","")+"00"};
-  $("okCal").href="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent("Cita en "+P.name)+"&dates="+f(tm(S.t))+"/"+f(tm(S.t)+dur())+"&details="+encodeURIComponent(picked().map(function(s){return s.n}).join(" + ")+" · "+crc(total()))+"&location="+encodeURIComponent(P.home?($("ad").value.trim()||S.ll):(P.addr||""));
+  $("okCal").href="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent("Cita en "+P.name)+"&dates="+f(tm(S.t))+"/"+f(tm(S.t)+dur())+"&details="+encodeURIComponent(picked().map(function(s){return s.n}).join(" + ")+" · "+crq(total()))+"&location="+encodeURIComponent(P.home?($("ad").value.trim()||S.ll):(P.addr||""));
   confetti()}
 $("again").onclick=function(){location.href=location.pathname+"?n="+slug+"&go=1"};
 function confetti(){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;var K=[P.color||"#6c4cf5","#ff8a5b","#ffd166","#4cc782","#8b72ff"];

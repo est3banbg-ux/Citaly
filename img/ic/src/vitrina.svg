@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><g stroke="#111" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M50,200 Q50,110 170,100 L342,100 Q462,110 462,200 L462,370 L50,370 Z" fill="#fff" stroke-width="13"/>
+<path d="M380,110 Q452,125 452,200 L452,360 L400,360 L400,200 Q400,140 350,104 Z" fill="#111" stroke="none"/>
+<path d="M60,255 L452,255" stroke-width="8"/>
+<rect x="95" y="215" width="70" height="40" rx="10" fill="#fff" stroke-width="7"/><rect x="190" y="215" width="70" height="40" rx="10" fill="#fff" stroke-width="7"/><rect x="285" y="215" width="70" height="40" rx="10" fill="#fff" stroke-width="7"/>
+<rect x="95" y="305" width="70" height="40" rx="10" fill="#fff" stroke-width="7"/><rect x="190" y="305" width="70" height="40" rx="10" fill="#fff" stroke-width="7"/><rect x="285" y="305" width="70" height="40" rx="10" fill="#fff" stroke-width="7"/>
+<path d="M120,150 L260,140" stroke-width="5"/>
+<rect x="50" y="370" width="412" height="80" rx="14" fill="#111" stroke-width="13"/><path d="M90,410 L420,410" stroke="#fff" stroke-width="6"/><path d="M430,30 L436.6,53.4 L460,60 L436.6,66.6 L430,90 L423.4,66.6 L400,60 L423.4,53.4 Z" fill="#111" stroke-width="3"/><path d="M60,38 L64.8,55.2 L82,60 L64.8,64.8 L60,82 L55.2,64.8 L38,60 L55.2,55.2 Z" fill="#111" stroke-width="3"/></g></svg>

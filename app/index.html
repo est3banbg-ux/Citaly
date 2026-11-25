@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124f"></script><script src="novedades.js?v=20261124c"></script>
+<script src="../cfg.js?v=20261124h"></script><script src="novedades.js?v=20261124c"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -671,7 +671,7 @@ function signup(){show("signup");var inn=!!U;
   $("suG").hidden=inn;$("suMail").hidden=inn;$("suPw").hidden=inn;$("suHave").hidden=inn;$("suTeam").hidden=!inn;
   if(inn){$("suEm").textContent=U.email||"";$("suWa").href=waUrl(C.wa,"Hola, necesito ayuda para entrar a Citaly con "+(U.email||""));if(U.displayName&&!$("suP").value)$("suP").value=U.displayName}
   Array.prototype.forEach.call(document.querySelectorAll(".suDays"),function(e){e.textContent=C.trialDays||7});
-  var order=["lavacar","detailing","pulido","polarizado","taller","autos","otro"];
+  var order=["lavacar","detailing","pulido","polarizado","taller","autos","refri","otro"];
   $("suT").innerHTML=order.filter(function(k){return C.types[k]}).map(function(k){var t=C.types[k];return '<button type="button" class="chip" data-k="'+k+'" aria-pressed="'+(SU.type===k)+'">'+(t.ico?C.ico(t.ico):(t.ic||""))+" "+esc(t.n)+'</button>'}).join("");
   if(!$("suC").options.length){var tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
     var guess=/Costa_Rica/.test(tz)?"CR":/Panama/.test(tz)?"PA":/Mexico|Monterrey|Cancun|Tijuana|Merida|Chihuahua/.test(tz)?"MX":/Bogota/.test(tz)?"CO":/Lima/.test(tz)?"PE":/Santiago/.test(tz)?"CL":/Guayaquil/.test(tz)?"EC":/Santo_Domingo/.test(tz)?"DO":/Puerto_Rico/.test(tz)?"PR":/Buenos_Aires|Argentina/.test(tz)?"AR":/Guatemala/.test(tz)?"GT":/Salvador/.test(tz)?"SV":/Tegucigalpa/.test(tz)?"HN":/Managua/.test(tz)?"NI":/Madrid/.test(tz)?"ES":/Caracas/.test(tz)?"VE":/Montevideo/.test(tz)?"UY":/Asuncion/.test(tz)?"PY":/La_Paz/.test(tz)?"BO":/America\/(New_York|Chicago|Denver|Los_Angeles|Phoenix)/.test(tz)?"US":"CR";
