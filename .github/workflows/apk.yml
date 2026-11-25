@@ -45,11 +45,10 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Android SDK (cmdline-tools + licencias)
-        uses: android-actions/setup-android@v3
-
       - name: Aceptar licencias y build-tools
         run: |
+          export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+          which sdkmanager || ls "$ANDROID_HOME/cmdline-tools"
           yes | sdkmanager --licenses > /dev/null || true
           sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-35" > /dev/null
 
