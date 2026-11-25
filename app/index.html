@@ -343,6 +343,16 @@ nav.tabs .sbtn,nav.tabs .side{display:none}
 .set{position:relative}
 .set .fv{font-size:17px;line-height:1;color:var(--mute);cursor:pointer;padding:6px;margin:-6px 0 -6px 6px;border-radius:8px;flex:none;order:5}
 .set .fv:hover{color:var(--acc2);background:var(--soft)}.set .fv.on{color:#f2b134}
+@media (max-width:899px){
+.top{flex-wrap:wrap;row-gap:10px}
+.top>div[style*="flex:1"]{flex:1 1 calc(100% - 62px)!important}
+.top h1{white-space:normal;overflow:visible;text-overflow:clip;font-size:22px;line-height:1.15;overflow-wrap:anywhere}
+.top .ib{width:34px;height:34px;font-size:16px;border-radius:10px}
+.top .av+div+.ib{margin-left:0}
+.fbr{flex-wrap:wrap;overflow:visible}
+.fch{padding:8px 11px;font-size:13px;gap:6px;max-width:100%;text-align:left}
+.fch span{font-size:16px}
+}
 .favbar{margin-bottom:12px}.fbh{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .fe{border:0;background:var(--soft);color:var(--acc);font:700 12px Figtree,sans-serif;border-radius:999px;padding:5px 11px;cursor:pointer}
 .fbr{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}.fbr::-webkit-scrollbar{display:none}
