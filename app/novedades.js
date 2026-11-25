@@ -82,11 +82,11 @@ function newsDate(d){var t=ymd(new Date());return (d===t?"Hoy · ":d===addD(t,-1
 function newsSheet(tab){
   var N=CITALY_NEWS,last="",sk=null;try{sk=JSON.parse(newsGet("citaly_newsk"))}catch(e){}
   var cut=addD(newsLatest(),-2);function isNew(i){return Array.isArray(sk)?sk.indexOf(newsKey(i))<0:i.d>cut}
-  var ds=[],nOld=0;N.items.forEach(function(i){if(ds.indexOf(i.d)<0)ds.push(i.d)});
-  var nw=N.items.map(function(i){
+  var nOld=0,SHOW=5;
+  var nw=N.items.map(function(i,ix){
     var h="";if(i.d!==last){last=i.d;h='<div class="ngh">'+esc(newsDate(i.d))+'</div>'}
-    var old=ds.indexOf(i.d)>=2;if(old)nOld++;
-    return (old?'<div class="nold" hidden>':'<div>')+h+'<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+(isNew(i)?' <span class="npill">Nuevo</span>':'')+'</b><p>'+esc(i.x)+'</p></div></div></div>'}).join("")+(nOld?'<button type="button" class="btn alt" id="nMore" style="width:100%;margin-top:12px">Ver novedades anteriores ('+nOld+')</button>':'');
+    var old=ix>=SHOW;if(old)nOld++;
+    return (old?'<div class="nold" hidden>':'<div>')+h+'<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+(isNew(i)?' <span class="npill">Nuevo</span>':'')+'</b><p>'+esc(i.x)+'</p></div></div></div>'}).join("")+(nOld?'<button type="button" class="btn alt" id="nMore" style="width:100%;margin-top:12px">Mostrar más ('+nOld+')</button>':'');
   var so=N.soon.map(function(i){return '<div class="nw"><span class="ic">'+esc(i.ic)+'</span><div><b>'+esc(i.t)+' <span class="nst'+(i.s==="En camino"?' go':'')+'">'+esc(i.s)+'</span></b><p>'+esc(i.x)+'</p></div></div>'}).join("");
   var fxl="",fl="";(N.fixes||[]).forEach(function(i){if(i.d!==fl){fl=i.d;fxl+='<div class="ngh">'+esc(newsDate(i.d))+'</div>'}fxl+='<div class="nw"><span class="ic">🛠️</span><div><p style="margin:0;color:var(--ink)">'+esc(i.x)+'</p></div></div>'});
   sheet('<div class="nhd"><h2>🚀 Novedades</h2><button type="button" class="nclose" id="nX" aria-label="Cerrar">✕</button></div><p class="mute small" style="margin-top:-4px">Lo que mejoramos en Citaly y lo que viene.</p>'
@@ -95,7 +95,7 @@ function newsSheet(tab){
     +'<div class="acts"><a class="btn alt" id="nIdea" target="_blank" rel="noopener">💡 Sugerir algo</a><button type="button" class="btn" id="nOk">Entendido</button></div>',
   function(){
     function pick(t){$("ntN").setAttribute("aria-selected",t==="new");$("ntS").setAttribute("aria-selected",t==="soon");if($("ntF"))$("ntF").setAttribute("aria-selected",t==="fix");$("nBody").innerHTML=t==="soon"?so:t==="fix"?fxl:nw;more()}
-    function more(){var m=$("nMore");if(m)m.onclick=function(){Array.prototype.forEach.call(document.querySelectorAll("#nBody .nold"),function(x){x.hidden=false});m.remove()}}
+    function more(){var m=$("nMore");if(m)m.onclick=function(){var h=document.querySelectorAll("#nBody .nold[hidden]");Array.prototype.forEach.call(h,function(x,k){if(k<10)x.hidden=false});var r=document.querySelectorAll("#nBody .nold[hidden]").length;if(r)m.textContent="Mostrar más ("+r+")";else m.remove()}}
     $("ntN").onclick=function(){pick("new")};$("ntS").onclick=function(){pick("soon")};if($("ntF"))$("ntF").onclick=function(){pick("fix")};$("nOk").onclick=function(){closeSheet()};$("nX").onclick=function(){closeSheet()};
     $("nIdea").href=waUrl(C.wa,"¡Hola! Tengo una idea para mejorar Citaly 💡\nNegocio: "+(B&&B.name||"")+"\nMi idea: ");
     pick(tab==="soon"?"soon":"new");newsMark()});
@@ -124,3 +124,11 @@ function newsBanner(){
   document.getElementById("nBanV").onclick=function(){bye(false);newsSheet()};
   t=setTimeout(function(){bye(true)},9000);
 }
+
+/* Novedades automáticas: se suman las generadas desde los commits (novedades-auto.js) a las escritas a mano */
+(function(){try{
+  if(typeof CITALY_NEWS_AUTO==="undefined"||!CITALY_NEWS_AUTO.items||!CITALY_NEWS_AUTO.items.length)return;
+  var seen={},all=[];CITALY_NEWS_AUTO.items.concat(CITALY_NEWS.items).forEach(function(i){var k=i.d+"|"+i.t;if(seen[k])return;seen[k]=1;all.push(i)});
+  var idx=all.map(function(x,n){return[x,n]});idx.sort(function(a,b){return a[0].d<b[0].d?1:a[0].d>b[0].d?-1:a[1]-b[1]});
+  CITALY_NEWS.items=idx.map(function(x){return x[0]});CITALY_NEWS.v=CITALY_NEWS.v+"."+CITALY_NEWS_AUTO.v;
+}catch(e){}})();
