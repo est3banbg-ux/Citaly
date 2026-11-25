@@ -46,6 +46,7 @@
 .nban .nbv{border:0;background:var(--acc);color:#fff;font:700 14px Figtree,sans-serif;padding:9px 16px;border-radius:12px;cursor:pointer}
 .nban .nbx{border:0;background:none;color:var(--mute);font-size:16px;width:36px;height:36px;border-radius:50%;cursor:pointer}
 @media(min-width:900px){.nban{left:auto;right:24px;bottom:24px;margin:0}}
+.ibar{display:flex;align-items:center;gap:10px;margin:10px 0 12px;padding:10px 10px 10px 12px;border:1px solid var(--line);background:var(--card);border-radius:16px;box-shadow:var(--sh)}.ibar .ii{font-size:26px;flex:none}.ibar .it{flex:1;min-width:0;font-size:13.5px;line-height:1.3;color:var(--ink)}.ibar .it b{display:block;font-size:14.5px}.ibar .it span{color:var(--mute)}.ibar button.go{flex:none;border:0;background:var(--acc);color:#fff;font:800 14px Figtree,sans-serif;padding:10px 14px;border-radius:12px;cursor:pointer}.ibar button.x{flex:none;border:0;background:transparent;color:var(--mute);font-size:17px;padding:6px 8px;cursor:pointer}
 .qd{display:flex;align-items:flex-start;gap:8px;margin:0 2px 10px;padding:2px 4px;cursor:pointer;color:var(--mute);font:italic 600 13.5px/1.4 Figtree,sans-serif;-webkit-tap-highlight-color:transparent}
 .qd .qi{flex:none;font-style:normal;font-size:14px;margin-top:1px}.qd .qt{transition:opacity .16s;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .qd:active .qt{opacity:.6}
@@ -516,7 +517,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
     <div id="v-agenda" class="view">
       <div class="agA"><div id="pbn"></div>
       <div id="onb"></div>
-      <div class="qd" id="qd"></div><div id="hero"></div></div>
+      <div class="qd" id="qd"></div><div id="hero"></div><div id="instBar"></div></div>
       <div class="agB"><div class="sq"><input id="agq" type="search" placeholder="Buscar cita, nombre o teléfono" autocomplete="off"></div>
       <div id="agr" class="sres"></div>
       <div id="pend"></div>
@@ -818,7 +819,7 @@ function subValid(){return !!SUB&&SUB.status!=="suspended"&&SUB.until&&SUB.until
 function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.now())/864e5):0}
 
 /* ---------- RENDER GENERAL ---------- */
-function render(){if(!B)return;renderOnb();instNote();if(typeof renderFrase==="function"&&!$("qd").firstChild)renderFrase();pagoOk();
+function render(){if(!B)return;renderOnb();instNote();renderInstBar();if(typeof renderFrase==="function"&&!$("qd").firstChild)renderFrase();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();if(typeof APA!=="undefined"){APA.fromBiz();}renderFavs();
@@ -1788,7 +1789,7 @@ function instSteps(){var e=instEnv(),h=[];
   function card(t,l){return '<div class="card" style="box-shadow:none;margin:0 0 10px"><b>'+t+'</b><ol class="small" style="padding-left:18px;line-height:1.7;margin:6px 0 0">'+l.map(function(x){return '<li>'+x+'</li>'}).join("")+'</ol></div>'}
   if(e.inapp){h.push('<div class="card" style="box-shadow:none;margin:0 0 10px;border:1px solid var(--acc)"><b>⚠️ Estás dentro de Facebook, Instagram o TikTok</b><p class="small" style="margin:6px 0 0;line-height:1.6">Desde aquí no se puede instalar. Tocá los <b>tres puntos ⋯</b> (arriba o abajo a la derecha) y elegí <b>«Abrir en el navegador»</b> (Chrome o Safari). Ahí volvés a esta pantalla y seguís los pasos.</p></div>')}
   if(e.ios){
-    if(e.iosB==="Safari")h.push(card("🍎 iPhone o iPad con Safari",["Tocá el botón <b>Compartir</b> (el cuadrito con la flecha ⬆️, abajo en el centro).","Bajá en la lista y tocá <b>«Agregar a inicio»</b> (Add to Home Screen).","Dejá el nombre <b>Citaly</b> y tocá <b>Agregar</b>.","Listo: el ícono de Citaly queda en tu pantalla. Abrila desde ahí."]));
+    if(e.iosB==="Safari")h.push(card("🍎 iPhone o iPad con Safari",["Tocá el botón <b>Compartir</b>: el cuadrito con la flecha ⬆️, abajo en el centro (en iPad, arriba a la derecha).","Deslizá la lista hacia arriba y tocá <b>«Agregar a inicio»</b>. Si no la ves, tocá <b>«Más»</b> al final.","Dejá el nombre <b>Citaly</b> y tocá <b>Agregar</b>, arriba a la derecha.","Listo 🎉 El ícono queda en tu pantalla. <b>Abrila siempre desde ahí</b> para recibir los avisos de reservas (iOS 16.4 o más nuevo)."]));
     else h.push(card("🍎 iPhone con "+(e.iosB==="inapp"?"este navegador":e.iosB),["Tocá <b>Compartir</b> (la flecha ⬆️ o los tres puntos ⋯ en la barra).","Elegí <b>«Agregar a inicio»</b> (en iPhone con iOS 16.4 o más nuevo funciona desde "+(e.iosB==="inapp"?"cualquier navegador":e.iosB)+").","Tocá <b>Agregar</b>.","Si no te sale esa opción, abrí citalyapp.com/app en <b>Safari</b> y repetí los pasos."]));
     h.push('<p class="mute small" style="margin:0 0 10px">En iPhone, Apple no permite un botón automático: siempre se hace desde Compartir.</p>');
     return h.join("")}
@@ -1810,6 +1811,12 @@ function instSheet(){var st=isStandalone(),e=instEnv();
   sheet(top+apk+(st?"":instSteps())+'<div class="card" style="box-shadow:none;margin:0 0 10px"><b>❓ Preguntas rápidas</b><p class="small" style="line-height:1.6;margin:6px 0 0"><b>¿Es una app de verdad?</b> Sí, funciona como cualquier app de tu celular. Pronto también estará en Play Store.<br><b>¿Gasta datos o espacio?</b> Casi nada.<br><b>¿Puedo desinstalarla?</b> Sí, como cualquier app: mantené el ícono y elegí quitar.<br><b>¿Pierdo mis datos si la quito?</b> No, todo queda guardado en tu cuenta.</p></div><button class="link" id="instW" style="display:block;margin:6px auto">¿No te funcionó? Escribinos por WhatsApp</button>',function(){
     if($("instGo"))$("instGo").onclick=function(){var ip=window.__ip;if(!ip)return;ip.prompt();ip.userChoice.then(function(r){window.__ip=null;if(r&&r.outcome==="accepted"){toast("¡Instalando Citaly! 🎉");closeSheet()}else toast("Sin problema, podés instalarla cuando quieras")}).catch(function(){})};
     $("instW").onclick=function(){window.open(waUrl(C.wa,"Hola, necesito ayuda para instalar la app de Citaly. Mi celular/navegador: "+navigator.userAgent.slice(0,90)),"_blank")}})}
+function renderInstBar(){var el=$("instBar");if(!el)return;
+  try{var e=instEnv(),x=+(localStorage.getItem("citaly_inst_x")||0);
+  if(isStandalone()||!e.mob||(x&&Date.now()-x<12096e5)||(document.referrer||"").startsWith("android-app://")){el.innerHTML="";return}
+  el.innerHTML='<div class="ibar"><span class="ii">'+(e.ios?"🍎":"📲")+'</span><div class="it"><b>Instalá Citaly en tu celular</b><span>'+(e.ios?"Con su ícono, a pantalla completa y con avisos.":"App gratis: ícono, pantalla completa y avisos.")+'</span></div><button class="go" id="ibGo">Instalar</button><button class="x" id="ibX" aria-label="Ahora no">✕</button></div>';
+  $("ibGo").onclick=function(){instSheet()};
+  $("ibX").onclick=function(){try{localStorage.setItem("citaly_inst_x",String(Date.now()))}catch(_){}el.innerHTML=""}}catch(_){}}
 function instNote(){var n=$("instN");if(n)n.textContent=isStandalone()?"Ya la tenés instalada ✓":"Con un toque, sin tienda"}
 window.addEventListener("ipready",function(){instNote();try{renderOnb()}catch(e){}});
 
