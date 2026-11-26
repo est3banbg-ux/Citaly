@@ -382,10 +382,15 @@ function loadBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P
   return db.collection("biz/"+BID+"/slots").where("date",">=",a).where("date","<=",ymd(e)).get().then(function(sn){BUSY={};SLD=[];sn.forEach(function(d){var b=C.laneBase(d.id);BUSY[b]=(BUSY[b]||0)+1;SLD.push({id:d.id,job:(d.data()||{}).job})});renderDays()},function(){BUSY={};SLD=[];renderDays()})}
 var SLD=[];function bz(k){return (BUSY[k]||0)>=C.lanes(P)}
 function zDayOff(day){var z=S.zone>=0&&P.zones?P.zones[S.zone]:null;return !!(z&&z.days&&z.days.length&&z.days.length<7&&z.days.indexOf(pd(day).getDay())<0)}
+// Horas en que puede empezar una cita: horas exactas que eligió el negocio, o cada X minutos dentro del horario
+function fixedM(){return (Array.isArray(P.fixed)?P.fixed:[]).filter(function(t){return /^\d{2}:\d{2}$/.test(t)}).map(tm).sort(function(x,y){return x-y})}
+function cands(a,z,d){var r=[],L=P.last?tm(P.last):1e9,f=fixedM();
+  if(f.length){f.forEach(function(m){if(m>=a&&m<z&&m<=L&&r.indexOf(m)<0)r.push(m)});return r}
+  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(m>L)break;r.push(m)}});return r}
 function segs(a,z){var b=P.brk;if(b&&b.a&&b.b){var x=tm(b.a),y=tm(b.b);if(y>x){if(x>a&&x<z)return y<z?[[a,x],[y,z]]:[[a,x]];if(x<=a&&y>a)return y<z?[[y,z]]:[]}}return [[a,z]]}
 function freeStarts(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0||zDayOff(day))return [];var a=tm(h.a),z=tm(h.b),d=dur(),out=[],now=new Date(),min=now.getHours()*60+now.getMinutes()+(+P.lead||0)*60,today=ymd(now);
   var dayOff=Math.round((pd(day)-pd(today))/864e5);
-  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(P.last&&m>tm(P.last))break;if(ci!=null&&m+d>ci*60)continue;if(dayOff*1440+m<min)continue;var ok=true;for(var k=0;k<d;k+=30)if(bz(day+"_"+hm(m+k).replace(":",""))){ok=false;break}if(ok)out.push(hm(m))}});return out}
+  cands(a,z,d).forEach(function(m){if(ci!=null&&m+d>ci*60)return;if(dayOff*1440+m<min)return;var ok=true;for(var k=0;k<d;k+=30)if(bz(day+"_"+hm(m+k).replace(":",""))){ok=false;break}if(ok)out.push(hm(m))});return out}
 function closedDay(s){var h=(P.hours||[])[pd(s).getDay()];return !h||!h.on||(P.cierre||{})[s]===0}
 function renderDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var d=new Date();d.setDate(d.getDate()+i);var s=ymd(d),f=freeStarts(s).length;if(f&&!first)first=s;
     h+='<button data-d="'+s+'" aria-pressed="'+(s===S.day)+'"'+(f?"":" disabled")+'>'+(i===0?"hoy":i===1?"mañ":DS[d.getDay()])+'<b>'+d.getDate()+'</b>'+(f?MN[d.getMonth()].slice(0,3):zDayOff(s)?"no vamos":closedDay(s)?"cerrado":i===0?"—":"lleno")+'</button>'}
@@ -498,7 +503,7 @@ function renderMine(){var left=atMs(MC.date,MC.time)-Date.now(),can=MC.st==="act
   $("mcMove").onclick=startMove;$("mcCancel").onclick=askCancel}
 function mBlocks(day,t,d){var r=[],s=tm(t);for(var k=0;k<d;k+=30)r.push(day+"_"+hm(s+k).replace(":",""));return r}
 function freeFor(day){var h=(P.hours||[])[pd(day).getDay()],ci=(P.cierre||{})[day];if(!h||!h.on||ci===0)return [];var a=tm(h.a),z=tm(h.b),d=Math.max(30,+MC.dur||60),out=[];
-  segs(a,z).forEach(function(sg){for(var m=sg[0],sp=[30,60,90,120].indexOf(+P.slot)>=0?+P.slot:30;m+d<=sg[1];m+=sp){if(P.last&&m>tm(P.last))break;if(ci!=null&&m+d>ci*60)continue;var t=hm(m);if(atMs(day,t)-Date.now()<Math.max(2,+P.lead||0)*36e5)continue;if(day===MC.date&&t===MC.time)continue;if(!mBlocks(day,t,d).some(function(k){return bz(k)}))out.push(t)}});return out}
+  cands(a,z,d).forEach(function(m){if(ci!=null&&m+d>ci*60)return;var t=hm(m);if(atMs(day,t)-Date.now()<Math.max(2,+P.lead||0)*36e5)return;if(day===MC.date&&t===MC.time)return;if(!mBlocks(day,t,d).some(function(k){return bz(k)}))out.push(t)});return out}
 function startMove(){MS={day:"",t:null};mcBox('<h2>Elige el nuevo día</h2><p class="mute">Solo te mostramos las horas libres.</p><div class="days" id="mdays"></div><div class="hours" id="mhrs"></div><div id="mhe"></div><p class="err" id="mer"></p><button class="btn big" id="mGo" disabled>Confirmar el cambio</button><button class="btn ghost" id="mBack" style="margin-top:8px">Volver</button>');
   $("mBack").onclick=renderMine;$("mGo").onclick=doMove;loadMBusy()}
 function loadMBusy(){var a=ymd(new Date()),e=new Date();e.setDate(e.getDate()+(+P.ahead||21));
