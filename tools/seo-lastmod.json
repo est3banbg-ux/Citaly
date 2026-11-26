@@ -28,7 +28,7 @@
   "d": "2026-11-26"
  },
  "cleancar": {
-  "h": "2898490b158a3e0ade1dfe99e9c39723fabbfe8f",
+  "h": "14b17cc443a5f9a1a4b8643c0ee2f4827d923e6b",
   "d": "2026-11-26"
  },
  "ema-s-garage-detailing": {
@@ -109,6 +109,26 @@
  },
  "taller-pineda-cruz": {
   "h": "33b3a6f59d2d57bddf65458cc537624c39f8401f",
+  "d": "2026-11-26"
+ },
+ "auto-lavado-dye": {
+  "h": "aabd29e931fa1a9c7beec213e5fbe519b68e37f7",
+  "d": "2026-11-26"
+ },
+ "carlos-alberto": {
+  "h": "58a879506b3782df7ef5aeef41327f3032e3e5cc",
+  "d": "2026-11-26"
+ },
+ "fjmotors": {
+  "h": "bbc40d9307730a711d60e185f82c7ef7ba30eb7c",
+  "d": "2026-11-26"
+ },
+ "lavacar-badilla": {
+  "h": "ff223df50b2084d13a3809caebfceab990a55188",
+  "d": "2026-11-26"
+ },
+ "mr-detailing": {
+  "h": "643c1a0b2d5081838574472347dc5789d3391c25",
   "d": "2026-11-26"
  }
 }
