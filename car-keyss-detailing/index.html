@@ -6,13 +6,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Car keyss Detailing · Tu carro como nuevo</title>
 <meta name="description" content="Reserva tu servicio en 1 minuto y elige lo que necesita tu vehículo.">
+<meta name="robots" content="index,follow,max-image-preview:large">
 <link rel="canonical" href="https://citalyapp.com/car-keyss-detailing/">
 <meta property="og:type" content="website"><meta property="og:locale" content="es_CR">
 <meta property="og:site_name" content="Car keyss Detailing"><meta property="og:url" content="https://citalyapp.com/car-keyss-detailing/">
 <meta property="og:title" content="Car keyss Detailing · Tu carro como nuevo"><meta property="og:description" content="Reserva tu servicio en 1 minuto y elige lo que necesita tu vehículo.">
 <meta property="og:image" content="https://citalyapp.com/img/og-citaly.png">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="Car keyss Detailing · Tu carro como nuevo"><meta name="twitter:description" content="Reserva tu servicio en 1 minuto y elige lo que necesita tu vehículo.">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"LocalBusiness","name":"Car keyss Detailing","description":"Reserva tu servicio en 1 minuto y elige lo que necesita tu vehículo.","url":"https://citalyapp.com/car-keyss-detailing/","telephone":"+88783047"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"AutomotiveBusiness","name":"Car keyss Detailing","description":"Reserva tu servicio en 1 minuto y elige lo que necesita tu vehículo.","url":"https://citalyapp.com/car-keyss-detailing/","telephone":"+50688783047","knowsAbout":["Detailing interior","Detailing exterior","Corrección de pintura","Tratamiento cerámico"]}</script>
 <meta name="theme-color" content="#1a1530">
 <link rel="icon" href="../favicon-32.png" id="fav">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -375,7 +376,7 @@ html[data-pm=light] .pr-stat:nth-child(2) strong{color:#1a9e4d}
 </style>
 </head>
 <body>
-<div id="load" style="padding:120px 0"><div class="spin"></div></div>
+<div id="load" style="padding:120px 0"><div class="spin"></div><div style="max-width:620px;margin:28px auto 0;padding:0 18px;text-align:center"><h1 style="font-size:22px;margin:0 0 8px">Car keyss Detailing</h1><p>Detailing</p><p>Reserva tu servicio en 1 minuto y elige lo que necesita tu vehículo.</p><p><b>Servicios:</b> Detailing interior, Detailing exterior, Corrección de pintura, Tratamiento cerámico</p></div></div>
 <div id="nf" hidden><h1>No encontramos esta página</h1><p class="mute">Revisa que el link esté bien escrito.</p><a class="btn" href="/" style="width:auto">Ir a Citaly</a></div>
 <div id="page" hidden></div>
 <div class="lb" id="lb" role="dialog" aria-modal="true"><button id="lbX" aria-label="Cerrar">✕</button><img id="lbI" alt=""><p id="lbP"></p></div>
@@ -394,6 +395,7 @@ function fh(s){var m=tm(s),h=Math.floor(m/60),mi=m%60;return (h%12||12)+(mi?":"+
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
 function waNum(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)return t;return t.length===8?"506"+t:t}
 function waUrl(t,m){if(waNum(t).length<8)return OPEN&&typeof bookUrl==="function"?bookUrl():"#";return "https://api.whatsapp.com/send?phone="+waNum(t)+(m?"&text="+encodeURIComponent(m):"")}
+function hechoCon(){var T={detailing:"detailing",lavacar:"lavacar",pulido:"pulido de focos y vidrios",polarizado:"polarizado de vidrios",taller:"taller mecánico"},t=P&&T[P.type],q="?desde="+encodeURIComponent(slug);return t?'Hecho con <a href="/para/'+P.type+'/'+q+'" target="_blank" rel="noopener">Citaly, sistema de citas para '+t+'</a>':'Hecho con <a href="/'+q+'" target="_blank" rel="noopener">Citaly</a>'}
 function img(u){return C.safeImg(u)}
 function url(u){u=String(u||"").trim();if(!u)return "";if(!/^https?:\/\//i.test(u))u="https://"+u;return /^https?:\/\/[^\s"'<>]+$/i.test(u)?u:""}
 function lines(t){return String(t||"").split(/\n/).map(function(x){return x.trim()}).filter(Boolean)}
@@ -488,12 +490,11 @@ function render(){if((P.web||{}).layout!=="clasica")return renderPro();
     +(W.email?'<a href="mailto:'+esc(W.email)+'"><span class="ic">✉️</span><span><b>Correo</b><span>'+esc(W.email)+'</span></span></a>':"")
     +(hs?'<div><span class="ic">🕘</span><span><b>Horario</b><span>'+esc(hs)+'</span></span></div>':"")
     +'</div>'+(soc.length?'<div class="socials">'+soc.map(function(x){return '<a target="_blank" rel="noopener" href="'+esc(url(x[1]))+'">'+x[0]+'</a>'}).join("")+'</div>':"")+'</div></section>';
-  h+='<footer>© '+new Date().getFullYear()+' '+esc(name)+' · Página y reservas con <a href="/" target="_blank">citaly</a>'+modeLink()+'</footer>';
+  h+='<footer>© '+new Date().getFullYear()+' '+esc(name)+' · '+hechoCon()+''+modeLink()+'</footer>';
   h+='<div class="dock" id="dock">'+bookBtn("")+'<a class="btn wa" target="_blank" rel="noopener" href="'+wa+'" aria-label="WhatsApp">'+WA_SVG+'</a></div>';
   $("page").innerHTML=h;$("load").hidden=true;$("page").hidden=false;
   // datos para Google
-  var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,telephone:"+"+waNum(P.wa),url:location.origin+"/"+slug};if(P.addr)ld.address=P.addr;
-  var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc);
+  if(!document.querySelector('script[type="application/ld+json"]')){var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,url:location.origin+"/"+slug+"/"};if(waNum(P.wa).length>=8)ld.telephone="+"+waNum(P.wa);if(P.addr)ld.address=P.addr;var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc)}
   // fotos en grande
   var tb=document.querySelector("#trabajos .tabs");if(tb)tb.onclick=function(e){var b=e.target.closest("[data-t]");if(!b)return;Array.prototype.forEach.call(tb.children,function(x){x.setAttribute("aria-selected",x===b)});$("tbF").hidden=b.dataset.t!=="f";$("tbV").hidden=b.dataset.t!=="v"};
   if(location.hash==="#videos"&&$("tbV")){var vb=tb&&tb.querySelector('[data-t="v"]');if(vb)vb.click();$("trabajos").scrollIntoView()}
@@ -629,12 +630,11 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
     +(soc.length?'<p class="pr-soc">'+soc.map(function(x){return '<a target="_blank" rel="noopener" href="'+esc(url(x[1]))+'">'+x[0]+'</a>'}).join("")+'</p>':"")+'</div>'
     +(svcs.length?'<nav aria-label="Servicios"><h4>Servicios</h4>'+svcs.slice(0,8).map(function(s){return '<a href="#servicios">'+esc(s.n)+'</a>'}).join("")+'</nav>':"")
     +'<div>'+(hs?'<h4>Horario</h4>'+hs.split(" · ").map(function(x){return '<span class="pr-fl">'+esc(x)+'</span>'}).join(""):"")+(P.home&&zones.length?'<h4 style="margin-top:18px">Zonas</h4>'+zones.slice(0,8).map(function(z){return '<span class="pr-fl">'+esc(z.n)+'</span>'}).join(""):(P.addr?'<h4 style="margin-top:18px">Dirección</h4><span class="pr-fl">'+esc(P.addr)+'</span>':""))+'</div></div>'
-    +'<div class="pr-w pr-base"><span>© '+new Date().getFullYear()+' '+esc(name)+' · Página y reservas con <a href="/" target="_blank">citaly</a></span><button type="button" class="pr-mode" id="prMode">'+(pm==="dark"?"☀️ Modo claro":"🌙 Modo oscuro")+'</button></div></footer>';
+    +'<div class="pr-w pr-base"><span>© '+new Date().getFullYear()+' '+esc(name)+' · '+hechoCon()+'</span><button type="button" class="pr-mode" id="prMode">'+(pm==="dark"?"☀️ Modo claro":"🌙 Modo oscuro")+'</button></div></footer>';
   // 14. barra fija inferior
   h+='<div class="pr-dock">'+bk("pr-cta","Agendar en 1 minuto","",1)+'<a class="pr-btn pr-wa pr-wab" target="_blank" rel="noopener" href="'+wa+'" aria-label="WhatsApp">'+WA_SVG.replace('class="wasvg"','')+'</a></div>';
   var pg=$("page");pg.className="pr";pg.innerHTML=h;$("load").hidden=true;pg.hidden=false;
-  var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,telephone:"+"+waNum(P.wa),url:location.origin+"/"+slug};if(P.addr)ld.address=P.addr;
-  var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc);
+  if(!document.querySelector('script[type="application/ld+json"]')){var ld={"@context":"https://schema.org","@type":"LocalBusiness",name:name,description:desc,url:location.origin+"/"+slug+"/"};if(waNum(P.wa).length>=8)ld.telephone="+"+waNum(P.wa);if(P.addr)ld.address=P.addr;var sc=document.createElement("script");sc.type="application/ld+json";sc.textContent=JSON.stringify(ld);document.head.appendChild(sc)}
   Array.prototype.forEach.call(document.querySelectorAll(".pr-lay[data-i]"),function(el){var f=FOTOS[+el.dataset.i],u=img(f&&f.img).replace(/['"()\\\s<>]/g,function(c){return "%"+("0"+c.charCodeAt(0).toString(16)).slice(-2)});el.style.backgroundImage='url("'+u+'")';el.style.backgroundPosition=el.classList.contains("pr-after")?"center bottom":"center top"});
   Array.prototype.forEach.call(document.querySelectorAll(".pr-ba input"),function(r){r.addEventListener("input",function(){r.parentNode.style.setProperty("--pos",r.value+"%")})});
   $("prMode").onclick=function(){var n=document.documentElement.getAttribute("data-pm")==="dark"?"light":"dark";try{localStorage.setItem("citaly_mode",n)}catch(e){}proApply(n,col,pal);this.textContent=n==="dark"?"☀️ Modo claro":"🌙 Modo oscuro"};
