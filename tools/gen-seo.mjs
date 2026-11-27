@@ -52,12 +52,35 @@ function val(v) {
   return null;
 }
 
-async function countFotos(slug) {
+async function infoFotos(slug) {
   // Si la consulta falla, se detiene todo: contar 0 fotos por un fallo pasajero mandaría páginas buenas a noindex.
-  const r = await fetch(`${FIRESTORE}/${encodeURIComponent(slug)}/fotos?pageSize=20&mask.fieldPaths=i`);
+  const r = await fetch(`${FIRESTORE}/${encodeURIComponent(slug)}/fotos?pageSize=20&mask.fieldPaths=i&mask.fieldPaths=ba`);
   if (!r.ok) throw new Error("Firestore fotos " + slug + " " + r.status);
   const j = await r.json();
-  return (j.documents || []).length;
+  const docs = (j.documents || []).map(d => ({ id: d.name.split("/").pop(), t: d.updateTime || "", i: +(val((d.fields || {}).i) ?? 0) || 0, ba: !!val((d.fields || {}).ba) }));
+  // Para la imagen de vista previa: la primera foto normal; si solo hay «antes y después», la primera de esas.
+  docs.sort((a, b) => (a.ba - b.ba) || (a.i - b.i));
+  return { n: docs.length, first: docs[0] || null };
+}
+// Imagen para la vista previa del link (WhatsApp, Facebook, TikTok): portada propia > primera foto > ninguna (tarjeta con logo o inicial).
+// Devuelve { key, ba, get }: `key` identifica la imagen SIN bajarla (para saber si cambió) y `get()` la trae solo cuando hay que
+// redibujar. Así no se gasta la cuota de Firestore bajando las fotos de todos los negocios en cada corrida.
+// Si la foto no se puede leer no se detiene nada: get() devuelve fail y se conserva la imagen que ya había.
+function fuenteOG(P) {
+  const c = P.web && P.web.cover, esImg = x => typeof x === "string" && /^(data:image\/|https:\/\/)/.test(x);
+  if (esImg(c)) return { key: c, ba: false, get: async () => ({ img: c }) };
+  if (esImg(P._foto)) return { key: P._foto, ba: !!P._fotoBa, get: async () => ({ img: P._foto }) };
+  const f = P._foto1;
+  if (!f || process.env.SEO_FIXTURE) return { key: "", ba: false, get: async () => ({ img: "" }) };
+  return { key: `foto:${f.id}:${f.t}`, ba: f.ba, get: async () => {
+    try {
+      const r = await fetch(`${FIRESTORE}/${encodeURIComponent(P.slug)}/fotos/${encodeURIComponent(f.id)}?mask.fieldPaths=img`, { signal: AbortSignal.timeout(20000) });
+      if (r.status === 404) return { img: "" };
+      if (!r.ok) return { img: "", fail: true };
+      const img = val(((await r.json()).fields || {}).img);
+      return esImg(img) ? { img } : { img: "" };
+    } catch (e) { return { img: "", fail: true }; }
+  } };
 }
 
 async function loadPub() {
@@ -70,7 +93,7 @@ async function loadPub() {
     for (const d of j.documents || []) out.push({ slug: d.name.split("/").pop(), ...Object.fromEntries(Object.entries(d.fields || {}).map(([k, v]) => [k, val(v)])) });
     token = j.nextPageToken || "";
   } while (token);
-  for (const P of out) if (P._fotos == null) P._fotos = await countFotos(P.slug);
+  for (const P of out) if (P._fotos == null) { const f = await infoFotos(P.slug); P._fotos = f.n; P._foto1 = f.first; }
   return out;
 }
 
@@ -117,7 +140,7 @@ const SLUG_LINE = 'var slug=(new URLSearchParams(location.search).get("n")||"")'
 const LOAD = '<div id="load" style="padding:120px 0"><div class="spin"></div></div>';
 if (!tpl.includes(SLUG_LINE) || !tpl.includes("<title>Cargando…</title>") || !tpl.includes('<meta name="description" content="">') || !tpl.includes(LOAD)) throw new Error("w/index.html cambió: revisar gen-seo.mjs");
 
-function page(P, ev) {
+function page(P, ev, og) {
   const slug = P.slug, name = clip(P.name || slug, 60);
   const desc = clip((P.web && P.web.seo) || P.blurb || P.tagline || `Reserva tu cita en ${name}`, 160);
   const title = clip(name + (P.tagline ? " · " + P.tagline : ""), 70);
@@ -125,7 +148,7 @@ function page(P, ev) {
   const logo = typeof P.logo === "string" && /^https:\/\//.test(P.logo) ? P.logo : `${ORIGIN}/img/og-citaly.png`;
   const zonas = zoneNames(P), servs = svcNames(P);
   const ld = { "@context": "https://schema.org", "@type": SCHEMA[P.type] || "LocalBusiness", name, description: desc, url };
-  if (logo !== `${ORIGIN}/img/og-citaly.png`) ld.image = logo;
+  ld.image = logo !== `${ORIGIN}/img/og-citaly.png` ? logo : og;
   const t = tel(P.wa); if (t) ld.telephone = t;
   if (P.addr) ld.address = { "@type": "PostalAddress", streetAddress: String(P.addr), addressCountry: "CR" };
   if (zonas.length) ld.areaServed = zonas.slice(0, 12);
@@ -137,8 +160,8 @@ function page(P, ev) {
     `<meta property="og:type" content="website"><meta property="og:locale" content="es_CR">\n` +
     `<meta property="og:site_name" content="${esc(name)}"><meta property="og:url" content="${url}">\n` +
     `<meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">\n` +
-    `<meta property="og:image" content="${esc(logo)}">\n` +
-    `<meta name="twitter:card" content="summary"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}">\n` +
+    `<meta property="og:image" content="${esc(og)}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${esc(name)}">\n` +
+    `<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${esc(og)}">\n` +
     `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>`;
   // Contenido que ya viene en el HTML (se ve mientras carga y lo lee Google sin ejecutar JavaScript).
   // Cuando la app termina de cargar, este bloque se oculta solo (#load se esconde).
@@ -156,6 +179,32 @@ function page(P, ev) {
     .replace('<meta name="description" content="">', () => `<meta name="description" content="${esc(desc)}">\n${head}`)
     .replace(LOAD, () => pre)
     .replace(SLUG_LINE, () => `var slug=(new URLSearchParams(location.search).get("n")||${JSON.stringify(slug)})`);
+}
+
+// citalyapp.com/<slug>/reservar: página chiquita que SÍ trae la vista previa (título, descripción e imagen) y manda de una vez
+// a la página de reservas de siempre (/r/), conservando lo que venga en el link (?ref=, ?cita=, #...).
+// GitHub Pages sirve <slug>/reservar.html en la dirección /<slug>/reservar. Si el archivo todavía no existe (negocio nuevo),
+// 404.html sigue llevando al mismo lugar, solo que sin vista previa.
+function reservar(P, og) {
+  const slug = P.slug, name = clip(P.name || slug, 60);
+  const title = clip("Agenda tu cita en " + name, 70);
+  const desc = clip(`Reserva en 1 minuto con ${name}: elige el servicio, el día y la hora desde tu celular. Sin llamadas ni esperas.`, 160);
+  const dest = "/r/?n=" + slug;
+  return `<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title>
+<meta name="description" content="${esc(desc)}">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="${ORIGIN}/${slug}/">
+<meta property="og:type" content="website"><meta property="og:locale" content="es_CR">
+<meta property="og:site_name" content="${esc(name)}"><meta property="og:url" content="${ORIGIN}/${slug}/reservar">
+<meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
+<meta property="og:image" content="${esc(og)}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="${esc(name)}">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(desc)}"><meta name="twitter:image" content="${esc(og)}">
+<script>location.replace(${JSON.stringify(dest)}+(location.search.length>1?"&"+location.search.slice(1):"")+location.hash)</script>
+<noscript><meta http-equiv="refresh" content="0;url=${dest}"></noscript>
+</head><body style="font-family:system-ui,sans-serif;text-align:center;padding:60px 20px"><p><a href="${dest}">${esc(title)}</a></p></body></html>
+`;
 }
 
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/;
@@ -176,21 +225,34 @@ if (prev.length >= 4 && now.length < prev.length * MIN_RESTO) throw new Error(`S
 const evs = new Map(ok.map(P => [P.slug, evaluar(P, manual, yaIdx.has(P.slug))]));
 const bajas = [...yaIdx].filter(sl => evs.has(sl) && !evs.get(sl).index);
 if (yaIdx.size >= 5 && bajas.length / yaIdx.size > MAX_BAJA) throw new Error(`${bajas.length} de ${yaIdx.size} páginas pasarían a noindex (${bajas.join(", ")}): se detiene. Revisar los datos o seo-noindex.json.`);
-const indexables = [];
+const indexables = [], ogJobs = [];
+const OGV = 1; // subir este número para redibujar todas las imágenes de vista previa (cambio de diseño)
+const OGHASH = path.join(ROOT, "tools", "og-hash.json");
+const ogHechas = fs.existsSync(OGHASH) ? JSON.parse(fs.readFileSync(OGHASH, "utf8")) : {};
 
 for (const P of ok) {
   const dir = path.join(ROOT, P.slug);
   if (fs.existsSync(dir) && !prev.includes(P.slug)) { console.log("omitido (carpeta existente):", P.slug); now.splice(now.indexOf(P.slug), 1); continue; }
   const ev = evs.get(P.slug);
-  const html = page(P, ev);
+  const src = fuenteOG(P);
+  const job = { slug: P.slug, name: String(P.name || ""), tagline: String(P.tagline || ""), color: String(P.color || ""), logo: tieneLogo(P) ? P.logo : "", img: "", ba: src.ba };
+  job.v = crypto.createHash("sha1").update(JSON.stringify([OGV, job, src.key])).digest("hex").slice(0, 10);
+  if (ogHechas[P.slug] === job.v && fs.existsSync(path.join(dir, "og.jpg"))) job.logo = ""; // ya está dibujada: no hace falta mandar las imágenes
+  else { const r = await src.get(); job.img = r.img; if (r.fail) job.fail = true; }
+  ogJobs.push(job);
+  const og = `${ORIGIN}/${P.slug}/og.jpg?v=${job.v}`;
+  const html = page(P, ev, og);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "index.html"), html);
+  fs.writeFileSync(path.join(dir, "reservar.html"), reservar(P, og));
   const h = crypto.createHash("sha1").update(html).digest("hex");
   if (!lm[P.slug] || lm[P.slug].h !== h) lm[P.slug] = { h, d: today };
   console.log((ev.index ? "INDEXAR  " : "noindex  ") + P.slug + "  (" + ev.motivo + ")");
   if (ev.index) indexables.push(P.slug);
 }
 for (const sl of prev) if (!now.includes(sl)) { fs.rmSync(path.join(ROOT, sl), { recursive: true, force: true }); delete lm[sl]; }
+// Lista para tools/gen-og.py, que dibuja <slug>/og.jpg (no se sube al repo: trae las fotos completas)
+fs.writeFileSync(process.env.OG_JOBS || path.join(ROOT, "tools", ".og-jobs.json"), JSON.stringify(ogJobs));
 fs.writeFileSync(MANIFEST, JSON.stringify(now, null, 1) + "\n");
 fs.writeFileSync(LASTMOD, JSON.stringify(lm, null, 1) + "\n");
 

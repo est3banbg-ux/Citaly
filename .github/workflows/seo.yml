@@ -1,8 +1,9 @@
-# Cada 6 horas (y a mano) crea/actualiza la página de cada negocio para Google y el sitemap.
+# Cada 3 horas (y a mano) crea/actualiza la página de cada negocio para Google, el sitemap y la vista previa
+# del link (título, descripción e imagen que salen al compartirlo por WhatsApp, Facebook o TikTok).
 name: SEO de negocios
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "17 */3 * * *"
   workflow_dispatch:
 concurrency: seo
 permissions:
@@ -14,7 +15,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q "pillow>=11,<13"
       - run: node tools/gen-seo.mjs
+      - run: python3 tools/gen-og.py
       - name: Subir cambios
         run: |
           git config user.name "citaly-bot"; git config user.email "bot@citalyapp.com"
