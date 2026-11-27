@@ -38,7 +38,7 @@ En la app, `tier()` devuelve `nitro` durante la prueba; `lim("vid")` devuelve 6 
 ## 3. Mapa del repo
 | Carpeta / archivo | Para qué |
 |---|---|
-| `index.html` | Página de venta de citalyapp.com (planes, calculadora, registro) |
+| `index.html` | Página de venta de citalyapp.com: portada 50/50 (capó con cinta que se arrastra), demo de reserva que se toca, calculadora, caso real y planes que salen de `cfg.js` (cargado con `defer`). Todo en un solo archivo, sin `style.css`. Fotos en `img/venta/`. El ancla `#precio` la usan las páginas `/para/`: no renombrarla |
 | `app/` | App del dueño (PWA). `index.html` (~2.100 líneas: vistas agenda, clientes, números, ajustes), `apariencia.js`/`temas.js` (Mi apariencia), `frases.js` (frase del día), `novedades.js` (a mano) y `novedades-auto.js` (generado), `sw.js` (red primero, caché solo sin red), `manifest.json` |
 | `r/` | Página de reservas y "Mi cita" (`/r/?n=<slug>`, `&go=1` salta directo al formulario, `&cita=<tk>` abre Mi cita, `&ref=` referido) |
 | `w/` | Página web del negocio (`/w/?n=<slug>`). Plantilla **Pro** por defecto; `web.layout === "clasica"` usa la Clásica; `web.estilo` = tema |
@@ -132,7 +132,7 @@ Orden dado por Esteban el 27 nov:
 0. **Soporte a clientes**: lo que mande Esteban va primero.
 1. Logo y portada automáticos por rubro para quien se registra sin logo ni fotos (hoy `refri` y otros caen en portada genérica).
 2. Rediseño de la página del negocio (portada, tipografía, fotos, secciones): 2–3 propuestas en imagen antes de tocar código.
-3. Página de venta de citalyapp.com.
+3. ~~Página de venta de citalyapp.com~~ (publicada el 27 nov).
 4. Material de marca: portadas para redes, tarjetas para compartir, íconos.
 
 Después: horario que rota por semana (Carwash Isabi), editor de página por plan tipo Shopify (Arranque básico → Turbo → Nitro; se guardan datos, no código), diseñador con IA, subir videos (cuidar costo de almacenamiento).
@@ -149,7 +149,7 @@ Pendientes técnicos:
 **En progreso, sin publicar (no es tuyo si no te lo asignaron):** pestaña "Enlaces" en el admin (`admin/index.html`, `admin/extra.js`, cambios sin commit): lista todos los links de reserva `/r/?n=<slug>&go=1` con copiar/abrir y avisa si falta `pub/<slug>` (caso Carwash Isabi). No tocar esos cambios sin que lo pidan.
 
 ## 9. Últimos cambios (git log, 24–27 nov)
-- **27 nov**: vista previa del link de cada negocio (WhatsApp, Facebook, TikTok) con `og.jpg` por negocio; arreglo del texto que se montaba sobre el link con nombres de dos renglones.
+- **27 nov**: página de venta nueva (portada 50/50, demo de reserva, cierre con el capó pulido) con su prueba en `tools/pruebas/venta/`; vista previa del link de cada negocio (WhatsApp, Facebook, TikTok) con `og.jpg` por negocio; arreglo del texto que se montaba sobre el link con nombres de dos renglones.
 - **26 nov**: revisión a fondo de app, reservas y web (15 arreglos, 2 graves de citas encimadas) con pruebas; banco de pruebas con Chrome + Firebase falso; arreglo de Servicios y precios (solo el primero se podía editar); **horas exactas** en reservas (con horas exactas manda la hora que eligió el dueño, aunque el servicio termine después del cierre); temporales de FJ Motors subidos y borrados.
 - **25 nov**: páginas `/para/` (detailing, lavacar, pulido, polarizado, taller) y hub; SEO con contenido en el HTML, criterios de indexación, frenos, lastmod, pie "Hecho con Citaly" (`?desde=`); noindex a mariachi-coyoche, refrigeracion-cruz y ortiz-detailing; Clientes: agregar propios, clientes fijos (semana, 15, 22 días, mes, año), placa, carro, dónde vive, varios servicios, "¿cada cuánto vuelve?"; subir contactos `.vcf`; APK primero en Android.
 - **24 nov**: APK Android (TWA) y página `/descargar`; Novedades automáticas desde commits; Mi apariencia (18 temas, fondos, foto propia); agenda (día libre, frase del día); inicio móvil; tipo Refrigeración y aire + "Por cotizar" con total 0; respuestas rápidas; límites por plan en la página pública, plan recomendado al terminar la prueba, cupos en Turbo, Turbo hasta 40 servicios; reglas de `slots` con menos lecturas; temporales de Kenny's subidos y borrados.
