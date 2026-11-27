@@ -226,7 +226,7 @@ const evs = new Map(ok.map(P => [P.slug, evaluar(P, manual, yaIdx.has(P.slug))])
 const bajas = [...yaIdx].filter(sl => evs.has(sl) && !evs.get(sl).index);
 if (yaIdx.size >= 5 && bajas.length / yaIdx.size > MAX_BAJA) throw new Error(`${bajas.length} de ${yaIdx.size} páginas pasarían a noindex (${bajas.join(", ")}): se detiene. Revisar los datos o seo-noindex.json.`);
 const indexables = [], ogJobs = [];
-const OGV = 1; // subir este número para redibujar todas las imágenes de vista previa (cambio de diseño)
+const OGV = 2; // subir este número para redibujar todas las imágenes de vista previa (cambio de diseño)
 const OGHASH = path.join(ROOT, "tools", "og-hash.json");
 const ogHechas = fs.existsSync(OGHASH) ? JSON.parse(fs.readFileSync(OGHASH, "utf8")) : {};
 

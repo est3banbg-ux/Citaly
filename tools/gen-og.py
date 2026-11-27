@@ -179,14 +179,19 @@ def tarjeta(j):
             im.alpha_composite(capa)
 
     d = ImageDraw.Draw(im)
-    # Bloque de texto: (logo chico) + nombre + frase + botón, centrado en vertical
-    f_n, l_n, t_n = ajustar(d, nombre, ancho_txt, [92, 82, 72, 64, 56, 50], 800, 2)
-    alto_n = round(t_n * 1.08) * len(l_n)
-    f_f, l_f, t_f = (ajustar(d, frase, ancho_txt, [34, 31, 28], 500, 2) if frase else (None, [], 0))
-    alto_f = round(t_f * 1.32) * len(l_f)
+    # Bloque de texto: (logo chico) + nombre + frase + botón, centrado en vertical.
+    # Si no cabe entre el margen de arriba y el link de abajo, se prueba con letra más chica.
     logo_chico = logo is not None and foto is not None
-    alto = (96 + 30 if logo_chico else 0) + alto_n + (20 + alto_f if l_f else 0) + 40 + 72
-    y = max(M - 8, (H - 44 - alto) // 2)
+    tams = [92, 82, 72, 64, 56, 50, 44]
+    for k in range(len(tams)):
+        f_n, l_n, t_n = ajustar(d, nombre, ancho_txt, tams[k:], 800, 2)
+        alto_n = round(t_n * 1.08) * len(l_n)
+        f_f, l_f, t_f = (ajustar(d, frase, ancho_txt, [34, 31, 28] if k < 3 else [28, 26], 500, 2) if frase else (None, [], 0))
+        alto_f = round(t_f * 1.32) * len(l_f)
+        alto = (96 + 30 if logo_chico else 0) + alto_n + (20 + alto_f if l_f else 0) + 40 + 72
+        if alto <= H - 48 - 96 or t_n <= tams[-1]:
+            break
+    y = max(48, (H - 48 - alto) // 2)
     if logo_chico:
         im.alpha_composite(recuadro_logo(logo, 96, 24), (M, y)); y += 96 + 30
         d = ImageDraw.Draw(im)
