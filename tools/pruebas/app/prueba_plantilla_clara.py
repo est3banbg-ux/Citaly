@@ -35,7 +35,7 @@ WEB0 = {"estilo": "glass", "pal": {"a": "#a67c1e", "h": "#d9b25a", "bg": "#1a140
 with Banco() as b:
     # 1) cfg.js trae la constante vacía: nadie cambia de diseño por publicarla
     p = b.abrir("/w/?n=nada", {}, None, espera=600)
-    b.ok("cfg.js: layoutNuevos existe y viene vacío", p.evaluate("()=>CITALY.layoutNuevos") == "")
+    b.ok("cfg.js: los negocios nuevos nacen con la Clara (decisión de Esteban, 27 nov 2026)", p.evaluate("()=>CITALY.layoutNuevos") == "clara")
     p.context.close()
 
     # 2) Registro con layoutNuevos vacío: no escribe web.layout
