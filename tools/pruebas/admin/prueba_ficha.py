@@ -21,6 +21,7 @@ with Banco() as b:
     b.ok("Ficha: tarjeta de llenar con IA arriba", p.evaluate("()=>{const a=document.querySelector('#ed .a-ia'),s=document.querySelector('#ed .a-sec');return !!a&&!!(a.compareDocumentPosition(s)&Node.DOCUMENT_POSITION_FOLLOWING)}"))
     b.ok("Ficha: qué le falta (6 de 6)", "6 de 6" in p.text_content("#ed .a-card .a-t"), p.text_content("#ed .a-card .a-t"))
     b.ok("Ficha: plan y cobros", "Turbo" in p.text_content("#fPlan") and p.locator('#fPlan [data-u="pay"]').count() == 1, p.text_content("#fPlan"))
+    b.ok("Modelo viejo: un negocio mensual no ve los planes de instalación", p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,mensual,demo")
     b.ok("Ficha: no hay barra Guardar sin cambios", p.evaluate("()=>document.getElementById('fSave').hidden"))
     # rutas
     base = b.base
@@ -80,6 +81,7 @@ with Banco() as b:
     # Recargar directo en la ficha
     p = nuevo(b, hash_="negocio/b_viejo", espera=2200)
     b.ok("Recarga en #negocio/<id>: abre la ficha", p.evaluate("()=>E&&E.id==='b_viejo'&&!document.getElementById('ed').hidden"))
+    b.ok("Modelo viejo: un negocio que ya está en Standard lo conserva en el selector", p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,mensual,standard,demo" and p.evaluate("()=>document.getElementById('pPl').value") == "standard")
     b.ok("Ficha vieja: muestra lo pagado de la instalación", "Pagó" in p.text_content("#fPlan") and "debe" in p.text_content("#fPlan"), p.text_content("#fPlan"))
     p.go_back(); p.wait_for_timeout(300)
     # Atrás del navegador
@@ -95,6 +97,7 @@ with Banco() as b:
     p.click("#eGo"); p.wait_for_timeout(500)
     b.ok("Nuevo: al faltar el nombre abre Datos y muestra el error", p.evaluate("()=>document.querySelector('#ed .a-sec[data-sec=\"datos\"]').open") and "nombre" in p.text_content("#eErr"), p.text_content("#eErr"))
     b.ok("Nuevo: no escribió nada", not p.evaluate("()=>window.__WRITES.length"))
+    b.ok("Modelo viejo: al crear solo se ofrece prueba, mensual o demo", p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,mensual,demo")
     b.ok("Ficha (2): sin errores", not errores(p), errores(p)[:3])
 
     # Compu: la fila del negocio abierto queda marcada

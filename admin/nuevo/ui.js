@@ -7,7 +7,7 @@
 "use strict";
 var UI=(function(){
 var DAY=864e5,VIEWS=["hoy","negocios","plata","prospectos","mas"],B0=BIZ,S0=SUBS;
-var R={v:"hoy",a:""},LAST="#hoy",WANT=null,REOP=null,DIRTY=false,SIG="",OPEN={},PREV="",PEND=null,USE={},PUB={},CHK=false,SHOWP=false,HT=[];
+var R={v:"hoy",a:""},LAST="#hoy",CUR=null,WANT=null,REOP=null,DIRTY=false,SIG="",OPEN={},PREV="",PEND=null,USE={},PUB={},CHK=false,SHOWP=false,HT=[];
 var K={posp:"cz_adm_posp",sort:"cz_adm_sort",fot:"cz_adm_fotos",lnk:"cz_adm_links",f:"cz_adm_filtro"};
 var DIAS=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"],MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
 function ls(k,d){try{var v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
@@ -69,7 +69,7 @@ function copy(t,ok){copyTxt(t).then(function(){toast(ok||"Copiado ✓")},functio
 /* ---------- navegación por hash ---------- */
 function parse(){var h=(location.hash||"").replace(/^#\/?/,"");try{h=decodeURIComponent(h)}catch(e){}h=h||"hoy";var i=h.indexOf("/");return {v:i<0?h:h.slice(0,i),a:i<0?"":h.slice(i+1)}}
 function nav(h,replace){if(replace){history.replaceState(null,"",h);route()}else if(location.hash===h)route();else location.hash=h}
-function dropEd(){E=null;DIRTY=false;SIG="";WANT=null;REOP=null;var ed=$("ed");ed.innerHTML="";ed.hidden=true;ed.classList.remove("dirty");$("split").classList.remove("ficha")}
+function dropEd(){E=null;CUR=null;DIRTY=false;SIG="";WANT=null;REOP=null;var ed=$("ed");ed.innerHTML="";ed.hidden=true;ed.classList.remove("dirty");$("split").classList.remove("ficha")}
 function route(){var r=parse(),tgt=r.v==="negocio"?(r.a||"nuevo"):null;
   if(E){var same=tgt!=null&&((E.id&&tgt===E.id)||(!E.id&&tgt==="nuevo"));
     if(!same){if(DIRTY&&!confirm("Tenés cambios sin guardar en "+(E.name||"este negocio")+". ¿Salir sin guardar?")){history.replaceState(null,"",LAST);return}dropEd()}}
@@ -128,7 +128,7 @@ function renderHoy(){if(typeof AX==="undefined")return;
   var h=show.length?show.map(function(t,i){var b=t.id?BIZ[t.id]:null,bt="";
       if(b&&t.wa>=0&&b.wa)bt+='<button type="button" class="a-b wa" data-h="wa" data-i="'+i+'">Escribirle</button><button type="button" class="a-b ic" data-h="cp" data-i="'+i+'" aria-label="Copiar el mensaje" title="Copiar el mensaje">'+ICO.copy+'</button>';
       if(t.pay&&b)bt+='<button type="button" class="a-b" data-h="pay" data-i="'+i+'">Registrar pago</button>';
-      if(t.open&&b&&(t.k.indexOf("new:")===0||t.k.indexOf("lnk:")===0))bt+='<a class="a-b pri" href="#negocio/'+enc(t.id)+'">'+t.open+'</a>';
+      if(t.open&&b){var pri=t.k.indexOf("new:")===0||t.k.indexOf("lnk:")===0;bt=pri?'<a class="a-b pri" href="#negocio/'+enc(t.id)+'">'+t.open+'</a>'+bt:bt+'<a class="a-b" href="#negocio/'+enc(t.id)+'">'+t.open+'</a>'}
       if(t.polar)bt+='<button type="button" class="a-b pri" data-h="find" data-i="'+i+'">Buscar negocio</button><a class="a-b" href="#plata/cobros">Ver cobros</a>';
       if(t.lead)bt+=(t.lead.wa?'<button type="button" class="a-b wa" data-h="lwa" data-i="'+i+'">Escribirle</button>':"")+'<a class="a-b" href="#prospectos">Ver prospectos</a>';
       var pp='<button type="button" class="a-pp" data-h="posp" data-i="'+i+'" aria-pressed="'+!!t.posp+'" aria-label="'+(t.posp?"Traer de vuelta: ":"Posponer 1 día: ")+esc(t.t||"")+'" title="'+(t.posp?"Traer de vuelta":"Posponer 1 día")+'">'+ICO.clock+'</button>';
@@ -197,11 +197,13 @@ function planCard(id,b,s){var st=state(s),tot=totalOf(s),paid=paidOf(id),due=Mat
   h+='<div class="a-bt">'+((s&&s.demo)||st!=="demo"?'<button type="button" class="a-b pri" data-u="pay">'+(monthly(s)||(s&&s.demo)?"Registrar mensualidad":"Registrar pago")+'</button>':"")
     +(s&&!s.demo?'<button type="button" class="a-b" data-u="pf">Cambiar plan o fecha</button>':"")+(b.wa?'<button type="button" class="a-b" data-u="msg">Mensajes</button>':"")+'</div>';
   return h+'<p class="a-use" id="fUse"></p></div>'}
-function pplBlock(nw){return '<label for="pPl">Plan</label><select id="pPl">'+Object.keys(PLANS).map(function(k){return '<option value="'+k+'"'+(E.plan===k&&!E.demo?" selected":"")+'>'+PLANS[k].n+(PLANS[k].p?' · '+crc(PLANS[k].p):'')+'</option>'}).join("")+'<option value="demo"'+(E.demo?" selected":"")+'>Demo (no se cobra)</option></select>'
+/* Planes del modelo viejo (promo/standard/pers, con instalación): no se ofrecen para negocios nuevos ni a quien no
+   los tiene; si el negocio ya está en uno, se muestra solo ese para que Guardar escriba lo mismo que el clásico. */
+function pplBlock(nw){return '<label for="pPl">Plan</label><select id="pPl">'+Object.keys(PLANS).filter(function(k){return k==="trial"||k==="mensual"||(!E.demo&&E.plan===k)}).map(function(k){return '<option value="'+k+'"'+(E.plan===k&&!E.demo?" selected":"")+'>'+PLANS[k].n+(PLANS[k].p?' · '+crc(PLANS[k].p)+' (modelo viejo)':'')+'</option>'}).join("")+'<option value="demo"'+(E.demo?" selected":"")+'>Demo (no se cobra)</option></select>'
     +'<div id="pMon"'+(E.demo||E.plan==="trial"||E.plan==="mensual"?" hidden":"")+'><label for="pTo">Total acordado (₡)</label><input id="pTo" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.total)+'"><p class="hint">Personalizado incluye 1 módulo a la medida. Módulos extra desde '+crc(C.modFrom)+'.</p>'
     +(nw?'<label for="pSp">Pagado hoy (₡)</label><input id="pSp" type="number" inputmode="numeric" min="0" step="1000" value="'+esc(E.paidNow)+'"><p class="hint">Normalmente el 50 % al empezar. El resto lo registrás con "Registrar pago" al entregar.</p>':'<p class="hint">Los pagos se registran con "Registrar pago".</p>')+'</div>'}
 edRender=function(){var nw=!E.id,W=E.web,id=E.id,b=id?(BIZ[id]||{}):{},s=id?(SUBS[id]||null):null,key=id||"nuevo";
-  if(id&&WANT!==id&&REOP!==id){E=null;return}
+  if(id&&WANT!==id&&REOP!==id){E=CUR&&CUR.id===WANT?CUR:null;return}
   if(PREV!==key){PREV=key;OPEN=nw?{datos:1,equipo:1,svc:1,hor:1,web:1,plan:1}:{};DIRTY=false;if(id)FOT[id]=E.fotos.length,lsSet(K.fot,FOT)}
   REOP=null;SIG=id?sigOf(id):"";
   if(R.v!=="negocios"||parse().v!=="negocio"||(parse().a||"nuevo")!==key){WANT=key;history.pushState(null,"","#negocio/"+(id?encodeURIComponent(id):"nuevo"));route();if(!E)return}
@@ -228,7 +230,7 @@ edRender=function(){var nw=!E.id,W=E.web,id=E.id,b=id?(BIZ[id]||{}):{},s=id?(SUB
     +'<div class="row" style="gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><button class="btn sm alt" id="ePg" type="button">✨ Colores del logo</button><button class="btn sm ghost" id="ePx" type="button"'+(W.pal?"":" hidden")+'>Quitar paleta</button></div><div id="ePc" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div><p class="hint" id="ePm">'+(W.pal?"Paleta activa: "+esc(W.pal.n||"a tu gusto"):"")+'</p>');
   h+=S("svc","Servicios y precios",nS+" servicio"+(nS===1?"":"s"),'<p class="hint" style="margin-bottom:6px">La duración bloquea la agenda.</p><div id="eSv"></div><button class="btn ghost" id="eSvA" style="margin-top:8px">+ Agregar servicio</button>');
   h+=S("hor","Horario y domicilio",days+" día"+(days===1?"":"s")+(E.home?" · a domicilio":""),
-     [1,2,3,4,5,6,0].map(function(d){var x=E.hours[d];return '<div class="hrow"><button class="chip" data-hd="'+d+'" aria-pressed="'+!!x.on+'">'+DS[d]+'</button><input type="time" step="1800" id="ha'+d+'" value="'+x.a+'"'+(x.on?"":" disabled")+' aria-label="'+DS[d]+' abre"><input type="time" step="1800" id="hb'+d+'" value="'+x.b+'"'+(x.on?"":" disabled")+' aria-label="'+DS[d]+' cierra"></div>'}).join("")
+     [1,2,3,4,5,6,0].map(function(d){var x=E.hours[d]||(E.hours[d]={on:false,a:"08:00",b:"18:00"});return '<div class="hrow"><button class="chip" data-hd="'+d+'" aria-pressed="'+!!x.on+'">'+DS[d]+'</button><input type="time" step="1800" id="ha'+d+'" value="'+esc(x.a)+'"'+(x.on?"":" disabled")+' aria-label="'+DS[d]+' abre"><input type="time" step="1800" id="hb'+d+'" value="'+esc(x.b)+'"'+(x.on?"":" disabled")+' aria-label="'+DS[d]+' cierra"></div>'}).join("")
     +'<div class="between" style="margin-top:16px"><div><h3 style="margin:0">Servicio a domicilio</h3><p class="hint">La página de reservas le pide al cliente su ubicación.</p></div>'+tg("eH",E.home,"Servicio a domicilio")+'</div><div id="eZw"'+(E.home?"":" hidden")+'><label>Zonas (dejá el monto vacío si es gratis)</label><div id="eZ"></div><button class="btn ghost" id="eZa" style="margin-top:8px">+ Agregar zona</button></div>');
   h+=S("web","Página web",E.tagline?"Con frase":"Falta la frase",
      '<p class="hint">Lo que se ve en citalyapp.com/'+esc(E.slug||"negocio")+'. Todo es opcional menos la frase principal.</p>'
@@ -264,7 +266,7 @@ edRender=function(){var nw=!E.id,W=E.web,id=E.id,b=id?(BIZ[id]||{}):{},s=id?(SUB
     var st=state(s);h+=S("peligro","Pausar o borrar","",'<p class="hint">Pausar deja la página sin recibir reservas. Borrar elimina el negocio con sus citas, clientes y página; los pagos registrados se conservan.</p><div class="a-bt">'+(s?(st==="suspended"?'<button type="button" class="a-b pri" data-u="on">Reactivar</button>':'<button type="button" class="a-b red" data-u="off">Pausar</button>'):"")+'<button type="button" class="a-b red" data-u="del">Borrar negocio…</button></div>',"red")}
   h+='<div class="a-save" id="fSave"'+(nw||DIRTY?"":" hidden")+'><span class="msg" id="fDirty"'+(nw?" hidden":"")+'>Cambios sin guardar</span><p class="err" id="eErr" role="alert"></p><div class="row"><button class="btn ghost" id="eX2" style="flex:0 0 auto;width:auto">Cancelar</button><button class="btn" id="eGo">'+(nw?"Crear negocio":"Guardar cambios")+'</button></div></div>';
   ed.innerHTML=h;ed.classList.toggle("dirty",nw||DIRTY);
-  edWire();edUi(id);
+  edWire();edUi(id);CUR=E;
   renderNeg();if(window.innerWidth<900)window.scrollTo(0,0);else $("fichaPane").scrollTop=0};
 function mark(){if(DIRTY||!E)return;DIRTY=true;var s=$("fSave");if(s)s.hidden=false;$("ed").classList.add("dirty")}
 function openSec(k){var d=document.querySelector('#ed .a-sec[data-sec="'+k+'"]');if(d){d.open=true;OPEN[k]=1}return d}
