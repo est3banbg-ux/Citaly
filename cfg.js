@@ -403,6 +403,7 @@ var CITALY = {
     polarizado: ["1758376316871-96e1feea03f4", "1768853143263-72d7e744bbc2"],
     autos:      ["1575844611398-2a68400b437c", "1607860108855-64acf2078ed9"],
     taller:     ["1727893119356-1702fe921cf9", "1632733711679-529326f6db12"],
+    refri:      ["1565534355217-85fcfb04ce71", "1778938525731-0a254548f58f", "1776860150250-757406c52438"],
     barberia:   ["1585747860715-2ba37e788b70", "1621605815971-fbc98d665033"],
     salon:      ["1600948836101-f9ffda59d250", "1580618672591-eb180b1a973f"],
     unas:       ["1522337660859-02fbefca4702", "1632345031435-8727f6897d53"],
@@ -451,10 +452,12 @@ var CITALY = {
   },
   // ¿Es un link corto (el que da el botón Compartir) que no se puede incrustar?
   vidShort: function (u) { return /^(https?:\/\/)?(vm\.tiktok\.com|vt\.tiktok\.com|fb\.watch|on\.fb\.me|l\.facebook\.com|(www\.)?instagram\.com\/share\/|(www\.)?facebook\.com\/share\/|(www\.)?tiktok\.com\/t\/)/i.test(String(u || "").trim()); },
+  /* Rubros donde la portada de fábrica es el dibujo aunque haya fotos para elegir (refrigeración puede ser de carros o de casas: una foto fija no le calza a todos) */
+  coverAuto: { refri: 1 },
   coverOf: function (type, cover, w, color) {
     if (cover === "none") return "";
     /* "auto" = portada dibujada con el color del negocio. También es la de fábrica en los rubros sin foto propia (ej. refrigeración). */
-    if (this.autoCover && (cover === "auto" || (!cover && !this.covers[type] && this.types && Object.prototype.hasOwnProperty.call(this.types, type)))) return this.autoCover(type, color);
+    if (this.autoCover && (cover === "auto" || (!cover && (!this.covers[type] || this.coverAuto[type]) && this.types && Object.prototype.hasOwnProperty.call(this.types, type)))) return this.autoCover(type, color);
     if (typeof cover === "string" && cover.indexOf("data:image/") === 0) return CITALY.safeImg(cover);
     var all = [].concat.apply([], Object.keys(this.covers).map(function (k) { return this.covers[k]; }, this));
     if (cover && all.indexOf(cover) >= 0) return this.coverUrl(cover, w);

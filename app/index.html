@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261127a"></script><script src="novedades-auto.js?v=1"></script><script src="novedades.js?v=20261125b"></script><script src="frases.js?v=20261124a"></script>
+<script src="../cfg.js?v=20261127b"></script><script src="novedades-auto.js?v=1"></script><script src="novedades.js?v=20261125b"></script><script src="frases.js?v=20261124a"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -1838,7 +1838,7 @@ function setExtra(s){
     +'<label for="rfA">Premio por cada cliente nuevo (₡)</label><input id="rfA" inputmode="numeric" value="'+refAmt()+'"><label for="rfT">¿Qué le das? (texto que ve el cliente)</label><input id="rfT" maxlength="60" value="'+esc(B.ref&&B.ref.what||"")+'" placeholder="Ej: ₡2.000 por SINPE o un descuento en su próxima cita">'
     +'<div style="height:16px"></div><button class="btn" id="rfS">Guardar</button>',
     function(){$("rfS").onclick=function(){var a=Math.max(0,Math.round(+$("rfA").value.replace(/\D/g,"")||0));saveBiz({ref:{on:$("rfOn").checked,amt:a,what:$("rfT").value.trim().slice(0,60)}}).then(function(){closeSheet();toast("Guardado ✓");render()})}});
-  if(s==="web"){var CV=(B.web||{}).cover||"",CUST=CV.indexOf("data:image/")===0?CV:"",mine=(C.covers[B.type]||C.covers.otro),DEF=C.covers[B.type]||!C.autoCover||!(C.types||{})[B.type]?mine[0]:"auto",oth=[];Object.keys(C.covers).forEach(function(k){if(C.covers[k]!==mine)oth=oth.concat(C.covers[k])});
+  if(s==="web"){var CV=(B.web||{}).cover||"",CUST=CV.indexOf("data:image/")===0?CV:"",mine=(C.covers[B.type]||C.covers.otro),DEF=(C.covers[B.type]&&!(C.coverAuto||{})[B.type])||!C.autoCover||!(C.types||{})[B.type]?mine[0]:"auto",oth=[];Object.keys(C.covers).forEach(function(k){if(C.covers[k]!==mine)oth=oth.concat(C.covers[k])});
     function cvH(){var cur=C.coverOf(B.type,CV,600,B.color);return '<div class="cvBig">'+(cur?'<img alt="" src="'+cur+'">':'<span>Sin foto de portada</span>')+'</div><div class="cvL">'
       +'<button data-up="1" class="cvU" aria-pressed="'+(!!CUST&&CV===CUST)+'">'+(CUST?'<img alt="" src="'+CUST+'">':'📷<br>Subir<br>mi foto')+'</button>'+(C.autoCover?'<button data-cv="auto" aria-pressed="'+(CV?CV==="auto":DEF==="auto")+'" title="Dibujo con tu color"><img alt="Dibujo con tu color" src="'+esc(C.autoCover(B.type,B.color))+'"></button>':"")
       +mine.concat(oth).map(function(id){var on=CV?CV===id:id===DEF;return '<button data-cv="'+id+'" aria-pressed="'+on+'"><img alt="" loading="lazy" src="'+C.coverUrl(id,240)+'"></button>'}).join("")
