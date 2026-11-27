@@ -7,7 +7,11 @@
 - Al volver a un tema de siempre se quitan las clases, los emojis vuelven a ser texto y la barra del sistema recupera su color.
 - Casos que encontró la revisión de Opus (27 nov 2026): el plan cambia con la app abierta; en la pantalla de entrar el botón
   de Google no se pinta de morado; en compu los botones de cada cita quedan todos a la vista (con mouse no se puede deslizar);
-  si otra persona del equipo marca la cita, aquí no brilla; y en Arranque el tema guardado no se asoma ni un instante."""
+  si otra persona del equipo marca la cita, aquí no brilla; y en Arranque el tema guardado no se asoma ni un instante.
+- Reporte de Esteban (27 nov 2026, en su celular): tenía puesto el fondo «Atardecer en el volcán» y al elegir Laca el fondo
+  viejo seguía, así que el tema quedaba a medias. Ahora elegir un tema premium lo pone completo (quita fondo, animación,
+  vidrio y acento de antes y avisa); si después el dueño elige un fondo, ese sí se respeta. Y los íconos de Ajustes que
+  quedaban como emoji (Mi negocio, Instalar la app, Mi apariencia…) ya tienen su trazo."""
 import os, sys
 os.environ.pop("TEMA", None)   # esta prueba elige el tema ella misma: no debe arrancar con uno puesto (TEMA=laca correr.py app)
 sys.path.insert(0, os.path.dirname(__file__))
@@ -121,6 +125,42 @@ with Banco() as b:
         b.ok("[%s] con foto de fondo propia del tema" % plan, "tm-foto" in e["cl"])
         b.ok("[%s] sin errores de JS ni HTML roto" % plan, not p.errs and not html_mal(p), [p.errs[:2], html_mal(p)[:1]])
         p.context.close()
+
+    # venía con fondo, animación, acento y vidrio de antes: al elegir el tema premium queda completo, sin restos
+    d, u = datos()
+    p = abrir_app(b, d, u, "turbo", antes=GUARDADO(pack="", bg="volcan", anim="estrellas", acc="#12a05c", glass=1))
+    hoja_temas(p); elegir(p, '#prG [data-pm="laca"]')
+    e = p.evaluate(EST)
+    g = p.evaluate("()=>JSON.parse(localStorage.getItem('citaly_ap'))")
+    b.ok("[turbo] con un fondo de antes: al elegir Laca se quitan fondo, animación, acento y vidrio", g["pack"] == "laca" and g["bg"] == "" and g["anim"] == "" and g["acc"] == "" and g["glass"] == 0, g)
+    b.ok("[turbo] y queda el tema completo, con su foto de fondo", "tm-laca" in e["cl"] and "tm-foto" in e["cl"] and "tm-acc" not in e["cl"] and "glass" not in e["cl"].split(), e)
+    b.ok("[turbo] avisa que el fondo de antes se puede volver a elegir", p.evaluate("()=>/Fondos/.test(document.getElementById('toast').textContent)"))
+    b.ok("[turbo] también se guarda así en el negocio", (p.evaluate("()=>(window.__DB['biz/U1'].uiAp||{})").get("bg") == ""), p.evaluate("()=>window.__DB['biz/U1'].uiAp"))
+    # tocar el tema que ya está puesto y limpio no hace nada
+    hoja_temas(p); elegir(p, '#prG [data-pm="laca"]')
+    b.ok("[turbo] tocar de nuevo el tema ya puesto (sin nada extra) no cambia nada", p.evaluate("()=>JSON.parse(localStorage.getItem('citaly_ap')).pack") == "laca" and "tm-laca" in p.evaluate(EST)["cl"])
+    # si DESPUÉS elige un fondo, ese sí se respeta encima del tema
+    p.evaluate("()=>APA.sheet('f')"); p.wait_for_timeout(300); elegir(p, '#apBody [data-bg="volcan"]')
+    e = p.evaluate(EST)
+    b.ok("[turbo] un fondo elegido después del tema se respeta (sin la foto del tema)", "tm-laca" in e["cl"] and "tm-foto" not in e["cl"], e)
+    b.ok("[turbo] y la hoja sigue sólida para que se lea", p.evaluate("()=>getComputedStyle(document.querySelector('.sheet .pn')).backdropFilter") in ("none", ""), p.evaluate("()=>getComputedStyle(document.querySelector('.sheet .pn')).backdropFilter"))
+    # con el tema ya puesto y un fondo elegido después (el caso del celular de Esteban): tocar el tema de nuevo pregunta
+    hoja_temas(p)
+    p.evaluate("()=>{window.__CONF=[];window.confirm=function(m){window.__CONF.push(m);return false}}")
+    elegir(p, '#prG [data-pm="laca"]')
+    g = p.evaluate("()=>JSON.parse(localStorage.getItem('citaly_ap'))")
+    b.ok("[turbo] tocar el tema ya puesto pregunta antes de quitar el fondo", p.evaluate("()=>window.__CONF.length") == 1 and "fondo" in p.evaluate("()=>window.__CONF[0]"), p.evaluate("()=>window.__CONF"))
+    b.ok("[turbo] si dice que no, el fondo se queda", g["bg"] == "volcan" and "tm-foto" not in p.evaluate(EST)["cl"], g)
+    p.evaluate("()=>{window.confirm=function(){return true}}")
+    elegir(p, '#prG [data-pm="laca"]')
+    g = p.evaluate("()=>JSON.parse(localStorage.getItem('citaly_ap'))")
+    b.ok("[turbo] si dice que sí, queda el tema completo", g["bg"] == "" and "tm-foto" in p.evaluate(EST)["cl"], g)
+    # los íconos de Ajustes: ninguno queda como emoji suelto
+    ver(p, "ajustes")
+    sueltos = p.evaluate("()=>[].filter.call(document.querySelectorAll('#v-ajustes .set .ic, #favBar .fch span'),x=>x.textContent.trim()&&!x.querySelector('.pi')).map(x=>x.textContent.trim())")
+    b.ok("[turbo] Ajustes y atajos: todos los emojis tienen su ícono (si falta uno, agregarlo a EMO en premium.js)", not sueltos, sueltos)
+    b.ok("[turbo] sin errores de JS ni HTML roto", not p.errs and not html_mal(p), [p.errs[:2], html_mal(p)[:1]])
+    p.context.close()
 
     # el fondo que eligió el dueño se respeta
     d, u = datos()

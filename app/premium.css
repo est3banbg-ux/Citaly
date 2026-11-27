@@ -173,6 +173,10 @@ html.tm-prem h2{font-size:17px;font-weight:700;letter-spacing:-.025em}
 .tm-prem .sheet h2{font-size:21px;letter-spacing:-.03em}
 .tm-prem .nhd{background:transparent}
 .tm-prem .nban,.tm-prem .toast{border-radius:18px}
+/* Si después el dueño le pone un fondo suyo (Fondos), la app activa «vidrio» (html.glass): las tarjetas quedan translúcidas
+   como él pidió, pero las hojas siguen sólidas para que se lean sobre cualquier foto. */
+html.tm-prem.glass .sheet .pn{background:var(--card);-webkit-backdrop-filter:none;backdrop-filter:none}
+html.tm-prem.glass .nhd{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none}
 
 /* ---------- íconos de trazo en vez de emojis ---------- */
 /* el emoji queda adentro como texto (la app lo lee); aquí se saca de la vista y se pinta el trazo encima */

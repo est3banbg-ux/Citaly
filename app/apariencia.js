@@ -110,7 +110,13 @@ var APA=(function(){
       $("mdC").onclick=function(e){var x=e.target.closest("[data-md]");if(!x)return;st.pack="";st.daily=0;save();setMode(x.dataset.md);ap2();refresh("t")};
       if($("prG"))$("prG").onclick=function(e){var x=e.target.closest("[data-pm]");if(!x)return;
         if(!premOk()){if(typeof planSheet==="function")planSheet();if(typeof toast==="function")toast("Laca y Perla vienen desde el plan Turbo");return}
-        st.pack=x.dataset.pm;st.daily=0;save();ap2();refresh("t")};
+        /* Elegir un tema premium lo pone completo: se quitan el fondo, la animación, el vidrio y el acento que hubiera de antes
+           (si no, queda a medias: tema nuevo con el fondo viejo). Después el dueño puede volver a ponerle lo suyo en Fondos y Extras. */
+        var tenia=!!(st.bg||st.anim||st.acc||st.glass),mismo=st.pack===x.dataset.pm&&!st.daily;
+        /* Tocar el tema que YA está puesto no debe borrar por accidente lo que el dueño le agregó después: se pregunta. */
+        if(mismo){if(!tenia)return;if(!confirm("¿Poner el tema "+((byId(prem(),x.dataset.pm)||{}).n||"")+" completo?\n\nSe quitan el fondo, la animación y el color de acento que le pusiste. Los podés volver a elegir en Fondos y Extras."))return}
+        st.pack=x.dataset.pm;st.daily=0;st.bg="";st.anim="";st.acc="";st.glass=0;save();ap2();refresh("t");
+        if(tenia&&typeof toast==="function")toast("Tema completo puesto. Tu fondo y colores de antes los podés volver a elegir en Fondos y Extras.")};
       $("pkG").onclick=function(e){var x=e.target.closest("[data-pk]");if(!x)return;st.pack=x.dataset.pk;st.daily=0;save();ap2();refresh("t")};
       $("apD").onchange=function(){st.daily=this.checked?1:0;if(!st.daily&&!st.pack)st.pack="";save();ap2();refresh("t")};
       $("thG").onclick=function(e){var x=e.target.closest("[data-th]");if(!x)return;st.pack="";st.daily=0;save();setTheme(x.dataset.th);ap2();refresh("t")}}
