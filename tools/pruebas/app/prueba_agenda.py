@@ -106,7 +106,7 @@ with Banco() as b:
     b.ok("Deshacer eliminar recupera la cita y vuelve a bloquear", hay_deshacer and job(p, j2) is not None and slots(p, j2) == [D2 + "_1300", D2 + "_1330", D2 + "_1400", D2 + "_1430"], [hay_deshacer, slots(p, j2)])
 
     # 10) Cambiar de día y de semana en la agenda
-    r = p.evaluate("""()=>{closeSheet(true);go('agenda');var a=document.getElementById('wT').textContent;
+    r = p.evaluate("""()=>{closeSheet(true);go('agenda');document.getElementById('today').click();var a=document.getElementById('wT').textContent;
       document.getElementById('wN').click();var b=document.getElementById('wT').textContent;
       document.getElementById('wP').click();document.getElementById('wP').click();var c=document.getElementById('wT').textContent;
       document.getElementById('today').click();var d=document.getElementById('wT').textContent;

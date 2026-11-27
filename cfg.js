@@ -451,8 +451,10 @@ var CITALY = {
   },
   // ¿Es un link corto (el que da el botón Compartir) que no se puede incrustar?
   vidShort: function (u) { return /^(https?:\/\/)?(vm\.tiktok\.com|vt\.tiktok\.com|fb\.watch|on\.fb\.me|l\.facebook\.com|(www\.)?instagram\.com\/share\/|(www\.)?facebook\.com\/share\/|(www\.)?tiktok\.com\/t\/)/i.test(String(u || "").trim()); },
-  coverOf: function (type, cover, w) {
+  coverOf: function (type, cover, w, color) {
     if (cover === "none") return "";
+    /* "auto" = portada dibujada con el color del negocio. También es la de fábrica en los rubros sin foto propia (ej. refrigeración). */
+    if (this.autoCover && (cover === "auto" || (!cover && !this.covers[type] && this.types && Object.prototype.hasOwnProperty.call(this.types, type)))) return this.autoCover(type, color);
     if (typeof cover === "string" && cover.indexOf("data:image/") === 0) return CITALY.safeImg(cover);
     var all = [].concat.apply([], Object.keys(this.covers).map(function (k) { return this.covers[k]; }, this));
     if (cover && all.indexOf(cover) >= 0) return this.coverUrl(cover, w);
@@ -785,3 +787,167 @@ CITALY.safeImg = function (u) {
   u = String(u || "");
   return /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\/=]+$/.test(u) || /^https:\/\/[^\s"'<>()\\]+$/.test(u) || /^(\.\.\/|\/)[\w\/.-]+$/.test(u) ? u : "";
 };
+
+/* ===== Logo y portada automáticos (para negocios que todavía no subieron logo ni fotos) =====
+   Todo se dibuja por código (SVG) con el color del negocio; no usa internet ni guarda nada.
+   C.autoLogo(P)            -> data URI con el logo: símbolo del rubro + iniciales del negocio
+   C.autoCover(tipo, color) -> data URI con la portada dibujada del rubro
+   Si el negocio sube su logo o sus fotos, esas mandan siempre. */
+(function (C) {
+  var NOCHE = [6, 11, 22], BLANCO = [255, 255, 255];
+  function rgb(h) { var m = /^#?([0-9a-f]{6})$/i.exec(String(h || "").trim()); h = m ? m[1] : "2f6df6"; return [0, 2, 4].map(function (i) { return parseInt(h.substr(i, 2), 16); }); }
+  function mix(a, b, t) { return [0, 1, 2].map(function (i) { return Math.round(a[i] + (b[i] - a[i]) * t); }); }
+  function hx(c) { return "#" + c.map(function (v) { return (v < 16 ? "0" : "") + v.toString(16); }).join(""); }
+  function tr(x, y, k, r, s) { return '<g transform="translate(' + x + " " + y + ")" + (r ? " rotate(" + r + ")" : "") + (k != null && k !== 1 ? " scale(" + k + ")" : "") + '">' + s + "</g>"; }
+  /* Iniciales: dos palabras -> una letra de cada una; una palabra -> primera letra + siguiente mayúscula (o la segunda letra) */
+  function ini(name) {
+    var ws = String(name || "").split(/[^A-Za-zÀ-ÿ0-9]+/).filter(function (w) { return w && ["de", "del", "la", "el", "y", "los", "las", "s", "cr"].indexOf(w.toLowerCase()) < 0; });
+    if (!ws.length) return "C";
+    if (ws.length > 1) return (ws[0].charAt(0) + ws[1].charAt(0)).toUpperCase();
+    var w = ws[0], cap = (w.slice(1).match(/[A-ZÀ-Þ]/) || [])[0];
+    return (w.charAt(0) + (cap || w.charAt(1) || "")).toUpperCase();
+  }
+
+  /* ---- Piezas ---- */
+  function copo(r, sw, col, op) {
+    var g = '<g stroke="' + col + '" stroke-width="' + sw + '" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="' + (op == null ? 1 : op) + '">';
+    [0, 60, 120].forEach(function (a) { g += '<g transform="rotate(' + a + ')"><line y1="' + -r + '" y2="' + r + '"/><polyline points="' + -r * .24 + "," + -r * .74 + " 0," + -r * .52 + " " + r * .24 + "," + -r * .74 + '"/><polyline points="' + -r * .24 + "," + r * .74 + " 0," + r * .52 + " " + r * .24 + "," + r * .74 + '"/></g>'; });
+    return g + "</g>";
+  }
+  function gota(fill, op) { return '<path d="M0,-62 C38,-12 54,14 54,38 A54,54 0 1 1 -54,38 C-54,14 -38,-12 0,-62 Z" fill="' + fill + '" opacity="' + (op == null ? 1 : op) + '"/>'; }
+  function destello(fill, op) { return '<path d="M0,-70 C7,-22 22,-7 70,0 C22,7 7,22 0,70 C-7,22 -22,7 -70,0 C-22,-7 -7,-22 0,-70 Z" fill="' + fill + '" opacity="' + (op == null ? 1 : op) + '"/>'; }
+  function engrane(r, n, fill, stroke, sw) {
+    var ri = r * .78, p = [], i, a, rr;
+    for (i = 0; i < n * 4; i++) { a = Math.PI * 2 * i / (n * 4) - Math.PI / (n * 4); rr = i % 4 < 2 ? r : ri; p.push((rr * Math.cos(a)).toFixed(1) + "," + (rr * Math.sin(a)).toFixed(1)); }
+    return '<polygon points="' + p.join(" ") + '" fill="' + fill + '" stroke="' + (stroke || "none") + '" stroke-width="' + (sw || 0) + '" stroke-linejoin="round"/>';
+  }
+  function burbuja(x, y, r, col, op) {
+    return '<g opacity="' + op + '"><circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="url(#bur)" stroke="' + col + '" stroke-opacity=".55" stroke-width="2.5"/><ellipse cx="' + (x - r * .34) + '" cy="' + (y - r * .38) + '" rx="' + r * .26 + '" ry="' + r * .16 + '" fill="#fff" opacity=".75" transform="rotate(-35 ' + (x - r * .34) + " " + (y - r * .38) + ')"/></g>';
+  }
+
+  /* Símbolo de cada rubro (para el logo), dibujado alrededor de 0,0 en una caja de ~200 */
+  var EMB = {
+    refri: function (c) { return copo(92, 15, c); },
+    lavacar: function (c) { return tr(0, 4, 1.45, 0, gota(c)) + '<path d="M-34,40 A42,42 0 0 0 -4,74" stroke="#fff" stroke-opacity=".6" stroke-width="9" stroke-linecap="round" fill="none"/>'; },
+    detailing: function (c) { return tr(-10, 8, 1.22, 0, destello(c)) + tr(66, -62, .42, 0, destello(c, .85)); },
+    pulido: function (c) { return '<circle r="56" fill="none" stroke="' + c + '" stroke-width="15"/><circle r="22" fill="' + c + '"/>' + [0, 45, 90, 135, 180, 225, 270, 315].map(function (a) { return '<line x1="0" y1="-78" x2="0" y2="-98" stroke="' + c + '" stroke-width="13" stroke-linecap="round" transform="rotate(' + a + ')"/>'; }).join(""); },
+    polarizado: function (c) { return '<path d="M-92,58 L-58,-48 Q-52,-66 -32,-66 H40 Q60,-66 70,-50 L96,58 Z" fill="' + c + '" fill-opacity=".28" stroke="' + c + '" stroke-width="14" stroke-linejoin="round"/><path d="M-70,58 L-44,-30 Q-40,-44 -26,-44 H0 L-30,58 Z" fill="' + c + '"/>'; },
+    autos: function (c) { return '<path d="M-96,36 V4 Q-96,-12 -80,-16 L-60,-58 Q-54,-72 -38,-72 H38 Q54,-72 60,-58 L80,-16 Q96,-12 96,4 V36 Q96,48 84,48 H-84 Q-96,48 -96,36 Z" fill="none" stroke="' + c + '" stroke-width="14" stroke-linejoin="round"/><line x1="-56" y1="-18" x2="56" y2="-18" stroke="' + c + '" stroke-width="12" stroke-linecap="round"/><circle cx="-58" cy="16" r="11" fill="' + c + '"/><circle cx="58" cy="16" r="11" fill="' + c + '"/><path d="M-70,50 V70 M70,50 V70" stroke="' + c + '" stroke-width="18" stroke-linecap="round"/>'; },
+    taller: function (c) { return engrane(94, 8, "none", c, 15) + '<circle r="32" fill="none" stroke="' + c + '" stroke-width="15"/>'; },
+    barberia: function (c) { return '<g fill="none" stroke="' + c + '" stroke-width="14" stroke-linecap="round"><circle cx="-52" cy="58" r="26"/><circle cx="52" cy="58" r="26"/><line x1="-36" y1="38" x2="52" y2="-88"/><line x1="36" y1="38" x2="-52" y2="-88"/></g><circle r="8" cy="-2" fill="' + c + '"/>'; },
+    salon: function (c) { return '<g fill="none" stroke="' + c + '" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"><path d="M-78,-58 H38 Q84,-58 84,-18 Q84,22 38,22 H-78 Z"/><path d="M-22,22 L-8,92 H34 L28,22"/><line x1="-78" y1="-36" x2="-78" y2="0"/></g><circle cx="38" cy="-18" r="13" fill="' + c + '"/>'; },
+    unas: function (c) { return '<rect x="-24" y="-98" width="48" height="78" rx="10" fill="' + c + '"/><path d="M-50,-12 H50 Q62,-12 62,2 V70 Q62,92 40,92 H-40 Q-62,92 -62,70 V2 Q-62,-12 -50,-12 Z" fill="' + c + '" fill-opacity=".28" stroke="' + c + '" stroke-width="14" stroke-linejoin="round"/><path d="M-40,36 Q0,16 40,36 V68 Q40,74 34,74 H-34 Q-40,74 -40,68 Z" fill="' + c + '"/>'; },
+    spa: function (c) { return '<g fill="' + c + '" fill-opacity=".3" stroke="' + c + '" stroke-width="12" stroke-linejoin="round"><path d="M0,54 C-70,54 -100,10 -104,-22 C-64,-22 -22,6 0,54 Z"/><path d="M0,54 C70,54 100,10 104,-22 C64,-22 22,6 0,54 Z"/></g><path d="M0,54 C-44,14 -44,-52 0,-92 C44,-52 44,14 0,54 Z" fill="' + c + '"/><path d="M-76,84 H76" stroke="' + c + '" stroke-width="12" stroke-linecap="round"/>'; },
+    salud: function (c) { return '<path d="M-30,-92 H30 V-30 H92 V30 H30 V92 H-30 V30 H-92 V-30 H-30 Z" fill="' + c + '" stroke="' + c + '" stroke-width="10" stroke-linejoin="round"/>'; },
+    otro: function (c) { return '<rect x="-84" y="-72" width="168" height="160" rx="26" fill="' + c + '" fill-opacity=".28" stroke="' + c + '" stroke-width="14"/><path d="M-84,-26 H84" stroke="' + c + '" stroke-width="14"/><path d="M-44,-96 V-58 M44,-96 V-58" stroke="' + c + '" stroke-width="14" stroke-linecap="round"/><path d="M-36,30 L-8,58 L42,4" fill="none" stroke="' + c + '" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>'; }
+  };
+  function emb(type, c) { return (Object.prototype.hasOwnProperty.call(EMB, type) ? EMB[type] : EMB.otro)(c); }
+
+  /* ---- Logo ---- */
+  function logo(name, type, color) {
+    var c = rgb(color), claro = hx(mix(c, BLANCO, .58)), t = ini(name).replace(/[<>&"']/g, "");
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs>'
+      + '<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + hx(mix(c, NOCHE, .66)) + '"/><stop offset="1" stop-color="' + hx(mix(c, NOCHE, .92)) + '"/></linearGradient>'
+      + '<radialGradient id="l" cx=".26" cy=".18" r=".95"><stop offset="0" stop-color="' + hx(c) + '" stop-opacity=".62"/><stop offset="1" stop-color="' + hx(c) + '" stop-opacity="0"/></radialGradient></defs>'
+      + '<rect width="512" height="512" rx="116" fill="url(#g)"/><rect width="512" height="512" rx="116" fill="url(#l)"/>'
+      + '<rect x="13" y="13" width="486" height="486" rx="104" fill="none" stroke="' + claro + '" stroke-opacity=".3" stroke-width="4"/>'
+      + tr(256, 154, .84, 0, emb(type, claro))
+      + '<text x="256" y="412" text-anchor="middle" font-family="system-ui,-apple-system,\'Segoe UI\',Roboto,Helvetica,Arial,sans-serif" font-weight="800" font-size="' + (t.length > 1 ? 172 : 196) + '" fill="#fff" letter-spacing="1">' + t + "</text></svg>";
+  }
+
+  /* ---- Carro de perfil (mira a la derecha), en una caja de 800 x 300 ---- */
+  function carro(o) {
+    var s = '<ellipse cx="408" cy="292" rx="400" ry="20" fill="url(#somb)"/>';
+    // carrocería
+    s += '<path d="M40,210 C40,180 60,165 110,158 L210,150 C250,105 300,80 380,78 L500,80 C560,84 610,110 650,150 L720,162 C760,170 775,185 775,210 L775,225 C775,235 768,240 758,240 L58,240 C46,240 40,234 40,224 Z" fill="url(#pint)"/>';
+    s += '<path d="M40,214 H775 V225 C775,235 768,240 758,240 L58,240 C46,240 40,234 40,224 Z" fill="#05070c" opacity=".55"/>';
+    // brillo del techo y del costado
+    s += '<path d="M118,160 L210,152 C250,108 300,84 380,82 L500,84 C556,88 604,112 644,150" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3.5" stroke-linecap="round"/>';
+    s += '<path d="M70,188 C240,176 560,174 750,186" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="5" stroke-linecap="round"/>';
+    // vidrios
+    s += '<path d="M250,150 C280,115 315,98 380,96 L440,96 L440,150 Z M462,96 L500,97 C545,100 585,120 615,150 L462,150 Z" fill="url(#' + (o.oscuro ? "vidn" : "vid") + ')"/>';
+    if (!o.oscuro) s += '<path d="M318,150 L372,97 L398,96 L344,150 Z M520,150 L490,97 L506,98 L548,150 Z" fill="#fff" opacity=".2"/>';
+    else s += '<path d="M330,150 L378,98 L390,97 L342,150 Z" fill="#fff" opacity=".1"/>';
+    // puertas, manija, espejo
+    s += '<path d="M451,96 V232 M250,152 C244,180 244,210 250,232 M618,152 C628,180 630,206 626,232" fill="none" stroke="#04060a" stroke-opacity=".42" stroke-width="3"/>';
+    s += '<rect x="466" y="170" width="34" height="8" rx="4" fill="#fff" opacity=".45"/><rect x="290" y="170" width="34" height="8" rx="4" fill="#fff" opacity=".45"/>';
+    s += '<path d="M604,150 C604,138 624,134 632,142 L636,152 Z" fill="url(#pint)" stroke="#04060a" stroke-opacity=".4" stroke-width="2"/>';
+    // luces
+    s += '<path d="M742,170 C760,174 770,184 772,196 L744,194 C736,188 736,178 742,170 Z" fill="#fff8e0"/>' + (o.faro ? "" : '<ellipse cx="766" cy="186" rx="34" ry="18" fill="url(#luz)" opacity=".8"/>');
+    s += '<path d="M42,196 C42,186 48,178 58,174 L74,178 C74,188 68,196 58,198 Z" fill="#ff3b3b"/><ellipse cx="46" cy="188" rx="26" ry="14" fill="url(#roja)" opacity=".7"/>';
+    // ruedas
+    [200, 638].forEach(function (x) {
+      s += '<circle cx="' + x + '" cy="240" r="62" fill="#04060a"/><circle cx="' + x + '" cy="240" r="52" fill="#0d1017" stroke="#1d2330" stroke-width="3"/><circle cx="' + x + '" cy="240" r="35" fill="url(#aro)"/>';
+      [0, 72, 144, 216, 288].forEach(function (a) { s += '<path d="M-5,-8 L-4,-33 H4 L5,-8 Z" fill="#1a1f2a" opacity=".7" transform="translate(' + x + ' 240) rotate(' + a + ')"/>'; });
+      s += '<circle cx="' + x + '" cy="240" r="9" fill="#e9edf3"/><circle cx="' + x + '" cy="240" r="35" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2"/>';
+    });
+    return s;
+  }
+
+  /* ---- Portada ---- */
+  function cover(type, color) {
+    var c0 = rgb(color), c = (0.299 * c0[0] + 0.587 * c0[1] + 0.114 * c0[2]) < 46 ? mix(c0, BLANCO, .3) : c0, col = hx(c), claro = hx(mix(c, BLANCO, .6)), muy = hx(mix(c, BLANCO, .84)), W = 1200, H = 900, s = "", piso = 690;
+    var g = function (id, x1, y1, x2, y2, st) { return '<linearGradient id="' + id + '" x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '">' + st.map(function (q) { return '<stop offset="' + q[0] + '" stop-color="' + q[1] + '"' + (q[2] != null ? ' stop-opacity="' + q[2] + '"' : "") + "/>"; }).join("") + "</linearGradient>"; };
+    var r = function (id, st, cx, cy) { return '<radialGradient id="' + id + '" cx="' + (cx || .5) + '" cy="' + (cy || .5) + '" r=".5">' + st.map(function (q) { return '<stop offset="' + q[0] + '" stop-color="' + q[1] + '"' + (q[2] != null ? ' stop-opacity="' + q[2] + '"' : "") + "/>"; }).join("") + "</radialGradient>"; };
+    s += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '"><defs>'
+      + g("fondo", 0, 0, 0, 1, [[0, hx(mix(c, NOCHE, .8))], [.62, hx(mix(c, NOCHE, .9))], [1, hx(NOCHE)]])
+      + r("foco", [[0, col, .75], [.6, col, .18], [1, col, 0]])
+      + g("suelo", 0, 0, 0, 1, [[0, hx(mix(c, NOCHE, .62))], [1, hx(mix(c, NOCHE, .93))]])
+      + g("linea", 0, 0, 1, 0, [[0, muy, 0], [.5, muy, .8], [1, muy, 0]])
+      + g("pint", 0, 0, 0, 1, [[0, hx(mix(c, BLANCO, .5))], [.3, hx(mix(c, BLANCO, .12))], [.62, col], [1, hx(mix(c, NOCHE, .6))]])
+      + g("vid", 0, 0, 0, 1, [[0, "#0a1626"], [1, "#3d5a78"]]) + g("vidn", 0, 0, 0, 1, [[0, "#020306"], [1, "#0c1420"]])
+      + g("metal", 0, 0, 1, 1, [[0, "#f4f7fb"], [.45, "#aab4c2"], [1, "#5b6676"]])
+      + r("aro", [[0, "#f7f9fc"], [.7, "#b4bdca"], [1, "#6c7786"]])
+      + r("somb", [[0, "#000", .7], [1, "#000", 0]]) + r("luz", [[0, "#fff6c9", .95], [1, "#fff6c9", 0]]) + r("roja", [[0, "#ff4040", .9], [1, "#ff4040", 0]])
+      + r("bur", [[0, "#fff", .05], [.75, "#fff", .1], [1, "#fff", .32]], .4, .35)
+      + g("haz", 0, 0, 1, 0, [[0, "#fff6c9", .9], [1, "#fff6c9", 0]]) + g("aire", 0, 0, 1, 0, [[0, muy, .95], [1, muy, 0]])
+      + r("vin", [[.55, "#000", 0], [1, "#000", .55]])
+      + "</defs>";
+    s += '<rect width="' + W + '" height="' + H + '" fill="url(#fondo)"/><ellipse cx="600" cy="430" rx="640" ry="430" fill="url(#foco)"/>';
+    s += '<rect y="' + piso + '" width="' + W + '" height="' + (H - piso) + '" fill="url(#suelo)"/><rect x="0" y="' + (piso - 2) + '" width="' + W + '" height="4" fill="url(#linea)"/>';
+    var auto = function (x, y, k, o) { return tr(x, y, k, 0, carro(o || {})); }, AK = 1.3, AX = 70, AY = piso - 292 * AK; // el carro queda con las llantas sobre el piso
+    var px = function (x, dx) { return (AX + (dx || 0) + x * AK).toFixed(0); }, py = function (y) { return (AY + y * AK).toFixed(0); };
+    var chispas = function (L) { return L.map(function (q) { return tr(q[0], q[1], q[2], 0, destello("#fff", q[3])); }).join(""); };
+    if (type === "refri") {
+      s += '<ellipse cx="420" cy="430" rx="420" ry="400" fill="url(#foco)"/>';
+      [[290, 640, .9], [350, 720, .75], [410, 780, .6], [470, 780, .6], [530, 720, .75], [590, 640, .9]].forEach(function (q) { s += '<path d="M560 ' + (440 + (q[0] - 440) * .35) + " C 700 " + (q[0] - 40) + ", 800 " + (q[0] + 40) + ", " + (560 + q[1]) + " " + q[0] + '" stroke="url(#aire)" stroke-width="11" stroke-linecap="round" fill="none" opacity="' + q[2] + '"/>'; });
+      s += '<g transform="translate(420 440)"><circle r="232" fill="#04060a" opacity=".6"/><circle r="218" fill="url(#metal)"/><circle r="196" fill="#070a11"/>';
+      for (var k = -4; k <= 4; k++) { var y = k * 39, half = Math.sqrt(Math.max(190 * 190 - y * y, 0)) - 12; s += '<rect x="' + -half + '" y="' + (y - 12) + '" width="' + 2 * half + '" height="24" rx="12" fill="url(#metal)" transform="rotate(-8)"/><rect x="' + (-half + 8) + '" y="' + (y - 9) + '" width="' + (2 * half - 16) + '" height="5" rx="2.5" fill="#fff" opacity=".55" transform="rotate(-8)"/>'; }
+      s += '<circle r="40" fill="#070a11" stroke="url(#metal)" stroke-width="8"/><circle r="14" fill="' + claro + '"/></g>';
+      [[930, 160, 54, 7, .95], [1040, 320, 30, 5, .75], [870, 600, 40, 6, .8], [1070, 520, 24, 4, .65], [700, 110, 22, 4, .55], [990, 760, 22, 4, .5]].forEach(function (q) { s += tr(q[0], q[1], 1, 0, copo(q[2], q[3], "#fff", q[4])); });
+    } else if (type === "taller") {
+      s += tr(860, 300, 1, 12, engrane(250, 12, "url(#metal)") + '<circle r="92" fill="' + hx(mix(c, NOCHE, .86)) + '"/><circle r="92" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="4"/>') ;
+      s += tr(1090, 590, 1, -8, engrane(100, 9, "url(#metal)") + '<circle r="40" fill="' + hx(mix(c, NOCHE, .86)) + '"/>');
+      s += '<g transform="translate(250 200) rotate(-35) scale(1.5)"><defs><mask id="mll"><rect x="-80" y="-140" width="160" height="300" fill="#fff"/><rect x="-15" y="-140" width="30" height="52" fill="#000"/></mask></defs><g mask="url(#mll)" fill="url(#metal)"><circle cy="-84" r="42"/><rect x="-15" y="-60" width="30" height="150" rx="13"/><circle cy="92" r="24"/></g><circle cy="92" r="9" fill="#05070c" opacity=".6"/></g>';
+      s += auto(AX - 30, AY, AK);
+    } else if (type === "lavacar") {
+      s += auto(AX, AY, AK);
+      [[230, 250, 50, .9], [335, 160, 28, .8], [925, 200, 62, .9], [1050, 300, 30, .8], [800, 130, 24, .75], [560, 170, 36, .8], [1120, 430, 24, .7], [95, 400, 30, .7], [450, 250, 17, .75], [690, 230, 20, .7], [1110, 150, 18, .6]].forEach(function (q) { s += burbuja(q[0], q[1], q[2], muy, q[3]); });
+      [[425, 96, .5], [705, 74, .62], [985, 96, .45], [205, 108, .4]].forEach(function (q) { s += tr(q[0], q[1], q[2], 0, gota(muy, .9)); });
+      [300, 520, 740, 920].forEach(function (x) { s += '<path d="M' + x + ',770 q30,-20 60,0 t60,0" stroke="' + muy + '" stroke-width="5" fill="none" stroke-linecap="round" opacity=".45"/>'; });
+    } else if (type === "pulido") {
+      s += '<path d="M' + px(770, -55) + ',' + py(186) + ' L1200,' + (+py(186) - 130) + ' V' + (+py(186) + 150) + ' Z" fill="url(#haz)" opacity=".8"/>';
+      s += auto(AX - 55, AY, AK, { faro: 1 });
+      s += '<ellipse cx="' + px(762, -55) + '" cy="' + py(186) + '" rx="96" ry="56" fill="url(#luz)"/>';
+      s += chispas([[+px(760, -55), +py(184), 1.05, 1], [+px(380, -55), +py(120), .6, .9], [1090, 300, .4, .7], [250, 250, .5, .6], [700, 190, .36, .55]]);
+    } else if (type === "polarizado") {
+      s += '<g transform="translate(250 190)"><circle r="150" fill="url(#luz)" opacity=".8"/><circle r="56" fill="#fff3bf"/>' + [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(function (a) { return '<line y1="-80" y2="-118" stroke="#fff3bf" stroke-width="9" stroke-linecap="round" opacity=".85" transform="rotate(' + a + ')"/>'; }).join("") + "</g>";
+      [[330, 250, +px(350), +py(118)], [300, 290, +px(300), +py(140)], [350, 215, +px(520), +py(110)]].forEach(function (q) { s += '<line x1="' + q[0] + '" y1="' + q[1] + '" x2="' + q[2] + '" y2="' + q[3] + '" stroke="#fff3bf" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 22" opacity=".6"/>'; });
+      s += auto(AX, AY, AK, { oscuro: 1 });
+    } else if (type === "detailing" || type === "autos") {
+      s += auto(AX, AY, AK);
+      s += chispas([[+px(640), +py(128), 1.15, 1], [+px(255), +py(150), .6, .9], [1040, 190, .6, .8], [240, 210, .7, .85], [330, 120, .38, .65], [650, 130, .46, .7], [1090, 420, .4, .65], [130, 430, .34, .55]]);
+    } else {
+      // Rubros sin dibujo propio: el símbolo del rubro en grande, como un sello de vidrio
+      s += '<circle cx="600" cy="400" r="250" fill="' + hx(mix(c, NOCHE, .78)) + '" stroke="' + claro + '" stroke-opacity=".4" stroke-width="5"/><circle cx="600" cy="400" r="250" fill="url(#foco)" opacity=".7"/>';
+      s += tr(600, 400, 1.75, 0, emb(type, muy));
+      s += '<ellipse cx="600" cy="' + (piso + 40) + '" rx="300" ry="20" fill="url(#somb)"/>';
+      s += chispas([[930, 220, .7, .85], [270, 250, .5, .7], [990, 520, .36, .6], [230, 560, .32, .5]]);
+    }
+    return s + '<rect width="' + W + '" height="' + H + '" fill="url(#vin)"/></svg>';
+  }
+  function uri(svg) { return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); }
+  C.art = { ini: ini, logo: logo, cover: cover, uri: uri };
+  C.autoLogo = function (P) { P = P || {}; return uri(logo(P.name, P.type, P.color)); };
+  C.autoCover = function (type, color) { return uri(cover(type, color)); };
+})(CITALY);

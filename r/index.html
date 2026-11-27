@@ -16,7 +16,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="../cfg.js?v=20261124h"></script>
+<script src="../cfg.js?v=20261127a"></script>
 <style>
 .wrap{padding-bottom:130px}
 .head{text-align:center;padding:22px 0 8px}
@@ -267,8 +267,8 @@ function notFound(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf")
 
 function init(open){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];
   document.title=P.name+" · Reserva tu cita";document.documentElement.style.setProperty("--acc",col);document.querySelector('meta[name=theme-color]').content=col;
-  var lg=P.logo?'<img alt="" src="'+esc(C.safeImg(P.logo))+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
-  var cv=C.coverOf?C.coverOf(P.type,(P.web||{}).cover,900):"";if(cv){$("cov").innerHTML='<img alt="" src="'+esc(cv)+'" onerror="this.parentNode.hidden=true">';$("cov").hidden=false}
+  var lg=P.logo?'<img alt="" src="'+esc(C.safeImg(P.logo))+'">':C.autoLogo?'<img alt="" src="'+esc(C.autoLogo(P))+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
+  var cv=C.coverOf?C.coverOf(P.type,(P.web||{}).cover,900,P.color):"";if(cv){$("cov").innerHTML='<img alt="" src="'+esc(cv)+'" onerror="this.parentNode.hidden=true">';$("cov").hidden=false}
   $("nm").textContent=P.name;$("nm2").textContent=P.name;$("tg").textContent=P.tagline||"Reserva tu cita en segundos";$("bl").textContent=P.blurb||P.addr||"";
   if(P.promo){$("pm").hidden=false;$("pmT").textContent=P.promo}
   $("toWeb").href="/"+slug;$("toWeb").textContent="🌐 Ver más de "+P.name;
@@ -496,7 +496,7 @@ function atMs(f,t){var d=pd(f);d.setMinutes(tm(t));return d.getTime()}
 function mcBox(h){$("mcb").innerHTML=h;window.scrollTo(0,0)}
 function mcWa(t){return waUrl(P.wa,t||"¡Hola "+P.name+"! 👋 Quiero hacer un cambio en mi cita"+(MC?" del "+niceDay(MC.date)+", "+fh(MC.time):""))}
 function openMine(){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
-  $("lg3").innerHTML=P.logo?'<img alt="" src="'+esc(C.safeImg(P.logo))+'">':esc(P.name.charAt(0).toUpperCase());$("nm3").textContent=P.name;
+  $("lg3").innerHTML=P.logo?'<img alt="" src="'+esc(C.safeImg(P.logo))+'">':C.autoLogo?'<img alt="" src="'+esc(C.autoLogo(P))+'">':esc(P.name.charAt(0).toUpperCase());$("nm3").textContent=P.name;
   db.doc("biz/"+BID+"/mine/"+MCQ).get().then(function(d){if(!d.exists){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p><a class="btn wa" target="_blank" rel="noopener" href="'+mcWa("¡Hola "+P.name+"! 👋 Tengo una consulta sobre mi cita")+'">Escribir por WhatsApp</a>');return}MC=d.data();renderMine()},
    function(e){if(e&&e.code==="permission-denied"){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p>');return}mcBox('<h2>No se pudo cargar tu cita</h2><p class="mute">Revisa tu internet y vuelve a intentar.</p><a class="btn alt" href="">Reintentar</a>')})}
 function mcSum(){return '<div class="card sumc" style="text-align:left;margin:14px 0"><div class="li"><span>📅 '+niceDay(MC.date).replace(/^./,function(c){return c.toUpperCase()})+'</span><b>'+fh(MC.time)+'</b></div>'

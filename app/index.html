@@ -20,7 +20,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="../cfg.js?v=20261124j"></script><script src="novedades-auto.js?v=1"></script><script src="novedades.js?v=20261125b"></script><script src="frases.js?v=20261124a"></script>
+<script src="../cfg.js?v=20261127a"></script><script src="novedades-auto.js?v=1"></script><script src="novedades.js?v=20261125b"></script><script src="frases.js?v=20261124a"></script>
 <style>
 .screen{display:none}.screen.on{display:block}
 /* auth */
@@ -830,7 +830,7 @@ function render(){if(!B)return;renderOnb();instNote();renderInstBar();if(typeof 
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();if(typeof APA!=="undefined"){APA.fromBiz();}renderFavs();
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
-  $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':esc((B.name||"?").charAt(0).toUpperCase());
+  $("av").innerHTML=B.logo?'<img alt="" src="'+B.logo+'">':C.autoLogo?'<img alt="" src="'+esc(C.autoLogo(B))+'">':esc((B.name||"?").charAt(0).toUpperCase());
   var low=modOn("insumos")?(B.ins||[]).filter(function(x){return +x.min>0&&+x.q<=+x.min}):[];
   if(low.length)$("trial").innerHTML='<div class="banner hot" id="trB">📦<span style="flex:1">Se está acabando: <b>'+esc(low.map(function(x){return x.n}).join(", "))+'</b></span><b>Ver</b></div>';
   else if(SUB&&SUB.status==="trial"){var dl=daysLeft();$("trial").innerHTML='<div class="banner'+(dl<=5?' hot':'')+'" id="trP">🎁<span style="flex:1">'+(dl>1?"Te quedan <b>"+dl+" días</b> de prueba":dl===1?"<b>Último día</b> de prueba":"Tu prueba terminó")+(dl<=3&&recPlan()!=="arranque"?" · te recomendamos <b>"+C.plans[recPlan()].n+"</b>":" · activá desde <b>"+promoTxt()+"</b>")+'</span><b>'+(dl<=3&&recPlan()!=="arranque"?"Ver plan":"Activar")+'</b></div>'}
@@ -1838,12 +1838,13 @@ function setExtra(s){
     +'<label for="rfA">Premio por cada cliente nuevo (₡)</label><input id="rfA" inputmode="numeric" value="'+refAmt()+'"><label for="rfT">¿Qué le das? (texto que ve el cliente)</label><input id="rfT" maxlength="60" value="'+esc(B.ref&&B.ref.what||"")+'" placeholder="Ej: ₡2.000 por SINPE o un descuento en su próxima cita">'
     +'<div style="height:16px"></div><button class="btn" id="rfS">Guardar</button>',
     function(){$("rfS").onclick=function(){var a=Math.max(0,Math.round(+$("rfA").value.replace(/\D/g,"")||0));saveBiz({ref:{on:$("rfOn").checked,amt:a,what:$("rfT").value.trim().slice(0,60)}}).then(function(){closeSheet();toast("Guardado ✓");render()})}});
-  if(s==="web"){var CV=(B.web||{}).cover||"",CUST=CV.indexOf("data:image/")===0?CV:"",mine=(C.covers[B.type]||C.covers.otro),oth=[];Object.keys(C.covers).forEach(function(k){if(C.covers[k]!==mine)oth=oth.concat(C.covers[k])});
-    function cvH(){var cur=C.coverOf(B.type,CV,600);return '<div class="cvBig">'+(cur?'<img alt="" src="'+cur+'">':'<span>Sin foto de portada</span>')+'</div><div class="cvL">'
-      +'<button data-up="1" class="cvU" aria-pressed="'+(!!CUST&&CV===CUST)+'">'+(CUST?'<img alt="" src="'+CUST+'">':'📷<br>Subir<br>mi foto')+'</button>'+mine.concat(oth).map(function(id){var on=CV?CV===id:id===mine[0];return '<button data-cv="'+id+'" aria-pressed="'+on+'"><img alt="" loading="lazy" src="'+C.coverUrl(id,240)+'"></button>'}).join("")
+  if(s==="web"){var CV=(B.web||{}).cover||"",CUST=CV.indexOf("data:image/")===0?CV:"",mine=(C.covers[B.type]||C.covers.otro),DEF=C.covers[B.type]||!C.autoCover||!(C.types||{})[B.type]?mine[0]:"auto",oth=[];Object.keys(C.covers).forEach(function(k){if(C.covers[k]!==mine)oth=oth.concat(C.covers[k])});
+    function cvH(){var cur=C.coverOf(B.type,CV,600,B.color);return '<div class="cvBig">'+(cur?'<img alt="" src="'+cur+'">':'<span>Sin foto de portada</span>')+'</div><div class="cvL">'
+      +'<button data-up="1" class="cvU" aria-pressed="'+(!!CUST&&CV===CUST)+'">'+(CUST?'<img alt="" src="'+CUST+'">':'📷<br>Subir<br>mi foto')+'</button>'+(C.autoCover?'<button data-cv="auto" aria-pressed="'+(CV?CV==="auto":DEF==="auto")+'" title="Dibujo con tu color"><img alt="Dibujo con tu color" src="'+esc(C.autoCover(B.type,B.color))+'"></button>':"")
+      +mine.concat(oth).map(function(id){var on=CV?CV===id:id===DEF;return '<button data-cv="'+id+'" aria-pressed="'+on+'"><img alt="" loading="lazy" src="'+C.coverUrl(id,240)+'"></button>'}).join("")
       +'<button data-cv="none" aria-pressed="'+(CV==="none")+'" class="cvN">Sin<br>foto</button></div>'}
     sheet('<h2>Portada de tu página</h2><p class="mute small" style="margin-top:-4px">Lo primero que ve tu cliente en tu página web y al reservar. Las fotos, reseñas y preguntas se cambian en las opciones de abajo.</p>'
-    +'<label>Foto de portada</label><p class="mute small" style="margin:-2px 0 8px">Ya te pusimos una de ejemplo. Elige otra o, cuando subas fotos de tus trabajos, tu web muestra la tuya.</p><div id="cvW">'+cvH()+'</div><input type="file" accept="image/*" id="cvF" hidden>'
+    +'<label>Foto de portada</label><p class="mute small" style="margin:-2px 0 8px">Ya te pusimos una de ejemplo. Elige otra (también hay un dibujo con tu color) o, cuando subas fotos de tus trabajos, tu web muestra la tuya.</p><div id="cvW">'+cvH()+'</div><input type="file" accept="image/*" id="cvF" hidden>'
     +'<label for="ptT">Frase principal</label><input id="ptT" maxlength="70" value="'+esc(B.tagline||"")+'" placeholder="Ej: Tu mejor corte, sin hacer fila">'
     +'<label for="ptS">Descripción corta (opcional)</label><textarea id="ptS" maxlength="160" placeholder="Ej: Barbería en San Pedro. Reserva en 1 minuto.">'+esc(B.blurb||"")+'</textarea>'
     +'<label for="ptP">Promoción (opcional)</label><input id="ptP" maxlength="90" value="'+esc(B.promo||"")+'" placeholder="Ej: 10% de descuento en tu primera cita">'
@@ -1851,7 +1852,7 @@ function setExtra(s){
     +'<div class="between" style="margin-top:14px"><div><b>Preguntar "¿Cómo nos conociste?"</b><div class="mute small">Para saber qué te trae clientes</div></div><label class="toggle"><input type="checkbox" id="ptH"'+(B.askHow!==false?" checked":"")+'><span></span></label></div>'
     +'<div style="height:16px"></div><div class="row"><a class="btn ghost" target="_blank" rel="noopener" href="'+esc(webLink())+'">Ver mi página</a><button class="btn" id="ptSv">Guardar</button></div>',
     function(){$("cvF").onchange=function(){var f=this.files[0];if(!f)return;fitImg(f,1000).then(function(u){CUST=u;CV=u;$("cvW").innerHTML=cvH()}).catch(function(){toast("No pude leer esa foto")})};
-      $("cvW").onclick=function(e){if(e.target.closest("[data-up]")){if(CUST&&CV!==CUST){CV=CUST;$("cvW").innerHTML=cvH();return}$("cvF").click();return}var b=e.target.closest("[data-cv]");if(!b)return;CV=b.dataset.cv===mine[0]?"":b.dataset.cv;$("cvW").innerHTML=cvH()};
+      $("cvW").onclick=function(e){if(e.target.closest("[data-up]")){if(CUST&&CV!==CUST){CV=CUST;$("cvW").innerHTML=cvH();return}$("cvF").click();return}var b=e.target.closest("[data-cv]");if(!b)return;CV=b.dataset.cv===DEF?"":b.dataset.cv;$("cvW").innerHTML=cvH()};
       $("ptSv").onclick=function(){saveBiz({web:Object.assign({},B.web||{},{cover:CV}),tagline:$("ptT").value.trim(),blurb:$("ptS").value.trim(),promo:$("ptP").value.trim(),showPrices:$("ptSp").checked,askHow:$("ptH").checked}).then(function(){closeSheet();toast("Portada guardada ✓")})}})}
   if(s==="dom"){var Z=(B.zones||[]).map(function(z){var o={n:z.n,fee:+z.fee||0};if(z.ask)o.ask=true;if(z.days&&z.days.length)o.days=z.days.slice();return o}),CAT=zCatalog(),ZS={};
     var DL=["D","L","K","M","J","V","S"],DN7=[1,2,3,4,5,6,0];

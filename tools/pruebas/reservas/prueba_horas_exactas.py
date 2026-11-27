@@ -8,7 +8,8 @@ FIJAS = ["08:00", "10:30", "13:30", "15:30"]
 LIBRES = "async (d)=>{S.pick=[0];await loadBusy();return freeStarts(d)}"
 
 with Banco() as b:
-    d1, d2 = dia(2), dia(3)
+    d1 = dia(2)
+    d2 = next(dia(k) for k in range(3, 7) if dia(k) != d1)  # otro día hábil (dia() brinca domingos y puede repetir)
     datos, usuario = negocio(fixed=FIJAS, brk={"a": "12:00", "b": "13:00"})
     datos["biz/U1/slots/%s_1030" % d1] = {"date": d1, "t": "1030", "job": "J9"}
     p = b.abrir("/r/?n=prueba", datos)

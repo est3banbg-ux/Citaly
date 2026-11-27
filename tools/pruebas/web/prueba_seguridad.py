@@ -22,7 +22,7 @@ REVISA = """()=>({xss:window.__xss||0,
   scripts:document.querySelectorAll('#page script').length,
   on:[...document.querySelectorAll('#page *, #lb *')].flatMap(e=>[...e.attributes].filter(a=>/^on/i.test(a.name)).map(a=>e.tagName+' '+a.name)),
   js:[...document.querySelectorAll('[href],[src]')].map(e=>e.getAttribute('href')||e.getAttribute('src')).filter(u=>/^\\s*javascript:/i.test(u||'')),
-  imgs:[...document.querySelectorAll('#page img')].map(i=>i.getAttribute('src')).filter(s=>s&&!/^(data:image\\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\\/=]+|\\/img\\/|https:\\/\\/(images\\.unsplash\\.com|i\\.ytimg\\.com)\\/)/.test(s)),
+  imgs:[...document.querySelectorAll('#page img')].map(i=>i.getAttribute('src')).filter(s=>s&&!/^(data:image\\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\\/=]+|\\/img\\/|https:\\/\\/(images\\.unsplash\\.com|i\\.ytimg\\.com)\\/)/.test(s)&&!(window.C&&C.autoLogo&&window.P&&(s===C.autoLogo(P)||s===C.autoCover(P.type,P.color)))),
   iframes:[...document.querySelectorAll('iframe')].map(f=>f.getAttribute('src')),
   fav:document.getElementById('fav').getAttribute('href'),
   texto:document.body.innerText})"""
