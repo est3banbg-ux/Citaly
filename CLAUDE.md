@@ -45,8 +45,8 @@ En la app, `tier()` devuelve `nitro` durante la prueba; `lim("vid")` devuelve 6 
 | `404.html` | Enrutador: `/<slug>` → `/w/?n=<slug>`; `/<slug>/reservar` o `/<slug>/r` → `/r/?n=<slug>`. Slug válido: `^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$` |
 | `/<slug>/` (carpetas en la raíz) | **Generadas** por `seo.yml`: `index.html` (copia de `w/` con slug fijo, título, OG, JSON-LD y contenido en el HTML), `reservar.html` (puente con vista previa → `/r/?n=<slug>`), `og.jpg` (1200×630). No editarlas a mano |
 | `admin/` | Panel de Esteban: `index.html` (negocios, quién entra, web, fotos, cobros) y `extra.js` (cobros, métricas, prospectos, reporte, notas, etiquetas, mensajes) |
-| `para/` | Páginas de venta por rubro: `/para/` (hub), `detailing`, `lavacar`, `pulido`, `polarizado`, `taller`. Generadas con `tools/gen-para.mjs` (a mano) |
-| `descargar/`, `android/`, `.well-known/assetlinks.json` | Descarga de la app (APK Android + guía iPhone) y verificación TWA |
+| `para/` | Páginas de venta por rubro: `/para/` (hub), `detailing`, `lavacar`, `pulido`, `polarizado`, `taller`. Generadas con `tools/gen-para.mjs` (a mano). Mismo diseño que la página de venta: el generador **saca de `index.html`** el `<style>`, el guion y la sección `#demo`, así que si cambia `index.html` hay que volver a correrlo. El guion corre en páginas a las que les faltan secciones: todo va con su guarda (`if(hay)`, `if(pant)`…). Cada rubro pasa sus servicios de `cfg.js` en `window.CITALY_DEMO` (`veh:false` esconde la pregunta del vehículo) |
+| `descargar/`, `android/`, `.well-known/assetlinks.json` | Descarga de la app (APK Android + guía iPhone) y verificación TWA. `descargar/index.html` se escribe a mano, con el mismo diseño oscuro de la página de venta y su CSS propio |
 | `webhook/` | Cloudflare Worker `bitter-brook-9ee2` (`worker.js`, `worker.min.js`, `LEEME.md`). **Lo publica Esteban a mano** |
 | `tools/` | Generadores y pruebas (ver abajo). `seo-slugs.json`, `seo-lastmod.json`, `seo-noindex.json`, `og-hash.json`, `para-lastmod.json` |
 | `cfg.js` | Config compartida (`CITALY`): Firebase, planes, addons, `mods`, tipos de negocio, plantillas, portadas, íconos, `fz`, paletas |
@@ -102,7 +102,7 @@ Rutas: `POST /` webhook de Polar `order.paid` (activa el plan por id de referenc
 2. Correr las pruebas: `python3 tools/pruebas/correr.py` (todas) o `correr.py reservas` / `app` / `web`. Abren las páginas reales en Chrome sin ventana (Playwright) con Firebase falso (`comun/firebase-falso.js`); no tocan datos reales. `pendiente_*.py` = error conocido sin arreglar (no se corre).
 3. Cada error arreglado deja un `prueba_*.py` que lo habría detectado.
 4. Vista previa para Esteban (capturas en celular y compu) + **revisión de Opus**. Solo con el visto bueno de los dos se sube a `main`.
-5. Después de publicar: si tocaste `w/`, lanzar `seo.yml` o esperar la corrida; si tocaste `cfg.js` con precios/planes, correr `node tools/gen-para.mjs`.
+5. Después de publicar: si tocaste `w/`, lanzar `seo.yml` o esperar la corrida; si tocaste `cfg.js` con precios/planes o el diseño/guion de `index.html`, correr `node tools/gen-para.mjs` y las pruebas de `venta/`.
 6. Commits con línea `Novedad: ...` si el cambio lo ve el dueño en la app.
 
 ## 6. Reglas que no se rompen
@@ -149,7 +149,7 @@ Pendientes técnicos:
 **En progreso, sin publicar (no es tuyo si no te lo asignaron):** pestaña "Enlaces" en el admin (`admin/index.html`, `admin/extra.js`, cambios sin commit): lista todos los links de reserva `/r/?n=<slug>&go=1` con copiar/abrir y avisa si falta `pub/<slug>` (caso Carwash Isabi). No tocar esos cambios sin que lo pidan.
 
 ## 9. Últimos cambios (git log, 24–27 nov)
-- **27 nov**: página de venta nueva (portada 50/50, demo de reserva, cierre con el capó pulido) con su prueba en `tools/pruebas/venta/`; vista previa del link de cada negocio (WhatsApp, Facebook, TikTok) con `og.jpg` por negocio; arreglo del texto que se montaba sobre el link con nombres de dos renglones.
+- **27 nov**: página de venta nueva (portada 50/50, demo de reserva, cierre con el capó pulido) con su prueba en `tools/pruebas/venta/`; el mismo diseño en `/para/` (hub y 5 rubros, con demo de reserva con los servicios de cada rubro) y en `/descargar/`, con `prueba_para_y_descargar.py`; vista previa del link de cada negocio (WhatsApp, Facebook, TikTok) con `og.jpg` por negocio; arreglo del texto que se montaba sobre el link con nombres de dos renglones.
 - **26 nov**: revisión a fondo de app, reservas y web (15 arreglos, 2 graves de citas encimadas) con pruebas; banco de pruebas con Chrome + Firebase falso; arreglo de Servicios y precios (solo el primero se podía editar); **horas exactas** en reservas (con horas exactas manda la hora que eligió el dueño, aunque el servicio termine después del cierre); temporales de FJ Motors subidos y borrados.
 - **25 nov**: páginas `/para/` (detailing, lavacar, pulido, polarizado, taller) y hub; SEO con contenido en el HTML, criterios de indexación, frenos, lastmod, pie "Hecho con Citaly" (`?desde=`); noindex a mariachi-coyoche, refrigeracion-cruz y ortiz-detailing; Clientes: agregar propios, clientes fijos (semana, 15, 22 días, mes, año), placa, carro, dónde vive, varios servicios, "¿cada cuánto vuelve?"; subir contactos `.vcf`; APK primero en Android.
 - **24 nov**: APK Android (TWA) y página `/descargar`; Novedades automáticas desde commits; Mi apariencia (18 temas, fondos, foto propia); agenda (día libre, frase del día); inicio móvil; tipo Refrigeración y aire + "Por cotizar" con total 0; respuestas rápidas; límites por plan en la página pública, plan recomendado al terminar la prueba, cupos en Turbo, Turbo hasta 40 servicios; reglas de `slots` con menos lecturas; temporales de Kenny's subidos y borrados.

@@ -461,7 +461,7 @@ else if(a.classList.contains("wa-demo")||/wa\.me|whatsapp/.test(h))fbq("track","
     <div class="d-pasos">
       <ol class="pasos" id="pasos">
         <li class="va"><h3>Elige su carro y el servicio</h3><p>Ve el precio exacto para su vehículo, sin preguntarte.</p></li>
-        <li><h3>Escoge el día y la hora</h3><p>Solo ve las horas libres. Nunca dos carros a la misma hora.</p></li>
+        <li><h3>Escoge el día y la hora</h3><p>Solo ve las horas libres, así nadie reserva de más.</p></li>
         <li><h3>Reserva</h3><p>La cita queda en tu agenda y te llega el aviso al celular.</p></li>
       </ol>
       <div class="llega" id="llega" aria-live="polite">
@@ -646,20 +646,21 @@ var C=null,$=function(id){return document.getElementById(id)},
 
 /* ---------- 50/50 de la portada ---------- */
 var carro=$("carro"),sin=$("ladoSin"),con=$("ladoCon"),linea=$("linea"),perilla=$("perilla"),
-    P=.94,tocado=false,intro=true,ancho=carro.clientWidth;
+    hay=!!carro,P=.94,tocado=false,intro=true,ancho=hay?carro.clientWidth:0;
 function pon(p){P=clamp(p,.04,.96);var d=(100-P*100).toFixed(2),i=(P*100).toFixed(2);
   sin.style.clipPath="inset(0 "+d+"% 0 0)";con.style.clipPath="inset(0 0 0 "+i+"%)";
   linea.style.transform="translateX("+(P*ancho).toFixed(1)+"px)";perilla.setAttribute("aria-valuenow",Math.round(P*100));perilla.setAttribute("aria-valuetext",Math.round(100-P*100)+" % con Citaly")}
 function pase(de,a,ms,fin){var t0=performance.now();(function f(t){var k=clamp((t-t0)/ms,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
   if(tocado)return fin&&fin();pon(de+(a-de)*e);if(k<1)requestAnimationFrame(f);else fin&&fin()})(t0)}
-pon(quieto?.5:.94);
 function arranca(){if(quieto){intro=false;return}setTimeout(function(){pase(.94,.5,1500,function(){intro=false})},450)}
-var fotoP=carro.querySelector("img.foto");
-if(fotoP.complete)arranca();else{fotoP.addEventListener("load",arranca);fotoP.addEventListener("error",arranca)}
 function mano(){if(!tocado){tocado=true;intro=false;carro.classList.add("tocado")}}
 var jalando=false,x0=null;
 function sigue(e){pon((e.clientX-carro.getBoundingClientRect().left)/ancho)}
 function agarra(e){jalando=true;mano();try{carro.setPointerCapture(e.pointerId)}catch(x){}sigue(e)}
+if(hay){
+pon(quieto?.5:.94);
+var fotoP=carro.querySelector("img.foto");
+if(fotoP.complete)arranca();else{fotoP.addEventListener("load",arranca);fotoP.addEventListener("error",arranca)}
 /* con el dedo solo se mueve si el gesto es de lado: así no estorba al bajar por la página */
 carro.addEventListener("pointerdown",function(e){if(e.button)return;x0=e.clientX;if(e.pointerType==="mouse"||perilla.contains(e.target))agarra(e)});
 carro.addEventListener("pointermove",function(e){if(jalando)sigue(e);else if(x0!==null&&Math.abs(e.clientX-x0)>8)agarra(e)});
@@ -667,30 +668,34 @@ carro.addEventListener("pointermove",function(e){if(jalando)sigue(e);else if(x0!
 perilla.addEventListener("keydown",function(e){var k=e.key,a=k==="ArrowLeft"||k==="ArrowDown"?P-.05:k==="ArrowRight"||k==="ArrowUp"?P+.05:k==="Home"?0:k==="End"?1:null;
   if(a!==null){e.preventDefault();mano();pon(a)}});
 addEventListener("resize",function(){ancho=carro.clientWidth;pon(P)});
+}
 
 /* ---------- frase que se pule con el scroll ---------- */
 var lema=$("lema"),pal=[];
-lema.innerHTML=lema.textContent.trim().split(/\s+/).map(function(w){return "<span>"+w+"</span>"}).join(" ");
-pal=lema.querySelectorAll("span");
+if(lema){lema.innerHTML=lema.textContent.trim().split(/\s+/).map(function(w){return "<span>"+w+"</span>"}).join(" ");
+  pal=lema.querySelectorAll("span")}
 var pega=$("pega"),tapado=false,marca=0;
 function alScroll(){marca=0;var y=scrollY,vh=innerHeight;
-  if(!tocado&&!intro&&!quieto){var h=carro.offsetTop+carro.offsetHeight;pon(.5-.4*clamp(y/(h*.75),0,1))}
-  if(!quieto){var r=lema.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50){var k=clamp((vh*.86-r.top)/(r.height+vh*.42),0,1)*pal.length*1.12;
+  if(hay&&!tocado&&!intro&&!quieto){var h=carro.offsetTop+carro.offsetHeight;pon(.5-.4*clamp(y/(h*.75),0,1))}
+  if(lema&&!quieto){var r=lema.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50){var k=clamp((vh*.86-r.top)/(r.height+vh*.42),0,1)*pal.length*1.12;
     for(var i=0;i<pal.length;i++)pal[i].style.opacity=(.16+.84*clamp(k-i,0,1)).toFixed(2)}}
-  pega.classList.toggle("ya",y>vh*.7&&!tapado)}
+  if(pega)pega.classList.toggle("ya",y>vh*.7&&!tapado)}
 addEventListener("scroll",function(){if(!marca){marca=1;requestAnimationFrame(alScroll)}},{passive:true});alScroll();
 
 /* ---------- demo de reserva ---------- */
-var IC={gota:'<path d="M12 3s6 6.2 6 10.5a6 6 0 0 1-12 0C6 9.2 12 3 12 3z"/>',brillo:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',asiento:'<path d="M7 20v-6a5 5 0 0 1 5-5 5 5 0 0 1 5 5v6M7 16h10M9 9V6a3 3 0 0 1 6 0v3"/>',foco:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>'},
+var IC={gota:'<path d="M12 3s6 6.2 6 10.5a6 6 0 0 1-12 0C6 9.2 12 3 12 3z"/>',brillo:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',asiento:'<path d="M7 20v-6a5 5 0 0 1 5-5 5 5 0 0 1 5 5v6M7 16h10M9 9V6a3 3 0 0 1 6 0v3"/>',foco:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',llave:'<path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3 18l3 3 6.5-6.5a4 4 0 0 0 5.2-5.2l-2.6 2.6-2.4-.6-.6-2.4z"/>'},
     VEH=["Sedán","SUV","Pick-up"],
-    SVC=[{n:"Lavado completo",p:[8000,10000,12000],t:"1 h",i:"gota"},{n:"Lavado y encerado",p:[15000,18000,20000],t:"2 h",i:"brillo"},{n:"Limpieza de interior",p:[25000,30000,32000],t:"3 h",i:"asiento"},{n:"Pulido de focos, el par",p:[20000,20000,20000],t:"1 h",i:"foco"}],
+    SVC=(window.CITALY_DEMO&&window.CITALY_DEMO.svc)||[{n:"Lavado completo",p:[8000,10000,12000],t:"1 h",i:"gota"},{n:"Lavado y encerado",p:[15000,18000,20000],t:"2 h",i:"brillo"},{n:"Limpieza de interior",p:[25000,30000,32000],t:"3 h",i:"asiento"},{n:"Pulido de focos, el par",p:[20000,20000,20000],t:"1 h",i:"foco"}],
     HRS=[["8:00 a. m.",1],["9:30 a. m.",1],["11:00 a. m.",0],["1:00 p. m.",1],["2:30 p. m.",0],["4:00 p. m.",1]],
     DC=["dom","lun","mar","mié","jue","vie","sáb"],DL=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"],
-    DIAS=[],E={veh:1,svc:-1,dia:0,hora:-1,paso:1},pant=$("pant");
+    DIAS=[],E={veh:1,svc:-1,dia:0,hora:-1,paso:1},pant=$("pant"),
+    conVeh=!(window.CITALY_DEMO&&window.CITALY_DEMO.veh===false),elVeh=function(){return conVeh?", "+VEH[E.veh]:""};
+if(pant){
+if(!conVeh){var fv=$("vehs");fv.style.display="none";if(fv.previousElementSibling)fv.previousElementSibling.style.display="none"}
 for(var d=1;d<=5;d++){var f=new Date();f.setDate(f.getDate()+d);DIAS.push({c:DC[f.getDay()],l:DL[f.getDay()],n:f.getDate()})}
 function pinta(){
   $("vehs").innerHTML=VEH.map(function(v,i){return '<button type="button" class="ficha" data-veh="'+i+'" aria-pressed="'+(i===E.veh)+'">'+v+'</button>'}).join("");
-  $("servs").innerHTML=SVC.map(function(s,i){return '<button type="button" class="serv" data-svc="'+i+'" aria-pressed="'+(i===E.svc)+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+IC[s.i]+'</svg></span><span><b>'+s.n+'</b><small>'+col(s.p[E.veh])+", "+s.t+'</small></span><span class="rad"></span></button>'}).join("");
+  $("servs").innerHTML=SVC.map(function(s,i){return '<button type="button" class="serv" data-svc="'+i+'" aria-pressed="'+(i===E.svc)+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+(IC[s.i]||IC.brillo)+'</svg></span><span><b>'+s.n+'</b><small>'+col(s.p[E.veh])+", "+s.t+'</small></span><span class="rad"></span></button>'}).join("");
   $("dias").innerHTML=DIAS.map(function(x,i){return '<button type="button" class="dia" data-dia="'+i+'" aria-pressed="'+(i===E.dia)+'">'+x.c+'<b>'+x.n+'</b></button>'}).join("");
   $("horas").innerHTML=HRS.map(function(h,i){return '<button type="button" class="ficha" data-hora="'+i+'" aria-pressed="'+(i===E.hora)+'"'+(h[1]?"":" disabled")+'>'+(h[1]?h[0]:h[0]+" ocupado")+'</button>'}).join("");
   var s=SVC[E.svc],sig=$("sig"),dia=DIAS[E.dia];
@@ -700,8 +705,8 @@ function pinta(){
   pant.dataset.paso=E.paso;$("avance").style.transform="scaleX("+(E.paso/3)+")";
   each("#pasos li",function(li,i){li.classList.toggle("va",i===E.paso-1);li.classList.toggle("listo",i<E.paso-1||E.paso===3)});
   var ll=$("llega");
-  if(E.paso===3){var txt=s.n+", "+VEH[E.veh]+", "+col(s.p[E.veh])+". "+dia.l+" "+dia.n+", "+HRS[E.hora][0];
-    $("resumen").innerHTML=s.n+", "+VEH[E.veh]+"<br>"+dia.l+" "+dia.n+", "+HRS[E.hora][0]+"<br><b>"+col(s.p[E.veh])+"</b>";$("notiTxt").textContent=txt;ll.classList.add("si")}
+  if(E.paso===3){var txt=s.n+elVeh()+", "+col(s.p[E.veh])+". "+dia.l+" "+dia.n+", "+HRS[E.hora][0];
+    $("resumen").innerHTML=s.n+elVeh()+"<br>"+dia.l+" "+dia.n+", "+HRS[E.hora][0]+"<br><b>"+col(s.p[E.veh])+"</b>";$("notiTxt").textContent=txt;ll.classList.add("si")}
   else ll.classList.remove("si")}
 pant.addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.disabled)return;var x=b.dataset,f="";
   if(x.veh!==undefined){E.veh=+x.veh;f='[data-veh="'+x.veh+'"]'}else if(x.svc!==undefined){E.svc=+x.svc;f='[data-svc="'+x.svc+'"]'}
@@ -713,15 +718,16 @@ pant.addEventListener("click",function(e){var b=e.target.closest("button");if(!b
 pinta();
 $("colores").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;pant.style.setProperty("--ac",b.style.getPropertyValue("--c"));
   each("#colores button",function(o){o.setAttribute("aria-pressed",o===b)})});
+}
 
 /* ---------- calculadora ---------- */
 var cR=$("cR"),cP=$("cP"),base=4900;
 function calc(){var n=+cR.value,pr=Math.min(500000,Math.max(1000,+cP.value||0)),pierde=Math.round(n*4.3*pr/1000)*1000,hace=Math.max(1,Math.ceil(base/pr));
   $("cN").textContent=n;$("cT").textContent=col(pierde);$("cT").classList.toggle("largo",col(pierde).length>9);$("cM").textContent="Con recuperar "+hace+(hace===1?" cita":" citas")+" al mes, Citaly ya se pagó."}
-cR.oninput=calc;cP.oninput=calc;calc();
+if(cR){cR.oninput=calc;cP.oninput=calc;calc()}
 
 /* ---------- planes (salen de cfg.js, que carga con defer) ---------- */
-function conCfg(){C=window.CITALY;if(!C)return;base=C.plans.arranque.crc;calc();var CUR="crc";
+function conCfg(){C=window.CITALY;if(!C)return;base=C.plans.arranque.crc;if(cR)calc();var CUR="crc";
   var planes=function(){var Pl=C.plans,usd=CUR==="usd",pr=function(x){return usd?"US$"+x.usd:col(x.crc)},promo=usd?"US$"+C.usd.promo:col(C.monthly.promo),
       li=function(x){return /pr[oó]ximamente/i.test(x)?'<li class="pronto">'+x+"</li>":"<li>"+x+"</li>"};
     $("plans").innerHTML=Object.keys(Pl).map(function(k){var p=Pl[k],esPromo=k===C.promoPlan,a=p.inc.slice(0,6),b=p.inc.slice(6);
@@ -732,12 +738,12 @@ function conCfg(){C=window.CITALY;if(!C)return;base=C.plans.arranque.crc;calc();
         +'<ul>'+a.map(li).join("")+'</ul>'+(b.length?'<details><summary>Ver todo lo que trae</summary><ul>'+b.map(li).join("")+'</ul></details>':"")
         +'<div class="abajo"><a class="btn '+(p.pop?"btn-p":"btn-s")+'" href="app/?nuevo=1" style="width:100%">Probar '+p.n+' gratis</a></div></article>'}).join("");
     $("addons").innerHTML=Object.keys(C.addons).map(function(k){var a=C.addons[k];return '<div class="extra"><b>'+a.n+'</b><p>'+a.d+'</p><span class="pr'+(a.soon?" pronto":"")+'">'+(a.soon?"Pronto":pr(a)+" al mes")+'</span></div>'}).join("")};
-  each("[data-cur]",function(b){b.onclick=function(){CUR=b.dataset.cur;each("[data-cur]",function(x){x.setAttribute("aria-pressed",x===b)});planes()}});
-  planes();
+  if($("plans")){each("[data-cur]",function(b){b.onclick=function(){CUR=b.dataset.cur;each("[data-cur]",function(x){x.setAttribute("aria-pressed",x===b)});planes()}});
+    planes()}
   each(".pPromo",function(e){e.textContent=col(C.monthly.promo)});each(".pPM",function(e){e.textContent=C.monthly.promoMonths});each(".pTrial",function(e){e.textContent=C.trialDays});
   var wa=function(m){return "https://api.whatsapp.com/send?phone="+C.wa+"&text="+encodeURIComponent(m)};
   each(".wa-demo",function(e){e.href=wa("Hola, quiero que me ayuden a configurar Citaly para mi negocio de carros.")});
-  $("ftWa").href=wa("Hola, quiero saber más de Citaly");
+  if($("ftWa"))$("ftWa").href=wa("Hola, quiero saber más de Citaly");
 }
 if(window.CITALY)conCfg();else document.addEventListener("DOMContentLoaded",conCfg);
 
@@ -748,10 +754,10 @@ function pule(){if(quieto){brillo.style.clipPath="none";return}
   (function f(t){var k=clamp((t-t0)/1700,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
     brillo.style.clipPath="inset(0 "+(100-e*100).toFixed(2)+"% 0 0)";raya.style.transform="translateX("+(e*w).toFixed(1)+"px)";
     if(k<1)requestAnimationFrame(f);else raya.style.opacity=0})(t0)}
-if("IntersectionObserver" in window){
+if(!cierre){}else if("IntersectionObserver" in window){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(cierre);pule()}})},{threshold:.45});io.observe(cierre);
   var vistos={},io2=new IntersectionObserver(function(es){es.forEach(function(e){vistos[e.target.id]=e.isIntersecting});tapado=!!(vistos.demo||vistos.cierre);alScroll()},{threshold:.12});
-  io2.observe($("demo"));io2.observe(cierre);
+  if($("demo"))io2.observe($("demo"));io2.observe(cierre);
 }else brillo.style.clipPath="none";
 })();
 </script>

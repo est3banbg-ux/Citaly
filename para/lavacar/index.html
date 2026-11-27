@@ -10,101 +10,686 @@
 <meta property="og:type" content="website"><meta property="og:locale" content="es_CR"><meta property="og:site_name" content="Citaly">
 <meta property="og:url" content="https://citalyapp.com/para/lavacar/"><meta property="og:title" content="Sistema de citas para lavacar en Costa Rica | Citaly"><meta property="og:description" content="Agenda para lavacar: tus clientes reservan solos y vos ves el día en el celular. Página web y app incluidas. 7 días gratis, sin tarjeta. Desde ₡4.900/mes.">
 <meta property="og:image" content="https://citalyapp.com/img/og-citaly.png"><meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#2a1a7a">
+<meta name="theme-color" content="#07060c">
 <link rel="icon" href="/favicon-32.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="/img/venta/capo-m.webp" media="(max-width:760px)">
+<link rel="preload" as="image" href="/img/venta/capo.webp" media="(min-width:761px)">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"SoftwareApplication","name":"Citaly","description":"Agenda para lavacar: tus clientes reservan solos y vos ves el día en el celular. Página web y app incluidas. 7 días gratis, sin tarjeta. Desde ₡4.900/mes.","url":"https://citalyapp.com/para/lavacar/","applicationCategory":"BusinessApplication","operatingSystem":"Web, Android, iOS","offers":[{"@type":"Offer","name":"Arranque","price":"4900","priceCurrency":"CRC"},{"@type":"Offer","name":"Turbo","price":"9900","priceCurrency":"CRC"},{"@type":"Offer","name":"Nitro","price":"19900","priceCurrency":"CRC"}]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Citaly","item":"https://citalyapp.com/"},{"@type":"ListItem","position":2,"name":"Para tu negocio","item":"https://citalyapp.com/para/"},{"@type":"ListItem","position":3,"name":"Citas para lavacar","item":"https://citalyapp.com/para/lavacar/"}]}]}</script>
 <style>
-:root{--bb:#2A1A7A;--ink:#17123A;--mut:#5B5680;--brand:#2A1A7A;--acc:#FFB84D;--bg:#F7F5FB;--card:#fff;--line:#E3DFF1;--soft:#EFEBFA}
-@media(prefers-color-scheme:dark){:root{--ink:#F1EFFB;--mut:#B9B4D8;--brand:#9C8CFF;--acc:#FFB84D;--bg:#100C2A;--card:#1A1540;--line:#2E2766;--soft:#221B55}}
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,sans-serif;padding-bottom:84px}
-h1,h2,h3{font-family:'Bricolage Grotesque',Figtree,sans-serif;line-height:1.12;margin:0;text-wrap:balance}
-a{color:var(--brand)}
-.w{max-width:1100px;margin:0 auto;padding:0 20px}
-nav{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:16px 0}
-.logo{font:700 26px 'Bricolage Grotesque',sans-serif;color:var(--brand);text-decoration:none}
-.btn{display:inline-block;background:var(--acc);color:#17123A;padding:15px 26px;border-radius:12px;font-weight:700;text-decoration:none;text-align:center}
-.btn.alt{background:transparent;color:var(--brand);border:2px solid var(--brand);padding:13px 24px}
-.hero{display:flex;flex-wrap:wrap;gap:40px;align-items:center;padding:28px 0 56px}
-.hero>div{flex:1 1 440px;min-width:0}
-.kick{font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
-h1{font-size:clamp(34px,6vw,54px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-size:20px}
-.lead{font-size:20px;color:var(--mut);max-width:34em}
-.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-.sub{color:var(--mut);font-size:15px}
-.mock{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 32px rgba(42,26,122,.12)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:15px}.chip.on{background:var(--bb);color:#fff;border-color:var(--bb);font-weight:700}
-.band{background:var(--card);border-block:1px solid var(--line)}
-.grid{display:flex;flex-wrap:wrap;gap:20px}.grid>*{flex:1 1 300px;min-width:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
-.card p,.band p{margin:6px 0 0;color:var(--mut)}
-section{padding:56px 0}
-ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:20px;counter-reset:s}
-ol.steps li{flex:1 1 280px;counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
-ol.steps li:before{content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--bb);color:#fff;font-weight:700;margin-bottom:10px}
-.tags{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;padding:0;list-style:none}.tags li{background:var(--soft);padding:9px 16px;border-radius:999px;font-weight:600}
-.plan{display:flex;flex-direction:column;gap:8px}.plan.pop{border:2px solid var(--brand)}
-.amt{font:700 38px 'Bricolage Grotesque',sans-serif}.amt small{font:400 16px Figtree;color:var(--mut)}
-.plan ul{margin:6px 0 0;padding-left:20px;color:var(--mut)}
-details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px}
-summary{font-weight:700;cursor:pointer}details p{margin:10px 0 0;color:var(--mut)}
-.who{background:var(--bb);color:#fff;border-radius:24px;padding:36px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
-.who>div{flex:1 1 380px;min-width:0}.who p{margin:10px 0 0;color:#DAD5F5}.who a.btn{background:#fff;color:#2A1A7A}
-.links{display:flex;flex-wrap:wrap;gap:10px 22px}
-footer{border-top:1px solid var(--line);padding:28px 0;color:var(--mut);font-size:15px}
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
-.dock .btn{flex:1;padding:13px 12px}.dock .btn.alt{flex:0 0 auto}
-@media(min-width:900px){.dock{display:none}body{padding-bottom:0}}
+:root{
+  --laca:#07060c;--laca2:#100d1b;--papel:#f4f2fb;--blanco:#fff;--tinta:#17122e;--gris:#5c5777;--humo:#a9a4c4;
+  --morado:#7b5cff;--morado2:#8f74ff;--coral:#ff8a5b;--cinta:#ead9a2;--cinta-t:#241b40;
+  --raya:rgba(23,18,46,.12);--raya-o:rgba(255,255,255,.12);
+  --h:'Bricolage Grotesque',system-ui,sans-serif;--b:'Figtree',system-ui,sans-serif;
+  --out:cubic-bezier(.23,1,.32,1);--inout:cubic-bezier(.77,0,.175,1);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--laca);color:var(--tinta);font:400 17px/1.55 var(--b);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3,h4,p,ul,ol,figure{margin:0}
+ul,ol{padding:0;list-style:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:6px}
+.caja{width:min(1160px,100% - 40px);margin-inline:auto}
+h1,h2{font-family:var(--h);font-weight:800;letter-spacing:-.04em;text-wrap:balance}
+h2{font-size:clamp(32px,4.8vw,62px);line-height:1}
+h3{font:700 21px/1.2 var(--h);letter-spacing:-.02em}
+.bajada{font-size:clamp(17px,1.5vw,20px);color:var(--gris);max-width:36em;margin-top:16px}
+.osc .bajada{color:#c9c4e0}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:54px;padding:0 28px;border-radius:14px;font:700 17px/1 var(--b);text-decoration:none;transition:transform 160ms var(--out),background-color 160ms ease}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--morado);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px -14px rgba(123,92,255,.9)}
+.btn-s{background:transparent;color:var(--tinta);box-shadow:inset 0 0 0 1.5px var(--tinta)}
+.osc .btn-s{color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.enlace{font-weight:600;text-underline-offset:4px;text-decoration-thickness:1.5px}
+@media(hover:hover) and (pointer:fine){.btn-p:hover{background:var(--morado2)}.btn-s:hover{background:rgba(123,92,255,.1)}}
+
+/* cinta de enmascarar: la etiqueta de toda la página */
+.cinta{display:inline-block;background-color:var(--cinta);background-image:repeating-linear-gradient(90deg,rgba(70,50,0,.07) 0 1px,transparent 1px 4px),linear-gradient(180deg,rgba(255,255,255,.3),rgba(0,0,0,.05));color:var(--cinta-t);font:700 15px/1 var(--h);letter-spacing:-.01em;padding:9px 16px;transform:rotate(-2deg);filter:drop-shadow(0 3px 5px rgba(0,0,0,.3));
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 22%,100% 44%,calc(100% - 3px) 66%,100% 88%,calc(100% - 2px) 100%,0 100%,3px 80%,0 58%,3px 36%,0 14%)}
+
+/* franja de promo y menú */
+.promo{display:block;text-decoration:none;position:relative;z-index:30;background-color:var(--cinta);background-image:repeating-linear-gradient(90deg,rgba(70,50,0,.06) 0 1px,transparent 1px 4px);color:var(--cinta-t);text-align:center;font:600 14.5px/1.3 var(--b);padding:9px 16px}
+.menu{position:sticky;top:0;z-index:30;background:rgba(7,6,12,.8);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);color:#fff}
+.menu .caja{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{display:flex;align-items:center;gap:9px;font:800 23px/1 var(--h);letter-spacing:-.04em;text-decoration:none}
+.logo img{width:30px;height:30px;border-radius:9px}
+.menu nav{display:flex;align-items:center;gap:4px}
+.menu nav a:not(.btn){padding:10px 12px;font-weight:600;font-size:15.5px;color:#d8d3ee;text-decoration:none}
+.menu .btn{min-height:42px;padding:0 18px;font-size:15.5px;border-radius:12px;box-shadow:none}
+.menu .solo-compu{display:none}
+
+/* ---------- portada 50/50 ---------- */
+.osc{background:var(--laca);color:#f4f1ff}
+.portada{position:relative;text-align:center;overflow:hidden}
+.portada .texto{position:relative;z-index:4;width:min(1060px,100% - 40px);margin:auto;padding-top:clamp(26px,4.6vw,54px)}
+.portada h1{font-size:clamp(38px,10.2vw,74px);line-height:.97}
+.portada h1 span{display:block}
+.portada h1 .dos{color:#a39dc0}
+.portada .bajada{margin:18px auto 0;max-width:34em}
+.portada .hacer{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.portada .nota{font-size:14.5px;color:var(--humo)}
+.sube{opacity:0;transform:translateY(12px);animation:sube .7s var(--out) forwards}
+.sube.d1{animation-delay:.08s}.sube.d2{animation-delay:.16s}.sube.d3{animation-delay:.24s}
+@keyframes sube{to{opacity:1;transform:none}}
+
+.carro{position:relative;z-index:1;height:clamp(430px,42vw,620px);margin-top:clamp(-150px,-11vw,-96px);touch-action:pan-y;-webkit-user-select:none;user-select:none;cursor:ew-resize;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 27%);mask-image:linear-gradient(180deg,transparent 0,#000 27%)}
+.carro img.foto{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;pointer-events:none}
+.lado{position:absolute;top:0;right:0;bottom:0;left:0}
+.lado.sin{clip-path:inset(0 6% 0 0)}
+.lado.con{clip-path:inset(0 0 0 94%)}
+.carro::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(180deg,transparent,var(--laca));pointer-events:none;z-index:2}
+.carro .cinta{position:absolute;top:30%;font-size:clamp(14px,1.5vw,18px)}
+.lado.sin .cinta{left:clamp(14px,7vw,150px)}
+.lado.con .cinta{right:clamp(14px,7vw,150px);transform:rotate(1.6deg)}
+.linea{position:absolute;top:28%;bottom:0;left:0;width:0;z-index:3;will-change:transform;transform:translateX(94vw)}
+.linea::before{content:"";position:absolute;top:0;bottom:0;left:-11px;width:22px;background-color:var(--cinta);background-image:repeating-linear-gradient(0deg,rgba(70,50,0,.08) 0 1px,transparent 1px 4px);box-shadow:0 0 22px rgba(0,0,0,.55);
+  clip-path:polygon(0 4px,18% 0,36% 5px,58% 1px,80% 6px,100% 2px,100% 100%,0 100%);-webkit-mask-image:linear-gradient(180deg,#000 78%,transparent);mask-image:linear-gradient(180deg,#000 78%,transparent)}
+.perilla{position:absolute;top:54%;left:-28px;width:56px;height:56px;border-radius:50%;background:#fff;color:var(--tinta);display:grid;place-items:center;box-shadow:0 10px 28px rgba(0,0,0,.55);cursor:ew-resize;transition:transform 160ms var(--out);touch-action:none}
+.perilla:active{transform:scale(.94)}
+.perilla:focus-visible{border-radius:50%}
+.perilla svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.pista{position:absolute;top:calc(54% + 66px);left:-70px;width:140px;text-align:center;font:600 13px/1 var(--b);color:#fff;text-shadow:0 1px 8px #000;transition:opacity .4s ease}
+.tocado .pista{opacity:0}
+
+.chat{position:absolute;left:clamp(12px,6vw,140px);top:41%;width:min(43%,300px);display:grid;gap:8px;justify-items:start;text-align:left}
+.msj{background:#232a30;color:#e6e9ea;border-radius:4px 14px 14px 14px;padding:8px 11px 7px;font-size:clamp(12.5px,1.25vw,15.5px);line-height:1.3;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.msj time{display:block;font-size:.76em;color:#8d979c;text-align:right;margin-top:1px}
+.msj:nth-child(1){transform:rotate(-2.2deg)}.msj:nth-child(2){transform:rotate(1.6deg) translateX(10%)}.msj:nth-child(3){transform:rotate(-1deg)}
+.sinresp{display:inline-flex;align-items:center;gap:6px;font:600 clamp(12px,1.1vw,14px)/1 var(--b);color:#cdd2d4}
+.sinresp i{display:grid;place-items:center;min-width:20px;height:20px;border-radius:10px;background:#25d366;color:#06240f;font-style:normal;font-weight:700;font-size:12px}
+.aviso{position:absolute;right:clamp(12px,6vw,140px);top:41%;width:min(45%,330px);display:grid;gap:9px;text-align:left}
+.tarj{display:grid;grid-template-columns:auto 1fr;gap:3px 11px;align-items:center;background:rgba(255,255,255,.97);color:var(--tinta);border-radius:16px;padding:11px 13px;box-shadow:0 14px 34px rgba(0,0,0,.5);font-size:clamp(12.5px,1.2vw,15px);line-height:1.3}
+.tarj img{width:36px;height:36px;border-radius:10px;grid-row:span 2}
+.tarj b{font:700 1.06em/1.2 var(--h);letter-spacing:-.01em}
+.tarj span{color:var(--gris);grid-column:2}
+.tarj.fila{grid-template-columns:auto 1fr auto;padding:10px 13px}
+.tarj.fila .hora{grid-column:1;grid-row:1/3;font:700 1em/1.1 var(--h);color:var(--tinta);border-right:2.5px solid var(--morado);padding-right:10px}
+.tarj.fila b{grid-column:2;grid-row:1}
+.tarj.fila .que{grid-column:2;grid-row:2}
+.tarj.fila .ok{grid-column:3;grid-row:1/3;font-weight:700;font-size:.82em;color:#0d7a4f;background:#dff6ea;padding:5px 8px;border-radius:8px}
+
+/* ---------- frase que se va puliendo ---------- */
+.lema{padding:clamp(70px,12vw,170px) 0 clamp(80px,13vw,180px)}
+.lema p{font:700 clamp(28px,4.6vw,60px)/1.08 var(--h);letter-spacing:-.035em;max-width:17em}
+.lema p span{opacity:.16;transition:opacity .25s linear}
+
+/* ---------- secciones claras ---------- */
+.clara{background:var(--papel);padding:clamp(72px,9vw,130px) 0}
+.blanca{background:var(--blanco);padding:clamp(72px,9vw,130px) 0}
+
+/* demo */
+.demo .caja{display:grid;gap:36px}
+.d-cab{order:1}.cel{order:2}.d-pasos{order:3}
+.pasos{display:grid;gap:0;counter-reset:p}
+.pasos li{counter-increment:p;display:grid;grid-template-columns:44px 1fr;gap:2px 12px;padding:18px 0;border-top:1px solid var(--raya);opacity:.7;transition:opacity .3s ease}
+.pasos li.va,.pasos.fijos li{opacity:1}
+.pasos.fijos{margin-top:22px}
+.pasos li::before{content:counter(p);grid-row:span 2;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:700 16px/1 var(--h);box-shadow:inset 0 0 0 1.5px var(--tinta);transition:background-color .3s ease,color .3s ease}
+.pasos li.va::before{background:var(--tinta);color:#fff}
+.pasos li.listo::before{content:"";background:var(--morado) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/18px no-repeat;box-shadow:none}
+.pasos p{color:var(--gris);font-size:16px;grid-column:2}
+.llega{margin-top:26px;border:1.5px dashed rgba(23,18,46,.3);border-radius:18px;padding:16px 18px;color:var(--gris);font-size:15.5px;transition:border-color .3s ease,background-color .3s ease}
+.llega .noti{display:none}
+.llega.si{border:0;background:var(--laca);color:#fff;padding:18px}
+.llega.si .espera{display:none}
+.llega.si .noti{display:grid;grid-template-columns:auto 1fr auto;gap:2px 12px;align-items:center;animation:cae .5s var(--out)}
+@keyframes cae{from{opacity:0;transform:translateY(-10px) scale(.97)}}
+.noti img{width:40px;height:40px;border-radius:11px;grid-row:span 3}
+.noti small{color:var(--humo);font-size:13px}
+.noti em{font-style:normal;color:var(--humo);font-size:13px;grid-column:3;grid-row:1}
+.noti b{grid-column:2/4;font:700 17px/1.2 var(--h)}
+.noti span{grid-column:2/4;color:#d5d0ea;font-size:15px}
+
+.cel{position:relative;justify-self:center;width:min(340px,100%)}
+.cel>.cinta{position:absolute;top:-12px;right:-4px;z-index:2;font-size:13.5px;padding:8px 13px;transform:rotate(4deg)}
+.tel{border-radius:46px;padding:10px;background:#0b0913;box-shadow:0 50px 90px -40px rgba(23,18,46,.7),inset 0 0 0 1.5px rgba(255,255,255,.1)}
+.pant{--ac:#7b5cff;position:relative;height:572px;border-radius:37px;overflow:hidden;background:#fbfaff;color:var(--tinta);text-align:left;font-size:15px;line-height:1.3}
+.pant .cab{display:flex;gap:10px;align-items:center;padding:20px 16px 12px}
+.pant .cab i{width:36px;height:36px;border-radius:11px;background:var(--ac);display:grid;place-items:center;transition:background-color .3s ease}
+.pant .cab svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pant .cab b{display:block;font:700 16px/1.15 var(--h)}
+.pant .cab small{color:var(--gris);font-size:12.5px}
+.avance{height:4px;margin:0 16px;border-radius:4px;background:#e7e3f4;overflow:hidden}
+.avance i{display:block;height:100%;width:100%;background:var(--ac);border-radius:4px;transform-origin:left;transform:scaleX(.33);transition:transform .45s var(--out),background-color .3s ease}
+.vista{position:absolute;top:78px;right:0;bottom:84px;left:0;padding:14px 16px;overflow-y:auto;opacity:0;visibility:hidden;transform:translateX(18px);transition:opacity .26s var(--out),transform .26s var(--out),visibility 0s .26s}
+.pant[data-paso="1"] .v1,.pant[data-paso="2"] .v2,.pant[data-paso="3"] .v3{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.pant[data-paso="3"] .vista{bottom:0}
+.preg{font:700 16.5px/1.2 var(--h);margin:4px 0 10px}
+.preg + * + .preg{margin-top:18px}
+.fichas{display:flex;gap:8px;flex-wrap:wrap}
+.ficha{padding:9px 14px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px #dcd7ee;font-weight:600;font-size:14.5px;transition:background-color .16s ease,color .16s ease,transform 160ms var(--out)}
+.ficha:active{transform:scale(.96)}
+.ficha[aria-pressed="true"]{background:var(--ac);color:#fff;box-shadow:none}
+.ficha:disabled{color:#b3aec9;text-decoration:line-through;cursor:not-allowed;background:#f1eef8;box-shadow:none}
+.servs{display:grid;gap:8px}
+.serv{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;width:100%;text-align:left;padding:11px 12px;border-radius:15px;background:#fff;box-shadow:inset 0 0 0 1.5px #e6e2f3;transition:box-shadow .16s ease,transform 160ms var(--out)}
+.serv:active{transform:scale(.98)}
+.serv .ic{width:36px;height:36px;border-radius:10px;background:#efebff;background:color-mix(in srgb,var(--ac) 12%,#fff);display:grid;place-items:center}
+.serv .ic svg{width:20px;height:20px;fill:none;stroke:var(--ac);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.serv b{display:block;font-weight:700;font-size:14.5px}
+.serv small{color:var(--gris);font-size:13px}
+.serv .rad{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1.5px #cfc9e6;transition:background-color .16s ease}
+.serv[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ac)}
+.serv[aria-pressed="true"] .rad{background:var(--ac) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-8.5'/%3E%3C/svg%3E") center/14px no-repeat;box-shadow:none}
+.dias{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.dia{padding:8px 0 9px;border-radius:13px;background:#fff;box-shadow:inset 0 0 0 1.5px #e6e2f3;text-align:center;font-size:12.5px;color:var(--gris);transition:background-color .16s ease,color .16s ease}
+.dia b{display:block;font:700 18px/1.2 var(--h);color:var(--tinta)}
+.dia[aria-pressed="true"]{background:var(--ac);color:#fff;box-shadow:none}
+.dia[aria-pressed="true"] b{color:#fff}
+.horas{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.horas .ficha{border-radius:13px;text-align:center;padding:12px 6px}
+.barra{position:absolute;left:0;right:0;bottom:0;height:84px;padding:0 16px 6px;display:flex;align-items:center;gap:12px;background:#fff;box-shadow:0 -1px 0 #ebe8f5;transition:transform .3s var(--out)}
+.pant[data-paso="3"] .barra{transform:translateY(100%);visibility:hidden;transition:transform .3s var(--out),visibility 0s .3s}
+.atras{width:42px;height:42px;border-radius:12px;box-shadow:inset 0 0 0 1.5px #dcd7ee;font-size:20px;line-height:1;display:none}
+.pant[data-paso="2"] .atras{display:block}
+.total{flex:1;min-width:0}
+.total small{display:block;color:var(--gris);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.total b{font:800 20px/1.2 var(--h);letter-spacing:-.02em}
+.sig{min-height:46px;padding:0 22px;border-radius:13px;background:var(--ac);color:#fff;font-weight:700;transition:transform 160ms var(--out),opacity .2s ease,background-color .3s ease}
+.sig:active{transform:scale(.97)}
+.sig:disabled{opacity:.35;cursor:not-allowed}
+.v3{display:grid;align-content:center;justify-items:center;text-align:center;gap:6px}
+.visto{width:76px;height:76px;border-radius:50%;background:var(--ac);display:grid;place-items:center;margin-bottom:10px}
+.visto svg{width:40px;height:40px;fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30}
+.pant[data-paso="3"] .visto{animation:pop .45s var(--out) both}
+.pant[data-paso="3"] .visto svg{animation:traza .4s .18s var(--out) forwards}
+@keyframes pop{from{transform:scale(.8);opacity:0}}
+@keyframes traza{to{stroke-dashoffset:0}}
+.v3 h4{font:800 22px/1.15 var(--h);letter-spacing:-.02em;margin:0}
+.v3 p{color:var(--gris);font-size:15px;line-height:1.45}
+.otra{margin-top:14px;font-weight:700;color:var(--ac);text-decoration:underline;text-underline-offset:4px}
+.colores{margin-top:18px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:14.5px;color:var(--gris)}
+.colores button{width:30px;height:30px;border-radius:50%;background:var(--c);box-shadow:0 0 0 2px var(--papel),0 0 0 3.5px transparent;transition:box-shadow .16s ease,transform 160ms var(--out)}
+.colores button:active{transform:scale(.9)}
+.colores button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--papel),0 0 0 3.5px var(--c)}
+
+/* lo que trae */
+.trae{margin-top:44px;display:grid;gap:0}
+.trae li{display:grid;grid-template-columns:34px 1fr;gap:4px 14px;padding:22px 0;border-top:1px solid var(--raya)}
+.trae svg{width:26px;height:26px;fill:none;stroke:var(--morado);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;grid-row:span 2;margin-top:1px}
+.trae p{color:var(--gris);font-size:16.5px;grid-column:2}
+.rubros{margin-top:34px;font-size:17px;color:var(--gris);max-width:44em}
+.rubros a{color:var(--tinta);font-weight:600;text-underline-offset:4px}
+.real{margin-top:clamp(56px,7vw,96px)}
+.real>h3{font-size:clamp(24px,3vw,36px);letter-spacing:-.03em}
+.tira{margin-top:28px;display:grid;grid-auto-flow:column;grid-auto-columns:min(70%,250px);gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 20px 18px;margin-inline:-20px;scrollbar-width:none}
+.tira::-webkit-scrollbar{display:none}
+.tira figure{scroll-snap-align:center}
+.tira img{width:100%;height:auto;border-radius:26px;box-shadow:0 0 0 7px #0b0913,0 30px 50px -28px rgba(23,18,46,.6)}
+.tira figcaption{margin-top:18px;font-size:15.5px;color:var(--gris)}
+.tira figcaption b{display:block;font:700 18px/1.25 var(--h);color:var(--tinta);letter-spacing:-.01em}
+
+/* calculadora */
+.cuenta{padding:clamp(72px,9vw,130px) 0}
+.cuenta .caja{display:grid;gap:40px}
+.campo{margin-top:26px}
+.campo label{display:block;font-weight:600;margin-bottom:12px}
+.campo label b{font:800 1.25em/1 var(--h);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:36px;background:transparent;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:rgba(255,255,255,.2)}
+input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:rgba(255,255,255,.2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:32px;height:32px;border-radius:50%;background:#fff;margin-top:-13px;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-thumb{width:32px;height:32px;border:0;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.5)}
+.plata{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2);border-radius:14px;padding:0 16px;max-width:240px}
+.plata span{font:700 20px/1 var(--h);color:var(--humo)}
+.plata input{flex:1;min-width:0;height:54px;background:none;border:0;color:#fff;font:700 20px/1 var(--h);outline:0}
+.plata:focus-within{box-shadow:inset 0 0 0 2px var(--coral)}
+.resul{align-self:end}
+.resul small{display:block;color:var(--humo);font-size:16px}
+.resul output{display:block;font:800 clamp(58px,13vw,150px)/.95 var(--h);letter-spacing:-.05em;font-variant-numeric:tabular-nums;color:var(--coral);margin:6px 0 10px}
+.resul output.largo{font-size:clamp(38px,9.4vw,112px)}
+.resul p{color:#d5d0ea;margin-bottom:24px}
+
+/* caso real */
+.caso .caja{display:grid;gap:46px}
+.fotos{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.fotos figure{position:relative;background:#fff;padding:8px 8px 10px;box-shadow:0 22px 40px -22px rgba(23,18,46,.55);transform:rotate(-2.4deg)}
+.fotos figure + figure{transform:rotate(1.8deg) translateY(18px)}
+.fotos img{width:100%;height:auto;aspect-ratio:4/3.4;object-fit:cover}
+.fotos .cinta{position:absolute;top:-14px;left:50%;margin-left:-44px;font-size:14px;padding:8px 14px}
+.fotos figure + figure .cinta{transform:rotate(3deg)}
+.pie{margin-top:34px;font-size:15px;color:var(--gris)}
+.cita{font:700 clamp(22px,2.7vw,34px)/1.2 var(--h);letter-spacing:-.025em}
+.quien{display:flex;gap:13px;align-items:center;margin-top:24px}
+.quien img{width:52px;height:52px;border-radius:14px}
+.quien small{display:block;color:var(--gris);font-size:15px}
+.caso .ligas{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px 22px}
+
+/* planes */
+.cambio{margin-top:28px;display:inline-flex;padding:4px;border-radius:14px;background:#ece9f7}
+.cambio button{padding:10px 18px;border-radius:11px;font-weight:700;font-size:15px;color:var(--gris);transition:background-color .16s ease,color .16s ease}
+.cambio button[aria-pressed="true"]{background:#fff;color:var(--tinta);box-shadow:0 2px 8px rgba(23,18,46,.14)}
+.planes{margin-top:30px;display:grid;gap:18px}
+.plan{position:relative;display:flex;flex-direction:column;padding:30px 24px 24px;border-radius:22px;background:var(--papel)}
+.plan.pop{background:var(--laca);color:#fff}
+.plan .cinta{position:absolute;top:-13px;right:20px;font-size:13.5px;padding:8px 13px;transform:rotate(2deg)}
+.plan h3{font-size:26px;letter-spacing:-.03em}
+.plan .para{color:var(--gris);font-size:15.5px;margin-top:2px}
+.plan.pop .para,.plan.pop .luego{color:var(--humo)}
+.plan .precio{margin-top:18px;font-size:16px}
+.plan .precio b{font:800 46px/1 var(--h);letter-spacing:-.04em;margin-right:4px}
+.plan .luego{color:var(--gris);font-size:15px;min-height:2.9em;margin-top:4px}
+.plan ul{margin:14px 0 0;display:grid;gap:9px;font-size:15.5px;line-height:1.35}
+.plan li{padding-left:26px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237b5cff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") 0 2px/17px no-repeat}
+.plan.pop li{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff8a5b' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")}
+.plan li.pronto{opacity:.6}
+.plan details{margin-top:12px}
+.plan summary{cursor:pointer;font-weight:700;font-size:15px;text-decoration:underline;text-underline-offset:4px;list-style:none}
+.plan summary::-webkit-details-marker{display:none}
+.plan details[open] summary{display:none}
+.plan details ul{margin-top:0}
+.plan .btn{margin-top:24px}
+.plan .abajo{margin-top:auto}
+.extras{margin-top:34px;display:grid;gap:0}
+.extras h3{margin-bottom:8px}
+.extra{display:grid;grid-template-columns:1fr auto;gap:2px 16px;padding:16px 0;border-top:1px solid var(--raya)}
+.extra p{color:var(--gris);font-size:15.5px;grid-column:1}
+.extra .pr{grid-column:2;grid-row:1/3;align-self:center;font:700 17px/1 var(--h);white-space:nowrap}
+.extra .pr.pronto{font:700 12.5px/1 var(--b);background:#ece9f7;padding:7px 10px;border-radius:8px;color:var(--gris)}
+.garantia{margin-top:26px;color:var(--gris)}
+
+/* preguntas */
+.dudas .caja{display:grid;gap:30px}
+.dudas details{border-top:1px solid var(--raya)}
+.dudas details:last-child{border-bottom:1px solid var(--raya)}
+.dudas summary{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:20px 0;cursor:pointer;font:700 18.5px/1.3 var(--h);letter-spacing:-.01em;list-style:none}
+.dudas summary::-webkit-details-marker{display:none}
+.dudas summary::after{content:"";flex:none;width:26px;height:26px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--tinta);background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2317122e' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 7v10M7 12h10'/%3E%3C/svg%3E") center/16px no-repeat;transition:transform .25s var(--out)}
+.dudas details[open] summary::after{transform:rotate(45deg)}
+.dudas details p{padding:0 44px 22px 0;color:var(--gris);max-width:44em}
+
+/* cierre */
+.cierre{position:relative;overflow:hidden;text-align:center;padding:clamp(90px,11vw,150px) 0 clamp(300px,36vw,520px)}
+.cierre .fondo{position:absolute;left:0;right:0;bottom:0;height:clamp(380px,52vw,760px);z-index:0;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 34%);mask-image:linear-gradient(180deg,transparent 0,#000 34%)}
+.cierre .fondo img{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%}
+.cierre .fondo .brillo{clip-path:inset(0 100% 0 0)}
+.cierre .raya{position:absolute;top:30%;bottom:0;left:0;width:20px;margin-left:-10px;z-index:1;opacity:0;background-color:var(--cinta);background-image:repeating-linear-gradient(0deg,rgba(70,50,0,.08) 0 1px,transparent 1px 4px);box-shadow:0 0 22px rgba(0,0,0,.55);will-change:transform}
+.cierre .caja{position:relative;z-index:2}
+.cierre h2{font-size:clamp(38px,6.4vw,88px);max-width:12em;margin-inline:auto}
+.cierre .bajada{margin-inline:auto}
+.cierre .hacer{margin-top:28px;display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.cierre .bajar{margin-top:22px;font-size:15.5px;color:#d5d0ea}
+.pata{background:var(--laca);color:var(--humo);padding:30px 0 110px;font-size:15px;border-top:1px solid var(--raya-o)}
+.pata .caja{display:grid;gap:16px}
+.pata nav{display:flex;flex-wrap:wrap;gap:8px 20px}
+.pata a{text-underline-offset:4px}
+
+/* botón fijo en celular */
+.pega{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:40;transform:translateY(160%);transition:transform .45s var(--out)}
+.pega.ya{transform:none}
+.pega .btn{width:100%;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 16px 34px -10px rgba(0,0,0,.7)}
+
+@media(min-width:860px){
+  .menu .solo-compu{display:inline}
+  .pega{display:none}
+  .pata{padding-bottom:40px}
+  .demo .caja{grid-template-columns:1fr 340px;gap:0 90px;align-items:start}
+  .d-cab{grid-column:1;grid-row:1;align-self:end;padding-bottom:34px}
+  .d-pasos{grid-column:1;grid-row:2}
+  .cel{grid-column:2;grid-row:1/3;width:340px;align-self:center}
+  .trae{grid-template-columns:1fr 1fr 1fr;column-gap:48px}
+  .pasos.fijos{grid-template-columns:1fr 1fr 1fr;column-gap:48px}
+  .tira{grid-auto-columns:250px;justify-content:center;gap:54px;overflow:visible;margin-inline:0;padding-inline:0}
+  .cuenta .caja{grid-template-columns:1fr 1fr;gap:80px}
+  .caso .caja{grid-template-columns:1.05fr 1fr;gap:90px;align-items:center}
+  .planes{grid-template-columns:repeat(3,1fr);align-items:stretch}
+  .dudas .caja{grid-template-columns:.8fr 1.4fr;gap:70px;align-items:start}
+  .dudas h2{position:sticky;top:110px}
+  .extras{max-width:760px}
+}
+@media(max-width:560px){
+  .aviso .fila{display:none}
+  .chat .msj:nth-child(3){display:none}
+  .chat .msj:nth-child(2){transform:rotate(1.6deg)}
+  .carro .cinta{top:30%;font-size:14px;padding:8px 12px}
+  .chat{top:44%;width:41%}
+  .aviso{top:44%;width:42%}
+  .tarj{grid-template-columns:1fr;padding:10px 12px}
+  .tarj img{display:none}
+  .tarj span{grid-column:1}
+  .promo{font-size:13.5px}
+  .promo .largo{display:none}
+  .portada .bajada{font-size:16.5px}
+}
+@media(min-width:561px){.promo .corto{display:none}}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .sube{animation:none;opacity:1;transform:none}
+  .lema p span{opacity:1!important}
+  .vista,.pega,.avance i,.barra{transition:none}
+  .pant[data-paso="3"] .visto,.llega.si .noti{animation:none}
+  .pant[data-paso="3"] .visto svg{animation:none;stroke-dashoffset:0}
+}
+
+/* --- propio de las páginas por rubro y de /para/ --- */
+.portada h1.largo{font-size:clamp(32px,7.4vw,60px);max-width:17em;margin-inline:auto}
+.portada.sola{padding-bottom:clamp(64px,9vw,120px)}
+.sobre{font:700 clamp(17px,1.9vw,21px)/1.25 var(--h);letter-spacing:-.01em;color:var(--humo);margin-bottom:20px}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.tags li{padding:10px 16px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--raya);font-weight:600}
+.trae.sin li{grid-template-columns:1fr}.trae.sin p{grid-column:1}
+.otro{margin-top:clamp(56px,7vw,96px)}
+.caso.osc{padding:clamp(72px,9vw,130px) 0}
+.caso.osc .pie,.caso.osc .quien small{color:var(--humo)}
+.caso.osc .texto{color:#d5d0ea;margin-top:18px;font-size:clamp(17px,1.5vw,19px)}
+.vermas{margin-top:22px;color:var(--gris)}.vermas a{color:var(--tinta);font-weight:600;text-underline-offset:4px}
+.rubros-l{margin-top:8px;display:grid}
+.rubros-l li{padding:26px 0;border-top:1px solid var(--raya)}
+.rubros-l h2{font-size:clamp(24px,3vw,34px)}.rubros-l h2 a{text-decoration:none}
+.rubros-l p{color:var(--gris);margin-top:8px;max-width:40em}
+.rubros-l .enlace{display:inline-block;margin-top:12px}
+.pega.dos{display:flex;gap:8px}
+.pega.dos .btn{flex:1 1 0;width:auto;min-width:0;padding:0 14px;white-space:nowrap}
+.pega.dos .btn-w{flex:0 0 auto;padding:0 18px;background:#fff;color:var(--tinta);box-shadow:0 16px 34px -10px rgba(0,0,0,.7)}
+@media(min-width:860px){.pega.dos{display:none}.trae.dos{grid-template-columns:1fr 1fr}.rubros-l{grid-template-columns:1fr 1fr;column-gap:64px}}
 </style>
 </head>
-<body><div class="w"><nav><a class="logo" href="/">Citaly</a><span class="row"><a href="/para/">Para tu negocio</a><a href="/#precio">Planes</a><a class="btn" href="/app/?nuevo=1&desde=para-lavacar">Probar gratis</a></span></nav></div>
+<body>
+<a class="promo" href="/app/?nuevo=1&desde=para-lavacar"><span class="largo">Promo de lanzamiento: plan Arranque a <b>₡500 al mes</b> los primeros 3 meses. <u>Quiero la promo</u></span><span class="corto">Promo: Arranque a <b>₡500 al mes</b> por 3 meses</span></a>
+<header class="menu"><div class="caja">
+  <a class="logo" href="/"><img src="/icon-192.png" alt="" width="30" height="30">citaly</a>
+  <nav aria-label="Principal"><a class="solo-compu" href="/para/">Para tu negocio</a><a class="solo-compu" href="/#precio">Planes</a><a href="/app/">Entrar</a><a class="btn btn-p" href="/app/?nuevo=1&desde=para-lavacar">Probar gratis</a></nav>
+</div></header>
 <main>
-<div class="w"><div class="hero"><div>
-<div class="kick">Para lavacar</div>
-<h1>Sistema de citas para lavacar en Costa Rica</h1>
-<p class="lead">Que tus clientes reserven su lavado solos y que cada hora de tu día esté clara en el celular. Se acabaron los mensajes de «¿tiene campo hoy?».</p>
-<div class="row"><a class="btn" href="/app/?nuevo=1&desde=para-lavacar">Crear mi cuenta gratis</a><span class="sub">7 días gratis · sin tarjeta · sin contrato</span></div>
-</div>
-<div><div class="mock" aria-label="Ejemplo de la página de reservas">
-<div class="sub">Así reserva tu cliente (ejemplo)</div>
-<div><div class="sub">Tipo de vehículo</div><div class="chips"><span class="chip">Sedán o hatchback</span><span class="chip on">SUV</span><span class="chip">Pick-up o 4x4</span></div></div>
-<div class="card"><b>Lavado sencillo</b><div class="sub">El precio cambia según el vehículo elegido</div></div>
-<div><div class="sub">Horas libres</div><div class="chips"><span class="chip">8:00 am</span><span class="chip on">10:00 am</span><span class="chip">1:00 pm</span></div></div>
-<span class="btn" style="background:var(--bb);color:#fff">Confirmar reserva</span></div></div></div></div>
+<section class="portada osc" id="portada">
+  <div class="texto">
+    <h1 class="largo"><span class="sube">Sistema de citas para lavacar en Costa Rica</span></h1>
+    <p class="bajada sube d1">Que tus clientes reserven su lavado solos y que cada hora de tu día esté clara en el celular. Se acabaron los mensajes de «¿tiene campo hoy?».</p>
+    <div class="hacer sube d2"><a class="btn btn-p" href="/app/?nuevo=1&desde=para-lavacar">Crear mi cuenta gratis</a><span class="nota">7 días gratis, sin tarjeta y sin contrato.</span></div>
+  </div>
+  <div class="carro" id="carro">
+    <picture><source media="(max-width:760px)" srcset="/img/venta/capo-m.webp"><img class="foto" src="/img/venta/capo.webp" alt="Capó de un carro negro recién pulido, con el reflejo de dos luces de taller" width="1920" height="1080" fetchpriority="high"></picture>
+    <div class="lado sin" id="ladoSin">
+      <picture><source media="(max-width:760px)" srcset="/img/venta/capo-opaco-m.webp"><img class="foto" src="/img/venta/capo-opaco.webp" alt="" width="1920" height="1080"></picture>
+      <span class="cinta">Sin Citaly</span>
+      <div class="chat" aria-hidden="true"><div class="msj">¿Tiene campo hoy?<time>9:47 p. m.</time></div><div class="msj">¿Cuánto el lavado completo?<time>9:52 p. m.</time></div><div class="msj">Hola??<time>10:15 p. m.</time></div><span class="sinresp"><i>3</i> sin contestar</span></div>
+    </div>
+    <div class="lado con" id="ladoCon">
+      <span class="cinta">Con Citaly</span>
+      <div class="aviso" aria-hidden="true">
+        <div class="tarj"><img src="/icon-192.png" alt="" width="36" height="36"><b>Nueva reserva</b><span>Lavado completo, SUV. Sábado 9:00&nbsp;a.&nbsp;m.</span></div>
+        <div class="tarj fila"><span class="hora">9:00<br>a.&nbsp;m.</span><b>Carlos Jiménez</b><span class="que">Lavado completo</span><span class="ok">Confirmada</span></div>
+      </div>
+    </div>
+    <div class="linea" id="linea">
+      <div class="perilla" id="perilla" tabindex="0" role="slider" aria-orientation="horizontal" aria-label="Comparar: sin Citaly y con Citaly" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50 % con Citaly"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></div>
+      <span class="pista" aria-hidden="true">Deslizá la cinta</span>
+    </div>
+  </div>
+</section>
 
-<div class="band"><div class="w"><section style="padding:36px 0"><h2 style="font-size:26px;margin-bottom:16px">Lo que le pasa a casi todo negocio de lavacar</h2><div class="grid"><p style="margin:0">Cada «¿tiene campo hoy?» es un mensaje que hay que contestar con las manos mojadas.</p><p style="margin:0">Los clientes llegan todos a la misma hora y otras horas del día quedan vacías.</p><p style="margin:0">Sin historial por vehículo, cada visita empieza de cero.</p></div></section></div></div>
+<section class="lema osc">
+  <div class="caja"><h2 class="sobre">Lo que le pasa a casi todo negocio de lavacar</h2><p id="lema">Cada «¿tiene campo hoy?» es un mensaje que hay que contestar con las manos mojadas. Los clientes llegan todos a la misma hora y otras horas del día quedan vacías. Sin historial por vehículo, cada visita empieza de cero.</p></div>
+</section>
 
-<div class="w"><section><h2>Cómo funciona</h2><ol class="steps" style="margin-top:22px">
-<li><h3>Creás tu cuenta</h3><p>Elegís «Lavacar» y en 2 minutos tenés tu página con servicios de ejemplo.</p></li>
-<li><h3>Ajustás lo tuyo</h3><p>Cambiás servicios, precios, horario, logo y color. Sin programar nada.</p></li>
-<li><h3>Compartís tu link</h3><p>Lo ponés en WhatsApp, Instagram y TikTok. Tus clientes reservan solos, a toda hora.</p></li></ol></section></div>
+<section class="demo clara" id="demo">
+  <div class="caja">
+    <div class="d-cab">
+      <h2>Así reserva tu cliente. Probalo.</h2>
+      <p class="bajada">Tocá el celular como si fueras tu cliente. Los servicios son los de ejemplo del tipo «Lavacar»: después ponés los tuyos, con tus precios.</p>
+    </div>
+    <div class="d-pasos">
+      <ol class="pasos" id="pasos">
+        <li class="va"><h3>Elige su carro y el servicio</h3><p>Ve el precio exacto para su vehículo, sin preguntarte.</p></li>
+        <li><h3>Escoge el día y la hora</h3><p>Solo ve las horas libres, así nadie reserva de más.</p></li>
+        <li><h3>Reserva</h3><p>La cita queda en tu agenda y te llega el aviso al celular.</p></li>
+      </ol>
+      <div class="llega" id="llega" aria-live="polite">
+        <span class="espera">Cuando termines la reserva, aquí vas a ver el aviso que te llega a vos.</span>
+        <div class="noti"><img src="/icon-192.png" alt="" width="40" height="40"><small>Citaly</small><em>ahora</em><b>Nueva reserva</b><span id="notiTxt"></span></div>
+      </div>
+    </div>
 
-<div class="w"><section style="padding-top:0"><h2>Servicios típicos de un lavacar</h2>
-<p class="lead" style="font-size:18px">Citaly te los carga como ejemplo. Vos cambiás nombres, precios y duración.</p>
-<ul class="tags"><li>Lavado sencillo</li><li>Lavado completo</li><li>Lavado de chasís</li><li>Encerado</li></ul></section></div>
+    <div class="cel">
+      <span class="cinta">Ejemplo</span>
+      <div class="tel"><div class="pant" id="pant" data-paso="1">
+        <div class="cab"><i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13l2-5.5A3 3 0 0 1 7.8 5.5h8.4A3 3 0 0 1 19 7.5L21 13v5h-3v-2H6v2H3z"/><circle cx="7.5" cy="13.5" r="1"/><circle cx="16.5" cy="13.5" r="1"/></svg></i><div><b>Tu negocio</b><small>citalyapp.com/tu-negocio</small></div></div>
+        <div class="avance"><i id="avance"></i></div>
+        <div class="vista v1">
+          <p class="preg">¿Qué vehículo es?</p>
+          <div class="fichas" id="vehs"></div>
+          <p class="preg">¿Qué te vas a hacer?</p>
+          <div class="servs" id="servs"></div>
+        </div>
+        <div class="vista v2">
+          <p class="preg">¿Qué día?</p>
+          <div class="dias" id="dias"></div>
+          <p class="preg">¿A qué hora?</p>
+          <div class="horas" id="horas"></div>
+        </div>
+        <div class="vista v3">
+          <div class="visto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+          <h4>¡Listo! Tu cita quedó reservada</h4>
+          <p id="resumen"></p>
+          <button class="otra" type="button">Hacer otra reserva</button>
+        </div>
+        <div class="barra">
+          <button class="atras" type="button" aria-label="Volver">‹</button>
+          <div class="total"><small id="totTxt">Elegí un servicio</small><b id="totNum">₡0</b></div>
+          <button class="sig" id="sig" type="button" disabled>Siguiente</button>
+        </div>
+      </div></div>
+      <div class="colores" id="colores"><span>Con tus colores:</span>
+        <button type="button" style="--c:#7b5cff" aria-label="Morado" aria-pressed="true"></button>
+        <button type="button" style="--c:#0e7c86" aria-label="Verde azulado" aria-pressed="false"></button>
+        <button type="button" style="--c:#e4572e" aria-label="Naranja" aria-pressed="false"></button>
+        <button type="button" style="--c:#1f6feb" aria-label="Azul" aria-pressed="false"></button>
+      </div>
+    </div>
+  </div>
+</section>
 
-<div class="band"><div class="w"><section><h2>Pensado para el día a día de un lavacar</h2><div class="grid" style="margin-top:22px"><div class="card"><h3>Varios carros a la misma hora</h3><p>Con el plan Turbo definís cuántos clientes atendés al mismo tiempo y la agenda no deja reservar de más.</p></div><div class="card"><h3>Clientes fijos y placa</h3><p>Buscás por placa y ves qué le hiciste a cada carro la última vez.</p></div><div class="card"><h3>Avisa cuándo toca volver</h3><p>En Turbo, Citaly te muestra qué clientes ya deberían volver para escribirles por WhatsApp.</p></div><div class="card"><h3>Agenda por día y semana</h3><p>Ves el día completo en el celular, con las horas libres y las ocupadas.</p></div></div></section></div></div>
+<section class="blanca">
+  <div class="caja">
+    <h2>Pensado para el día a día de un lavacar</h2>
+    <ul class="trae sin dos"><li><h3>Varios carros a la misma hora</h3><p>Con el plan Turbo definís cuántos clientes atendés al mismo tiempo y la agenda no deja reservar de más.</p></li><li><h3>Clientes fijos y placa</h3><p>Buscás por placa y ves qué le hiciste a cada carro la última vez.</p></li><li><h3>Avisa cuándo toca volver</h3><p>En Turbo, Citaly te muestra qué clientes ya deberían volver para escribirles por WhatsApp.</p></li><li><h3>Agenda por día y semana</h3><p>Ves el día completo en el celular, con las horas libres y las ocupadas.</p></li></ul>
+    <div class="otro">
+      <h2>Y todo esto viene incluido</h2>
+      <ul class="trae sin">
+        <li><h3>Página de reservas 24/7</h3><p>El cliente elige servicio, vehículo, día y hora, y ve el precio antes de confirmar.</p></li>
+        <li><h3>Página web de tu negocio</h3><p>Con tus servicios, fotos, reseñas y preguntas frecuentes, lista para compartir en tus redes.</p></li>
+        <li><h3>Aviso de cada reserva</h3><p>Te llega al celular apenas alguien reserva, para que no te tome por sorpresa.</p></li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-<div class="w"><section><h2>Y todo esto viene incluido</h2><div class="grid" style="margin-top:22px">
-<div class="card"><h3>Página de reservas 24/7</h3><p>El cliente elige servicio, vehículo, día y hora, y ve el precio antes de confirmar.</p></div>
-<div class="card"><h3>Página web de tu negocio</h3><p>Con tus servicios, fotos, reseñas y preguntas frecuentes, lista para compartir en tus redes.</p></div>
-<div class="card"><h3>Aviso de cada reserva</h3><p>Te llega al celular apenas alguien reserva, para que no te tome por sorpresa.</p></div>
-</div></section></div>
+<section class="clara">
+  <div class="caja">
+    <h2>Cómo funciona</h2>
+    <ol class="pasos fijos">
+      <li><h3>Creás tu cuenta</h3><p>Elegís «Lavacar» y en 2 minutos tenés tu página con servicios de ejemplo.</p></li>
+      <li><h3>Ajustás lo tuyo</h3><p>Cambiás servicios, precios, horario, logo y color. Sin programar nada.</p></li>
+      <li><h3>Compartís tu link</h3><p>Lo ponés en WhatsApp, Instagram y TikTok. Tus clientes reservan solos, a toda hora.</p></li>
+    </ol>
+    <div class="otro">
+      <h2>Servicios típicos de un lavacar</h2>
+      <p class="bajada">Citaly te los carga como ejemplo. Vos cambiás nombres, precios y duración.</p>
+      <ul class="tags"><li>Lavado sencillo</li><li>Lavado completo</li><li>Lavado de chasís</li><li>Encerado</li></ul>
+    </div>
+  </div>
+</section>
 
-<div class="w"><section><div class="who"><div><div class="kick" style="color:#FFB84D">Quién está detrás</div><h2 style="margin-top:6px">Hecho por un dueño de negocio de carros</h2>
-<p>Citaly nació en GlassStudioCR, mi negocio de pulido de parabrisas y focos en Alajuela. Lo armé primero para mis propias reservas y hoy lo abro a otros negocios de carros. Si algo no te funciona, me escribís por WhatsApp al 6150-6610 y te ayudo.</p></div>
-<a class="btn" href="https://citas.glassstudiocr.com/reservar" target="_blank" rel="noopener">Ver cómo reservan sus clientes</a></div></section></div>
+<section class="caso osc" id="caso">
+  <div class="caja">
+    <div>
+      <div class="fotos">
+        <figure><span class="cinta">Antes</span><img src="/demo/glassstudiocr/antes.jpg" alt="Parabrisas opaco antes del pulido" width="1000" height="750" loading="lazy"></figure>
+        <figure><span class="cinta">Después</span><img src="/demo/glassstudiocr/despues.jpg" alt="El mismo parabrisas después del pulido" width="1000" height="750" loading="lazy"></figure>
+      </div>
+      <p class="pie">Un parabrisas antes y después de pasar por GlassStudioCR.</p>
+    </div>
+    <div>
+      <h2>Hecho por un dueño de negocio de carros</h2>
+      <p class="texto">Citaly nació en GlassStudioCR, mi negocio de pulido de parabrisas y focos en Alajuela. Lo armé primero para mis propias reservas y hoy lo abro a otros negocios de carros. Si algo no te funciona, me escribís por WhatsApp al 6150-6610 y te ayudo.</p>
+      <div class="ligas"><a class="btn btn-s" href="https://citas.glassstudiocr.com/reservar" target="_blank" rel="noopener">Ver cómo reservan sus clientes</a></div>
+    </div>
+  </div>
+</section>
 
-<div class="w"><section id="planes" style="padding-top:0"><h2>Empezá gratis. Pagás cuando te sirva.</h2>
-<div class="grid" style="margin-top:22px"><div class="card plan"><h3>Arranque</h3><div class="sub">Para el que trabaja solo</div><div class="sub">Primeros 3 meses</div><div class="amt">₡500<small>/mes</small></div><div class="sub">después ₡4 900/mes</div><ul><li>Sitio de reservas 24/7 con precio por vehículo</li><li>Agenda por día y semana</li><li>Hasta 10 servicios</li><li>Clientes e historial de cada carro</li><li>Confirmaciones y recordatorios por WhatsApp con un toque</li><li>Página web con estilo Clásico que vos editás</li></ul></div><div class="card plan pop"><h3>Turbo</h3><div class="sub">Para negocios con equipo</div><div class="sub">Precio mensual</div><div class="amt">₡9 900<small>/mes</small></div><ul><li>Hasta 5 personas en tu equipo</li><li>Hasta 40 servicios</li><li>3 estilos de página, incluido el Premium oscuro</li><li>Hasta 8 fotos, 8 reseñas y 8 preguntas</li><li>Hasta 12 videos de TikTok, Instagram, Facebook o YouTube</li><li>Secciones «Así funciona» y «Por qué elegirte»</li><li>Adelanto por SINPE para asegurar la hora</li></ul></div><div class="card plan"><h3>Nitro</h3><div class="sub">Para crecer en serio</div><div class="sub">Precio mensual</div><div class="amt">₡19 900<small>/mes</small></div><ul><li>Los 5 estilos de página (Atrevido y Elegante incluidos)</li><li>Hasta 12 fotos, 12 reseñas y 12 preguntas</li><li>Hasta 24 videos de TikTok, Instagram, Facebook o YouTube</li><li>Asistente con IA: 30 usos al día</li><li>Equipo ilimitado</li><li>Control de insumos</li></ul></div></div>
-<p class="sub" style="margin-top:16px">Pagás con tarjeta o por SINPE Móvil. <a href="/#precio">Ver todos los planes y extras</a>.</p></section></div>
+<section class="blanca" id="planes">
+  <div class="caja">
+    <h2>Empezá gratis. Pagás cuando te sirva.</h2>
+    <div class="planes"><article class="plan"><span class="cinta">Promo de lanzamiento</span><h3>Arranque</h3><p class="para">Para el que trabaja solo</p><p class="precio"><b>₡500</b>al mes</p><p class="luego">los primeros 3 meses. Después, ₡4.900 al mes.</p><ul><li>Sitio de reservas 24/7 con precio por vehículo</li><li>Agenda por día y semana</li><li>Hasta 10 servicios</li><li>Clientes e historial de cada carro</li><li>Confirmaciones y recordatorios por WhatsApp con un toque</li><li>Página web con estilo Clásico que vos editás</li></ul><div class="abajo"><a class="btn btn-s" href="/app/?nuevo=1&desde=para-lavacar" style="width:100%">Probar Arranque gratis</a></div></article><article class="plan pop"><span class="cinta">El más elegido</span><h3>Turbo</h3><p class="para">Para negocios con equipo</p><p class="precio"><b>₡9.900</b>al mes</p><p class="luego">Sin contrato.</p><ul><li>Hasta 5 personas en tu equipo</li><li>Hasta 40 servicios</li><li>3 estilos de página, incluido el Premium oscuro</li><li>Hasta 8 fotos, 8 reseñas y 8 preguntas</li><li>Hasta 12 videos de TikTok, Instagram, Facebook o YouTube</li><li>Secciones «Así funciona» y «Por qué elegirte»</li><li>Adelanto por SINPE para asegurar la hora</li></ul><div class="abajo"><a class="btn btn-p" href="/app/?nuevo=1&desde=para-lavacar" style="width:100%">Probar Turbo gratis</a></div></article><article class="plan"><h3>Nitro</h3><p class="para">Para crecer en serio</p><p class="precio"><b>₡19.900</b>al mes</p><p class="luego">Sin contrato.</p><ul><li>Los 5 estilos de página (Atrevido y Elegante incluidos)</li><li>Hasta 12 fotos, 12 reseñas y 12 preguntas</li><li>Hasta 24 videos de TikTok, Instagram, Facebook o YouTube</li><li>Asistente con IA: 30 usos al día</li><li>Equipo ilimitado</li><li>Control de insumos</li></ul><div class="abajo"><a class="btn btn-s" href="/app/?nuevo=1&desde=para-lavacar" style="width:100%">Probar Nitro gratis</a></div></article></div>
+    <p class="vermas">Pagás con tarjeta o por SINPE Móvil. <a href="/#precio">Ver todos los planes y extras</a>.</p>
+  </div>
+</section>
 
-<div class="w"><section style="padding-top:0"><h2 style="margin-bottom:20px">Preguntas frecuentes</h2><details><summary>¿Necesito tarjeta para probar Citaly?</summary><p>No. Son 7 días gratis con el plan Nitro completo, sin tarjeta y sin contrato. Después elegís tu plan.</p></details><details><summary>¿Cuánto cuesta?</summary><p>El plan Arranque cuesta ₡500 al mes los primeros 3 meses y después ₡4 900. Si una sola cita al mes que hoy se te pierde vale más que eso, el plan se paga solo.</p></details><details><summary>¿Sigo usando mi WhatsApp?</summary><p>Sí. Confirmar y recordar citas con un toque desde tu propio WhatsApp es gratis en todos los planes. Citaly agenda; vos seguís hablando con tus clientes como siempre.</p></details><details><summary>¿Funciona en iPhone y Android?</summary><p>Sí. Se instala desde el navegador del celular y también se usa en computadora.</p></details><details><summary>¿Es difícil de configurar?</summary><p>Elegís «Lavacar» al crear tu cuenta y Citaly carga servicios de ejemplo para que solo cambiés nombres, precios y horario. Si te trabás, te ayudamos por WhatsApp al 6150-6610.</p></details><details><summary>¿Puedo manejar varios carros a la misma hora?</summary><p>Sí. En el plan Turbo definís cuántos clientes atendés al mismo tiempo (cupos) y la agenda no deja reservar de más.</p></details><details><summary>¿Sirve si el lavado es a domicilio?</summary><p>Sí. El plan Turbo trae zonas, tiempo de traslado y aviso de «voy en camino».</p></details></section></div>
+<section class="dudas clara">
+  <div class="caja">
+    <h2>Preguntas frecuentes</h2>
+    <div><details><summary>¿Necesito tarjeta para probar Citaly?</summary><p>No. Son 7 días gratis con el plan Nitro completo, sin tarjeta y sin contrato. Después elegís tu plan.</p></details><details><summary>¿Cuánto cuesta?</summary><p>El plan Arranque cuesta ₡500 al mes los primeros 3 meses y después ₡4.900. Si una sola cita al mes que hoy se te pierde vale más que eso, el plan se paga solo.</p></details><details><summary>¿Sigo usando mi WhatsApp?</summary><p>Sí. Confirmar y recordar citas con un toque desde tu propio WhatsApp es gratis en todos los planes. Citaly agenda; vos seguís hablando con tus clientes como siempre.</p></details><details><summary>¿Funciona en iPhone y Android?</summary><p>Sí. Se instala desde el navegador del celular y también se usa en computadora.</p></details><details><summary>¿Es difícil de configurar?</summary><p>Elegís «Lavacar» al crear tu cuenta y Citaly carga servicios de ejemplo para que solo cambiés nombres, precios y horario. Si te trabás, te ayudamos por WhatsApp al 6150-6610.</p></details><details><summary>¿Puedo manejar varios carros a la misma hora?</summary><p>Sí. En el plan Turbo definís cuántos clientes atendés al mismo tiempo (cupos) y la agenda no deja reservar de más.</p></details><details><summary>¿Sirve si el lavado es a domicilio?</summary><p>Sí. El plan Turbo trae zonas, tiempo de traslado y aviso de «voy en camino».</p></details></div>
+  </div>
+</section>
 
-<div class="w"><section style="padding-top:0"><div class="card" style="text-align:center"><h2>Probá Citaly 7 días, gratis</h2><p class="sub" style="margin:10px 0 18px">Sin tarjeta, sin contrato y listo en 2 minutos.</p><a class="btn" href="/app/?nuevo=1&desde=para-lavacar">Crear mi cuenta gratis</a></div></section></div>
+<section class="cierre osc" id="cierre">
+  <div class="fondo" aria-hidden="true"><picture><source media="(max-width:760px)" srcset="/img/venta/capo-opaco-m.webp"><img src="/img/venta/capo-opaco.webp" alt="" width="1920" height="1080" loading="lazy"></picture><picture><source media="(max-width:760px)" srcset="/img/venta/capo-m.webp"><img class="brillo" id="brillo" src="/img/venta/capo.webp" alt="" width="1920" height="1080" loading="lazy"></picture><i class="raya" id="raya"></i></div>
+  <div class="caja">
+    <h2>Probá Citaly 7 días, gratis</h2>
+    <p class="bajada">Sin tarjeta, sin contrato y listo en 2 minutos.</p>
+    <div class="hacer"><a class="btn btn-p" href="/app/?nuevo=1&desde=para-lavacar">Crear mi cuenta gratis</a><a class="btn btn-s" href="https://api.whatsapp.com/send?phone=50661506610&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Citaly" target="_blank" rel="noopener">Escribinos por WhatsApp</a></div>
+  </div>
+</section>
+</main>
+<footer class="pata"><div class="caja">
+  <a class="logo" href="/" style="color:#fff;font-size:19px"><img src="/icon-192.png" alt="" width="24" height="24" style="width:24px;height:24px;border-radius:7px">citaly</a>
+  <nav aria-label="Pie de página"><a href="https://api.whatsapp.com/send?phone=50661506610&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Citaly" target="_blank" rel="noopener">WhatsApp 6150-6610</a><a href="https://www.tiktok.com/@citaly444" target="_blank" rel="noopener">TikTok</a><a href="/para/">Todos los tipos de negocio</a><a href="/para/detailing/">Sistema de citas para detailing</a><a href="/para/pulido/">Sistema de citas para pulido de focos y vidrios</a><a href="/para/polarizado/">Sistema de citas para polarizado de vidrios</a><a href="/para/taller/">Sistema de citas para taller mecánico</a><a href="/terminos.html">Términos</a><a href="/privacidad.html">Privacidad</a></nav>
+  <span>Hecho en Costa Rica.</span>
+</div></footer><div class="pega dos" id="pega"><a class="btn btn-p" href="/app/?nuevo=1&desde=para-lavacar">Probar gratis 7 días</a><a class="btn btn-w" href="https://api.whatsapp.com/send?phone=50661506610&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Citaly" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">WhatsApp</a></div>
+<script>window.CITALY_DEMO={"veh":true,"svc":[{"n":"Lavado sencillo","p":[5000,6000,6500],"t":"45 min","i":"gota"},{"n":"Lavado completo","p":[8000,9000,10000],"t":"1 h","i":"gota"},{"n":"Lavado de chasís","p":[6000,7000,7500],"t":"45 min","i":"gota"},{"n":"Encerado","p":[12000,14000,15000],"t":"1 h 30 min","i":"brillo"}]}</script>
+<script>
+(function(){
+"use strict";
+var C=null,$=function(id){return document.getElementById(id)},
+    each=function(sel,fn){Array.prototype.forEach.call(document.querySelectorAll(sel),fn)},
+    mil=function(n){return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,".")},
+    col=function(n){return "₡"+mil(n)},
+    clamp=function(v,a,b){return v<a?a:v>b?b:v},
+    quieto=matchMedia("(prefers-reduced-motion:reduce)").matches;
 
-<div class="w"><section style="padding-top:0"><h3>Citaly también para</h3><div class="links" style="margin-top:12px"><a href="/para/detailing/">Sistema de citas para detailing</a><a href="/para/pulido/">Sistema de citas para pulido de focos y vidrios</a><a href="/para/polarizado/">Sistema de citas para polarizado de vidrios</a><a href="/para/taller/">Sistema de citas para taller mecánico</a><a href="/para/">Todos los tipos de negocio</a></div></section></div>
-</main><footer><div class="w">Hecho en Costa Rica · <a href="https://api.whatsapp.com/send?phone=50661506610&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Citaly" target="_blank" rel="noopener">WhatsApp 6150-6610</a> · <a href="https://www.tiktok.com/@citaly444" target="_blank" rel="noopener">TikTok</a> · <a href="/terminos.html">Términos</a> · <a href="/privacidad.html">Privacidad</a></div></footer><div class="dock"><a class="btn" href="/app/?nuevo=1&desde=para-lavacar">Probar gratis 7 días</a><a class="btn alt" href="https://api.whatsapp.com/send?phone=50661506610&text=Hola%2C%20quiero%20informaci%C3%B3n%20sobre%20Citaly" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">WhatsApp</a></div>
+/* ---------- 50/50 de la portada ---------- */
+var carro=$("carro"),sin=$("ladoSin"),con=$("ladoCon"),linea=$("linea"),perilla=$("perilla"),
+    hay=!!carro,P=.94,tocado=false,intro=true,ancho=hay?carro.clientWidth:0;
+function pon(p){P=clamp(p,.04,.96);var d=(100-P*100).toFixed(2),i=(P*100).toFixed(2);
+  sin.style.clipPath="inset(0 "+d+"% 0 0)";con.style.clipPath="inset(0 0 0 "+i+"%)";
+  linea.style.transform="translateX("+(P*ancho).toFixed(1)+"px)";perilla.setAttribute("aria-valuenow",Math.round(P*100));perilla.setAttribute("aria-valuetext",Math.round(100-P*100)+" % con Citaly")}
+function pase(de,a,ms,fin){var t0=performance.now();(function f(t){var k=clamp((t-t0)/ms,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+  if(tocado)return fin&&fin();pon(de+(a-de)*e);if(k<1)requestAnimationFrame(f);else fin&&fin()})(t0)}
+function arranca(){if(quieto){intro=false;return}setTimeout(function(){pase(.94,.5,1500,function(){intro=false})},450)}
+function mano(){if(!tocado){tocado=true;intro=false;carro.classList.add("tocado")}}
+var jalando=false,x0=null;
+function sigue(e){pon((e.clientX-carro.getBoundingClientRect().left)/ancho)}
+function agarra(e){jalando=true;mano();try{carro.setPointerCapture(e.pointerId)}catch(x){}sigue(e)}
+if(hay){
+pon(quieto?.5:.94);
+var fotoP=carro.querySelector("img.foto");
+if(fotoP.complete)arranca();else{fotoP.addEventListener("load",arranca);fotoP.addEventListener("error",arranca)}
+/* con el dedo solo se mueve si el gesto es de lado: así no estorba al bajar por la página */
+carro.addEventListener("pointerdown",function(e){if(e.button)return;x0=e.clientX;if(e.pointerType==="mouse"||perilla.contains(e.target))agarra(e)});
+carro.addEventListener("pointermove",function(e){if(jalando)sigue(e);else if(x0!==null&&Math.abs(e.clientX-x0)>8)agarra(e)});
+["pointerup","pointercancel","lostpointercapture"].forEach(function(n){carro.addEventListener(n,function(e){if(n==="lostpointercapture"&&e.target!==carro)return;jalando=false;x0=null})});
+perilla.addEventListener("keydown",function(e){var k=e.key,a=k==="ArrowLeft"||k==="ArrowDown"?P-.05:k==="ArrowRight"||k==="ArrowUp"?P+.05:k==="Home"?0:k==="End"?1:null;
+  if(a!==null){e.preventDefault();mano();pon(a)}});
+addEventListener("resize",function(){ancho=carro.clientWidth;pon(P)});
+}
+
+/* ---------- frase que se pule con el scroll ---------- */
+var lema=$("lema"),pal=[];
+if(lema){lema.innerHTML=lema.textContent.trim().split(/\s+/).map(function(w){return "<span>"+w+"</span>"}).join(" ");
+  pal=lema.querySelectorAll("span")}
+var pega=$("pega"),tapado=false,marca=0;
+function alScroll(){marca=0;var y=scrollY,vh=innerHeight;
+  if(hay&&!tocado&&!intro&&!quieto){var h=carro.offsetTop+carro.offsetHeight;pon(.5-.4*clamp(y/(h*.75),0,1))}
+  if(lema&&!quieto){var r=lema.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50){var k=clamp((vh*.86-r.top)/(r.height+vh*.42),0,1)*pal.length*1.12;
+    for(var i=0;i<pal.length;i++)pal[i].style.opacity=(.16+.84*clamp(k-i,0,1)).toFixed(2)}}
+  if(pega)pega.classList.toggle("ya",y>vh*.7&&!tapado)}
+addEventListener("scroll",function(){if(!marca){marca=1;requestAnimationFrame(alScroll)}},{passive:true});alScroll();
+
+/* ---------- demo de reserva ---------- */
+var IC={gota:'<path d="M12 3s6 6.2 6 10.5a6 6 0 0 1-12 0C6 9.2 12 3 12 3z"/>',brillo:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>',asiento:'<path d="M7 20v-6a5 5 0 0 1 5-5 5 5 0 0 1 5 5v6M7 16h10M9 9V6a3 3 0 0 1 6 0v3"/>',foco:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',llave:'<path d="M14.7 6.3a4 4 0 0 0-5.2 5.2L3 18l3 3 6.5-6.5a4 4 0 0 0 5.2-5.2l-2.6 2.6-2.4-.6-.6-2.4z"/>'},
+    VEH=["Sedán","SUV","Pick-up"],
+    SVC=(window.CITALY_DEMO&&window.CITALY_DEMO.svc)||[{n:"Lavado completo",p:[8000,10000,12000],t:"1 h",i:"gota"},{n:"Lavado y encerado",p:[15000,18000,20000],t:"2 h",i:"brillo"},{n:"Limpieza de interior",p:[25000,30000,32000],t:"3 h",i:"asiento"},{n:"Pulido de focos, el par",p:[20000,20000,20000],t:"1 h",i:"foco"}],
+    HRS=[["8:00 a. m.",1],["9:30 a. m.",1],["11:00 a. m.",0],["1:00 p. m.",1],["2:30 p. m.",0],["4:00 p. m.",1]],
+    DC=["dom","lun","mar","mié","jue","vie","sáb"],DL=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"],
+    DIAS=[],E={veh:1,svc:-1,dia:0,hora:-1,paso:1},pant=$("pant"),
+    conVeh=!(window.CITALY_DEMO&&window.CITALY_DEMO.veh===false),elVeh=function(){return conVeh?", "+VEH[E.veh]:""};
+if(pant){
+if(!conVeh){var fv=$("vehs");fv.style.display="none";if(fv.previousElementSibling)fv.previousElementSibling.style.display="none"}
+for(var d=1;d<=5;d++){var f=new Date();f.setDate(f.getDate()+d);DIAS.push({c:DC[f.getDay()],l:DL[f.getDay()],n:f.getDate()})}
+function pinta(){
+  $("vehs").innerHTML=VEH.map(function(v,i){return '<button type="button" class="ficha" data-veh="'+i+'" aria-pressed="'+(i===E.veh)+'">'+v+'</button>'}).join("");
+  $("servs").innerHTML=SVC.map(function(s,i){return '<button type="button" class="serv" data-svc="'+i+'" aria-pressed="'+(i===E.svc)+'"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true">'+(IC[s.i]||IC.brillo)+'</svg></span><span><b>'+s.n+'</b><small>'+col(s.p[E.veh])+", "+s.t+'</small></span><span class="rad"></span></button>'}).join("");
+  $("dias").innerHTML=DIAS.map(function(x,i){return '<button type="button" class="dia" data-dia="'+i+'" aria-pressed="'+(i===E.dia)+'">'+x.c+'<b>'+x.n+'</b></button>'}).join("");
+  $("horas").innerHTML=HRS.map(function(h,i){return '<button type="button" class="ficha" data-hora="'+i+'" aria-pressed="'+(i===E.hora)+'"'+(h[1]?"":" disabled")+'>'+(h[1]?h[0]:h[0]+" ocupado")+'</button>'}).join("");
+  var s=SVC[E.svc],sig=$("sig"),dia=DIAS[E.dia];
+  $("totNum").textContent=s?col(s.p[E.veh]):"₡0";
+  if(E.paso===1){$("totTxt").textContent=s?"1 servicio, "+s.t:"Elegí un servicio";sig.textContent="Siguiente";sig.disabled=!s}
+  else{$("totTxt").textContent=E.hora<0?"Elegí la hora":dia.l+" "+dia.n+", "+HRS[E.hora][0];sig.textContent="Reservar";sig.disabled=E.hora<0}
+  pant.dataset.paso=E.paso;$("avance").style.transform="scaleX("+(E.paso/3)+")";
+  each("#pasos li",function(li,i){li.classList.toggle("va",i===E.paso-1);li.classList.toggle("listo",i<E.paso-1||E.paso===3)});
+  var ll=$("llega");
+  if(E.paso===3){var txt=s.n+elVeh()+", "+col(s.p[E.veh])+". "+dia.l+" "+dia.n+", "+HRS[E.hora][0];
+    $("resumen").innerHTML=s.n+elVeh()+"<br>"+dia.l+" "+dia.n+", "+HRS[E.hora][0]+"<br><b>"+col(s.p[E.veh])+"</b>";$("notiTxt").textContent=txt;ll.classList.add("si")}
+  else ll.classList.remove("si")}
+pant.addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.disabled)return;var x=b.dataset,f="";
+  if(x.veh!==undefined){E.veh=+x.veh;f='[data-veh="'+x.veh+'"]'}else if(x.svc!==undefined){E.svc=+x.svc;f='[data-svc="'+x.svc+'"]'}
+  else if(x.dia!==undefined){E.dia=+x.dia;f='[data-dia="'+x.dia+'"]'}else if(x.hora!==undefined){E.hora=+x.hora;f='[data-hora="'+x.hora+'"]'}
+  else if(b.id==="sig"){if(E.paso>2)return;E.paso++;f=E.paso===2?'[data-dia="'+E.dia+'"]':".otra"}
+  else if(b.classList.contains("atras")){E.paso=1;f='[data-svc="'+E.svc+'"]'}
+  else if(b.classList.contains("otra")){E={veh:E.veh,svc:-1,dia:0,hora:-1,paso:1};f='[data-svc="0"]'}
+  pinta();var q=f&&pant.querySelector(f);if(q)try{q.focus({preventScroll:true})}catch(z){}});
+pinta();
+$("colores").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;pant.style.setProperty("--ac",b.style.getPropertyValue("--c"));
+  each("#colores button",function(o){o.setAttribute("aria-pressed",o===b)})});
+}
+
+/* ---------- calculadora ---------- */
+var cR=$("cR"),cP=$("cP"),base=4900;
+function calc(){var n=+cR.value,pr=Math.min(500000,Math.max(1000,+cP.value||0)),pierde=Math.round(n*4.3*pr/1000)*1000,hace=Math.max(1,Math.ceil(base/pr));
+  $("cN").textContent=n;$("cT").textContent=col(pierde);$("cT").classList.toggle("largo",col(pierde).length>9);$("cM").textContent="Con recuperar "+hace+(hace===1?" cita":" citas")+" al mes, Citaly ya se pagó."}
+if(cR){cR.oninput=calc;cP.oninput=calc;calc()}
+
+/* ---------- planes (salen de cfg.js, que carga con defer) ---------- */
+function conCfg(){C=window.CITALY;if(!C)return;base=C.plans.arranque.crc;if(cR)calc();var CUR="crc";
+  var planes=function(){var Pl=C.plans,usd=CUR==="usd",pr=function(x){return usd?"US$"+x.usd:col(x.crc)},promo=usd?"US$"+C.usd.promo:col(C.monthly.promo),
+      li=function(x){return /pr[oó]ximamente/i.test(x)?'<li class="pronto">'+x+"</li>":"<li>"+x+"</li>"};
+    $("plans").innerHTML=Object.keys(Pl).map(function(k){var p=Pl[k],esPromo=k===C.promoPlan,a=p.inc.slice(0,6),b=p.inc.slice(6);
+      return '<article class="plan'+(p.pop?" pop":"")+'">'+(esPromo?'<span class="cinta">Promo de lanzamiento</span>':p.pop?'<span class="cinta">El más elegido</span>':"")
+        +'<h3>'+p.n+'</h3><p class="para">'+p.tag+'</p>'
+        +(esPromo?'<p class="precio"><b>'+promo+'</b>al mes</p><p class="luego">los primeros '+C.monthly.promoMonths+' meses. Después, '+pr(p)+' al mes.</p>'
+                 :'<p class="precio"><b>'+pr(p)+'</b>al mes</p><p class="luego">Sin contrato.</p>')
+        +'<ul>'+a.map(li).join("")+'</ul>'+(b.length?'<details><summary>Ver todo lo que trae</summary><ul>'+b.map(li).join("")+'</ul></details>':"")
+        +'<div class="abajo"><a class="btn '+(p.pop?"btn-p":"btn-s")+'" href="app/?nuevo=1" style="width:100%">Probar '+p.n+' gratis</a></div></article>'}).join("");
+    $("addons").innerHTML=Object.keys(C.addons).map(function(k){var a=C.addons[k];return '<div class="extra"><b>'+a.n+'</b><p>'+a.d+'</p><span class="pr'+(a.soon?" pronto":"")+'">'+(a.soon?"Pronto":pr(a)+" al mes")+'</span></div>'}).join("")};
+  if($("plans")){each("[data-cur]",function(b){b.onclick=function(){CUR=b.dataset.cur;each("[data-cur]",function(x){x.setAttribute("aria-pressed",x===b)});planes()}});
+    planes()}
+  each(".pPromo",function(e){e.textContent=col(C.monthly.promo)});each(".pPM",function(e){e.textContent=C.monthly.promoMonths});each(".pTrial",function(e){e.textContent=C.trialDays});
+  var wa=function(m){return "https://api.whatsapp.com/send?phone="+C.wa+"&text="+encodeURIComponent(m)};
+  each(".wa-demo",function(e){e.href=wa("Hola, quiero que me ayuden a configurar Citaly para mi negocio de carros.")});
+  if($("ftWa"))$("ftWa").href=wa("Hola, quiero saber más de Citaly");
+}
+if(window.CITALY)conCfg();else document.addEventListener("DOMContentLoaded",conCfg);
+
+/* ---------- cierre: el capó termina de pulirse ---------- */
+var cierre=$("cierre"),brillo=$("brillo"),raya=$("raya");
+function pule(){if(quieto){brillo.style.clipPath="none";return}
+  var w=cierre.clientWidth,t0=performance.now();raya.style.opacity=1;
+  (function f(t){var k=clamp((t-t0)/1700,0,1),e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+    brillo.style.clipPath="inset(0 "+(100-e*100).toFixed(2)+"% 0 0)";raya.style.transform="translateX("+(e*w).toFixed(1)+"px)";
+    if(k<1)requestAnimationFrame(f);else raya.style.opacity=0})(t0)}
+if(!cierre){}else if("IntersectionObserver" in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.unobserve(cierre);pule()}})},{threshold:.45});io.observe(cierre);
+  var vistos={},io2=new IntersectionObserver(function(es){es.forEach(function(e){vistos[e.target.id]=e.isIntersecting});tapado=!!(vistos.demo||vistos.cierre);alScroll()},{threshold:.12});
+  if($("demo"))io2.observe($("demo"));io2.observe(cierre);
+}else brillo.style.clipPath="none";
+})();
+</script>
 </body></html>

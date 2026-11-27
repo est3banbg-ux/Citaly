@@ -3,12 +3,6 @@
   <url><loc>https://citalyapp.com/</loc><lastmod>2026-11-19</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://citalyapp.com/terminos.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
   <url><loc>https://citalyapp.com/privacidad.html</loc><changefreq>yearly</changefreq><priority>0.2</priority></url>
-  <url><loc>https://citalyapp.com/para/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://citalyapp.com/para/detailing/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://citalyapp.com/para/lavacar/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://citalyapp.com/para/pulido/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://citalyapp.com/para/polarizado/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://citalyapp.com/para/taller/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://citalyapp.com/a-r-car-detailing/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://citalyapp.com/ar-car-detailing/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://citalyapp.com/auto-lavado-dye/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
@@ -38,4 +32,10 @@
   <url><loc>https://citalyapp.com/polarizados-camareno/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://citalyapp.com/pulido-de-focos-y-parabrisas/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://citalyapp.com/taller-pineda-cruz/</loc><lastmod>2026-11-27</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://citalyapp.com/para/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/detailing/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/lavacar/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/pulido/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/polarizado/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://citalyapp.com/para/taller/</loc><lastmod>2026-11-27</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>

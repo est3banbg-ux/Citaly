@@ -2,82 +2,117 @@
 <html lang="es-CR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Descargá Citaly en tu celular · Android e iPhone</title>
 <meta name="description" content="Instalá Citaly en tu celular en 1 minuto. Guía paso a paso para Android (APK) e iPhone. Gratis y sin tienda.">
-<meta name="theme-color" content="#2a1a78"><link rel="canonical" href="https://citalyapp.com/descargar/">
+<meta name="theme-color" content="#07060c"><link rel="canonical" href="https://citalyapp.com/descargar/">
 <meta property="og:type" content="website"><meta property="og:title" content="Descargá Citaly en tu celular"><meta property="og:description" content="Android e iPhone, gratis, en 1 minuto. Paso a paso."><meta property="og:image" content="https://citalyapp.com/img/og-citaly.png"><meta property="og:url" content="https://citalyapp.com/descargar/">
 <link rel="icon" href="../favicon-32.png"><link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* Mismo diseño que la página de venta (index.html): laca, papel, morado y cinta de enmascarar. */
+:root{--laca:#07060c;--papel:#f4f2fb;--tinta:#17122e;--gris:#5c5777;--humo:#a9a4c4;--morado:#7b5cff;--morado2:#8f74ff;--coral:#ff8a5b;--cinta:#ead9a2;--cinta-t:#241b40;--raya:rgba(23,18,46,.12);
+  --h:'Bricolage Grotesque',system-ui,sans-serif;--b:'Figtree',system-ui,sans-serif;--out:cubic-bezier(.23,1,.32,1)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1a1530;background:linear-gradient(165deg,#1b1240 0%,#2a1a78 55%,#3a23a8 100%);background-attachment:fixed;min-height:100vh;padding:20px 16px 60px;display:flex;justify-content:center}
-main{width:100%;max-width:480px}
-.logo{display:flex;align-items:center;gap:12px;color:#fff;font-weight:800;font-size:24px;margin:4px 0 6px}.logo img{width:50px;height:50px;border-radius:15px}
-h1{color:#fff;font-size:28px;line-height:1.15;margin:14px 0 6px;letter-spacing:-.02em}.sub{color:#cfc8f5;margin:0 0 18px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:rgba(255,255,255,.1);padding:5px;border-radius:16px;margin-bottom:14px}
-.tabs button{border:0;background:transparent;color:#dcd6fa;font:700 16px system-ui;padding:12px 8px;border-radius:12px;cursor:pointer}
-.tabs button[aria-selected=true]{background:#fff;color:#4b2fd6;box-shadow:0 8px 18px -10px rgba(0,0,0,.5)}
-.card{background:#fff;border-radius:22px;padding:20px;box-shadow:0 24px 50px -24px rgba(0,0,0,.55)}
-.pane{display:none}.pane.on{display:block}
-.btn{display:block;text-align:center;background:linear-gradient(90deg,#7b5cff,#5a3be8);color:#fff;font-weight:800;font-size:18px;padding:17px;border-radius:16px;text-decoration:none;margin:4px 0 8px;box-shadow:0 14px 26px -14px #5a3be8;border:0;width:100%;cursor:pointer}
-.btn.wa{background:#1fa855;box-shadow:0 14px 26px -14px #1fa855;font-size:16px;padding:14px}
-.mut{color:#6b6585;font-size:14px}
-.badge{display:inline-flex;gap:6px;align-items:center;background:#eefaf3;border:1px solid #bfe8d0;color:#146c3b;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
-.step{display:grid;grid-template-columns:40px 1fr;gap:12px;padding:14px 0;border-top:1px solid #ece8f8}
-.step:first-of-type{border-top:0}
-.n{width:40px;height:40px;border-radius:50%;background:#efeaff;color:#5a3be8;font-weight:800;font-size:18px;display:grid;place-items:center}
-.step>div>b:first-child{display:block;margin-bottom:2px}.step p{margin:2px 0;font-size:15px;color:#3b3558}
-.mock{margin-top:8px;border:1px solid #e4e0f2;border-radius:14px;background:#f7f5fd;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:14px;color:#3b3558}
-.mock svg{flex:none}
-.tip{background:#fff4e0;border:1px solid #f2d49a;border-radius:14px;padding:12px 14px;margin-top:12px;font-size:14px}
-.warn{display:none;background:#ffe9ea;border:1px solid #f4b5b9;border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:14px}
-details{margin-top:14px;border-top:1px solid #ece8f8;padding-top:12px}summary{font-weight:700;cursor:pointer}
-.foot{color:#b9b0ec;text-align:center;font-size:13px;margin-top:18px}.foot a{color:#fff}
-.pc{display:none;background:rgba(255,255,255,.12);color:#fff;border-radius:16px;padding:14px;margin-bottom:14px;font-size:15px}
-.pc b{display:block;font-size:17px}
-</style></head><body><main>
-<div class="logo"><img src="../icon-192.png" alt=""> Citaly</div>
+body{margin:0;background:var(--laca);color:#f4f1ff;font:400 17px/1.55 var(--b);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,p,ol{margin:0}ol{padding:0;list-style:none}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:6px}
+.caja{width:min(560px,100% - 32px);margin-inline:auto}
+.menu .caja{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{display:flex;align-items:center;gap:9px;font:800 23px/1 var(--h);letter-spacing:-.04em;text-decoration:none}
+.logo img{width:30px;height:30px;border-radius:9px}
+.menu a.sitio{font-weight:600;font-size:15.5px;color:#d8d3ee;text-decoration:none;padding:10px 0}
+h1{font:800 clamp(34px,9vw,52px)/.98 var(--h);letter-spacing:-.04em;margin-top:18px;text-wrap:balance}
+.bajada{color:#c9c4e0;font-size:18px;margin:14px 0 22px}
+.pc{display:none;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.16);border-radius:16px;padding:14px 16px;margin-bottom:16px;font-size:16px;color:#e4e0f6}
+.pc b{display:block;color:#fff;font:700 18px/1.3 var(--h)}
+.cambio{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:16px;background:rgba(255,255,255,.1);margin-bottom:26px}
+.cambio button{padding:13px 8px;border-radius:12px;font-weight:700;font-size:17px;color:#d8d3ee;transition:background-color .16s ease,color .16s ease}
+.cambio button[aria-selected="true"]{background:#fff;color:var(--tinta);box-shadow:0 8px 18px -10px rgba(0,0,0,.6)}
+.hoja{position:relative;display:none;background:var(--papel);color:var(--tinta);border-radius:26px;padding:34px 20px 22px}
+.hoja.on{display:block}
+.cinta{position:absolute;top:-15px;left:18px;background-color:var(--cinta);background-image:repeating-linear-gradient(90deg,rgba(70,50,0,.07) 0 1px,transparent 1px 4px),linear-gradient(180deg,rgba(255,255,255,.3),rgba(0,0,0,.05));color:var(--cinta-t);font:700 14px/1.15 var(--h);padding:9px 15px;max-width:calc(100% - 36px);transform:rotate(-1.6deg);filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));
+  clip-path:polygon(0 0,100% 0,calc(100% - 3px) 22%,100% 44%,calc(100% - 3px) 66%,100% 88%,calc(100% - 2px) 100%,0 100%,3px 80%,0 58%,3px 36%,0 14%)}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px;padding:0 22px;border-radius:15px;font:700 18px/1.15 var(--b);text-align:center;text-decoration:none;transition:transform 160ms var(--out),background-color 160ms ease}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--morado);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 14px 34px -14px rgba(123,92,255,.9)}
+.btn-s{color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5);font-size:16.5px}
+.btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+@media(hover:hover) and (pointer:fine){.btn-p:hover{background:var(--morado2)}.btn-s:hover{background:rgba(255,255,255,.08)}}
+.mut{color:var(--gris);font-size:14.5px;text-align:center;margin:10px 0 6px}
+.pasos{margin-top:12px;counter-reset:p}
+.pasos li{counter-increment:p;display:grid;grid-template-columns:40px 1fr;gap:2px 12px;padding:16px 0;border-top:1px solid var(--raya)}
+.pasos li:first-child{border-top:0}
+.pasos li::before{content:counter(p);grid-row:span 3;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--tinta);color:#fff;font:700 17px/1 var(--h)}
+.pasos h3{font:700 18.5px/1.25 var(--h);letter-spacing:-.01em;margin-top:5px}
+.pasos p{color:#3d3858;font-size:16px;grid-column:2}
+.pista{grid-column:2;margin-top:8px;display:flex;align-items:center;gap:10px;background:#fff;box-shadow:inset 0 0 0 1.5px #e6e2f3;border-radius:14px;padding:10px 12px;font-size:15px;color:#3d3858}
+.pista svg{flex:none;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nota{background:#fff;box-shadow:inset 0 0 0 1.5px #e6e2f3;border-radius:14px;padding:13px 15px;margin-top:6px;font-size:15.5px;color:#3d3858}
+.alerta{display:none;background:#ffe9ea;box-shadow:inset 0 0 0 1.5px #f4b5b9;border-radius:14px;padding:13px 15px;margin-bottom:20px;font-size:15.5px;color:#5a1f24}
+details{margin-top:14px;border-top:1px solid var(--raya);padding-top:14px}
+summary{font:700 17px/1.3 var(--h);cursor:pointer}
+details p{color:var(--gris);font-size:15.5px;margin-top:8px}
+.hoja>.btn{margin-top:16px}
+.ayuda{margin:20px 0 0}
+.capo{position:relative;height:clamp(230px,56vw,360px);margin-top:10px;pointer-events:none;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 46%);mask-image:linear-gradient(180deg,transparent 0,#000 46%)}
+.capo img{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%}
+.pata{color:var(--humo);text-align:center;font-size:14.5px;padding:18px 16px 34px}
+.pata a{text-underline-offset:4px}
+</style></head><body>
+<header class="menu"><div class="caja">
+ <a class="logo" href="../"><img src="../icon-192.png" alt="" width="30" height="30">citaly</a>
+ <a class="sitio" href="../app/">Entrar</a>
+</div></header>
+<main class="caja">
 <h1>Descargá Citaly en tu celular</h1>
-<p class="sub">Gratis, en 1 minuto y con su ícono en tu pantalla. Elegí tu celular:</p>
+<p class="bajada">Gratis, en 1 minuto y con su ícono en tu pantalla. Elegí tu celular:</p>
 
-<div class="pc" id="pc">💻 Estás en una computadora. <b>Abrí citalyapp.com/descargar desde tu celular</b>para instalarla ahí. O seguí los pasos de abajo para ver cómo se hace.</div>
+<div class="pc" id="pc">Estás en una computadora. <b>Abrí citalyapp.com/descargar desde tu celular</b> para instalarla ahí. O seguí los pasos de abajo para ver cómo se hace.</div>
 
-<div class="tabs" role="tablist"><button role="tab" id="tA" aria-selected="true">🤖 Android</button><button role="tab" id="tI" aria-selected="false">🍎 iPhone</button></div>
+<div class="cambio" role="tablist" aria-label="Tu celular"><button type="button" role="tab" id="tA" aria-controls="pA" aria-selected="true">Android</button><button type="button" role="tab" id="tI" aria-controls="pI" aria-selected="false">iPhone</button></div>
 
-<section class="card pane on" id="pA">
- <span class="badge">✅ App oficial · firmada · permisos mínimos</span>
- <a class="btn" id="dl" href="https://github.com/est3banbg-ux/Citaly/releases/download/android-latest/citaly.apk" style="margin-top:14px">⬇️ Descargar Citaly para Android</a>
- <p class="mut" style="text-align:center;margin:0 0 6px">Gratis · se actualiza sola · pesa menos de 2 MB</p>
- <div class="step"><div class="n">1</div><div><b>Tocá «Descargar»</b><p>Si Chrome dice «este tipo de archivo puede ser dañino», tocá <b>Descargar de todos modos</b>. Es normal con cualquier app fuera de Play Store.</p></div></div>
- <div class="step"><div class="n">2</div><div><b>Abrí el archivo</b><p>Lo ves abajo en la notificación de descarga, o en la carpeta <b>Descargas</b> de tu celular.</p><div class="mock"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5a3be8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>citaly.apk</div></div></div>
- <div class="step"><div class="n">3</div><div><b>Permití instalar desde esta fuente</b><p>Si Android te lo pide, tocá <b>Configuración</b> y activá <b>«Permitir de esta fuente»</b>. Volvé atrás.</p></div></div>
- <div class="step"><div class="n">4</div><div><b>Tocá «Instalar»</b><p>Si sale <b>Play Protect</b> con «App no reconocida», tocá <b>Más detalles</b> → <b>Instalar de todas formas</b>.</p></div></div>
- <div class="step"><div class="n">5</div><div><b>Abrí Citaly e iniciá sesión 🎉</b><p>Aceptá los avisos para enterarte al instante cuando entre una reserva.</p></div></div>
- <div class="tip">💡 <b>¿Por qué sale ese aviso?</b> Porque todavía no estamos en Play Store (próximamente). La app es la misma y no instala nada extra.</div>
- <details><summary>¿No te deja instalar?</summary><p class="mut">Abrí <b>citalyapp.com/app</b> en Chrome, tocá los tres puntos ⋮ y elegí <b>Instalar aplicación</b>. Es la misma app, sin descargar archivo.</p></details>
+<section class="hoja on" id="pA" role="tabpanel" aria-labelledby="tA">
+ <span class="cinta">App oficial y firmada</span>
+ <a class="btn btn-p" id="dl" href="https://github.com/est3banbg-ux/Citaly/releases/download/android-latest/citaly.apk"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5M5 20.5h14"/></svg>Descargar Citaly para Android</a>
+ <p class="mut">Gratis, con permisos mínimos. Se actualiza sola y pesa menos de 2 MB.</p>
+ <ol class="pasos">
+  <li><h3>Tocá «Descargar»</h3><p>Si Chrome dice «este tipo de archivo puede ser dañino», tocá <b>Descargar de todos modos</b>. Es normal con cualquier app fuera de Play Store.</p></li>
+  <li><h3>Abrí el archivo</h3><p>Lo ves abajo en la notificación de descarga, o en la carpeta <b>Descargas</b> de tu celular.</p><div class="pista"><svg width="26" height="26" viewBox="0 0 24 24" stroke="#7b5cff" aria-hidden="true"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>citaly.apk</div></li>
+  <li><h3>Permití instalar desde esta fuente</h3><p>Si Android te lo pide, tocá <b>Configuración</b> y activá <b>«Permitir de esta fuente»</b>. Volvé atrás.</p></li>
+  <li><h3>Tocá «Instalar»</h3><p>Si sale <b>Play Protect</b> con «App no reconocida», tocá <b>Más detalles</b> y después <b>Instalar de todas formas</b>.</p></li>
+  <li><h3>Abrí Citaly e iniciá sesión</h3><p>Aceptá los avisos para enterarte al instante cuando entre una reserva.</p></li>
+ </ol>
+ <div class="nota"><b>¿Por qué sale ese aviso?</b> Porque todavía no estamos en Play Store (próximamente). La app es la misma y no instala nada extra.</div>
+ <details><summary>¿No te deja instalar?</summary><p>Abrí <b>citalyapp.com/app</b> en Chrome, tocá los tres puntos ⋮ y elegí <b>Instalar aplicación</b>. Es la misma app, sin descargar archivo.</p></details>
 </section>
 
-<section class="card pane" id="pI">
- <div class="warn" id="inapp">⚠️ Estás dentro de Instagram, Facebook o TikTok. Tocá los <b>tres puntos ⋯</b> (arriba) y elegí <b>«Abrir en Safari»</b>. Desde aquí no se puede instalar.</div>
- <span class="badge">🍎 Se instala desde Safari · gratis · sin App Store</span>
- <div class="step" style="margin-top:12px"><div class="n">1</div><div><b>Abrí esta página en Safari</b><p>Tiene que ser <b>Safari</b> (el navegador azul con brújula). En otros navegadores no aparece la opción.</p></div></div>
- <div class="step"><div class="n">2</div><div><b>Tocá el botón Compartir</b><p>Está abajo en el centro de la pantalla (en iPad, arriba a la derecha).</p>
-  <div class="mock"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#0a7aff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg><span>El cuadrito con la flecha hacia arriba</span></div></div></div>
- <div class="step"><div class="n">3</div><div><b>Elegí «Agregar a inicio»</b><p>Deslizá hacia arriba la lista hasta verla. Si no aparece, tocá <b>«Más»</b> o <b>«Ver más»</b> al final de las opciones.</p>
-  <div class="mock"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a1530" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg><span><b>Agregar a inicio</b></span></div></div></div>
- <div class="step"><div class="n">4</div><div><b>Tocá «Agregar»</b><p>Arriba a la derecha. Dejá el nombre <b>Citaly</b>.</p></div></div>
- <div class="step"><div class="n">5</div><div><b>Abrila desde su ícono 🎉</b><p>Te queda en tu pantalla de inicio, como cualquier app. Abrila siempre desde ahí y aceptá los avisos para recibir tus reservas.</p></div></div>
- <div class="tip">ℹ️ Los avisos de reservas en iPhone funcionan con <b>iOS 16.4 o más nuevo</b>, y solo si la abrís desde el ícono (no desde Safari).</div>
- <a class="btn" href="../app/" style="margin-top:14px">Abrir Citaly →</a>
+<section class="hoja" id="pI" role="tabpanel" aria-labelledby="tI">
+ <span class="cinta">Desde Safari, gratis y sin App Store</span>
+ <div class="alerta" id="inapp">Estás dentro de Instagram, Facebook o TikTok. Tocá los <b>tres puntos ⋯</b> (arriba) y elegí <b>«Abrir en Safari»</b>. Desde aquí no se puede instalar.</div>
+ <ol class="pasos">
+  <li><h3>Abrí esta página en Safari</h3><p>Tiene que ser <b>Safari</b> (el navegador azul con brújula). En otros navegadores no aparece la opción.</p></li>
+  <li><h3>Tocá el botón Compartir</h3><p>Está abajo en el centro de la pantalla (en iPad, arriba a la derecha).</p><div class="pista"><svg width="30" height="30" viewBox="0 0 24 24" stroke="#0a7aff" aria-hidden="true"><path d="M12 15V3m0 0L8 7m4-4l4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg><span>El cuadrito con la flecha hacia arriba</span></div></li>
+  <li><h3>Elegí «Agregar a inicio»</h3><p>Deslizá hacia arriba la lista hasta verla. Si no aparece, tocá <b>«Más»</b> o <b>«Ver más»</b> al final de las opciones.</p><div class="pista"><svg width="28" height="28" viewBox="0 0 24 24" stroke="#17122e" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M12 8v8M8 12h8"/></svg><span><b>Agregar a inicio</b></span></div></li>
+  <li><h3>Tocá «Agregar»</h3><p>Arriba a la derecha. Dejá el nombre <b>Citaly</b>.</p></li>
+  <li><h3>Abrila desde su ícono</h3><p>Te queda en tu pantalla de inicio, como cualquier app. Abrila siempre desde ahí y aceptá los avisos para recibir tus reservas.</p></li>
+ </ol>
+ <div class="nota">Los avisos de reservas en iPhone funcionan con <b>iOS 16.4 o más nuevo</b>, y solo si la abrís desde el ícono (no desde Safari).</div>
+ <a class="btn btn-p" href="../app/">Abrir Citaly</a>
 </section>
 
-<p style="text-align:center;margin:14px 0 0"><a class="btn wa" id="wa" target="_blank" rel="noopener">💬 ¿Te trabaste? Te ayudamos por WhatsApp</a></p>
-<p class="foot">Citaly · hecho en Costa Rica 🇨🇷 · <a href="../">citalyapp.com</a></p>
+<p class="ayuda"><a class="btn btn-s" id="wa" href="https://wa.me/50661506610" target="_blank" rel="noopener">¿Te trabaste? Te ayudamos por WhatsApp</a></p>
 </main>
+<div class="capo" aria-hidden="true"><img src="../img/venta/capo-m.webp" alt="" width="1024" height="960" loading="lazy"></div>
+<footer class="pata">Citaly, hecho en Costa Rica. <a href="../">citalyapp.com</a></footer>
 <script src="../cfg.js"></script>
 <script>
 (function(){
 var u=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1),and=/Android/.test(u);
 var A=document.getElementById("tA"),I=document.getElementById("tI"),pA=document.getElementById("pA"),pI=document.getElementById("pI");
-function show(w){var a=w==="a";A.setAttribute("aria-selected",a);I.setAttribute("aria-selected",!a);pA.classList.toggle("on",a);pI.classList.toggle("on",!a)}
+function show(w){var a=w==="a";A.setAttribute("aria-selected",a);I.setAttribute("aria-selected",!a);A.tabIndex=a?0:-1;I.tabIndex=a?-1:0;pA.classList.toggle("on",a);pI.classList.toggle("on",!a)}
 A.onclick=function(){show("a")};I.onclick=function(){show("i")};
+[A,I].forEach(function(b){b.addEventListener("keydown",function(e){if(e.key==="ArrowLeft"||e.key==="ArrowRight"){var o=b===A?I:A;show(o===A?"a":"i");o.focus()}})});
 if(ios||location.hash==="#iphone")show("i");else show("a");
 if(!ios&&!and)document.getElementById("pc").style.display="block";
 if(/FBAN|FBAV|Instagram|TikTok|musical_ly|Line\//.test(u))document.getElementById("inapp").style.display="block";

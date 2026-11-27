@@ -1,6 +1,10 @@
 // Crea las páginas de Citaly por tipo de negocio: /para/ (índice) y /para/<tipo>/.
 // Se corre a mano: node tools/gen-para.mjs   (el resultado se sube al repo; no depende de Firebase).
 // Los precios, planes y servicios salen de cfg.js, así que si cambian allá, se vuelve a correr.
+// El diseño (CSS y script) sale de la página de venta, index.html: si cambia allá, también se vuelve a correr.
+// OJO: el script de index.html corre aquí en páginas que no tienen todas sus secciones (/para/ no tiene capó, demo ni
+// calculadora). Todo lo que se agregue allá tiene que revisar primero que el elemento exista (if(hay), if(pant), if(cR)…),
+// y después de regenerar hay que correr tools/pruebas/venta/.
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
@@ -14,7 +18,7 @@ vm.runInContext(fs.readFileSync(path.join(ROOT, "cfg.js"), "utf8") + "\n;this.__
 const C = ctx.__C;
 
 const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-const crc = n => "₡" + Math.round(n).toLocaleString("es-CR");
+const crc = n => "₡" + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");   // igual que en la página de venta: ₡4.900
 const today = new Date().toISOString().slice(0, 10);
 const CTA = tipo => `/app/?nuevo=1&desde=para-${tipo}`;
 const WA = `https://api.whatsapp.com/send?phone=${C.wa}&text=${encodeURIComponent("Hola, quiero información sobre Citaly")}`;
@@ -58,51 +62,48 @@ const TIPOS = {
   taller: {"corto": "taller mecánico", "unico": {"t": "Pensado para talleres", "items": [["Un servicio por cada trabajo", "Diagnóstico, cambio de aceite, revisión de frenos: cada uno con su precio y duración para que el cliente elija."], ["Cupos por hora", "Con el plan Turbo definís cuántos vehículos recibís al mismo tiempo y la agenda no deja reservar de más."], ["El cliente cuenta qué necesita", "Al reservar deja una nota con lo que le pasa a su carro, y cuando entra el carro ya sabés qué revisar."], ["Historial del cliente", "Buscás al cliente por nombre o placa y ves todo lo que le has hecho."]]}, "h1": "Sistema de citas para taller mecánico en Costa Rica", "title": "Sistema de citas y agenda para taller mecánico | Citaly", "desc": "Agenda y página de reservas para talleres mecánicos. Tus clientes reservan solos. 7 días gratis, sin tarjeta. Plan Arranque desde ₡4.900/mes.", "lead": "Tus clientes reservan su cita y te cuentan qué necesita el carro, mientras vos y tus mecánicos siguen con las manos en el motor.", "dolor": ["Con las manos llenas de grasa nadie contesta WhatsApp, y el cliente se va con otro taller.", "Los carros llegan sin cita y el taller se llena un día y queda vacío al siguiente.", "Sin historial, cada visita empieza de cero y el cliente tiene que volver a explicar todo."], "serviciosTitulo": "Servicios típicos de un taller", "extra": [["¿Puedo manejar varios carros a la vez?", "Sí. En el plan Turbo definís cuántos vehículos atendés al mismo tiempo (cupos) y la agenda no deja reservar de más."], ["¿El cliente puede explicar qué le pasa al carro?", "Sí. Al reservar puede dejar una nota para que sepás qué revisar."]]}
 };
 
-const css = `
-:root{--bb:#2A1A7A;--ink:#17123A;--mut:#5B5680;--brand:#2A1A7A;--acc:#FFB84D;--bg:#F7F5FB;--card:#fff;--line:#E3DFF1;--soft:#EFEBFA}
-@media(prefers-color-scheme:dark){:root{--ink:#F1EFFB;--mut:#B9B4D8;--brand:#9C8CFF;--acc:#FFB84D;--bg:#100C2A;--card:#1A1540;--line:#2E2766;--soft:#221B55}}
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 Figtree,system-ui,sans-serif;padding-bottom:84px}
-h1,h2,h3{font-family:'Bricolage Grotesque',Figtree,sans-serif;line-height:1.12;margin:0;text-wrap:balance}
-a{color:var(--brand)}
-.w{max-width:1100px;margin:0 auto;padding:0 20px}
-nav{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:16px 0}
-.logo{font:700 26px 'Bricolage Grotesque',sans-serif;color:var(--brand);text-decoration:none}
-.btn{display:inline-block;background:var(--acc);color:#17123A;padding:15px 26px;border-radius:12px;font-weight:700;text-decoration:none;text-align:center}
-.btn.alt{background:transparent;color:var(--brand);border:2px solid var(--brand);padding:13px 24px}
-.hero{display:flex;flex-wrap:wrap;gap:40px;align-items:center;padding:28px 0 56px}
-.hero>div{flex:1 1 440px;min-width:0}
-.kick{font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
-h1{font-size:clamp(34px,6vw,54px)}h2{font-size:clamp(28px,4.4vw,38px)}h3{font-size:20px}
-.lead{font-size:20px;color:var(--mut);max-width:34em}
-.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
-.sub{color:var(--mut);font-size:15px}
-.mock{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 32px rgba(42,26,122,.12)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}.chip{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:15px}.chip.on{background:var(--bb);color:#fff;border-color:var(--bb);font-weight:700}
-.band{background:var(--card);border-block:1px solid var(--line)}
-.grid{display:flex;flex-wrap:wrap;gap:20px}.grid>*{flex:1 1 300px;min-width:0}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
-.card p,.band p{margin:6px 0 0;color:var(--mut)}
-section{padding:56px 0}
-ol.steps{margin:0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:20px;counter-reset:s}
-ol.steps li{flex:1 1 280px;counter-increment:s;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
-ol.steps li:before{content:counter(s);display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--bb);color:#fff;font-weight:700;margin-bottom:10px}
-.tags{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0;padding:0;list-style:none}.tags li{background:var(--soft);padding:9px 16px;border-radius:999px;font-weight:600}
-.plan{display:flex;flex-direction:column;gap:8px}.plan.pop{border:2px solid var(--brand)}
-.amt{font:700 38px 'Bricolage Grotesque',sans-serif}.amt small{font:400 16px Figtree;color:var(--mut)}
-.plan ul{margin:6px 0 0;padding-left:20px;color:var(--mut)}
-details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:12px}
-summary{font-weight:700;cursor:pointer}details p{margin:10px 0 0;color:var(--mut)}
-.who{background:var(--bb);color:#fff;border-radius:24px;padding:36px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
-.who>div{flex:1 1 380px;min-width:0}.who p{margin:10px 0 0;color:#DAD5F5}.who a.btn{background:#fff;color:#2A1A7A}
-.links{display:flex;flex-wrap:wrap;gap:10px 22px}
-footer{border-top:1px solid var(--line);padding:28px 0;color:var(--mut);font-size:15px}
-.dock{position:fixed;left:0;right:0;bottom:0;z-index:9;display:flex;gap:10px;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
-.dock .btn{flex:1;padding:13px 12px}.dock .btn.alt{flex:0 0 auto}
-@media(min-width:900px){.dock{display:none}body{padding-bottom:0}}
+
+// ---- Diseño: el mismo de la página de venta. Se toma de index.html para que haya una sola fuente.
+const VENTA = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+const ESTILO = (VENTA.match(/<style>([\s\S]*?)<\/style>/) || [])[1];
+const GUION = [...VENTA.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]).find(s => s.includes("50/50 de la portada"));
+const DEMO = (VENTA.match(/<section class="demo clara" id="demo">[\s\S]*?<\/section>/) || [])[0];
+if (!ESTILO || !GUION || !DEMO) throw new Error("No encontré el <style>, el script de la portada o la demo en index.html");
+
+// Lo que se ve en la portada 50/50 de cada rubro: mensajes sin contestar y el servicio que entra reservado.
+const PORTADA = {
+  detailing: { chat: ["¿Cuánto cuesta para mi carro?", "¿Tiene campo esta semana?", "Hola??"], svc: "Corrección de pintura" },
+  lavacar: { chat: ["¿Tiene campo hoy?", "¿Cuánto el lavado completo?", "Hola??"], svc: "Lavado completo" },
+  pulido: { chat: ["¿Cuánto por pulir los focos?", "¿Llega a domicilio?", "Hola??"], svc: "Pulido de focos" },
+  polarizado: { chat: ["¿Cuánto cuesta el polarizado?", "¿Tiene campo mañana?", "Hola??"], svc: "Polarizado completo" },
+  taller: { chat: ["¿Me lo puede revisar hoy?", "¿Cuánto el cambio de aceite?", "Hola??"], svc: "Cambio de aceite" }
+};
+
+const css = ESTILO + `
+/* --- propio de las páginas por rubro y de /para/ --- */
+.portada h1.largo{font-size:clamp(32px,7.4vw,60px);max-width:17em;margin-inline:auto}
+.portada.sola{padding-bottom:clamp(64px,9vw,120px)}
+.sobre{font:700 clamp(17px,1.9vw,21px)/1.25 var(--h);letter-spacing:-.01em;color:var(--humo);margin-bottom:20px}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.tags li{padding:10px 16px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--raya);font-weight:600}
+.trae.sin li{grid-template-columns:1fr}.trae.sin p{grid-column:1}
+.otro{margin-top:clamp(56px,7vw,96px)}
+.caso.osc{padding:clamp(72px,9vw,130px) 0}
+.caso.osc .pie,.caso.osc .quien small{color:var(--humo)}
+.caso.osc .texto{color:#d5d0ea;margin-top:18px;font-size:clamp(17px,1.5vw,19px)}
+.vermas{margin-top:22px;color:var(--gris)}.vermas a{color:var(--tinta);font-weight:600;text-underline-offset:4px}
+.rubros-l{margin-top:8px;display:grid}
+.rubros-l li{padding:26px 0;border-top:1px solid var(--raya)}
+.rubros-l h2{font-size:clamp(24px,3vw,34px)}.rubros-l h2 a{text-decoration:none}
+.rubros-l p{color:var(--gris);margin-top:8px;max-width:40em}
+.rubros-l .enlace{display:inline-block;margin-top:12px}
+.pega.dos{display:flex;gap:8px}
+.pega.dos .btn{flex:1 1 0;width:auto;min-width:0;padding:0 14px;white-space:nowrap}
+.pega.dos .btn-w{flex:0 0 auto;padding:0 18px;background:#fff;color:var(--tinta);box-shadow:0 16px 34px -10px rgba(0,0,0,.7)}
+@media(min-width:860px){.pega.dos{display:none}.trae.dos{grid-template-columns:1fr 1fr}.rubros-l{grid-template-columns:1fr 1fr;column-gap:64px}}
 `;
 
-const head = (t, desc, pathUrl, ld) => `<!DOCTYPE html>
+const head = (t, desc, pathUrl, ld, conCarro) => `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -114,32 +115,88 @@ const head = (t, desc, pathUrl, ld) => `<!DOCTYPE html>
 <meta property="og:type" content="website"><meta property="og:locale" content="es_CR"><meta property="og:site_name" content="Citaly">
 <meta property="og:url" content="${ORIGIN}${pathUrl}"><meta property="og:title" content="${esc(t)}"><meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="${ORIGIN}/img/og-citaly.png"><meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#2a1a7a">
+<meta name="theme-color" content="#07060c">
 <link rel="icon" href="/favicon-32.png"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
-<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
+${conCarro ? `<link rel="preload" as="image" href="/img/venta/capo-m.webp" media="(max-width:760px)">
+<link rel="preload" as="image" href="/img/venta/capo.webp" media="(min-width:761px)">
+` : ""}<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, "\\u003c")}</script>
 <style>${css}</style>
 </head>
 <body>`;
 
-const nav = tipo => `<div class="w"><nav><a class="logo" href="/">Citaly</a><span class="row"><a href="/para/">Para tu negocio</a><a href="/#precio">Planes</a><a class="btn" href="${CTA(tipo)}">Probar gratis</a></span></nav></div>`;
-const dock = tipo => `<div class="dock"><a class="btn" href="${CTA(tipo)}">Probar gratis 7 días</a><a class="btn alt" href="${WA}" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">WhatsApp</a></div>`;
-const foot = `<footer><div class="w">Hecho en Costa Rica · <a href="${WA}" target="_blank" rel="noopener">WhatsApp ${WA_TXT}</a> · <a href="https://www.tiktok.com/@citaly444" target="_blank" rel="noopener">TikTok</a> · <a href="/terminos.html">Términos</a> · <a href="/privacidad.html">Privacidad</a></div></footer>`;
+const promoTxt = () => { const p = crc(C.monthly.promo), m = C.monthly.promoMonths; return `<span class="largo">Promo de lanzamiento: plan Arranque a <b>${p} al mes</b> los primeros ${m} meses. <u>Quiero la promo</u></span><span class="corto">Promo: Arranque a <b>${p} al mes</b> por ${m} meses</span>`; };
+const nav = tipo => `
+<a class="promo" href="${CTA(tipo)}">${promoTxt()}</a>
+<header class="menu"><div class="caja">
+  <a class="logo" href="/"><img src="/icon-192.png" alt="" width="30" height="30">citaly</a>
+  <nav aria-label="Principal"><a class="solo-compu" href="/para/">Para tu negocio</a><a class="solo-compu" href="/#precio">Planes</a><a href="/app/">Entrar</a><a class="btn btn-p" href="${CTA(tipo)}">Probar gratis</a></nav>
+</div></header>`;
+const dock = tipo => `<div class="pega dos" id="pega"><a class="btn btn-p" href="${CTA(tipo)}">Probar gratis ${C.trialDays} días</a><a class="btn btn-w" href="${WA}" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">WhatsApp</a></div>`;
+const foot = otros => `<footer class="pata"><div class="caja">
+  <a class="logo" href="/" style="color:#fff;font-size:19px"><img src="/icon-192.png" alt="" width="24" height="24" style="width:24px;height:24px;border-radius:7px">citaly</a>
+  <nav aria-label="Pie de página"><a href="${WA}" target="_blank" rel="noopener">WhatsApp ${WA_TXT}</a><a href="https://www.tiktok.com/@citaly444" target="_blank" rel="noopener">TikTok</a><a href="/para/">Todos los tipos de negocio</a>${otros}<a href="/terminos.html">Términos</a><a href="/privacidad.html">Privacidad</a></nav>
+  <span>Hecho en Costa Rica.</span>
+</div></footer>`;
+const guion = datos => `${datos ? `<script>window.CITALY_DEMO=${JSON.stringify(datos).replace(/</g, "\\u003c")}</script>\n` : ""}<script>${GUION}</script>`;
 
-function planes() {
+const foto = (archivo, extra = "") => `<picture><source media="(max-width:760px)" srcset="/img/venta/${archivo}-m.webp"><img ${extra}src="/img/venta/${archivo}.webp" alt="" width="1920" height="1080" loading="lazy"></picture>`;
+const cierre = (titulo, texto, tipo) => `
+<section class="cierre osc" id="cierre">
+  <div class="fondo" aria-hidden="true">${foto("capo-opaco")}${foto("capo", 'class="brillo" id="brillo" ')}<i class="raya" id="raya"></i></div>
+  <div class="caja">
+    <h2>${titulo}</h2>
+    <p class="bajada">${texto}</p>
+    <div class="hacer"><a class="btn btn-p" href="${CTA(tipo)}">Crear mi cuenta gratis</a><a class="btn btn-s" href="${WA}" target="_blank" rel="noopener">Escribinos por WhatsApp</a></div>
+  </div>
+</section>`;
+
+function carro(svc, varia, chat) {
+  const horas = ["9:47", "9:52", "10:15"];
+  return `
+  <div class="carro" id="carro">
+    <picture><source media="(max-width:760px)" srcset="/img/venta/capo-m.webp"><img class="foto" src="/img/venta/capo.webp" alt="Capó de un carro negro recién pulido, con el reflejo de dos luces de taller" width="1920" height="1080" fetchpriority="high"></picture>
+    <div class="lado sin" id="ladoSin">
+      <picture><source media="(max-width:760px)" srcset="/img/venta/capo-opaco-m.webp"><img class="foto" src="/img/venta/capo-opaco.webp" alt="" width="1920" height="1080"></picture>
+      <span class="cinta">Sin Citaly</span>
+      <div class="chat" aria-hidden="true">${chat.map((m, i) => `<div class="msj">${esc(m)}<time>${horas[i]} p. m.</time></div>`).join("")}<span class="sinresp"><i>${chat.length}</i> sin contestar</span></div>
+    </div>
+    <div class="lado con" id="ladoCon">
+      <span class="cinta">Con Citaly</span>
+      <div class="aviso" aria-hidden="true">
+        <div class="tarj"><img src="/icon-192.png" alt="" width="36" height="36"><b>Nueva reserva</b><span>${esc(svc)}${varia ? ", SUV" : ""}. Sábado 9:00&nbsp;a.&nbsp;m.</span></div>
+        <div class="tarj fila"><span class="hora">9:00<br>a.&nbsp;m.</span><b>Carlos Jiménez</b><span class="que">${esc(svc)}</span><span class="ok">Confirmada</span></div>
+      </div>
+    </div>
+    <div class="linea" id="linea">
+      <div class="perilla" id="perilla" tabindex="0" role="slider" aria-orientation="horizontal" aria-label="Comparar: sin Citaly y con Citaly" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50 % con Citaly"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l-6 6 6 6M15 6l6 6-6 6"/></svg></div>
+      <span class="pista" aria-hidden="true">Deslizá la cinta</span>
+    </div>
+  </div>`;
+}
+
+// Servicios de ejemplo del rubro (cfg.js) para la demo que se toca. Si el servicio cambia por vehículo, SUV y pick-up
+// salen un poco más caros: es solo para que se vea cómo cambia el precio (cada negocio pone los suyos).
+const dur = m => m < 60 ? m + " min" : (m % 60 ? Math.floor(m / 60) + " h " + (m % 60) + " min" : (m / 60) + " h");
+const icono = n => /lavado|chas/i.test(n) ? "gota" : /interior|tapic/i.test(n) ? "asiento" : /foco/i.test(n) ? "foco" : /diagn|aceite|freno|revisi/i.test(n) ? "llave" : "brillo";
+const redondo = n => { const paso = n < 20000 ? 500 : n < 50000 ? 1000 : 5000; return Math.round(n / paso) * paso; };
+const demoDatos = S => ({ veh: S.some(s => s[4]), svc: S.slice(0, 4).map(s => ({ n: s[0], p: s[4] ? [s[1], redondo(s[1] * 115 / 100), redondo(s[1] * 125 / 100)] : [s[1], s[1], s[1]], t: dur(s[2]), i: icono(s[0]) })) });
+
+function planes(tipo) {
   const P = C.plans, sel = { arranque: P.arranque.inc.slice(0, 6), turbo: P.turbo.inc.slice(1, 8), nitro: P.nitro.inc.slice(1, 7) };
   return ["arranque", "turbo", "nitro"].map(k => {
-    const p = P[k];
-    const precio = k === C.promoPlan
-      ? `<div class="sub">Primeros ${C.monthly.promoMonths} meses</div><div class="amt">${crc(C.monthly.promo)}<small>/mes</small></div><div class="sub">después ${crc(p.crc)}/mes</div>`
-      : `<div class="sub">Precio mensual</div><div class="amt">${crc(p.crc)}<small>/mes</small></div>`;
-    return `<div class="card plan${p.pop ? " pop" : ""}"><h3>${esc(p.n)}</h3><div class="sub">${esc(p.tag)}</div>${precio}<ul>${sel[k].map(x => `<li>${esc(x.replace("que tú editas", "que vos editás"))}</li>`).join("")}</ul></div>`;
+    const p = P[k], promo = k === C.promoPlan;
+    const precio = promo
+      ? `<p class="precio"><b>${crc(C.monthly.promo)}</b>al mes</p><p class="luego">los primeros ${C.monthly.promoMonths} meses. Después, ${crc(p.crc)} al mes.</p>`
+      : `<p class="precio"><b>${crc(p.crc)}</b>al mes</p><p class="luego">Sin contrato.</p>`;
+    return `<article class="plan${p.pop ? " pop" : ""}">${promo ? '<span class="cinta">Promo de lanzamiento</span>' : p.pop ? '<span class="cinta">El más elegido</span>' : ""}<h3>${esc(p.n)}</h3><p class="para">${esc(p.tag)}</p>${precio}<ul>${sel[k].map(x => `<li>${esc(x.replace("que tú editas", "que vos editás"))}</li>`).join("")}</ul><div class="abajo"><a class="btn ${p.pop ? "btn-p" : "btn-s"}" href="${CTA(tipo)}" style="width:100%">Probar ${esc(p.n)} gratis</a></div></article>`;
   }).join("");
 }
 
 function paginaTipo(tipo, T) {
-  const S = (C.types[tipo] && C.types[tipo].svc) || [], svc = S.map(s => s[0]), sv = S.find(s => s[4]), rubro = (C.types[tipo] && C.types[tipo].n) || T.corto;
+  const S = (C.types[tipo] && C.types[tipo].svc) || [], svc = S.map(s => s[0]), rubro = (C.types[tipo] && C.types[tipo].n) || T.corto;
+  const estrella = S.find(s => s[0] === PORTADA[tipo].svc) || S[0] || ["Tu servicio"];
   const faq = [
     ["¿Necesito tarjeta para probar Citaly?", `No. Son ${C.trialDays} días gratis con el plan Nitro completo, sin tarjeta y sin contrato. Después elegís tu plan.`],
     ["¿Cuánto cuesta?", `El plan Arranque cuesta ${crc(C.monthly.promo)} al mes los primeros ${C.monthly.promoMonths} meses y después ${crc(C.plans.arranque.crc)}. Si una sola cita al mes que hoy se te pierde vale más que eso, el plan se paga solo.`],
@@ -156,54 +213,95 @@ function paginaTipo(tipo, T) {
       { "@type": "ListItem", position: 2, name: "Para tu negocio", item: ORIGIN + "/para/" },
       { "@type": "ListItem", position: 3, name: "Citas para " + T.corto, item: `${ORIGIN}/para/${tipo}/` } ] } ] };
   const otros = Object.entries(TIPOS).filter(([k]) => k !== tipo).map(([k, v]) => `<a href="/para/${k}/">Sistema de citas para ${esc(v.corto)}</a>`).join("");
-  return head(T.title, T.desc, `/para/${tipo}/`, ld) + nav(tipo) + `
+  // Textos de la demo que se ajustan por rubro. Si index.html cambia alguno, esto avisa en vez de dejarlo pasar.
+  const cambia = (html, de, a) => { if (!html.includes(de)) throw new Error("Cambió un texto de la demo en index.html («" + de + "»): revisar paginaTipo()"); return html.replace(de, () => a); };
+  let demo = DEMO.replace(/src="icon-192\.png"/g, 'src="/icon-192.png"');
+  demo = cambia(demo, "Tocá el celular como si fueras el cliente. Son tres toques y no descarga nada.", `Tocá el celular como si fueras tu cliente. Los servicios son los de ejemplo del tipo «${esc(rubro)}»: después ponés los tuyos, con tus precios.`);
+  if (!S.some(s => s[4])) {   // rubros donde el precio no cambia por vehículo (taller): la demo no pregunta el vehículo
+    demo = cambia(demo, "Elige su carro y el servicio", "Elige el servicio");
+    demo = cambia(demo, "Ve el precio exacto para su vehículo, sin preguntarte.", "Ve el precio y cuánto dura, sin preguntarte.");
+  }
+  return head(T.title, T.desc, `/para/${tipo}/`, ld, true) + nav(tipo) + `
 <main>
-<div class="w"><div class="hero"><div>
-<div class="kick">Para ${esc(T.corto)}</div>
-<h1>${esc(T.h1)}</h1>
-<p class="lead">${esc(T.lead)}</p>
-<div class="row"><a class="btn" href="${CTA(tipo)}">Crear mi cuenta gratis</a><span class="sub">${C.trialDays} días gratis · sin tarjeta · sin contrato</span></div>
-</div>
-<div><div class="mock" aria-label="Ejemplo de la página de reservas">
-<div class="sub">Así reserva tu cliente (ejemplo)</div>
-<div><div class="sub">Tipo de vehículo</div><div class="chips"><span class="chip">Sedán o hatchback</span><span class="chip on">SUV</span><span class="chip">Pick-up o 4x4</span></div></div>
-<div class="card"><b>${esc((sv || S[0] || ["Tu servicio"])[0])}</b><div class="sub">${sv ? "El precio cambia según el vehículo elegido" : "Duración y precio a la vista"}</div></div>
-<div><div class="sub">Horas libres</div><div class="chips"><span class="chip">8:00 am</span><span class="chip on">10:00 am</span><span class="chip">1:00 pm</span></div></div>
-<span class="btn" style="background:var(--bb);color:#fff">Confirmar reserva</span></div></div></div></div>
+<section class="portada osc" id="portada">
+  <div class="texto">
+    <h1 class="largo"><span class="sube">${esc(T.h1)}</span></h1>
+    <p class="bajada sube d1">${esc(T.lead)}</p>
+    <div class="hacer sube d2"><a class="btn btn-p" href="${CTA(tipo)}">Crear mi cuenta gratis</a><span class="nota">${C.trialDays} días gratis, sin tarjeta y sin contrato.</span></div>
+  </div>${carro(estrella[0], !!estrella[4], PORTADA[tipo].chat)}
+</section>
 
-<div class="band"><div class="w"><section style="padding:36px 0"><h2 style="font-size:26px;margin-bottom:16px">Lo que le pasa a casi todo negocio de ${esc(T.corto)}</h2><div class="grid">${T.dolor.map(d => `<p style="margin:0">${esc(d)}</p>`).join("")}</div></section></div></div>
+<section class="lema osc">
+  <div class="caja"><h2 class="sobre">Lo que le pasa a casi todo negocio de ${esc(T.corto)}</h2><p id="lema">${esc(T.dolor.join(" "))}</p></div>
+</section>
 
-<div class="w"><section><h2>Cómo funciona</h2><ol class="steps" style="margin-top:22px">
-<li><h3>Creás tu cuenta</h3><p>Elegís «${esc(rubro)}» y en 2 minutos tenés tu página con servicios de ejemplo.</p></li>
-<li><h3>Ajustás lo tuyo</h3><p>Cambiás servicios, precios, horario, logo y color. Sin programar nada.</p></li>
-<li><h3>Compartís tu link</h3><p>Lo ponés en WhatsApp, Instagram y TikTok. Tus clientes reservan solos, a toda hora.</p></li></ol></section></div>
+${demo}
 
-<div class="w"><section style="padding-top:0"><h2>${esc(T.serviciosTitulo)}</h2>
-<p class="lead" style="font-size:18px">Citaly te los carga como ejemplo. Vos cambiás nombres, precios y duración.</p>
-<ul class="tags">${svc.map(s => `<li>${esc(s)}</li>`).join("")}</ul></section></div>
+<section class="blanca">
+  <div class="caja">
+    <h2>${esc(T.unico.t)}</h2>
+    <ul class="trae sin dos">${T.unico.items.map(([h, p]) => `<li><h3>${esc(h)}</h3><p>${esc(p)}</p></li>`).join("")}</ul>
+    <div class="otro">
+      <h2>Y todo esto viene incluido</h2>
+      <ul class="trae sin">
+        <li><h3>Página de reservas 24/7</h3><p>El cliente elige servicio, vehículo, día y hora, y ve el precio antes de confirmar.</p></li>
+        <li><h3>Página web de tu negocio</h3><p>Con tus servicios, fotos, reseñas y preguntas frecuentes, lista para compartir en tus redes.</p></li>
+        <li><h3>Aviso de cada reserva</h3><p>Te llega al celular apenas alguien reserva, para que no te tome por sorpresa.</p></li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-<div class="band"><div class="w"><section><h2>${esc(T.unico.t)}</h2><div class="grid" style="margin-top:22px">${T.unico.items.map(([h, p]) => `<div class="card"><h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join("")}</div></section></div></div>
+<section class="clara">
+  <div class="caja">
+    <h2>Cómo funciona</h2>
+    <ol class="pasos fijos">
+      <li><h3>Creás tu cuenta</h3><p>Elegís «${esc(rubro)}» y en 2 minutos tenés tu página con servicios de ejemplo.</p></li>
+      <li><h3>Ajustás lo tuyo</h3><p>Cambiás servicios, precios, horario, logo y color. Sin programar nada.</p></li>
+      <li><h3>Compartís tu link</h3><p>Lo ponés en WhatsApp, Instagram y TikTok. Tus clientes reservan solos, a toda hora.</p></li>
+    </ol>
+    <div class="otro">
+      <h2>${esc(T.serviciosTitulo)}</h2>
+      <p class="bajada">Citaly te los carga como ejemplo. Vos cambiás nombres, precios y duración.</p>
+      <ul class="tags">${svc.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
+    </div>
+  </div>
+</section>
 
-<div class="w"><section><h2>Y todo esto viene incluido</h2><div class="grid" style="margin-top:22px">
-<div class="card"><h3>Página de reservas 24/7</h3><p>El cliente elige servicio, vehículo, día y hora, y ve el precio antes de confirmar.</p></div>
-<div class="card"><h3>Página web de tu negocio</h3><p>Con tus servicios, fotos, reseñas y preguntas frecuentes, lista para compartir en tus redes.</p></div>
-<div class="card"><h3>Aviso de cada reserva</h3><p>Te llega al celular apenas alguien reserva, para que no te tome por sorpresa.</p></div>
-</div></section></div>
+<section class="caso osc" id="caso">
+  <div class="caja">
+    <div>
+      <div class="fotos">
+        <figure><span class="cinta">Antes</span><img src="/demo/glassstudiocr/antes.jpg" alt="Parabrisas opaco antes del pulido" width="1000" height="750" loading="lazy"></figure>
+        <figure><span class="cinta">Después</span><img src="/demo/glassstudiocr/despues.jpg" alt="El mismo parabrisas después del pulido" width="1000" height="750" loading="lazy"></figure>
+      </div>
+      <p class="pie">Un parabrisas antes y después de pasar por GlassStudioCR.</p>
+    </div>
+    <div>
+      <h2>Hecho por un dueño de negocio de carros</h2>
+      <p class="texto">Citaly nació en GlassStudioCR, mi negocio de pulido de parabrisas y focos en Alajuela. Lo armé primero para mis propias reservas y hoy lo abro a otros negocios de carros. Si algo no te funciona, me escribís por WhatsApp al ${WA_TXT} y te ayudo.</p>
+      <div class="ligas"><a class="btn btn-s" href="https://citas.glassstudiocr.com/reservar" target="_blank" rel="noopener">Ver cómo reservan sus clientes</a></div>
+    </div>
+  </div>
+</section>
 
-<div class="w"><section><div class="who"><div><div class="kick" style="color:#FFB84D">Quién está detrás</div><h2 style="margin-top:6px">Hecho por un dueño de negocio de carros</h2>
-<p>Citaly nació en GlassStudioCR, mi negocio de pulido de parabrisas y focos en Alajuela. Lo armé primero para mis propias reservas y hoy lo abro a otros negocios de carros. Si algo no te funciona, me escribís por WhatsApp al ${WA_TXT} y te ayudo.</p></div>
-<a class="btn" href="https://citas.glassstudiocr.com/reservar" target="_blank" rel="noopener">Ver cómo reservan sus clientes</a></div></section></div>
+<section class="blanca" id="planes">
+  <div class="caja">
+    <h2>Empezá gratis. Pagás cuando te sirva.</h2>
+    <div class="planes">${planes(tipo)}</div>
+    <p class="vermas">Pagás con tarjeta o por SINPE Móvil. <a href="/#precio">Ver todos los planes y extras</a>.</p>
+  </div>
+</section>
 
-<div class="w"><section id="planes" style="padding-top:0"><h2>Empezá gratis. Pagás cuando te sirva.</h2>
-<div class="grid" style="margin-top:22px">${planes()}</div>
-<p class="sub" style="margin-top:16px">Pagás con tarjeta o por SINPE Móvil. <a href="/#precio">Ver todos los planes y extras</a>.</p></section></div>
-
-<div class="w"><section style="padding-top:0"><h2 style="margin-bottom:20px">Preguntas frecuentes</h2>${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</section></div>
-
-<div class="w"><section style="padding-top:0"><div class="card" style="text-align:center"><h2>Probá Citaly ${C.trialDays} días, gratis</h2><p class="sub" style="margin:10px 0 18px">Sin tarjeta, sin contrato y listo en 2 minutos.</p><a class="btn" href="${CTA(tipo)}">Crear mi cuenta gratis</a></div></section></div>
-
-<div class="w"><section style="padding-top:0"><h3>Citaly también para</h3><div class="links" style="margin-top:12px">${otros}<a href="/para/">Todos los tipos de negocio</a></div></section></div>
-</main>` + foot + dock(tipo) + `
+<section class="dudas clara">
+  <div class="caja">
+    <h2>Preguntas frecuentes</h2>
+    <div>${faq.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join("")}</div>
+  </div>
+</section>
+${cierre(`Probá Citaly ${C.trialDays} días, gratis`, "Sin tarjeta, sin contrato y listo en 2 minutos.", tipo)}
+</main>
+` + foot(otros) + dock(tipo) + "\n" + guion(demoDatos(S)) + `
 </body></html>
 `;
 }
@@ -212,12 +310,26 @@ function paginaIndice() {
   const t = "Citaly: sistema de citas para negocios de carros";
   const desc = "Sistema de citas y reservas en línea para detailing, lavacar y pulido de focos y parabrisas en Costa Rica. 7 días gratis, sin tarjeta.";
   const ld = { "@context": "https://schema.org", "@type": "CollectionPage", name: t, url: ORIGIN + "/para/", hasPart: Object.entries(TIPOS).map(([k, v]) => ({ "@type": "WebPage", name: v.h1, url: `${ORIGIN}/para/${k}/` })) };
-  return head(t, desc, "/para/", ld) + nav("inicio") + `
-<main><div class="w"><section style="padding-bottom:24px"><div class="kick">Citaly por tipo de negocio</div>
-<h1 style="margin-top:8px">Un sistema de citas hecho para tu tipo de negocio</h1>
-<p class="lead" style="margin-top:14px">Elegís tu rubro y Citaly te arma la página de reservas, la agenda y los servicios de ejemplo. ${C.trialDays} días gratis, sin tarjeta.</p></section></div>
-<div class="w"><div class="grid" style="padding-bottom:56px">${Object.entries(TIPOS).map(([k, v]) => `<div class="card"><h2 style="font-size:24px"><a href="/para/${k}/" style="text-decoration:none">Sistema de citas para ${esc(v.corto)}</a></h2><p>${esc(v.lead)}</p><p style="margin-top:14px"><a href="/para/${k}/">Ver cómo funciona para ${esc(v.corto)} →</a></p></div>`).join("")}</div></div>
-<div class="w"><section style="padding-top:0"><p class="sub">¿Tu negocio es de otro tipo, como refrigeración, barbería o consultorio? También funciona. Escribinos por WhatsApp al <a href="${WA}" target="_blank" rel="noopener">${WA_TXT}</a>.</p></section></div></main>` + foot + dock("inicio") + `
+  const otros = Object.entries(TIPOS).map(([k, v]) => `<a href="/para/${k}/">Sistema de citas para ${esc(v.corto)}</a>`).join("");
+  return head(t, desc, "/para/", ld, false) + nav("inicio") + `
+<main>
+<section class="portada osc sola">
+  <div class="texto">
+    <h1 class="largo"><span class="sube">Un sistema de citas hecho para tu tipo de negocio</span></h1>
+    <p class="bajada sube d1">Elegís tu rubro y Citaly te arma la página de reservas, la agenda y los servicios de ejemplo. ${C.trialDays} días gratis, sin tarjeta.</p>
+    <div class="hacer sube d2"><a class="btn btn-p" href="${CTA("inicio")}">Crear mi cuenta gratis</a></div>
+  </div>
+</section>
+
+<section class="blanca">
+  <div class="caja">
+    <ul class="rubros-l">${Object.entries(TIPOS).map(([k, v]) => `<li><h2><a href="/para/${k}/">Sistema de citas para ${esc(v.corto)}</a></h2><p>${esc(v.lead)}</p><a class="enlace" href="/para/${k}/">Ver cómo funciona para ${esc(v.corto)}</a></li>`).join("")}</ul>
+    <p class="vermas">¿Tu negocio es de otro tipo, como refrigeración, barbería o consultorio? También funciona. Escribinos por WhatsApp al <a href="${WA}" target="_blank" rel="noopener">${WA_TXT}</a>.</p>
+  </div>
+</section>
+${cierre(`Probá Citaly ${C.trialDays} días, gratis`, "Sin tarjeta, sin contrato y listo en 2 minutos.", "inicio")}
+</main>
+` + foot(otros) + dock("inicio") + "\n" + guion(null) + `
 </body></html>
 `;
 }
@@ -243,3 +355,4 @@ const smPath = path.join(ROOT, "sitemap.xml");
 let sm = fs.readFileSync(smPath, "utf8").replace(/\s*<url><loc>https:\/\/citalyapp\.com\/para\/[^<]*<\/loc>[^]*?<\/url>/g, "");
 sm = sm.replace("</urlset>", urls.map(([u, d]) => `  <url><loc>${ORIGIN}${u}</loc><lastmod>${d}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>\n`).join("") + "</urlset>");
 fs.writeFileSync(smPath, sm);
+
