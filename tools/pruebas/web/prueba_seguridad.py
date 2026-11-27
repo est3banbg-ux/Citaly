@@ -27,32 +27,38 @@ REVISA = """()=>({xss:window.__xss||0,
   fav:document.getElementById('fav').getAttribute('href'),
   texto:document.body.innerText})"""
 
-with Banco() as b:
-    for lay in (None, "clasica"):
-        for sub in ("trial", "suspended"):
-            L = "%s · %s" % (lay or "pro", sub)
-            d = armar(layout=lay, sub=sub, name=X, tagline=X, blurb=X, promo=X, addr=X, logo=J, color='red;background:url("javascript:alert(1)")',
-                      home=(sub == "suspended"), zones=[{"n": X, "fee": 2000, "days": [1, 3]}], mods={"vehiculo": True}, veh=[{"n": X, "x": 1000}],
-                      services=SVCS, web=WEB, fotos=FOTOS)
-            p = abrir(b, d, espera=1300)
-            p.mouse.move(200, 300)
-            # abrir videos y foto en grande, mover comparador: nada de eso debe ejecutar código
-            p.evaluate("()=>{const t=document.querySelector('#trabajos .tabs [data-t=\"v\"]');t&&t.click()}")
-            for i in range(4):
-                p.evaluate("(i)=>{const v=document.querySelectorAll('.vf')[i];v&&!v.querySelector('iframe')&&v.click()}", i)
-            p.evaluate("()=>{const t=document.querySelector('#trabajos .tabs [data-t=\"f\"]');t&&t.click();const g=document.querySelector('#gal button');g&&g.click()}")
-            p.wait_for_timeout(700)
-            r = p.evaluate(REVISA)
-            b.ok(L + ": no se ejecutó ningún código inyectado", r["xss"] == 0, r["xss"])
-            b.ok(L + ": no hay <script> dentro de la página", r["scripts"] == 0, r["scripts"])
-            onok = [x for x in r["on"] if x not in ("BUTTON onclick",)]
-            b.ok(L + ": no hay atributos on* inyectados", not onok, onok)
-            b.ok(L + ": ningún enlace/imagen con javascript:", not r["js"], r["js"])
-            b.ok(L + ": las imágenes solo son data:image, /img/ o fotos conocidas", not r["imgs"], [s[:80] for s in r["imgs"]])
-            b.ok(L + ": los videos incrustados son solo de YouTube/TikTok con ID limpio",
-                 all(u.startswith(("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", "https://www.tiktok.com/embed/v2/7301234567890123456")) for u in r["iframes"]) and len(r["iframes"]) >= 2, r["iframes"])
-            b.ok(L + ": el logo con javascript: no se usa como ícono", not r["fav"].startswith("javascript"), r["fav"])
-            b.ok(L + ": el nombre con código se ve como texto (escapado)", "<script>window.__xss=1</script>" in r["texto"] and "😀" in r["texto"])
-            b.ok(L + ": el título de la pestaña lleva el texto tal cual, sin ejecutar", p.title().startswith("<script>"), p.title()[:40])
-            b.ok(L + ": sin errores de JS", not p.errs, p.errs[:3])
-            p.context.close()
+def revisar_seguridad(b, lay):
+    """Corre los casos de inyección con la plantilla `lay` (None = Pro)."""
+    for sub in ("trial", "suspended"):
+        L = "%s · %s" % (lay or "pro", sub)
+        d = armar(layout=lay, sub=sub, name=X, tagline=X, blurb=X, promo=X, addr=X, logo=J, color='red;background:url("javascript:alert(1)")',
+                  home=(sub == "suspended"), zones=[{"n": X, "fee": 2000, "days": [1, 3]}], mods={"vehiculo": True}, veh=[{"n": X, "x": 1000}],
+                  services=SVCS, web=WEB, fotos=FOTOS)
+        p = abrir(b, d, espera=1300)
+        p.mouse.move(200, 300)
+        # abrir videos y foto en grande, mover comparador: nada de eso debe ejecutar código
+        p.evaluate("()=>{const t=document.querySelector('#trabajos [role=tablist] [data-t=\"v\"]');t&&t.click()}")
+        for i in range(4):
+            p.evaluate("(i)=>{const v=document.querySelectorAll('.vf')[i];v&&!v.querySelector('iframe')&&v.click()}", i)
+        p.evaluate("()=>{const t=document.querySelector('#trabajos [role=tablist] [data-t=\"f\"]');t&&t.click();const g=document.querySelector('#gal button');g&&g.click()}")
+        p.wait_for_timeout(700)
+        r = p.evaluate(REVISA)
+        b.ok(L + ": no se ejecutó ningún código inyectado", r["xss"] == 0, r["xss"])
+        b.ok(L + ": no hay <script> dentro de la página", r["scripts"] == 0, r["scripts"])
+        onok = [x for x in r["on"] if x not in ("BUTTON onclick",)]
+        b.ok(L + ": no hay atributos on* inyectados", not onok, onok)
+        b.ok(L + ": ningún enlace/imagen con javascript:", not r["js"], r["js"])
+        b.ok(L + ": las imágenes solo son data:image, /img/ o fotos conocidas", not r["imgs"], [s[:80] for s in r["imgs"]])
+        b.ok(L + ": los videos incrustados son solo de YouTube/TikTok con ID limpio",
+             all(u.startswith(("https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", "https://www.tiktok.com/embed/v2/7301234567890123456")) for u in r["iframes"]) and len(r["iframes"]) >= 2, r["iframes"])
+        b.ok(L + ": el logo con javascript: no se usa como ícono", not r["fav"].startswith("javascript"), r["fav"])
+        b.ok(L + ": el nombre con código se ve como texto (escapado)", "<script>window.__xss=1</script>" in r["texto"] and "😀" in r["texto"])
+        b.ok(L + ": el título de la pestaña lleva el texto tal cual, sin ejecutar", p.title().startswith("<script>"), p.title()[:40])
+        b.ok(L + ": sin errores de JS", not p.errs, p.errs[:3])
+        p.context.close()
+
+
+if __name__ == "__main__":
+    with Banco() as b:
+        for lay in (None, "clasica", "clara"):
+            revisar_seguridad(b, lay)

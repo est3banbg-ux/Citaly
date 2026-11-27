@@ -38,6 +38,9 @@ var CITALY = {
   promoCupos: 5,         // la promo es para los primeros 5 negocios
   modFrom: 40000,        // módulos a la medida, desde
   trialDays: 7,          // días de prueba gratis
+  // Diseño de la página web con que nacen los negocios NUEVOS al registrarse ("" = no se guarda nada y quedan en Pro, como siempre;
+  // "clara" = nacen con la plantilla Clara). Los negocios que ya existen NO cambian: cada uno conserva el diseño que tiene.
+  layoutNuevos: "",
   // Módulos que se encienden por negocio desde el admin. Para agregar uno nuevo:
   // 1) se registra aquí, 2) se programa en la app/página revisando modOn(B, "clave").
   mods: {
