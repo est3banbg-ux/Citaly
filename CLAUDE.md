@@ -97,6 +97,7 @@ Rutas: `POST /` webhook de Polar `order.paid` (activa el plan por id de referenc
 - `ciclo()` (correos) ahora devuelve cuántas llamadas hizo; `scheduled()` le da a `waCiclo()` lo que sobra de 46. Con la variable `WA_CRON` los recordatorios corren en su propio cron.
 - Link corto para el botón de las plantillas: `/r/?wa=<slug>.<tk>` (equivale a `?n=<slug>&cita=<tk>`).
 - Pruebas: `tools/pruebas/worker/` (Node, corre el `worker.js` real con internet falso), más las de app y reservas.
+- **Al pasar a `main`: `git merge --squash`** y escribir el mensaje a mano. El commit `cecbe44` de la rama trae una línea `Novedad:` que anunciaría la función a todos los dueños; ponerla solo cuando WhatsApp ya esté conectado y probado. En ese momento quitar también «(próximamente)» del plan Nitro en `cfg.js` (y subir `cfg.js?v=`).
 - Falta para la versión 1.1: avisarle al cliente cuando el dueño cambia la cita, confirmación para citas hechas a mano, recordatorio 2 horas antes, cobro del extra desde la app.
 
 ## 4. Infra
