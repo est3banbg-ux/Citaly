@@ -84,7 +84,7 @@ var PREM=(function(){
     "🧭":"compass","🛡️":"shield","🛡":"shield","🚪":"door","📲":"install","📦":"box","👤":"user","🏪":"store","🌓":"contrast","🌗":"contrast","🌐":"globe",
     "❓":"help","💳":"card","⚡":"bolt","🔕":"belloff","⚠️":"warn","⚠":"warn","🗺️":"map","🗺":"map","🛠️":"tools","🛠":"tools","🎥":"video","🤖":"bot",
     "📧":"mail","✉️":"mail","✉":"mail","📬":"mail","🏦":"bank","📎":"clip","📇":"users","🏆":"trophy","💻":"laptop","📂":"folder","📄":"doc","🔓":"unlock",
-    "🔥":"fire","💸":"coin","✍️":"pencil","✍":"pencil"};
+    "🔥":"fire","💸":"coin","✍️":"pencil","✍":"pencil","📩":"mail","🚧":"warn"};
   var keys=Object.keys(EMO).sort(function(a,b){return b.length-a.length});
   var re=new RegExp("("+keys.map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}).join("|")+")\\uFE0F?","g");
   function uri(d){return 'url("data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>')+'")'}

@@ -410,6 +410,19 @@ nav.tabs .sbtn,nav.tabs .side{display:none}
 .thb:hover{transform:translateY(-2px)}.thb[aria-pressed=true]{border-color:var(--acc);background:var(--soft)}
 html.thx *,html.thx *:before,html.thx *:after{transition:background-color .4s,border-color .4s,color .4s,box-shadow .4s!important}
 .sempty2{padding:8px 14px;font-size:13px;color:var(--mute)}
+/* Recordatorios automáticos por WhatsApp (el verde es el de los botones de WhatsApp de style.css) */
+.waP{background:color-mix(in srgb,#1fa855 8%,var(--soft));border:1px solid var(--line);border-radius:16px;padding:10px 12px 12px;margin:12px 0}
+.waP>small{display:block;color:var(--mute);font-size:12px;margin:0 0 6px}
+.waB{max-width:88%;background:color-mix(in srgb,#1fa855 16%,var(--card));color:var(--ink);border-radius:4px 14px 14px 14px;padding:8px 10px 6px;font-size:14px;line-height:1.4;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.waB em{display:block;text-align:right;font-style:normal;font-size:11px;color:var(--mute);margin-top:2px}
+.waB .wbt{display:block;margin:8px -10px -6px;padding:8px 10px;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);text-align:center;color:color-mix(in srgb,#1fa855 70%,var(--ink));font-weight:700;font-size:14px}
+.waRw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.waRw b{display:block;font-size:14.5px}.waRw small{color:var(--mute);font-size:12.5px}
+label.waRw{margin:0;color:var(--ink);font-size:inherit;font-weight:inherit;cursor:pointer}label.waRw small{font-weight:600}
+.waRw input[type=checkbox]:not(.tg){width:22px;height:22px;flex:none;accent-color:var(--acc)}
+.waRw .toggle input:disabled+span{opacity:.45;cursor:not-allowed}
+.waU{font:800 15px Figtree,sans-serif;margin:10px 0 2px}
+.wam{display:flex;flex-direction:column;gap:2px;margin-top:8px;font-size:12.5px;font-weight:700}.wam .wok{color:var(--ok)}.wam .wbad{color:var(--warn)}
+.job .m span.wamk{color:var(--ok);font-size:12px;font-weight:700;white-space:normal}.job .m span.wamk.wbad{color:var(--warn)}
 @media (min-width:1024px){
   .favbar{display:none}
   nav.tabs .side .sh{display:flex;flex-direction:row;align-items:center;justify-content:space-between}
@@ -577,6 +590,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
         <button class="set" data-s="mode"><span class="ic">🌓</span><span class="m"><b>Mi apariencia</b><span>Temas, fondos, colores y animaciones</span></span>›</button>
         <button class="set" data-s="inst"><span class="ic">📲</span><span class="m"><b>Instalar la app</b><span id="instN">Con un toque, sin tienda</span></span>›</button>
         <button class="set" data-s="ntf"><span class="ic">🔔</span><span class="m"><b>Avisos de reservas nuevas</b><span id="ntfN">Te llegan al celular y a la compu</span></span>›</button>
+        <button class="set" data-s="waa"><span class="ic">📲</span><span class="m"><b>Recordatorios automáticos</b><span id="waaN">Confirmación y recordatorio por WhatsApp, solos</span></span>›</button>
         <button class="set" data-s="fot"><span class="ic">📸</span><span class="m"><b>Fotos y videos de mis trabajos</b><span id="fotN">Se ven en tu página web</span></span>›</button>
         <button class="set" data-s="rev"><span class="ic">⭐</span><span class="m"><b>Reseñas de clientes</b><span id="revN">Lo que dicen de ti</span></span>›</button>
         <button class="set" data-s="faq"><span class="ic">❓</span><span class="m"><b>Preguntas frecuentes</b><span id="faqN">Responde antes de que pregunten</span></span>›</button>
@@ -829,6 +843,8 @@ function daysLeft(){return SUB&&SUB.until?Math.ceil((SUB.until.toMillis()-Date.n
 /* ---------- RENDER GENERAL ---------- */
 function render(){if(!B)return;renderOnb();instNote();renderInstBar();if(typeof renderFrase==="function"&&!$("qd").firstChild)renderFrase();pagoOk();
   Array.prototype.forEach.call(document.querySelectorAll(".set[data-s]"),function(b){var f=b.dataset.s,lk=b.querySelector(".lk");if(FEAT[f]&&!can(f)){if(!lk)b.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans[FEAT[f]].n+'</span>')}else if(lk)lk.remove()});
+  var wr=document.querySelector('.set[data-s="waa"]');if(wr){var wl=wr.querySelector(".lk");if(!waPlan()){if(!wl)wr.querySelector("b").insertAdjacentHTML("beforeend",' <span class="lk">'+C.plans.nitro.n+'</span>')}else if(wl)wl.remove();
+    if($("waaN"))$("waaN").textContent=waPlan()&&waCfg().on?"Encendidos ✓ salen solos por WhatsApp":"Confirmación y recordatorio por WhatsApp, solos"}
   if($("planN"))$("planN").textContent=SUB&&SUB.status==="trial"?"Prueba gratis · probando todo":C.plans[tier()].ic+" "+C.plans[tier()].n;
   if(B.uiTh&&!localStorage.getItem("citaly_theme")){try{localStorage.setItem("citaly_theme",B.uiTh)}catch(e){}}applyTheme();if(typeof APA!=="undefined"){APA.fromBiz();}renderFavs();
   $("bn").textContent=B.name;var h=new Date().getHours();$("hi").textContent=(h<12?"Buenos días":h<19?"Buenas tardes":"Buenas noches")+" 👋";
@@ -867,7 +883,7 @@ function renderAg(){renderHero();renderMonthGrid();renderDaySum();renderCierre()
   if(!L.length){$("dayList").innerHTML='<div class="empty fade"><div>'+(hrs&&hrs.on?"☀️":"😴")+'</div>'+(hrs&&hrs.on?"No hay citas este día.<br>Toca <b>+ Nueva cita</b> o comparte tu link.":"Este día está cerrado según tu horario.")+'</div>';return}
   var inc=L.filter(active).reduce(function(a,j){return a+paidOf(j)},0),exp=L.filter(active).reduce(function(a,j){return a+(+j.total||0)},0);
   $("dayList").innerHTML=L.map(function(j){var end=hm(tm(j.time)+(+j.dur||60)),act=active(j),o=['Por confirmar','Confirmada','Lista','No vino','Cancelada'].filter(function(x){return x!=="Por confirmar"||j.st==="Por confirmar"});
-    return '<div class="jc fade st-'+esc(j.st)+'"><div class="job st-'+esc(j.st)+'" data-id="'+esc(j._id)+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'
+    return '<div class="jc fade st-'+esc(j.st)+'"><div class="job st-'+esc(j.st)+'" data-id="'+esc(j._id)+'"><div class="t">'+fh(j.time)+'<small>'+fh(end)+'</small></div><div class="m"><b>'+esc(j.cli||"Sin nombre")+'</b><span>'+esc((j.items||[]).join(" + ")||"—")+'</span>'+(j.zone||locOf(j)?'<span>📍 '+esc(j.zone||j.addr||"Ubicación guardada")+'</span>':"")+(j.note?'<span>📝 '+esc(j.note)+'</span>':"")+waMarkS(j)+'</div><div class="r">'+crc(j.total)+pill(j.st)+'</div></div>'
      +'<div class="ja">'+(j.tel?'<a class="btn sm alt" href="tel:'+esc(telN(j.tel))+'">📞 Llamar</a>'+(j.st!=="Lista"?'<a class="btn sm wa" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor(j.st==="Por confirmar"?"conf":"rec",j)))+'">💬 '+(j.st==="Por confirmar"?"Confirmar":"Recordar")+'</a>':""):"")
      +(j.tel&&B.home&&act&&j.st!=="Lista"?'<a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("go",j)))+'">🚗 En camino</a>':"")
      +(j.tel&&j.st==="Lista"?'<a class="btn sm alt" target="_blank" rel="noopener" href="'+esc(waUrl(j.tel,msgFor("ty",j)))+'">⭐ Agradecer</a>':"")
@@ -1006,6 +1022,7 @@ function openJob(j,pre){pre=pre||{};var nw=!j;j=j||{cli:pre.cli||"",tel:pre.tel|
   sheet('<div class="between"><h2 style="margin:0">'+(nw?"Nueva cita":"Cita")+'</h2>'+(nw?"":pill(j.st))+'</div>'
    +(j.chg==="movida"&&j.st==="Por confirmar"?'<div class="warnbox">🔁 El cliente cambió la cita a esta hora desde su link. Confírmale por WhatsApp.</div>':j.chg==="cancelada"&&j.st==="Cancelada"?'<div class="warnbox">❌ El cliente canceló esta cita desde su link. La hora ya quedó libre.</div>':j.web&&j.st==="Por confirmar"?'<div class="warnbox">🌐 Reservó desde tu link. Confírmale por WhatsApp.</div>':"")
    +(qa?'<div class="qa">'+qa+'</div>':"")
+   +(!nw&&waMarks(j).length?'<div class="wam" id="jWa">'+waMarks(j).map(function(m){return '<span class="'+(m[0]?"wok":"wbad")+'">'+esc(m[1])+'</span>'}).join("")+'</div>':"")
    +(!nw&&locOf(j)?mapThumb(locOf(j)):"")
    +(!nw&&(j.zone||j.addr)?'<p class="small" style="margin:6px 0 0">'+(j.zone?'🗺️ <b>'+esc(j.zone)+'</b> ':'')+(j.addr?'· '+esc(j.addr):'')+'</p>':"")
    +'<div class="between" style="margin-top:12px;gap:6px"><label for="jC" style="margin:0">Cliente</label><div class="row" style="flex:none;gap:6px"><button type="button" class="btn sm alt nwr" id="jCm">👥 Mis clientes</button>'+(nw?'<button type="button" class="btn sm alt nwr" id="jCn">+ Nuevo cliente</button>':'')+'</div></div><input id="jC" value="'+esc(j.cli)+'" maxlength="60" placeholder="'+(carBiz()?"Nombre, número o placa":"Escribe el nombre o búscalo")+'" autocomplete="off"><div class="cpk" id="jCs"></div><div id="jCh"></div>'
@@ -1466,6 +1483,7 @@ $("out").onclick=$("payOut").onclick=function(){if(confirm("¿Cerrar sesión?"))
 function openSet(s){
   if(s==="nov"){if(typeof newsSheet==="function")newsSheet();return}
   if(s==="plan"){planSheet();return}
+  if(s==="waa"){waaSheet();return}
   if(FEAT[s]&&!can(s)){upsell(s);return}
   setExtra(s);
   if(s==="welcome")sheet('<div style="text-align:center"><div style="font-size:52px">🎉</div><h2>¡Tu cuenta está lista'+(B.owner?", "+esc(String(B.owner).split(" ")[0]):"")+'!</h2><p class="mute">Tenés <b>'+(C.trialDays||7)+' días gratis</b> para descubrir todo. Tu página de reservas ya funciona:</p><div class="linkbox">'+esc(link().replace(/^https:\/\//,""))+'</div>'
@@ -1645,6 +1663,44 @@ h+='<div class="card" style="box-shadow:none;margin-top:14px"><b>✉️ Respaldo
       if($("mlO"))$("mlO").onclick=function(){saveBiz({mailOff:true}).then(function(){draw();toast("Correo apagado")})};
       if($("ntnO"))$("ntnO").onclick=function(){saveBiz({ntf:""}).then(function(){t="";draw()})}})}
   draw()}
+/* ---------- Recordatorios automáticos por WhatsApp ----------
+   Los manda el Worker desde el número de Citaly (confirmación al reservar y recordatorio el día antes). La app solo guarda
+   biz.waAuto {on,conf,rem} (apagado si no existe; conf y rem valen true si faltan), muestra el uso (/wa/uso) y pide una prueba (/wa/prueba).
+   En cada cita el Worker escribe waC / waR / waRd / waE: la app solo los lee. Mismo criterio de plan que el Worker. */
+var WA_MAX={prueba:20,nitro:150,extra:150};
+function waPlan(){if(!SUB)return "";if(SUB.status==="trial")return "prueba";if(tier()==="nitro")return "nitro";if(SUB.waauto===true)return "extra";return ""}
+function waCfg(){var w=B&&B.waAuto||{};return {on:w.on===true,conf:w.conf!==false,rem:w.rem!==false}}
+function waCall(path){return auth.currentUser.getIdToken().then(function(t){return fetch((C.pushUrl||"").replace(/\/push$/,"")+path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:t})})}).then(function(r){return r.json()})}
+var WA_ERR={tope:"se acabaron los mensajes del mes",tel:"el número del cliente no es válido",error:"WhatsApp no lo aceptó"};
+function waMarks(j){var o=[],c=!!j.waC,r=!!(j.waR&&j.waRd===j.date);if(c)o.push([1,"✓ Confirmación automática enviada"]);if(r)o.push([1,"✓ Recordatorio automático enviado"]);
+  if(j.waE&&!(c&&r))o.push([0,"No salió el WhatsApp automático"+(WA_ERR[j.waE]?": "+WA_ERR[j.waE]:"")]);return o}
+/* En la tarjeta de la agenda, corto (el detalle de la cita trae el texto completo) */
+function waMarkS(j){var m=waMarks(j),ok=m.filter(function(x){return x[0]}),bad=m.filter(function(x){return !x[0]})[0];
+  return (ok.length?'<span class="wamk">'+(ok.length>1?"✓ Confirmación y recordatorio enviados":esc(ok[0][1]))+'</span>':"")+(bad?'<span class="wamk wbad" title="'+esc(bad[1])+'">No salió el WhatsApp automático</span>':"")}
+function waaSheet(){var pl=waPlan(),A=C.addons&&C.addons.waauto||{n:"Recordatorios automáticos por WhatsApp",crc:2900,usd:5},U0=null;
+  var prev='<div class="waP noi"><small>Así le llega a tu cliente:</small><div class="waB">Hola Ana, te recordamos tu cita en <b>'+esc(B.name||"tu negocio")+'</b>: mañana viernes 4 de diciembre a las 10:00 am. Si no puedes llegar, cámbiala o cancélala con el botón. ¡Te esperamos!<em>10:00</em><span class="wbt" aria-hidden="true">↗ Ver mi cita</span></div></div>';
+  var head='<h2>Recordatorios automáticos por WhatsApp</h2><p class="mute small" style="margin-top:-4px">Citaly le escribe solo a tu cliente: una confirmación cuando reserva y un recordatorio el día antes. Salen del número de Citaly con el nombre de tu negocio, y si el cliente contesta, te llega el aviso a vos.</p>'+prev;
+  if(!pl){var msg="Hola, quiero agregar los recordatorios automáticos a mi plan. Mi negocio es "+(B.name||"")+".";
+    sheet(head+'<div class="card" style="box-shadow:none" id="waLk"><b>🔒 Viene incluido en '+C.plans.nitro.ic+' '+C.plans.nitro.n+'</b><p class="mute small" style="margin:4px 0 10px">'+WA_MAX.nitro+' mensajes al mes que salen solos.</p><button class="btn" id="waPl">Ver planes</button>'
+      +(PLAY?'':'<p class="small" style="margin:14px 0 8px">O agregalo a tu plan por <b>'+(intl()?"US$"+A.usd:crcF(A.crc))+' al mes</b> ('+WA_MAX.extra+' mensajes)</p><a class="btn wa" id="waEx" target="_blank" rel="noopener" href="'+esc(waUrl(C.wa,msg))+'">Pedir el extra</a>')+'</div>',
+      function(){$("waPl").onclick=function(){closeSheet();setTimeout(planSheet,250)}});return}
+  var w=waCfg();
+  function save(){var o={on:$("waaOn").checked,conf:$("waaC")?$("waaC").checked:w.conf,rem:$("waaR")?$("waaR").checked:w.rem},old=B.waAuto;w=o;B.waAuto=o;draw();render();
+    db.doc("biz/"+BID).set({waAuto:o},{merge:true}).then(function(){toast(o.on?"Recordatorios automáticos encendidos ✓":"Recordatorios automáticos apagados")},function(e){B.waAuto=old;w=waCfg();draw();render();toast(errEs(e))})}
+  function uso(){var max=U0&&U0.ok?+U0.max||WA_MAX[pl]:WA_MAX[pl];return U0&&U0.ok&&U0.n!=null?(+U0.n||0)+" de "+max+" mensajes este mes":"—"}
+  function draw(){if(!$("waaBox"))return;var off=!!(U0&&U0.ok&&U0.live===false),lk=off&&!w.on;
+    $("waaBox").innerHTML=(off?'<div class="warnbox" id="waaLive" style="margin-bottom:8px">🚧 Muy pronto: estamos terminando de conectar WhatsApp</div>':'')
+      +'<div class="waRw" style="border-top:0"><div><b>Encender recordatorios automáticos</b><small>'+(w.on?"Encendidos: salen solos":"Apagados: no sale nada automático")+'</small></div><label class="toggle"><input type="checkbox" class="tg" id="waaOn"'+(w.on?" checked":"")+(lk?" disabled":"")+'><span></span></label></div>'
+      +(w.on?'<label class="waRw"><span><b>Confirmación cuando reserva</b><small>Apenas reserva en tu página</small></span><input type="checkbox" id="waaC"'+(w.conf?" checked":"")+'></label><label class="waRw"><span><b>Recordatorio el día antes</b><small>Con el botón para cambiar o cancelar</small></span><input type="checkbox" id="waaR"'+(w.rem?" checked":"")+'></label>':'')
+      +'<div class="waRw" style="display:block"><div class="waU" id="waaU">'+uso()+'</div>'+(pl==="prueba"?'<small>En tu prueba tenés '+WA_MAX.prueba+' mensajes para verlo funcionar.</small>':'<small>Se renuevan cada mes.</small>')+'</div>'
+      +'<button class="btn alt" id="waaT"'+(off?" disabled":"")+'>📩 Enviarme una prueba</button><p class="mute small" style="text-align:center;margin:6px 0 0">Te llega al WhatsApp de tu negocio.</p>';
+    $("waaOn").onchange=save;if($("waaC"))$("waaC").onchange=save;if($("waaR"))$("waaR").onchange=save;
+    $("waaT").onclick=function(){var b=this;b.disabled=true;b.textContent="Enviando…";waCall("/wa/prueba").then(function(j){b.disabled=false;b.textContent="📩 Enviarme una prueba";
+        var E={no_config:"Todavía estamos conectando WhatsApp. Probá más tarde.",plan:"Tu plan no incluye los recordatorios automáticos.",tope:"Ya se acabaron los mensajes de este mes.",limite:"Ya pediste 3 pruebas hoy. Probá mañana.",tel:"Revisá el WhatsApp de tu negocio en «Mi negocio»: no es un número válido.",wa:"WhatsApp no aceptó el mensaje. Probá de nuevo en un rato.",sesion:"Tu sesión venció. Cerrá sesión y volvé a entrar.",negocio:"No encontramos tu negocio. Escribinos a soporte."};
+        toast(j&&j.ok?"Listo ✓ te mandamos la prueba al WhatsApp "+(j.to||""):E[j&&j.error]||"No se pudo enviar la prueba. Probá de nuevo.");if(j&&j.ok)load()},
+      function(){b.disabled=false;b.textContent="📩 Enviarme una prueba";toast("Sin conexión. Probá de nuevo.")})}}
+  function load(){waCall("/wa/uso").then(function(j){U0=j||null;draw()},function(){U0=null;draw()})}
+  sheet(head+'<div id="waaBox"></div>',function(){draw();load()})}
 /* ---------- Asistente con IA (límite diario por plan; corre en el servidor de Citaly) ---------- */
 var IA_MAX={turbo:5,nitro:30};
 function iaSheet(auto){
@@ -1918,7 +1974,8 @@ function usedFeats(){var u=[],b=B||{},w=b.web||{},T=function(n,k){u.push({n:n,k:
   if((b.services||[]).some(function(s){return +s.re>0}))T("Avisos de «toca volver»");if(C.lanes(b)>1)T("Varios clientes a la misma hora");
   if(typeof EXP!=="undefined"&&EXP.length)T("Gastos y ganancia");if(b.mods&&b.mods.insumos)T("Control de insumos","nitro");
   var e=w.estilo||"";if(EST_MIN[e]&&EST_MIN[e]!=="arranque")T("Estilo de página «"+e+"»",EST_MIN[e]);
-  if((w.steps||[]).length||(w.why||[]).length)T("Secciones «Así funciona» y «Por qué elegirte»");return u}
+  if((w.steps||[]).length||(w.why||[]).length)T("Secciones «Así funciona» y «Por qué elegirte»");
+  if(b.waAuto&&b.waAuto.on)T("Recordatorios automáticos por WhatsApp","nitro");return u}
 function recPlan(){var r="arranque";usedFeats().forEach(function(f){if(TIERS.indexOf(f.k)>TIERS.indexOf(r))r=f.k});return r}
 function lostIn(k){return usedFeats().filter(function(f){return TIERS.indexOf(f.k)>TIERS.indexOf(k)})}
 function planSheet(){var cur=tier(),trial=SUB&&SUB.status==="trial",rec=recPlan(),uf=usedFeats();
