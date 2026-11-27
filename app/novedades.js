@@ -2,8 +2,12 @@
    Para publicar algo nuevo: agregá una línea ARRIBA en items (la más nueva primero) y cambiá "v".
    Al cambiar "v", a cada dueño le sale el aviso una sola vez. */
 var CITALY_NEWS={
- v:"2026-11-25b",
+ v:"2026-11-27a",
  items:[
+  {d:"2026-11-27",ic:"🖼️",t:"Logo y portada automáticos",x:"Si todavía no subiste logo ni fotos, tu página muestra un logo con tus iniciales y una portada según tu tipo de negocio. Cuando subís los tuyos, se usan los tuyos."},
+  {d:"2026-11-27",ic:"🔗",t:"Tu link se ve mejor al compartirlo",x:"Al pegar tu link en WhatsApp, Facebook o TikTok ahora sale una vista previa con el nombre de tu negocio."},
+  {d:"2026-11-26",ic:"🕐",t:"Horas exactas para reservar",x:"En Reglas de reserva elegí «Solo a las horas que yo elija» y tus clientes solo ven esas horas (por ejemplo 8:00, 10:30, 1:30 y 3:30)."},
+  {d:"2026-11-25",ic:"📤",t:"Subí tus contactos",x:"En Clientes podés subir el archivo de contactos (.vcf) de tu celular y agregar varios clientes de un solo golpe."},
   {d:"2026-11-25",ic:"🔁",t:"Mis clientes y clientes fijos",x:"Agregá tus clientes vos mismo, con placa, carro y dónde viven, y marcá cada cuánto vienen (cada semana, 15 o 22 días, cada mes o cada año). También te preguntamos al terminar cada cita. En la agenda te avisamos cuando les toca volver."},
   {d:"2026-11-24",ic:"🎨",t:"Mi apariencia",x:"Más de 18 temas exclusivos, fondos con escenas, tu propia foto y fondos animados. Lo encontrás en Ajustes → Mi apariencia."},
   {d:"2026-11-24",ic:"🎬",t:"Videos en tu página web",x:"Pegá links de TikTok, Instagram, Facebook o YouTube y se ven junto a tus fotos en «Nuestro trabajo». Según tu plan: 6, 12 o 24 videos."},
@@ -50,6 +54,18 @@ var CITALY_NEWS={
   {d:"2026-11-05",ic:"🎯",t:"Metas y notas",x:"Metas de ingresos, notas, ubicación y portada de tus reservas."}
  ],
  fixes:[
+  {d:"2026-11-26",x:"En Servicios y precios solo se podía editar o borrar el primer servicio. Ya se pueden todos."},
+  {d:"2026-11-26",x:"Una reserva ya no se puede montar sobre otra cita cuando la hora no empieza en punto o y media."},
+  {d:"2026-11-26",x:"Al abrir y guardar una cita larga (por ejemplo de 3 h 30) ya no se cambia sola a 1 hora."},
+  {d:"2026-11-26",x:"Al mover, cancelar o eliminar una cita, el link «Mi cita» de tu cliente se actualiza."},
+  {d:"2026-11-26",x:"Editar una cita ya no borra los servicios que le cambiaste el nombre o quitaste de tu lista."},
+  {d:"2026-11-26",x:"Si reabrís un día que tenías cerrado, ahora sí se guarda."},
+  {d:"2026-11-26",x:"Crear la cuenta con un nombre de negocio largo ya no da error."},
+  {d:"2026-11-26",x:"Tu cliente ya puede cancelar desde «Mi cita» aunque tenga otra cita con el mismo teléfono."},
+  {d:"2026-11-26",x:"Al mover su cita, tu cliente solo ve los días en que atendés su zona."},
+  {d:"2026-11-26",x:"En tu página, la dirección pegada como link de Maps ya no se sale de la pantalla y «Cómo llegar» la abre."},
+  {d:"2026-11-26",x:"El «precio desde» de tu página ya toma en cuenta el precio por vehículo."},
+  {d:"2026-11-26",x:"El botón de WhatsApp funciona con números escritos con 00506, y el «abierto» o «cerrado» de tu página usa la hora de Costa Rica."},
   {d:"2026-11-24",x:"En tu página web, a veces la sección de precios no se veía al bajar con el dedo. Ya aparece siempre."},
   {d:"2026-11-24",x:"En el diseño Pro, si el título de tu página era largo, se encimaba con el logo. Ya se acomoda bien."},
   {d:"2026-11-24",x:"Si el nombre de un servicio era largo, se cortaba. Ahora se ve completo."},
@@ -63,10 +79,17 @@ var CITALY_NEWS={
   {d:"2026-11-18",x:"Si te faltaba un dato al crear tu cuenta, el aviso sale junto a ese dato."}
  ],
  soon:[
-  {ic:"🧱",t:"Editor de páginas por niveles",x:"Personalizá tu página sección por sección, con más opciones en los planes altos.",s:"En camino"},
+  {ic:"🔄",t:"Horario que cambia por semana",x:"Para quien trabaja una semana con un horario y la otra con otro: lo dejás armado una vez y se alterna solo.",s:"En camino"},
+  {ic:"🚘",t:"Placa y carro en cada cita",x:"Guardá la placa y el carro dentro de la cita y encontrala con el buscador escribiendo la placa.",s:"En camino"},
   {ic:"📣",t:"Avisos fáciles de arreglar",x:"Una guía paso a paso para que los avisos te lleguen bien en iPhone, Huawei y Android.",s:"En camino"},
+  {ic:"🔑",t:"Entrar con Google y Facebook desde el celular",x:"Iniciar sesión más fácil desde el celular, sin pasos de más.",s:"En camino"},
+  {ic:"🧱",t:"Editor de páginas por niveles",x:"Personalizá tu página sección por sección, con más opciones en los planes altos.",s:"En camino"},
+  {ic:"✏️",t:"«Mi cita» siempre al día",x:"Si cambiás los servicios o el total de una cita, tu cliente también lo ve en su link.",s:"En camino"},
+  {ic:"🧑‍🤝‍🧑",t:"Equipo sin pisarse",x:"Si dos personas de tu equipo editan clientes al mismo tiempo, no se borran los cambios del otro.",s:"Más adelante"},
+  {ic:"📱",t:"El ícono de tu negocio en la app",x:"Al instalar Citaly en el celular, que salga con tu logo en vez del de Citaly.",s:"Más adelante"},
+  {ic:"🪄",t:"Diseñador de tu página con IA",x:"Contale a Citaly cómo querés tu página y te arma una propuesta.",s:"Más adelante"},
   {ic:"🎥",t:"Subir videos directo",x:"Subí tus videos desde el celular, sin necesidad de links.",s:"Más adelante"},
-  {ic:"📱",t:"App en Play Store",x:"Descargá Citaly desde la tienda, además de instalarla desde el navegador.",s:"Más adelante"},
+  {ic:"🏪",t:"App en Play Store",x:"Descargá Citaly desde la tienda, además de instalarla desde el navegador.",s:"Más adelante"},
   {ic:"🍎",t:"Entrar con Apple",x:"Otra forma de iniciar sesión.",s:"Más adelante"}
  ]
 };
