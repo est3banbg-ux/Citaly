@@ -444,7 +444,8 @@ async function ciclo(env) { // devuelve cuántas llamadas hizo, para repartir el
   if (!env.RESEND_KEY) return 0;
   const tk = await token(env), now = Date.now(), cr = new Date(now - 6 * 3600e3), hr = cr.getUTCHours(), dow = cr.getUTCDay();
   const [biz, subs] = [await listDocs(env, tk, "biz"), await listDocs(env, tk, "subs")], S = {}; subs.forEach((s) => (S[s.id] = s));
-  let n = 0, k = 3;
+  const pag = (a) => Math.max(1, Math.ceil(a.length / 300)); // listDocs trae de 300 en 300
+  let n = 0, k = 1 + pag(biz) + pag(subs);
   for (const b of biz) {
     if (n >= 40) break;
     const em = String(b.email || "").trim().toLowerCase(), s = S[b.id], log = b.mailLog || {};
@@ -456,7 +457,7 @@ async function ciclo(env) { // devuelve cuántas llamadas hizo, para repartir el
     else if (s.status === "trial" && day && left > 0 && left <= 2.3 * 864e5 && left > 1 * 864e5 && !log.t2) { kind = "trial2"; key = "t2"; val = String(now); }
     else if (s.status === "trial" && day && left <= 1 * 864e5 && left > -2 * 864e5 && !log.t0) { kind = "trial0"; key = "t0"; val = String(now); }
     else if (dow === 1 && hr >= 8 && hr <= 12 && (s.status === "active" || s.status === "trial") && age > 6 * 864e5) {
-      const jobs = await listDocs(env, tk, `biz/${b.id}/jobs`), st = weekStats(jobs, now); k++;
+      const jobs = await listDocs(env, tk, `biz/${b.id}/jobs`), st = weekStats(jobs, now); k += pag(jobs);
       if (log.week === st.weekKey) continue;
       k++; if (await enviarCiclo(env, tk, b, "week", st)) { await marcar(env, tk, b, "week", st.weekKey); n++; k++; }
       continue;
@@ -534,7 +535,7 @@ const waDoc = (env, id) => `projects/${env.FB_PROJECT}/databases/(default)/docum
 async function waCommit(env, tk, writes) {
   const r = await fetch(`${fs(env)}:commit`, { method: "POST", headers: { authorization: "Bearer " + tk, "content-type": "application/json" }, body: JSON.stringify({ writes }) });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) return { ok: false, dup: r.status === 409 || /ALREADY_EXISTS|FAILED_PRECONDITION/.test(String((j.error || {}).status || "")) };
+  if (!r.ok) return { ok: false, dup: /^(ALREADY_EXISTS|FAILED_PRECONDITION)$/.test(String((j.error || {}).status || "")) }; // ojo: un 409 también puede ser ABORTED (choque de escrituras), y eso NO es «ya salió»
   return { ok: true, n: (j.writeResults || []).map((w) => +((((w || {}).transformResults || [])[0] || {}).integerValue || 0)) };
 }
 const waSuma = (env, id, by, now, exp) => ({ update: { name: waDoc(env, id), fields: exp ? { at: V(now), exp } : { at: V(now) } }, updateMask: { fieldPaths: exp ? ["at", "exp"] : ["at"] }, updateTransforms: [{ fieldPath: "n", increment: { integerValue: String(by) } }] });
@@ -544,8 +545,9 @@ async function waInc(env, tk, id, by) { const r = await waCommit(env, tk, [waSum
    Devuelve "ok"; "dup" si ese mensaje ya salió (o está saliendo en otra llamada); por qué no se puede ("tope" del plan,
    "num" = ya recibió 3 hoy, "neg" = el negocio mandó demasiados hoy, "dia"/"pdia" = freno de gasto de la plataforma); o "" si Firestore falló. */
 async function waApartar(env, tk, o) {
-  const { lock, ids, pl, now } = o, exp = T(now + 45 * 864e5);
-  const r = await waCommit(env, tk, [{ update: { name: waDoc(env, lock), fields: { at: V(now), exp } }, currentDocument: { exists: false } }].concat(ids.map((id, i) => waSuma(env, id, 1, now, i ? exp : null))));
+  const { lock, ids, pl, now } = o, exp = T(now + 45 * 864e5), writes = [{ update: { name: waDoc(env, lock), fields: { at: V(now), exp } }, currentDocument: { exists: false } }].concat(ids.map((id, i) => waSuma(env, id, 1, now, i ? exp : null)));
+  let r = await waCommit(env, tk, writes);
+  if (!r.ok && !r.dup) r = await waCommit(env, tk, writes); // choque pasajero entre dos escrituras a la misma cuenta: un segundo intento
   if (!r.ok) return r.dup ? "dup" : "";
   const max = [pl.max, WA_FRENO.num, WA_FRENO.neg, +env.WA_DIA_MAX || WA_FRENO.dia, +env.WA_PRUEBA_DIA || WA_FRENO.pdia], over = ids.findIndex((id, i) => r.n[i + 1] > max[i]);
   if (over < 0) return "ok";
@@ -599,8 +601,9 @@ async function waJob(env, tk, o) {
   if (st === "dup") {
     if (!rem) return "dup";
     const l = dec(await get(env, tk, "wa/" + ap.lock));
-    if (now - (+l.at || 0) < 180e3) return "dup"; // otra corrida lo está mandando en este momento
-    await patch(env, tk, path, { waR: V(+l.at || now), waRd: V(date), waRt: V(date), waE: V("") }); // ya había salido y no quedó anotado
+    if (!(+l.at > 0)) return ""; // no se pudo leer el candado: no se da por enviado, se revisa en la próxima corrida
+    if (now - l.at < 180e3) return "dup"; // otra corrida lo está mandando en este momento
+    await patch(env, tk, path, { waR: V(l.at), waRd: V(date), waRt: V(date), waE: V("") }); // ya había salido y no quedó anotado
     return "ok0";
   }
   if (st !== "ok") {

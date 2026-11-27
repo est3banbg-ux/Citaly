@@ -67,6 +67,7 @@ async function falso(url, init = {}) {
   if (!url.startsWith(BASE)) throw new Error("internet falso: no conozco " + url);
   let rest = url.slice(BASE.length);
   if (rest === ":commit") {
+    if (META.choque > 0) { META.choque--; return J({ error: { code: 409, status: "ABORTED" } }, 409); } // choque de escrituras
     const res = [], writes = JSON.parse(body).writes;
     for (const w of writes) if (w.currentDocument && w.currentDocument.exists === false && DB.has(w.update.name.replace(NAME, ""))) return J({ error: { code: 409, status: "ALREADY_EXISTS" } }, 409); // todo o nada
     for (const w of writes) {
@@ -106,7 +107,7 @@ async function falso(url, init = {}) {
 globalThis.fetch = falso;
 
 /* ---------- ayudas ---------- */
-function limpio() { DB = new Map(); LOG = []; META = { wa: [], push: [], mail: [], falla: false, lat: 0, romper: null, max: 0 }; }
+function limpio() { DB = new Map(); LOG = []; META = { wa: [], push: [], mail: [], falla: false, lat: 0, romper: null, max: 0, choque: 0 }; }
 const post = (ruta, o, env = ENV0, headers = {}) => W.fetch(new Request("https://w.prueba" + ruta, { method: "POST", headers: { origin: "https://citalyapp.com", "content-type": "application/json", ...headers }, body: typeof o === "string" ? o : JSON.stringify(o) }), env);
 async function cron(env = ENV0, cual = "0 * * * *") { const p = []; LOG = []; await W.scheduled({ cron: cual, scheduledTime: AHORA }, env, { waitUntil: (x) => p.push(x) }); await Promise.all(p); return LOG.length; }
 function negocio(bid, extra = {}, sub = {}) {
@@ -315,6 +316,16 @@ AHORA += 10 * 60e3; await cron();
 ok(META.wa.length === 2 && META.wa[1].to === "50688880002" && J_("b1", "j1").waRd === man && !!J_("b1", "j1").waR && usados("b1") === 2, "la corrida siguiente NO le repite al primero (solo lo anota) y sigue con el segundo");
 limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); put("wa/r_b1_j1_" + man, { at: AHORA - 30e3 });
 await cron(); ok(META.wa.length === 0 && !J_("b1", "j1").waRd, "si otra corrida lo está mandando en este momento (candado de hace 30 s), no se toca");
+
+titulo("Choques de escritura en Firestore (409 ABORTED no es «ya salió»)");
+limpio(); negocio("b1"); cita("b1", "j1", { at: AHORA }); META.choque = 1;
+r = await (await post("/push", { ev: "new", biz: "b1", job: "j1" })).json();
+ok(r.w === 1 && META.wa.length === 1 && usados("b1") === 1, "confirmación: si la primera escritura choca, se reintenta y el mensaje sale");
+limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); META.choque = 2;
+await cron(); ok(META.wa.length === 0 && !J_("b1", "j1").waRd && !J_("b1", "j1").waR && doc("biz/b1").waDay !== man, "recordatorio: si chocan los dos intentos NO se da por enviado, queda pendiente");
+AHORA += 10 * 60e3; await cron(); ok(META.wa.length === 1 && J_("b1", "j1").waRd === man, "y en la corrida siguiente sale");
+limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); put("wa/r_b1_j1_" + man, { nada: 1 }); // candado sin fecha (dato raro)
+await cron(); ok(META.wa.length === 0 && !J_("b1", "j1").waRd, "un candado que no se puede leer bien tampoco se toma como enviado");
 
 titulo("Un negocio con problemas no frena a los demás");
 limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); negocio("b2", { slug: "otro-negocio" }); cita("b2", "j1", { at: 1, waC: 1, tel: "88880002" });
