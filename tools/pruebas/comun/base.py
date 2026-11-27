@@ -64,10 +64,11 @@ class Banco:
     def base(self):
         return "http://127.0.0.1:%d" % self.puerto
 
-    def abrir(self, ruta, datos=None, usuario=None, ancho=400, alto=850, espera=1200, antes="", negar=None, movil=True):
+    def abrir(self, ruta, datos=None, usuario=None, ancho=400, alto=850, espera=1200, antes="", negar=None, movil=True, lento=None, reducir=False):
         """Abre `ruta` (ej. "/app/") con `datos` en el Firestore falso y `usuario` con sesión (o None).
-        `antes`: JS extra que corre antes que la página. Devuelve la página; p.errs junta los errores de JS."""
-        ctx = self.nav.new_context(viewport={"width": ancho, "height": alto}, has_touch=movil, locale="es-CR", timezone_id="America/Costa_Rica")
+        `antes`: JS extra que corre antes que la página. Devuelve la página; p.errs junta los errores de JS.
+        `lento`: {patrón: ms} para que ciertos archivos tarden en llegar. `reducir`: prefers-reduced-motion."""
+        ctx = self.nav.new_context(viewport={"width": ancho, "height": alto}, has_touch=movil, locale="es-CR", timezone_id="America/Costa_Rica", reduced_motion="reduce" if reducir else "no-preference")
         p = ctx.new_page()
         p.errs, p.consola = [], []
         p.on("pageerror", lambda e: p.errs.append(str(e)))
@@ -81,6 +82,8 @@ class Banco:
         p.route("**/firebase-app-compat.js", lambda r: r.fulfill(body=js, content_type="text/javascript"))
         for x in ("auth", "firestore", "messaging", "storage", "functions"):
             p.route("**/firebase-%s-compat.js" % x, lambda r: r.fulfill(body="", content_type="text/javascript"))
+        for pat, ms in (lento or {}).items():
+            p.route(pat, (lambda espera_ms: lambda r: (time.sleep(espera_ms / 1000.0), r.continue_()))(ms))
         p.goto(self.base + ruta)
         p.wait_for_timeout(espera)
         return p

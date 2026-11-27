@@ -2,10 +2,12 @@
    - window.__DATA   : { "ruta/del/doc": {datos} } con lo que "hay" en Firestore. {"__ts":ms} se vuelve Timestamp.
    - window.__USER   : usuario con sesión iniciada ({uid,email,...}) o null/undefined para "sin sesión".
    - window.__WRITES : bitácora de todo lo que la página escribió: ["set"|"update"|"delete", ruta, datos].
+   - window.__WOPTS  : opciones de cada escritura (mismo orden que __WRITES), ej. {merge:true} o {mergeFields:[…]}.
+   - window.__AUTH_DELAY : ms que tarda en avisar quién inició sesión (opcional; como el Firebase real, que tarda un poco).
    - window.__DENY   : lista de prefijos de ruta que responden permission-denied (opcional).
    Las escrituras se aplican en memoria, así que lo que la página guarda se puede volver a leer. */
 (function(){
-var RAW=window.__DATA||{},D={},W=window.__WRITES=[],SUBS=[],DENY=window.__DENY||[],seq=0;
+var RAW=window.__DATA||{},D={},W=window.__WRITES=[],WO=window.__WOPTS=[],SUBS=[],DENY=window.__DENY||[],seq=0;
 function Ts(ms){this._ms=ms}
 Ts.prototype.toMillis=function(){return this._ms};Ts.prototype.toDate=function(){return new Date(this._ms)};
 Ts.prototype.valueOf=function(){return this._ms};
@@ -23,7 +25,7 @@ function merge(cur,v){var o=clone(cur||{});Object.keys(v).forEach(function(k){va
 function setPath(o,path,val){var p=path.split("."),c=o;for(var i=0;i<p.length-1;i++){if(!c[p[i]]||typeof c[p[i]]!=="object")c[p[i]]={};c=c[p[i]]}var r=fv(c[p[p.length-1]],val);if(r===undefined)delete c[p[p.length-1]];else c[p[p.length-1]]=r}
 function denied(p){return DENY.some(function(x){return p.indexOf(x)===0})}
 function err(code){var e=new Error(code);e.code=code;return e}
-function apply(op,p,v,opt){W.push([op,p,plain(v===undefined?null:v)]);
+function apply(op,p,v,opt){W.push([op,p,plain(v===undefined?null:v)]);WO.push(opt?plain(opt):null);
   if(op==="delete")delete D[p];else if(op==="set")D[p]=opt&&opt.merge?merge(D[p],v):fv(null,v);
   else{var o=clone(D[p]||{});Object.keys(v).forEach(function(k){setPath(o,k,v[k])});D[p]=o}
   notify()}
@@ -66,7 +68,7 @@ var U=window.__USER||null,LS=[];
 function mkUser(u){if(!u)return null;return Object.assign({uid:"U1",email:"dueno@prueba.test",emailVerified:true,displayName:"Dueño Prueba",providerData:[{providerId:"google.com"}],
   getIdToken:function(){return Promise.resolve("token-falso")},sendEmailVerification:function(){return Promise.resolve()},reload:function(){return Promise.resolve()},updateProfile:function(){return Promise.resolve()},delete:function(){return Promise.resolve()}},u)}
 var A={get currentUser(){return mkUser(U)},
-  onAuthStateChanged:function(f){LS.push(f);setTimeout(function(){f(mkUser(U))},0);return function(){}},
+  onAuthStateChanged:function(f){LS.push(f);setTimeout(function(){f(mkUser(U))},window.__AUTH_DELAY||0);return function(){}},
   signOut:function(){U=null;window.__AUTH.push(["signOut"]);LS.forEach(function(f){f(null)});return Promise.resolve()},
   getRedirectResult:function(){return Promise.resolve({user:null})},setPersistence:function(){return Promise.resolve()},useDeviceLanguage:function(){},isSignInWithEmailLink:function(){return false},
   signInWithEmailLink:function(){return Promise.reject(err("auth/invalid-action-code"))},sendSignInLinkToEmail:function(e){window.__AUTH.push(["link",e]);return Promise.resolve()},
@@ -80,6 +82,8 @@ function Prov(){this.setCustomParameters=function(){return this};this.addScope=f
 au.GoogleAuthProvider=Prov;au.FacebookAuthProvider=Prov;au.EmailAuthProvider={credential:function(){return {}}};au.Auth={Persistence:{LOCAL:"local",SESSION:"session",NONE:"none"}};
 function msg(){return {getToken:function(){return Promise.resolve("")},onMessage:function(){},deleteToken:function(){return Promise.resolve()}}}
 msg.isSupported=function(){return false};
-window.firebase={initializeApp:function(){return {}},apps:[{}],app:function(){return {}},firestore:fs,auth:au,messaging:msg};
+/* initializeApp devuelve una app con .auth()/.firestore() (el admin usa firebase.initializeApp(cfg,"admin").auth()) */
+function mkApp(){return {auth:au,firestore:fs,messaging:msg}}
+window.firebase={initializeApp:function(){return mkApp()},apps:[{}],app:function(){return mkApp()},firestore:fs,auth:au,messaging:msg};
 window.__DB=D; /* para que las pruebas lean el estado final */
 })();

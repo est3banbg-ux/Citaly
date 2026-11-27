@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" data-mode="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Citaly · Admin</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07060c">
+<link rel="icon" href="../../favicon-32.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../style.css">
+<link rel="stylesheet" href="admin.css?v=1">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="../../cfg.js?v=20261127d"></script>
+</head>
+<body>
+<a class="a-skip" href="#contenido">Saltar al contenido</a>
+<header class="a-top">
+  <a class="a-brand" href="#hoy" aria-label="Citaly admin, inicio"><i aria-hidden="true">c</i>citaly <span>ADMIN</span></a>
+  <span class="a-offl" id="offl" hidden role="status">Sin conexión</span>
+  <button class="a-ic" id="aSrch" type="button" aria-label="Buscar negocio" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+</header>
+
+<nav class="a-nav" id="nav" aria-label="Secciones" hidden>
+  <a href="#hoy" data-v="hoy"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Hoy</span></a>
+  <a href="#negocios" data-v="negocios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l1.5-5h13L20 9M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM9 20v-5h6v5"/></svg><span>Negocios</span><b class="a-dotn" id="nNeg" hidden></b></a>
+  <a href="#plata" data-v="plata"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M7 9.5v5M17 9.5v5"/></svg><span>Plata</span><b class="a-dotn" id="nPla" hidden></b></a>
+  <a href="#prospectos" data-v="prospectos"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 7v6M14 10h6"/></svg><span>Prospectos</span><b class="a-dotn" id="nPro" hidden></b></a>
+  <a href="#mas" data-v="mas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg><span>Más</span></a>
+</nav>
+
+<main class="a-main" id="contenido" tabindex="-1">
+  <div id="login" class="card a-login" hidden>
+    <h2>Panel del admin</h2><p class="mute">Entrá con la cuenta de Google de administrador.</p>
+    <button class="btn" id="gIn">Entrar con Google</button><p class="err" id="lErr"></p>
+  </div>
+
+  <div id="main" hidden>
+    <!-- HOY -->
+    <section class="a-view" id="v-hoy" aria-labelledby="hoyT">
+      <h1 id="hoyT">Hola</h1><p class="a-sub" id="hoySub"></p>
+      <div id="hoyPlata"></div>
+      <div class="a-hd"><h2>Para hoy</h2><span>ordenado por urgencia</span></div>
+      <div id="hoyL"></div>
+      <div class="a-stats" id="hoyN"></div>
+    </section>
+
+    <!-- NEGOCIOS (lista + ficha) -->
+    <section class="a-view" id="v-negocios" hidden>
+      <div class="a-split" id="split">
+        <div class="a-listpane">
+          <h1>Negocios</h1><p class="a-sub" id="negSub"></p>
+          <div class="a-srch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar nombre, link, correo o teléfono" aria-label="Buscar negocio" autocomplete="off"></div>
+          <div class="a-chips" id="f" role="toolbar" aria-label="Filtros"></div>
+          <div class="a-sort"><label for="srt">Orden</label><select id="srt"><option value="new">Más nuevos</option><option value="due">Vence primero</option><option value="name">Nombre</option></select></div>
+          <div id="list" aria-live="polite"></div>
+          <button class="a-fab" id="newB" type="button">+ Nuevo negocio</button>
+        </div>
+        <div class="a-fichapane" id="fichaPane">
+          <div class="a-empty" id="fEmpty"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9l1.5-5h13L20 9M4 9h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg><p>Elegí un negocio de la lista para ver su ficha.</p></div>
+          <div id="ed" class="ed" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLATA -->
+    <section class="a-view" id="v-plata" hidden>
+      <h1>Plata</h1><p class="a-sub" id="plaSub"></p>
+      <div class="a-tabs" id="plTabs" role="tablist" aria-label="Plata">
+        <a href="#plata/cobros" data-s="cobros">Cobros</a><a href="#plata/vence" data-s="vence">Vencen pronto</a><a href="#plata/metricas" data-s="metricas">Métricas</a><a href="#plata/reporte" data-s="reporte">Reporte</a>
+      </div>
+      <div class="a-old" id="t-cob" hidden></div>
+      <div id="pPays" hidden><div class="card"><h2>Pagos recibidos</h2><div id="pays"></div></div></div>
+      <div id="vence" hidden></div>
+      <div class="a-old" id="t-met" hidden></div>
+      <div class="a-old" id="t-rep" hidden></div>
+    </section>
+
+    <!-- PROSPECTOS -->
+    <section class="a-view" id="v-prospectos" hidden>
+      <h1>Prospectos</h1><p class="a-sub" id="proSub"></p>
+      <div class="a-old" id="t-pro"></div>
+    </section>
+
+    <!-- MÁS -->
+    <section class="a-view" id="v-mas" hidden>
+      <div id="masMenu">
+        <h1>Más</h1>
+        <div class="a-menu">
+          <a href="#mas/respuestas"><b>Respuestas rápidas</b><span>Copiá y pegá en WhatsApp</span></a>
+          <a href="#mas/enlaces"><b>Enlaces de reserva</b><span>Todos los links y revisar cuáles no abren</span></a>
+          <a href="#mas/demos"><b>Demos</b><span>Cuentas de muestra para prospectos</span></a>
+          <button type="button" id="expM"><b>Exportar correos para promos</b><span>Archivo CSV para Resend</span></button>
+          <a href="../"><b>Abrir el admin clásico</b><span>El panel de antes, por si acaso</span></a>
+          <button type="button" id="out" hidden><b class="a-red">Salir</b><span>Cerrar la sesión en este aparato</span></button>
+        </div>
+      </div>
+      <div id="masSub" hidden>
+        <a class="a-backl" href="#mas">‹ Más</a>
+        <div id="masResp" hidden><h1>Respuestas rápidas</h1><div class="a-old" id="t-resp"></div></div>
+        <div id="masEnl" hidden></div>
+        <div id="masDem" hidden></div>
+      </div>
+    </section>
+
+    <!-- compatibilidad con extra.js (no se ven) -->
+    <div hidden><div id="tabs"><button data-t="neg">Negocios</button><button data-t="cob">Cobros</button><button data-t="met">Métricas</button><button data-t="pro">Prospectos</button><button data-t="rep">Reporte</button><button data-t="resp">Respuestas</button></div><div id="t-neg"></div></div>
+  </div>
+</main>
+<div id="load" class="a-load" role="status" aria-label="Cargando"><div class="spin"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="nucleo.js?v=1"></script>
+<script src="ui.js?v=1"></script>
+<script src="extra.js?v=1"></script>
+</body>
+</html>
