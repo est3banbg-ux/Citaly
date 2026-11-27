@@ -5,7 +5,7 @@ import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
 from ayuda import Banco, negocio, abrir_app, html_mal, abierta, texto_hoja
 
-CLAVES = "neg svc veh hor look res web dom ref fot vid est ia stp why dep mode gcal help inst ntf rev faq plan nov welcome".split()
+CLAVES = "neg svc veh hor look res web dom ref fot vid est ia stp why dep mode gcal help inst ntf waa rev faq plan nov welcome".split()
 TURBO = {"dom", "ref", "ia", "stp", "why", "dep"}   # FEAT en app/index.html
 
 with Banco() as b:

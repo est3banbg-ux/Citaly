@@ -122,6 +122,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .wafab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(12px) scale(.9);pointer-events:none;transition:opacity .25s ease,transform .25s ease}
 .wafab svg{width:27px;height:27px}.wafab.on{opacity:.95;transform:none;pointer-events:auto}
 @media (prefers-reduced-motion:reduce){.wafab{transition:none}}
+.waok{font-size:12px;line-height:1.35;margin-top:-6px;opacity:.9}
 </style>
 </head>
 <body>
@@ -187,6 +188,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="step" id="s-sum"><h2 style="margin-top:12px">Revisa tu cita</h2>
       <div class="card sumc" id="sum"></div>
       <p class="mute small">Al confirmar, apartamos tu hora y te confirmamos por WhatsApp.</p>
+      <p class="mute small waok" id="waOk">Al confirmar aceptas recibir la confirmación y el recordatorio de tu cita por WhatsApp.</p>
     </div>
     <p class="err" id="er"></p>
     <a class="idea" id="idea" target="_blank" rel="noopener" hidden>💡 ¿Ideas para mejorar esta página? <b>Escríbenos</b></a>
@@ -258,7 +260,9 @@ function tileLayer(ll){var p=ll.split(","),la=+p[0],lo=+p[1],z=16,n=Math.pow(2,z
   return '<div class="tl" style="margin-left:'+(-px).toFixed(1)+'px;margin-top:'+(-py).toFixed(1)+'px">'+h+'</div><span class="osm">© OpenStreetMap</span>'}
 var PINSVG='<svg class="pin" viewBox="0 0 30 38" aria-hidden="true"><path d="M15 37C15 37 28 24.5 28 14A13 13 0 0 0 2 14C2 24.5 15 37 15 37Z" fill="#e5484d" stroke="#fff" stroke-width="2"/><circle cx="15" cy="14" r="5" fill="#fff"/></svg>';
 
-var slug=(new URLSearchParams(location.search).get("n")||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
+/* Link corto de los WhatsApp automáticos: ?wa=<slug>.<tk> abre «Mi cita»; ?wa=<slug> abre las reservas. Si vienen ?n= / ?cita=, mandan esos */
+var WAQ=(function(){var v=(new URLSearchParams(location.search).get("wa")||"").toLowerCase(),i=v.indexOf(".");return {s:(i<0?v:v.slice(0,i)).replace(/[^a-z0-9-]/g,""),t:(i<0?"":v.slice(i+1)).replace(/[^a-z0-9]/g,"")}})();
+var slug=(new URLSearchParams(location.search).get("n")||WAQ.s||"").toLowerCase().replace(/[^a-z0-9-]/g,"");
 var P=null,BID="",S={ref:(function(){try{var r=(new URLSearchParams(location.search).get("ref")||"").toLowerCase();return /^[a-z0-9]{6,12}$/.test(r)?r:""}catch(e){return ""}})(),pick:[],cars:[],vehManual:false,day:"",t:null,step:0,ll:"",acc:0,zone:-1,how:"",veh:-1},BUSY={},T0=Date.now(),db=null,STEPS=[];
 try{firebase.initializeApp(C.fb);db=firebase.firestore()}catch(e){}
 if(!slug||!db)notFound();else db.doc("pub/"+slug).get().then(function(d){if(!d.exists){notFound();return}P=d.data();BID=P.biz;
@@ -489,7 +493,7 @@ function confetti(){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: r
   for(var i=0;i<60;i++){var d=document.createElement("i");d.className="cf";d.style.left=Math.random()*100+"vw";d.style.background=K[i%K.length];d.style.setProperty("--dx",(Math.random()*160-80)+"px");d.style.setProperty("--r",(Math.random()*900-450)+"deg");d.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(d);setTimeout(function(x){x.remove()}.bind(null,d),2800)}}
 
 /* ===== MI CITA: el cliente cambia o cancela su cita con su link secreto (hasta 12 h antes) ===== */
-var MCQ=(new URLSearchParams(location.search).get("cita")||"").toLowerCase().replace(/[^a-z0-9]/g,""),MC=null,MS={day:"",t:null};
+var MCQ=(new URLSearchParams(location.search).get("cita")||(WAQ.s===slug?WAQ.t:"")||"").toLowerCase().replace(/[^a-z0-9]/g,""),MC=null,MS={day:"",t:null};
 function newTok(){var a=new Uint8Array(24),c="abcdefghijkmnpqrstuvwxyz23456789";crypto.getRandomValues(a);return Array.prototype.map.call(a,function(x){return c[x%32]}).join("")}
 function myLink(tk){return location.origin+location.pathname+"?n="+slug+"&cita="+tk}
 function atMs(f,t){var d=pd(f);d.setMinutes(tm(t));return d.getTime()}
