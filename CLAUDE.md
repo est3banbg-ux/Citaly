@@ -86,7 +86,16 @@ En la app, `tier()` devuelve `nitro` durante la prueba; `lim("vid")` devuelve 6 
 - Ojo: el comentario de las reglas y el README dicen "prueba de máximo 31 días", pero la regla real de `subs` limita `until` a **8 días** desde el registro.
 
 ### Worker `bitter-brook-9ee2` (`webhook/worker.js`)
-Rutas: `POST /` webhook de Polar `order.paid` (activa el plan por id de referencia o correo; detecta Arranque/Turbo/Nitro por el nombre del producto; aplica la promo), `/ia` (asistente), `/importar` (admin: llenar negocio con mensajes del cliente), `/enlace` (links cortos de TikTok/FB), `/push` (FCM), `/ack`, `/ics/...`, `/baja/...` (baja de correos). `scheduled` = correos automáticos con Resend (demo, prepara tu web, fin de prueba, resumen semanal, máx. 40 por corrida). Variables en `webhook/LEEME.md`.
+Rutas: `POST /` webhook de Polar `order.paid` (activa el plan por id de referencia o correo; detecta Arranque/Turbo/Nitro por el nombre del producto; aplica la promo), `/ia` (asistente), `/importar` (admin: llenar negocio con mensajes del cliente), `/enlace` (links cortos de TikTok/FB), `/push` (FCM), `/ack`, `/ics/...`, `/baja/...` (baja de correos). `/wa/uso`, `/wa/prueba`, `/wa/meta` (recordatorios automáticos por WhatsApp, ver abajo). `scheduled` = correos automáticos con Resend (demo, prepara tu web, fin de prueba, resumen semanal, máx. 40 por corrida). Variables en `webhook/LEEME.md`.
+
+### Recordatorios automáticos por WhatsApp (rama `recordatorios-wa`, 27 nov · **sin publicar** hasta que Esteban conecte el número en Meta)
+- Citaly le escribe solo al cliente final desde **un número de Citaly** (API oficial de Meta, plantillas de utilidad): confirmación al reservar (`reserva_recibida`) y recordatorio el día antes, entre 4 y 8 p. m. del país del negocio (`cita_recordatorio`, o `cita_recordatorio_simple` si la cita no tiene `tk`). Textos exactos y pasos de Meta/Cloudflare en `webhook/LEEME.md`.
+- Quién lo tiene (`waPlan()` en el Worker = misma lógica que `tier()`): Nitro 150 mensajes al mes, prueba gratis 20, extra `subs/{bid}.waauto = true` 150 (lo activa Esteban en el admin, botón «📲 Extra WhatsApp»). Por defecto apagado: el dueño lo enciende en Ajustes → Recordatorios automáticos (`biz.waAuto = {on, conf, rem}`).
+- Worker: `waConfirm()` se engancha en `/push` (evento `new`); `waCiclo()` corre con el cron y lleva la cuenta de llamadas para no pasar el límite de Cloudflare; `/wa/uso` y `/wa/prueba` son para la app; `/wa/meta` recibe lo que contesta el cliente, se lo pasa al dueño (push y correo) y le responde solo una vez cada 12 h. Sin `WA_TOKEN` no hace nada.
+- Marcas en la cita (las escribe solo el Worker; la app solo las muestra): `waC`, `waR` + `waRd`, `waE` (`tope`, `tel`, `error`), `waRt`. Cuenta del mes en `wa/{bid}_{AAAA-MM}`; `waTo/{número}` = a qué negocio y cita fue el último aviso. Esas dos colecciones no tienen regla: desde la app no se leen.
+- Link corto para el botón de las plantillas: `/r/?wa=<slug>.<tk>` (equivale a `?n=<slug>&cita=<tk>`).
+- Pruebas: `tools/pruebas/worker/` (Node, corre el `worker.js` real con internet falso), más las de app y reservas.
+- Falta para la versión 1.1: avisarle al cliente cuando el dueño cambia la cita, confirmación para citas hechas a mano, recordatorio 2 horas antes, cobro del extra desde la app.
 
 ## 4. Infra
 - GitHub Pages: **push a `main` = publicado en ~60 s**. Dominio citalyapp.com (DNS en Hostinger, `CNAME`).
