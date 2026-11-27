@@ -52,6 +52,9 @@ const J = (o, status = 200) => new Response(JSON.stringify(o), { status, headers
 async function falso(url, init = {}) {
   url = String(url); const m = (init.method || "GET").toUpperCase(), body = init.body ? String(init.body) : "";
   LOG.push({ m, url, body });
+  if (META.max && LOG.length > META.max) throw new Error("Too many subrequests."); // como el límite de Cloudflare
+  if (META.romper && META.romper(url, m, body)) throw new Error("falla de red provocada");
+  if (META.lat) await new Promise((r) => setTimeout(r, 5 + Math.random() * META.lat));
   if (url.startsWith("https://oauth2.googleapis.com/token")) return J({ access_token: "tk" });
   if (url.includes("/jwk/securetoken@system.gserviceaccount.com")) return J({ keys: [JWK] });
   if (url.startsWith("https://fcm.googleapis.com/")) { META.push.push(JSON.parse(body).message.data); return J({ name: "ok" }); }
@@ -64,9 +67,11 @@ async function falso(url, init = {}) {
   if (!url.startsWith(BASE)) throw new Error("internet falso: no conozco " + url);
   let rest = url.slice(BASE.length);
   if (rest === ":commit") {
-    const res = [];
-    for (const w of JSON.parse(body).writes) {
-      const p = w.update.name.replace(NAME, ""), f = DB.get(p) || {}; DB.set(p, f);
+    const res = [], writes = JSON.parse(body).writes;
+    for (const w of writes) if (w.currentDocument && w.currentDocument.exists === false && DB.has(w.update.name.replace(NAME, ""))) return J({ error: { code: 409, status: "ALREADY_EXISTS" } }, 409); // todo o nada
+    for (const w of writes) {
+      if (w.delete) { DB.delete(w.delete.replace(NAME, "")); res.push({}); continue; }
+      const p = w.update.name.replace(NAME, ""), f = w.updateMask ? DB.get(p) || {} : { ...w.update.fields }; DB.set(p, f);
       for (const k of (w.updateMask || {}).fieldPaths || []) { if (k in w.update.fields) f[k] = w.update.fields[k]; else delete f[k]; }
       const tr = [];
       for (const t of w.updateTransforms || []) { const n = Number((f[t.fieldPath] || {}).integerValue || 0) + Number(t.increment.integerValue); f[t.fieldPath] = { integerValue: String(n) }; tr.push({ integerValue: String(n) }); }
@@ -101,7 +106,7 @@ async function falso(url, init = {}) {
 globalThis.fetch = falso;
 
 /* ---------- ayudas ---------- */
-function limpio() { DB = new Map(); LOG = []; META = { wa: [], push: [], mail: [], falla: false }; }
+function limpio() { DB = new Map(); LOG = []; META = { wa: [], push: [], mail: [], falla: false, lat: 0, romper: null, max: 0 }; }
 const post = (ruta, o, env = ENV0, headers = {}) => W.fetch(new Request("https://w.prueba" + ruta, { method: "POST", headers: { origin: "https://citalyapp.com", "content-type": "application/json", ...headers }, body: typeof o === "string" ? o : JSON.stringify(o) }), env);
 async function cron(env = ENV0, cual = "0 * * * *") { const p = []; LOG = []; await W.scheduled({ cron: cual, scheduledTime: AHORA }, env, { waitUntil: (x) => p.push(x) }); await Promise.all(p); return LOG.length; }
 function negocio(bid, extra = {}, sub = {}) {
@@ -112,7 +117,8 @@ function negocio(bid, extra = {}, sub = {}) {
 const TK = "abcdefghijkmnpqrstuvwxyz"; // 24 letras, como newTok() de la página de reservas
 function cita(bid, jid, extra = {}) { put(`biz/${bid}/jobs/${jid}`, { cli: "Ana María Rojas", tel: "88887777", date: dia(AHORA + 864e5), time: "10:00", items: ["Lavado completo"], st: "Por confirmar", web: true, at: AHORA, tk: TK, ...extra }); }
 const J_ = (bid, jid) => doc(`biz/${bid}/jobs/${jid}`);
-const usados = (bid) => (doc(`wa/${bid}_${dia(AHORA).slice(0, 7)}`) || {}).n || 0;
+const usados = (bid, prueba) => (doc(prueba ? `wa/${bid}_prueba` : `wa/${bid}_${dia(AHORA).slice(0, 7)}`) || {}).n || 0;
+const PRUEBA = { plan: "trial", status: "trial", tier: null };
 let mal = 0, n = 0;
 function ok(cond, que) { n++; if (cond) console.log("  ✅ " + que); else { mal++; console.log("  ❌ " + que); } }
 const igual = (a, b, que) => ok(JSON.stringify(a) === JSON.stringify(b), que + (JSON.stringify(a) === JSON.stringify(b) ? "" : `\n       esperaba ${JSON.stringify(b)}\n       llegó    ${JSON.stringify(a)}`));
@@ -135,13 +141,14 @@ igual((w.template.components[0] || {}).parameters, [{ type: "text", text: "Ana" 
 igual(w.template.components[1], { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: "car-keyss." + TK }] }, "el botón lleva al link corto de «Mi cita»");
 ok(J_("b1", "j1").waC === AHORA && !J_("b1", "j1").waE, "la cita queda marcada con waC y sin error");
 igual(usados("b1"), 1, "cuenta 1 mensaje en el mes");
-igual([doc("waTo/50688887777").biz, doc("waTo/50688887777").job, doc("waTo/50688887777").bwa], ["b1", "j1", "50661506610"], "guarda de qué negocio y cita fue, para cuando el cliente conteste");
+igual([doc("waTo/50688887777").biz, doc("waTo/50688887777").job, doc("waTo/50688887777").bwa, doc("waTo/50688887777").cli], ["b1", "j1", "50661506610", "Ana"], "guarda de qué negocio y cita fue (solo el primer nombre), para cuando el cliente conteste");
+ok(!!doc("wa/c_b1_j1") && doc("wa/t_50688887777_2026-12-03").n === 1 && doc("wa/d_b1_2026-12-03").n === 1 && doc("wa/_dia_2026-12-03").n === 1, "deja el candado del mensaje y suma en las cuentas del día (número, negocio y plataforma)");
 ok(META.push.length === 1, "el aviso al celular del dueño sigue saliendo igual");
 r = await (await post("/push", { ev: "new", biz: "b1", job: "j1" })).json();
 ok(META.wa.length === 1 && usados("b1") === 1, "si la página avisa dos veces, NO se manda ni se cuenta dos veces");
 
 titulo("Quién NO recibe confirmación");
-const caso = async (que, armar, espera = 0) => { limpio(); armar(); const x = await (await post("/push", { ev: "new", biz: "b1", job: "j1" })).json(); ok(x.ok === true && META.wa.length === espera && usados("b1") === espera && META.push.length === 1, que); };
+const caso = async (que, armar, espera = 0, prueba = false) => { limpio(); armar(); const x = await (await post("/push", { ev: "new", biz: "b1", job: "j1" })).json(); ok(x.ok === true && META.wa.length === espera && usados("b1", prueba) === espera && META.push.length === 1, que); };
 await caso("negocio con la función apagada", () => { negocio("b1", { waAuto: { on: false } }); cita("b1", "j1"); });
 await caso("negocio que nunca la encendió (sin waAuto)", () => { negocio("b1", { waAuto: null }); cita("b1", "j1"); });
 await caso("apagó solo la confirmación", () => { negocio("b1", { waAuto: { on: true, conf: false } }); cita("b1", "j1"); });
@@ -150,9 +157,12 @@ await caso("plan Turbo sin el extra", () => { negocio("b1", {}, { tier: "turbo" 
 await caso("plan suspendido", () => { negocio("b1", {}, { status: "suspended" }); cita("b1", "j1"); });
 await caso("plan vencido", () => { negocio("b1", {}, { until: new Date(AHORA - 864e5) }); cita("b1", "j1"); });
 await caso("cita sin link «Mi cita» (sin tk)", () => { negocio("b1"); cita("b1", "j1", { tk: null }); });
+await caso("cuenta demo", () => { negocio("b1", {}, { demo: true }); cita("b1", "j1"); });
+await caso("cita con la hora mal escrita", () => { negocio("b1"); cita("b1", "j1", { time: "mañana" }); });
+await caso("cita con fecha imposible (mes 13)", () => { negocio("b1"); cita("b1", "j1", { date: "2026-13-04" }); });
 titulo("Quién SÍ la recibe");
 await caso("Arranque CON el extra (subs.waauto)", () => { negocio("b1", {}, { tier: "arranque", waauto: true }); cita("b1", "j1"); }, 1);
-await caso("prueba gratis", () => { negocio("b1", {}, { plan: "trial", status: "trial", tier: null, until: new Date(AHORA + 5 * 864e5) }); cita("b1", "j1"); }, 1);
+await caso("prueba gratis", () => { negocio("b1", {}, PRUEBA); cita("b1", "j1"); }, 1, true);
 await caso("cuenta vieja sin tier y sin mensualidad (se trata como Nitro, igual que la app)", () => { negocio("b1", {}, { plan: "setup", tier: null }); cita("b1", "j1"); }, 1);
 
 titulo("Sin WhatsApp conectado en el servidor");
@@ -167,9 +177,16 @@ ok(META.wa.length === 0 && J_("b1", "j1").waE === "tel" && usados("b1") === 0, "
 limpio(); negocio("b1", { country: "PA" }); cita("b1", "j1", { tel: "61234567", cli: "  José\nLuis   Mora " });
 await post("/push", { ev: "new", biz: "b1", job: "j1" });
 igual([META.wa[0].to, META.wa[0].template.components[0].parameters[0].text], ["50761234567", "José"], "negocio de Panamá usa 507; el nombre va limpio, sin saltos de línea");
-limpio(); negocio("b1"); cita("b1", "j1", { tel: "50761234567", time: "13:05" });
+limpio(); negocio("b1"); cita("b1", "j1", { tel: "50688887777", time: "13:05" });
 await post("/push", { ev: "new", biz: "b1", job: "j1" });
-igual([META.wa[0].to, META.wa[0].template.components[0].parameters[2].text], ["50761234567", "viernes 4 de diciembre a la 1:05 pm"], "número que ya trae código de país se respeta; «a la 1:05 pm»");
+igual([META.wa[0].to, META.wa[0].template.components[0].parameters[2].text], ["50688887777", "viernes 4 de diciembre a la 1:05 pm"], "número que ya trae el 506 se respeta; «a la 1:05 pm»");
+for (const tel of ["50761234567", "447700900123", "12025550123"]) {
+  limpio(); negocio("b1"); cita("b1", "j1", { tel }); await post("/push", { ev: "new", biz: "b1", job: "j1" });
+  ok(META.wa.length === 0 && J_("b1", "j1").waE === "tel" && usados("b1") === 0, "negocio de Costa Rica NO le escribe a un número de otro país (" + tel + ")");
+}
+limpio(); negocio("b1", { name: "Banco X: entre ya a www.robo.com/clave o llame al 8888-9999 ahora" }); cita("b1", "j1", { cli: "http://malo.ly/x Pedro" });
+await post("/push", { ev: "new", biz: "b1", job: "j1" });
+igual(META.wa[0].template.components[0].parameters.slice(0, 2).map((x) => x.text), ["👋", "Banco X: entre ya a o llame al ahora"], "a los nombres se les quitan los links y los teléfonos (nadie puede usar los avisos para mandar otra cosa)");
 
 titulo("Cuando Meta no acepta el mensaje");
 limpio(); negocio("b1"); cita("b1", "j1"); META.falla = true;
@@ -177,16 +194,47 @@ r = await (await post("/push", { ev: "new", biz: "b1", job: "j1" })).json();
 ok(r.ok && r.w === 0 && !J_("b1", "j1").waC && J_("b1", "j1").waE === "error" && usados("b1") === 0, "no marca enviado, deja waE = error y devuelve el mensaje a la cuenta");
 
 titulo("Tope de mensajes");
-limpio(); negocio("b1", {}, { plan: "trial", status: "trial", tier: null, until: new Date(AHORA + 5 * 864e5) }); cita("b1", "j1"); cita("b1", "j2", { tel: "88886666" });
-put("wa/b1_2026-12", { n: 20 });
+limpio(); negocio("b1", {}, PRUEBA); cita("b1", "j1"); cita("b1", "j2", { tel: "88886666" });
+put("wa/b1_prueba", { n: 20 });
 await post("/push", { ev: "new", biz: "b1", job: "j1" });
-ok(META.wa.length === 0 && J_("b1", "j1").waE === "tope" && usados("b1") === 20, "en la prueba, con 20 usados no manda más y la cuenta se queda en 20");
+ok(META.wa.length === 0 && J_("b1", "j1").waE === "tope" && usados("b1", true) === 20 && !doc("wa/c_b1_j1") && !doc("wa/_dia_2026-12-03").n, "en la prueba, con 20 usados no manda más, la cuenta se queda en 20 y no queda nada apartado");
 ok(META.push.length === 2 && /Se acabaron/.test(META.push[1].title) && /20 mensajes de tu prueba/.test(META.push[1].body), "le avisa al dueño que se acabaron");
 await post("/push", { ev: "new", biz: "b1", job: "j2" });
 ok(META.push.filter((p) => /Se acabaron/.test(p.title)).length === 1, "ese aviso sale una sola vez al mes");
 limpio(); negocio("b1"); cita("b1", "j1"); put("wa/b1_2026-12", { n: 149 });
 await post("/push", { ev: "new", biz: "b1", job: "j1" });
 ok(META.wa.length === 1 && usados("b1") === 150, "Nitro: el mensaje 150 sí sale");
+AHORA = cr("2026-11-30T10:00:00"); limpio(); negocio("b1", {}, PRUEBA); put("wa/b1_prueba", { n: 20 }); cita("b1", "j1");
+AHORA = cr("2026-12-01T10:00:00"); put("biz/b1/jobs/j1", { ...J_("b1", "j1"), at: AHORA });
+await post("/push", { ev: "new", biz: "b1", job: "j1" });
+igual(META.wa.length, 0, "la prueba gratis NO recibe otros 20 mensajes al cambiar de mes");
+AHORA = cr("2026-12-03T09:15:00");
+
+titulo("Frenos contra abuso");
+limpio(); negocio("b1"); negocio("b2", { slug: "otro-negocio" });
+for (let i = 0; i < 4; i++) { cita(i % 2 ? "b2" : "b1", "j" + i); await post("/push", { ev: "new", biz: i % 2 ? "b2" : "b1", job: "j" + i }); }
+ok(META.wa.length === 3 && J_("b2", "j3").waE === "freno" && usados("b1") + usados("b2") === 3, "un mismo número recibe como mucho 3 mensajes al día entre todos los negocios; el cuarto no sale ni se cuenta");
+limpio(); negocio("b1"); put("wa/d_b1_2026-12-03", { n: 50 }); cita("b1", "j1");
+await post("/push", { ev: "new", biz: "b1", job: "j1" });
+ok(META.wa.length === 0 && J_("b1", "j1").waE === "freno" && usados("b1") === 0, "un negocio manda como mucho 50 al día");
+limpio(); negocio("b1"); put("wa/_dia_2026-12-03", { n: 300 }); cita("b1", "j1");
+await post("/push", { ev: "new", biz: "b1", job: "j1" }, { ...ENV0, RESEND_KEY: "re" });
+ok(META.wa.length === 0 && J_("b1", "j1").waE === "freno" && doc("wa/_dia_2026-12-03").n === 300, "freno de toda la plataforma: 300 al día");
+ok(META.mail.length === 1 && /freno de WhatsApp/.test(META.mail[0].subject), "y le llega un correo al admin");
+cita("b1", "j2", { tel: "88880009" }); await post("/push", { ev: "new", biz: "b1", job: "j2" }, { ...ENV0, RESEND_KEY: "re" });
+igual(META.mail.length, 1, "ese correo sale una sola vez al día");
+limpio(); negocio("b1"); put("wa/_dia_2026-12-03", { n: 300 }); cita("b1", "j1");
+await post("/push", { ev: "new", biz: "b1", job: "j1" }, { ...ENV0, WA_DIA_MAX: "500" });
+igual(META.wa.length, 1, "el freno de la plataforma se puede subir con WA_DIA_MAX");
+limpio(); negocio("b1", {}, PRUEBA); put("wa/_diap_2026-12-03", { n: 60 }); cita("b1", "j1");
+await post("/push", { ev: "new", biz: "b1", job: "j1" });
+ok(META.wa.length === 0 && usados("b1", true) === 0, "todas las pruebas gratis juntas mandan como mucho 60 al día");
+
+titulo("Avisos repetidos al mismo tiempo");
+limpio(); negocio("b1"); cita("b1", "j1"); META.lat = 60;
+const varias = await Promise.all([1, 2, 3, 4, 5, 6].map(() => post("/push", { ev: "new", biz: "b1", job: "j1" }).then((x) => x.json())));
+ok(META.wa.length === 1 && usados("b1") === 1 && doc("wa/t_50688887777_2026-12-03").n === 1, `6 avisos de la misma reserva a la vez: sale UN solo WhatsApp y se cuenta una vez (salieron ${META.wa.length})`);
+META.lat = 0;
 
 /* =====================  RECORDATORIO DEL DÍA ANTES  ===================== */
 titulo("Recordatorio del día antes (cron)");
@@ -251,27 +299,54 @@ await cron(); ok(META.wa.length === 1 && J_("b1", "j1").waRd === man, "si ya hab
 
 titulo("Errores pasajeros y tope en el cron");
 limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); META.falla = true;
-await cron(); ok(J_("b1", "j1").waE === "error" && !J_("b1", "j1").waRd && doc("biz/b1").waDay !== man && usados("b1") === 0, "si Meta falla, queda pendiente y no se cuenta");
+await cron(); ok(J_("b1", "j1").waE === "error" && !J_("b1", "j1").waRd && doc("biz/b1").waDay !== man && usados("b1") === 0 && !doc("wa/r_b1_j1_" + man), "si Meta falla, queda pendiente, no se cuenta y se suelta el candado");
 META.falla = false; AHORA += 3600e3; await cron();
 ok(J_("b1", "j1").waRd === man && !J_("b1", "j1").waE && usados("b1") === 1, "en la corrida siguiente sí sale y se limpia el error");
+AHORA = cr("2026-12-03T16:00:00"); limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); META.falla = true;
+for (let i = 0; i < 5; i++) { await cron(); AHORA += 3600e3; }
+ok(META.wa.length === 2 && J_("b1", "j1").waRn === 2 && doc("biz/b1").waDay === man, "si Meta rechaza siempre la misma cita, se intenta 2 veces y no más (no se come las corridas)");
+
+titulo("Si algo falla justo después de mandar, no se manda dos veces");
+AHORA = cr("2026-12-03T17:00:00"); limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1, time: "08:00" }); cita("b1", "j2", { at: 1, waC: 1, time: "09:00", tel: "88880002" });
+META.romper = (url, m) => m === "PATCH" && url.includes("/biz/b1/jobs/j1"); // se cae justo al anotar la primera cita
+await cron(); META.romper = null;
+ok(META.wa.length === 1 && !J_("b1", "j1").waRd, "la corrida se corta después de mandar el primero, sin anotarlo");
+AHORA += 10 * 60e3; await cron();
+ok(META.wa.length === 2 && META.wa[1].to === "50688880002" && J_("b1", "j1").waRd === man && !!J_("b1", "j1").waR && usados("b1") === 2, "la corrida siguiente NO le repite al primero (solo lo anota) y sigue con el segundo");
+limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); put("wa/r_b1_j1_" + man, { at: AHORA - 30e3 });
+await cron(); ok(META.wa.length === 0 && !J_("b1", "j1").waRd, "si otra corrida lo está mandando en este momento (candado de hace 30 s), no se toca");
+
+titulo("Un negocio con problemas no frena a los demás");
+limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 }); negocio("b2", { slug: "otro-negocio" }); cita("b2", "j1", { at: 1, waC: 1, tel: "88880002" });
+put("subs/b1", { ...doc("subs/b1"), until: "no es una fecha" }); // dato dañado
+await cron(); igual(META.wa.map((x) => x.to), ["50688880002"], "con los datos de un negocio dañados, el otro recibe su recordatorio");
 AHORA = cr("2026-12-03T17:00:00"); limpio(); negocio("b1"); put("wa/b1_2026-12", { n: 150 });
+put("biz/b1/push/p2", { t: "celular-2" }); put("biz/b1/push/p3", { t: "celular-3" });
 for (let i = 0; i < 4; i++) cita("b1", "j" + i, { at: 1, waC: 1, tel: "8888000" + i, time: String(8 + i).padStart(2, "0") + ":00" });
-await cron();
+const llTope = await cron();
 ok(META.wa.length === 0 && J_("b1", "j0").waE === "tope" && !J_("b1", "j1").waE && doc("biz/b1").waDay === man && usados("b1") === 150, "con 150 usados: marca la primera con «tope», no sigue intentando y cierra el día");
-ok(META.push.filter((p) => /Se acabaron/.test(p.title)).length === 1, "y le avisa al dueño una vez");
+ok(META.push.filter((p) => /Se acabaron/.test(p.title)).length === 3 && llTope <= 2 + 2 + 16 + 1, `y le avisa al dueño en sus 3 celulares sin pasarse de lo calculado (${llTope} llamadas)`);
 
 titulo("Muchos negocios: límite de llamadas por corrida");
 limpio();
 for (let b = 0; b < 6; b++) { negocio("n" + b, { slug: "negocio-" + b }); for (let i = 0; i < 8; i++) cita("n" + b, "c" + i, { at: 1, waC: 1, tel: "8" + b + "00000" + i, time: "0" + (i + 1) + ":00" }); }
 let corridas = 0, maxLl = 0, total = 0;
 for (; corridas < 40 && total < 48; corridas++) { META.wa = []; maxLl = Math.max(maxLl, await cron()); total += META.wa.length; AHORA += 60e3; }
-ok(total === 48 && maxLl <= 34, `salen los 48 recordatorios sin pasar de 34 llamadas por corrida (máximo visto: ${maxLl}, en ${corridas} corridas)`);
+ok(total === 48 && maxLl <= 46, `salen los 48 recordatorios sin pasar de 46 llamadas por corrida (máximo visto: ${maxLl}, en ${corridas} corridas)`);
 let dobles = 0; for (let b = 0; b < 6; b++) dobles += usados("n" + b) === 8 ? 0 : 1;
 igual(dobles, 0, "cada negocio cuenta exactamente 8: nadie recibe doble");
 limpio(); for (let b = 0; b < 6; b++) { negocio("n" + b, { slug: "negocio-" + b }); for (let i = 0; i < 8; i++) cita("n" + b, "c" + i, { at: 1, waC: 1, tel: "8" + b + "00000" + i }); }
 maxLl = 0; total = 0;
 for (corridas = 0; corridas < 40 && total < 48; corridas++) { META.wa = []; maxLl = Math.max(maxLl, await cron({ ...ENV0, WA_CRON: "*/10 * * * *" }, "*/10 * * * *")); total += META.wa.length; AHORA += 60e3; }
-ok(total === 48 && maxLl <= 48, `con cron aparte rinde más por corrida y no pasa de 48 llamadas (máximo visto: ${maxLl}, en ${corridas} corridas)`);
+ok(total === 48 && maxLl <= 46, `con cron aparte tampoco pasa de 46 llamadas (máximo visto: ${maxLl}, en ${corridas} corridas)`);
+// correos y recordatorios en la misma corrida: juntos no pueden pasar de 50 llamadas (límite del plan gratis de Cloudflare)
+AHORA = cr("2026-12-03T17:00:00"); limpio();
+for (let b = 0; b < 12; b++) { negocio("m" + b, { slug: "correo-" + b, email: "d" + b + "@prueba.com", waAuto: null }, { ...PRUEBA, start: AHORA - 3600e3, until: new Date(AHORA + 6 * 864e5) }); }
+for (let b = 0; b < 4; b++) { negocio("n" + b, { slug: "negocio-" + b }); for (let i = 0; i < 8; i++) cita("n" + b, "c" + i, { at: 1, waC: 1, tel: "8" + b + "00000" + i }); }
+META.max = 50; const juntas = await cron({ ...ENV0, RESEND_KEY: "re" }); META.max = 0;
+ok(META.mail.length === 12 && juntas <= 50 && META.wa.length > 0, `12 correos y recordatorios en la misma corrida: ${juntas} llamadas en total (máximo 50), salieron ${META.wa.length} recordatorios`);
+let pendientes = 0; for (let b = 0; b < 4; b++) for (let i = 0; i < 8; i++) { const j = J_("n" + b, "c" + i); if (j.waRd && !j.waR) pendientes++; }
+igual(pendientes, 0, "y ninguna cita queda a medias");
 
 titulo("Quién corre qué en el cron");
 AHORA = cr("2026-12-03T17:00:00");
@@ -322,7 +397,7 @@ igual((await get("hub.mode=subscribe&hub.verify_token=&hub.challenge=1", { ...EN
 const entra = (m, tel = "111222") => JSON.stringify({ object: "whatsapp_business_account", entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: tel }, messages: [m] } }] }] });
 const meta = async (cuerpo, sig) => post("/wa/meta", cuerpo, ENV0, { "x-hub-signature-256": sig === undefined ? await firma(cuerpo) : sig });
 AHORA = cr("2026-12-03T18:00:00"); limpio(); negocio("b1"); put("biz/b1", { ...doc("biz/b1"), mailTo: "dueno@prueba.com" });
-put("waTo/50688887777", { biz: "b1", job: "j1", cli: "Ana María Rojas", name: "Car Keyss Detailing", bwa: "50661506610", at: AHORA - 3600e3 });
+put("waTo/50688887777", { biz: "b1", job: "j1", cli: "Ana", name: "Car Keyss Detailing", bwa: "50661506610", at: AHORA - 3600e3 });
 let c = entra({ from: "50688887777", id: "wamid.A", type: "text", text: { body: "No puedo llegar mañana, ¿la pasamos al sábado?" } });
 igual((await meta(c, "sha256=" + "0".repeat(64))).status, 401, "firma falsa → 401");
 ok(META.push.length === 0 && META.wa.length === 0, "y no hace nada");
@@ -337,7 +412,9 @@ ok(META.push.length === 2 && META.wa.length === 1, "un segundo mensaje sí le ll
 await meta(entra({ from: "50688887777", id: "wamid.C", type: "reaction", reaction: { emoji: "👍" } }));
 ok(META.push.length === 3 && /👍 Ana reaccionó/.test(META.push[2].title) && META.wa.length === 1, "una reacción 👍 le llega al dueño y no dispara respuesta");
 await meta(entra({ from: "50688887777", id: "wamid.D", type: "audio", audio: {} }));
-ok(/Mandó 🎤 un audio/.test(META.push[3].body), "un audio se avisa como audio");
+igual(META.push.length, 3, "el cuarto mensaje de la misma hora ya no molesta al dueño (máximo 3 por hora por cliente)");
+AHORA += 3600e3; await meta(entra({ from: "50688887777", id: "wamid.D2", type: "audio", audio: {} }));
+ok(META.push.length === 4 && /Mandó 🎤 un audio/.test(META.push[3].body), "a la hora siguiente vuelve a avisar; un audio se avisa como audio");
 await meta(entra({ from: "50670000000", id: "wamid.E", type: "text", text: { body: "hola" } }));
 ok(META.push.length === 4 && META.wa.length === 2 && /nadie lee los mensajes/.test(META.wa[1].text.body) && !/wa\.me/.test(META.wa[1].text.body), "un número desconocido recibe la respuesta general y no molesta a ningún dueño");
 await meta(entra({ from: "50688887777", id: "wamid.F", type: "text", text: { body: "x" } }, "999"));
@@ -346,7 +423,44 @@ put("waTo/50688881111", { biz: "b1", job: "j9", cli: "Luis", name: "Car Keyss De
 await meta(entra({ from: "50688881111", id: "wamid.G", type: "text", text: { body: "hola" } }));
 ok(META.push.length === 4 && META.wa.length === 3, "si el aviso fue hace más de 7 días, ya no se le pasa al dueño");
 
+titulo("Mensajes que Meta no pudo entregar");
+AHORA = cr("2026-12-03T09:15:00"); limpio(); negocio("b1"); cita("b1", "j1");
+await post("/push", { ev: "new", biz: "b1", job: "j1" });
+const wid = doc("waTo/50688887777").wid, estado = (id, st, code) => JSON.stringify({ entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: "111222" }, statuses: [{ id, status: st, recipient_id: "50688887777", errors: code ? [{ code }] : undefined }] } }] }] });
+ok(!!wid && !!J_("b1", "j1").waC && usados("b1") === 1, "(la confirmación salió y quedó guardado su id)");
+await meta(estado(wid, "delivered")); ok(!!J_("b1", "j1").waC, "«entregado» no cambia nada");
+await meta(estado("wamid.otro", "failed", 131026)); ok(!!J_("b1", "j1").waC, "un fallo de otro mensaje no toca esta cita");
+await meta(estado(wid, "failed", 131026));
+ok(!J_("b1", "j1").waC && J_("b1", "j1").waE === "tel" && usados("b1") === 0, "si Meta avisa que no se pudo entregar (número sin WhatsApp): se quita el ✓, queda waE = tel y se devuelve el mensaje a la cuenta");
+await meta(estado(wid, "failed", 131026)); igual(usados("b1"), 0, "si Meta repite el aviso de fallo, no se devuelve dos veces");
+
+titulo("Fin de mes y de año");
+AHORA = cr("2026-12-31T17:00:00"); limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1, date: "2027-01-01", time: "08:00" });
+await cron(); igual(META.wa[0] && META.wa[0].template.components[0].parameters[2].text, "mañana viernes 1 de enero a las 8:00 am", "el 31 de diciembre recuerda la cita del 1 de enero");
+igual(usados("b1"), 1, "y la cuenta en diciembre");
+AHORA = Date.parse("2027-02-28T16:30:00Z"); limpio(); negocio("es1", { country: "ES", slug: "taller-madrid" }); cita("es1", "j1", { at: 1, waC: 1, tel: "612345679", date: "2027-03-01", time: "09:30" });
+await cron(); igual(META.wa[0] && META.wa[0].template.components[0].parameters[2].text, "mañana lunes 1 de marzo a las 9:30 am", "el 28 de febrero en España recuerda la del 1 de marzo");
+
 titulo("Lo de siempre sigue igual");
+// Sin WhatsApp conectado (así se publica), el Worker debe hacer EXACTAMENTE las mismas llamadas que la versión publicada.
+let W0 = null;
+try {
+  const { execFileSync } = await import("node:child_process");
+  const viejo = execFileSync("git", ["show", "main:webhook/worker.js"], { cwd: aqui, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  if (viejo !== fs.readFileSync(path.join(aqui, "..", "..", "..", "webhook", "worker.js"), "utf8")) { const f = path.join(os.tmpdir(), "citaly-worker-main-" + process.pid + ".mjs"); fs.writeFileSync(f, viejo); W0 = (await import(pathToFileURL(f).href)).default; fs.unlinkSync(f); }
+} catch (e) {}
+if (!W0) console.log("  ⏭️  (sin versión anterior para comparar: se salta la comparación con main)");
+else {
+  const SIN = { ...ENV0, WA_TOKEN: "", WA_PHONE_ID: "", RESEND_KEY: "re" };
+  const huella = () => LOG.map((l) => l.m + " " + l.url + " " + l.body.replace(/"assertion=[^"]*|assertion=\S*/g, "")).join("\n");
+  const mundo = () => { limpio(); for (let b = 0; b < 5; b++) { negocio("m" + b, { slug: "correo-" + b, email: "d" + b + "@prueba.com", mailTo: "d" + b + "@prueba.com" }, { ...PRUEBA, start: AHORA - 3600e3, until: new Date(AHORA + 6 * 864e5) }); cita("m" + b, "j1"); } };
+  const corre = async (w, f) => { mundo(); LOG = []; await f(w); return huella(); };
+  AHORA = cr("2026-12-03T17:00:00");
+  const cronDe = async (w) => { const p = []; await w.scheduled({ cron: "0 * * * *", scheduledTime: AHORA }, SIN, { waitUntil: (x) => p.push(x) }); await Promise.all(p); };
+  ok((await corre(W0, cronDe)) === (await corre(W, cronDe)) && LOG.length > 5, "cron con correos: mismas llamadas que la versión publicada");
+  const pushDe = async (w) => { const r = await w.fetch(new Request("https://w.prueba/push", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ev: "new", biz: "m0", job: "j1" }) }), SIN); await r.text(); };
+  ok((await corre(W0, pushDe)) === (await corre(W, pushDe)) && LOG.length > 5, "reserva nueva (/push): mismas llamadas que la versión publicada");
+}
 r = await W.fetch(new Request("https://w.prueba/", { method: "POST", body: "{}" }), { ...ENV0, POLAR_WEBHOOK_SECRET: "x" });
 igual(r.status, 401, "el webhook de Polar sigue pidiendo firma");
 igual(await (await W.fetch(new Request("https://w.prueba/wa/uso"), ENV0)).text(), "ok", "GET a una ruta nueva responde ok");

@@ -1668,10 +1668,11 @@ h+='<div class="card" style="box-shadow:none;margin-top:14px"><b>✉️ Respaldo
    biz.waAuto {on,conf,rem} (apagado si no existe; conf y rem valen true si faltan), muestra el uso (/wa/uso) y pide una prueba (/wa/prueba).
    En cada cita el Worker escribe waC / waR / waRd / waE: la app solo los lee. Mismo criterio de plan que el Worker. */
 var WA_MAX={prueba:20,nitro:150,extra:150};
-function waPlan(){if(!SUB)return "";if(SUB.status==="trial")return "prueba";if(tier()==="nitro")return "nitro";if(SUB.waauto===true)return "extra";return ""}
+function waPlan(){if(!SUB||SUB.demo===true||SUB.status==="suspended")return "";var u=SUB.until&&SUB.until.toDate?SUB.until.toDate().getTime():0;if(!(u>Date.now()))return "";
+  if(SUB.status==="trial")return "prueba";if(tier()==="nitro")return "nitro";if(SUB.waauto===true)return "extra";return ""}
 function waCfg(){var w=B&&B.waAuto||{};return {on:w.on===true,conf:w.conf!==false,rem:w.rem!==false}}
 function waCall(path){return auth.currentUser.getIdToken().then(function(t){return fetch((C.pushUrl||"").replace(/\/push$/,"")+path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:t})})}).then(function(r){return r.json()})}
-var WA_ERR={tope:"se acabaron los mensajes del mes",tel:"el número del cliente no es válido",error:"WhatsApp no lo aceptó"};
+var WA_ERR={tope:"se acabaron los mensajes",tel:"el número del cliente no es válido o no tiene WhatsApp",error:"WhatsApp no lo aceptó",freno:"se llegó al máximo de mensajes de hoy"};
 function waMarks(j){var o=[],c=!!j.waC,r=!!(j.waR&&j.waRd===j.date);if(c)o.push([1,"✓ Confirmación automática enviada"]);if(r)o.push([1,"✓ Recordatorio automático enviado"]);
   if(j.waE&&!(c&&r))o.push([0,"No salió el WhatsApp automático"+(WA_ERR[j.waE]?": "+WA_ERR[j.waE]:"")]);return o}
 /* En la tarjeta de la agenda, corto (el detalle de la cita trae el texto completo) */
@@ -1687,12 +1688,12 @@ function waaSheet(){var pl=waPlan(),A=C.addons&&C.addons.waauto||{n:"Recordatori
   var w=waCfg();
   function save(){var o={on:$("waaOn").checked,conf:$("waaC")?$("waaC").checked:w.conf,rem:$("waaR")?$("waaR").checked:w.rem},old=B.waAuto;w=o;B.waAuto=o;draw();render();
     db.doc("biz/"+BID).set({waAuto:o},{merge:true}).then(function(){toast(o.on?"Recordatorios automáticos encendidos ✓":"Recordatorios automáticos apagados")},function(e){B.waAuto=old;w=waCfg();draw();render();toast(errEs(e))})}
-  function uso(){var max=U0&&U0.ok?+U0.max||WA_MAX[pl]:WA_MAX[pl];return U0&&U0.ok&&U0.n!=null?(+U0.n||0)+" de "+max+" mensajes este mes":"—"}
+  function uso(){var max=U0&&U0.ok&&U0.plan?+U0.max||WA_MAX[pl]:WA_MAX[pl];return U0&&U0.ok&&U0.n!=null?(+U0.n||0)+" de "+max+(pl==="prueba"?" mensajes de tu prueba":" mensajes este mes"):"—"}
   function draw(){if(!$("waaBox"))return;var off=!!(U0&&U0.ok&&U0.live===false),lk=off&&!w.on;
     $("waaBox").innerHTML=(off?'<div class="warnbox" id="waaLive" style="margin-bottom:8px">🚧 Muy pronto: estamos terminando de conectar WhatsApp</div>':'')
-      +'<div class="waRw" style="border-top:0"><div><b>Encender recordatorios automáticos</b><small>'+(w.on?"Encendidos: salen solos":"Apagados: no sale nada automático")+'</small></div><label class="toggle"><input type="checkbox" class="tg" id="waaOn"'+(w.on?" checked":"")+(lk?" disabled":"")+'><span></span></label></div>'
+      +'<div class="waRw" style="border-top:0"><div><b>Encender recordatorios automáticos</b><small>'+(w.on?"Encendidos: salen solos":"Apagados: no sale nada automático")+'</small></div><label class="toggle"><input type="checkbox" class="tg" id="waaOn" aria-label="Encender recordatorios automáticos"'+(w.on?" checked":"")+(lk?" disabled":"")+'><span></span></label></div>'
       +(w.on?'<label class="waRw"><span><b>Confirmación cuando reserva</b><small>Apenas reserva en tu página</small></span><input type="checkbox" id="waaC"'+(w.conf?" checked":"")+'></label><label class="waRw"><span><b>Recordatorio el día antes</b><small>Con el botón para cambiar o cancelar</small></span><input type="checkbox" id="waaR"'+(w.rem?" checked":"")+'></label>':'')
-      +'<div class="waRw" style="display:block"><div class="waU" id="waaU">'+uso()+'</div>'+(pl==="prueba"?'<small>En tu prueba tenés '+WA_MAX.prueba+' mensajes para verlo funcionar.</small>':'<small>Se renuevan cada mes.</small>')+'</div>'
+      +'<div class="waRw" style="display:block"><div class="waU" id="waaU">'+uso()+'</div>'+(pl==="prueba"?'<small>Son '+WA_MAX.prueba+' mensajes para que lo veás funcionar. Con Nitro tenés '+WA_MAX.nitro+' al mes.</small>':'<small>Se renuevan cada mes.</small>')+'</div>'
       +'<button class="btn alt" id="waaT"'+(off?" disabled":"")+'>📩 Enviarme una prueba</button><p class="mute small" style="text-align:center;margin:6px 0 0">Te llega al WhatsApp de tu negocio.</p>';
     $("waaOn").onchange=save;if($("waaC"))$("waaC").onchange=save;if($("waaR"))$("waaR").onchange=save;
     $("waaT").onclick=function(){var b=this;b.disabled=true;b.textContent="Enviando…";waCall("/wa/prueba").then(function(j){b.disabled=false;b.textContent="📩 Enviarme una prueba";
@@ -1975,7 +1976,7 @@ function usedFeats(){var u=[],b=B||{},w=b.web||{},T=function(n,k){u.push({n:n,k:
   if(typeof EXP!=="undefined"&&EXP.length)T("Gastos y ganancia");if(b.mods&&b.mods.insumos)T("Control de insumos","nitro");
   var e=w.estilo||"";if(EST_MIN[e]&&EST_MIN[e]!=="arranque")T("Estilo de página «"+e+"»",EST_MIN[e]);
   if((w.steps||[]).length||(w.why||[]).length)T("Secciones «Así funciona» y «Por qué elegirte»");
-  if(b.waAuto&&b.waAuto.on)T("Recordatorios automáticos por WhatsApp","nitro");return u}
+  if(b.waAuto&&b.waAuto.on&&!(SUB&&SUB.waauto===true))T("Recordatorios automáticos por WhatsApp","nitro");return u}
 function recPlan(){var r="arranque";usedFeats().forEach(function(f){if(TIERS.indexOf(f.k)>TIERS.indexOf(r))r=f.k});return r}
 function lostIn(k){return usedFeats().filter(function(f){return TIERS.indexOf(f.k)>TIERS.indexOf(k)})}
 function planSheet(){var cur=tier(),trial=SUB&&SUB.status==="trial",rec=recPlan(),uf=usedFeats();

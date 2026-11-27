@@ -2,7 +2,7 @@
 - /r/?wa=<slug>.<tk> abre «Mi cita» igual que /r/?n=<slug>&cita=<tk> (mover y cancelar funcionan igual, con las reglas reales).
 - /r/?wa=<slug> abre la página de reservas normal de ese negocio.
 - ?n= / ?cita= siguen funcionando y mandan si vienen los dos formatos.
-- En el último paso, junto a «Confirmar cita», se ve la línea «Al confirmar aceptas recibir la confirmación y el recordatorio
+- En el último paso, junto a «Confirmar cita», se ve la línea «Al confirmar aceptas recibir por WhatsApp la confirmación y el recordatorio
   de tu cita por WhatsApp.» sin tapar nada ni mover el botón, también a 320 px."""
 import os, sys
 sys.path.insert(0, os.path.dirname(__file__))
@@ -10,7 +10,7 @@ from ayuda import *
 from comun.base import Banco
 
 D1, D2, D3 = dia(1), dia(2), dia(3)
-PERMISO = "Al confirmar aceptas recibir la confirmación y el recordatorio de tu cita por WhatsApp."
+PERMISO = "Al confirmar aceptas recibir por WhatsApp la confirmación y el recordatorio de tu cita, del negocio o de Citaly en su nombre."
 
 
 def abrir(b, ruta, datos, **kw):

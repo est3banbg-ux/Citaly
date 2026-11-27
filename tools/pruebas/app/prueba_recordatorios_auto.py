@@ -4,12 +4,12 @@ Los manda el Worker; la app solo guarda biz.waAuto {on,conf,rem}, muestra el uso
   Play Store, donde no se muestran precios) y nada de interruptor. Ninguna llamada a /wa/.
 - Nitro: se enciende, guarda waAuto correcto (set con merge), muestra «37 de 150» de /wa/uso, la prueba avisa con toast.
 - /wa/uso con live:false: aviso «Muy pronto» y el interruptor y la prueba deshabilitados. Si falla la red: «—» sin errores.
-- Prueba gratis: «20 mensajes para verlo funcionar». Extra (subs.waauto) en Arranque: sin candado.
+- Prueba gratis: «Son 20 mensajes para que lo veás funcionar». Extra (subs.waauto) en Arranque: sin candado.
 - En cada cita: marcas por waC / waR+waRd / waE, y guardar la cita no borra esos campos.
 - Con la función apagada (el caso de todos hoy) la app no llama nunca a /wa/."""
 import json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
-from ayuda import Banco, negocio, abrir_app, dia, html_mal, esperar, texto_hoja, PLANES
+from ayuda import Banco, negocio, abrir_app, dia, html_mal, esperar, texto_hoja, PLANES, ts
 
 HOY = dia(0, saltar_domingo=False)
 OTRO = dia(1, saltar_domingo=False)
@@ -162,8 +162,22 @@ with Banco() as b:
     p = abrir_app(b, d, u, "prueba", antes=ESPIA)
     worker(p, uso=dict(USO, plan="prueba", max=20, n=3))
     abrir_hoja(p)
-    b.ok("[prueba] «En tu prueba tenés 20 mensajes para verlo funcionar»", "En tu prueba tenés 20 mensajes para verlo funcionar" in texto_hoja(p), texto_hoja(p)[-300:])
-    b.ok("[prueba] uso «3 de 20»", esperar(p, "()=>document.getElementById('waaU').textContent==='3 de 20 mensajes este mes'"))
+    b.ok("[prueba] «Son 20 mensajes para que lo veás funcionar»", "Son 20 mensajes para que lo veás funcionar" in texto_hoja(p), texto_hoja(p)[-300:])
+    b.ok("[prueba] uso «3 de 20»", esperar(p, "()=>document.getElementById('waaU').textContent==='3 de 20 mensajes de tu prueba'"))
+    p.context.close()
+
+    # ---------- 4b) Plan vencido, pausado o demo: igual que el Worker, no lo tiene ----------
+    for nombre, sub in (("prueba vencida", {"status": "trial", "until": ts(-1)}), ("plan pausado", {"status": "suspended", "tier": "nitro", "until": ts(20)}), ("cuenta demo", {"status": "active", "tier": "nitro", "demo": True, "until": ts(20)})):
+        d, u = datos(waAuto={"on": True})
+        d["subs/U1"] = sub
+        p = abrir_app(b, d, u, "", antes=ESPIA)
+        b.ok("[%s] waPlan() vacío: sin interruptor" % nombre, p.evaluate("()=>waPlan()===''"))
+        p.context.close()
+    # Arranque con el extra: la función no se cuenta como «de Nitro» al recomendar plan
+    d, u = datos(waAuto={"on": True})
+    d["subs/U1"] = {"status": "active", "tier": "arranque", "waauto": True, "until": ts(20)}
+    p = abrir_app(b, d, u, "", antes=ESPIA)
+    b.ok("[extra] Arranque con el extra: lo tiene y no se le dice que es de Nitro", p.evaluate("()=>waPlan()==='extra'&&!usedFeats().some(f=>/Recordatorios automáticos/.test(f.n))"))
     p.context.close()
 
     # ---------- 5) Marcas en la cita ----------
@@ -182,8 +196,8 @@ with Banco() as b:
     b.ok("[cita] waC → «✓ Confirmación automática enviada»", p.evaluate(M, "701") == ["✓ Confirmación automática enviada"], p.evaluate(M, "701"))
     b.ok("[cita] waC + waR del mismo día → las dos marcas", p.evaluate(M, "702") == ["✓ Confirmación automática enviada", "✓ Recordatorio automático enviado"], p.evaluate(M, "702"))
     b.ok("[cita] recordatorio de otra fecha no cuenta", p.evaluate(M, "703") == [], p.evaluate(M, "703"))
-    b.ok("[cita] waE tope → «se acabaron los mensajes del mes»", p.evaluate(M, "704") == ["No salió el WhatsApp automático: se acabaron los mensajes del mes"], p.evaluate(M, "704"))
-    b.ok("[cita] waC + waE tel → marca y aviso «número no válido»", p.evaluate(M, "705") == ["✓ Confirmación automática enviada", "No salió el WhatsApp automático: el número del cliente no es válido"], p.evaluate(M, "705"))
+    b.ok("[cita] waE tope → «se acabaron los mensajes»", p.evaluate(M, "704") == ["No salió el WhatsApp automático: se acabaron los mensajes"], p.evaluate(M, "704"))
+    b.ok("[cita] waC + waE tel → marca y aviso «número no válido»", p.evaluate(M, "705") == ["✓ Confirmación automática enviada", "No salió el WhatsApp automático: el número del cliente no es válido o no tiene WhatsApp"], p.evaluate(M, "705"))
     b.ok("[cita] si ya salieron los dos, waE no se muestra", p.evaluate(M, "706") == ["✓ Confirmación automática enviada", "✓ Recordatorio automático enviado"], p.evaluate(M, "706"))
     b.ok("[cita] waE error → «WhatsApp no lo aceptó»", p.evaluate(M, "707") == ["No salió el WhatsApp automático: WhatsApp no lo aceptó"], p.evaluate(M, "707"))
     b.ok("[cita] una cita sin esos campos no muestra nada", p.evaluate(M, "708") == [] and p.evaluate(K, "708") == [])
@@ -193,7 +207,7 @@ with Banco() as b:
     b.ok("[agenda] tarjeta: sin marca si el recordatorio era de otra fecha", p.evaluate(K, "703") == [])
     b.ok("[cita] siguen los botones manuales de WhatsApp", p.evaluate("()=>document.querySelector('.job[data-id=\"702\"]').closest('.jc').querySelector('.ja .btn.wa').textContent.indexOf('Recordar')>=0"))
     p.evaluate("()=>openJob(JOBS.find(x=>x._id==='705'))"); p.wait_for_timeout(400)
-    b.ok("[cita · detalle] muestra las marcas", p.evaluate("()=>document.getElementById('jWa').innerText") == "✓ Confirmación automática enviada\nNo salió el WhatsApp automático: el número del cliente no es válido",
+    b.ok("[cita · detalle] muestra las marcas", p.evaluate("()=>document.getElementById('jWa').innerText") == "✓ Confirmación automática enviada\nNo salió el WhatsApp automático: el número del cliente no es válido o no tiene WhatsApp",
          p.evaluate("()=>(document.getElementById('jWa')||{}).innerText"))
     b.ok("[cita · detalle] siguen los botones manuales", p.evaluate("()=>!!document.querySelector('#shC [data-wa=\"rec\"]')"))
     p.evaluate("()=>{document.getElementById('jN').value='Nota nueva';document.getElementById('jSave').click()}"); p.wait_for_timeout(800)

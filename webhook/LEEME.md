@@ -50,7 +50,7 @@ Cuando un dueño o el admin pega un link corto de TikTok (vm.tiktok.com…) o de
 
 
 ## Recordatorios automáticos por WhatsApp (rutas /wa/… y el cron del mismo Worker)
-Citaly le escribe solo al cliente final desde **un número de Citaly** (API oficial de WhatsApp de Meta): confirmación cuando reserva y recordatorio el día antes (entre 4 y 8 p. m., hora del país del negocio). Cada dueño lo enciende en Ajustes → Recordatorios automáticos. Lo tienen Nitro (150 mensajes al mes), la prueba gratis (20) y quien tenga el extra (`subs/{negocio}.waauto = true`, 150). **Sin `WA_TOKEN` el Worker no manda nada y todo lo demás funciona igual.**
+Citaly le escribe solo al cliente final desde **un número de Citaly** (API oficial de WhatsApp de Meta): confirmación cuando reserva y recordatorio el día antes (entre 4 y 8 p. m., hora del país del negocio). Cada dueño lo enciende en Ajustes → Recordatorios automáticos. Lo tienen Nitro (150 mensajes al mes), la prueba gratis (20 en total) y quien tenga el extra (`subs/{negocio}.waauto = true`, 150). **Sin `WA_TOKEN` el Worker no manda nada y todo lo demás funciona igual.**
 
 ### 1. En Meta (una sola vez)
 1. Un número nuevo que no tenga WhatsApp activo (chip prepago).
@@ -65,26 +65,37 @@ Citaly le escribe solo al cliente final desde **un número de Citaly** (API ofic
 | `cita_recordatorio` | `Hola {{1}}, te recordamos tu cita en *{{2}}*: {{3}}. Si no puedes llegar, cámbiala o cancélala con el botón. ¡Te esperamos! Este es un mensaje automático.` | el mismo |
 | `cita_recordatorio_simple` | `Hola {{1}}, te recordamos tu cita en *{{2}}*: {{3}}. Si no puedes llegar, avísale al negocio con tiempo. ¡Te esperamos! Este es un mensaje automático.` | sin botón |
 
-   Ejemplos que pide Meta: `{{1}}` = Ana · `{{2}}` = Car Keyss Detailing · `{{3}}` = mañana viernes 4 de diciembre a las 10:00 am · botón = `car-keyss.abcdefghijkmnpqrstuvwxyz`. Sin promociones ni precios en el texto: si Meta lo clasifica como «marketing» cuesta unas 6 veces más.
+   Ejemplos que pide Meta: `{{1}}` = Ana · `{{2}}` = Car Keyss Detailing · `{{3}}` = mañana viernes 4 de diciembre a las 10:00 am · botón = `https://citalyapp.com/r/?wa=car-keyss.abcdefghijkmnpqrstuvwxyz` (si el formulario pide solo la parte variable: `car-keyss.abcdefghijkmnpqrstuvwxyz`). Sin promociones ni precios en el texto: si Meta lo clasifica como «marketing» cuesta unas 6 veces más.
 
 ### 2. En Cloudflare (Worker → Configuración → Variables y secretos)
 - `WA_TOKEN` (Secreto) = el token del paso 4.
 - `WA_PHONE_ID` (Texto) = el «Identificador de número de teléfono» (WhatsApp → Configuración de la API). No es el número.
 - `WA_APP_SECRET` (Secreto) = la «Clave secreta de la app» (Configuración de la app → Básica).
 - `WA_VERIFY` (Secreto) = cualquier palabra larga inventada (se repite en el paso 3).
-- Opcionales: `WA_LANG` (si las plantillas quedaron en otro español, por ejemplo `es_MX`), `WA_API` (versión de la API, por defecto `v25.0`).
+- Opcionales: `WA_LANG` (si las plantillas quedaron en otro español, por ejemplo `es_MX`), `WA_API` (versión de la API, por defecto `v25.0`), `WA_DIA_MAX` (máximo de mensajes al día en toda la plataforma, por defecto 300) y `WA_PRUEBA_DIA` (máximo al día entre todas las pruebas gratis, por defecto 60).
+- **Cron aparte para los recordatorios (hacerlo desde el primer día):** Disparadores → agregar un cron `*/10 * * * *`, y la variable `WA_CRON` (Texto) con ese mismo texto exacto. Así los recordatorios no compiten con los correos por el límite de llamadas de Cloudflare.
 Después, volver a pegar `worker.js` → Implementar.
 
-### 3. Para que lleguen las respuestas de los clientes
-Al número de avisos no lo lee nadie. Para que lo que conteste el cliente le llegue al dueño (aviso al celular y correo) y el cliente reciba una respuesta automática: en la app de Meta → WhatsApp → Configuración → **Webhook**: URL `https://bitter-brook-9ee2.citalyapp-cr.workers.dev/wa/meta`, token de verificación = el valor de `WA_VERIFY`, y suscribirse al campo **messages**.
+### 3. Para que lleguen las respuestas de los clientes y los avisos de «no entregado»
+Al número de avisos no lo lee nadie. Para que lo que conteste el cliente le llegue al dueño (aviso al celular y correo, máximo 3 por hora por cliente), el cliente reciba una respuesta automática, y para saber cuándo un mensaje no se pudo entregar (se le quita el ✓ a la cita y se devuelve a la cuenta): en la app de Meta → WhatsApp → Configuración → **Webhook**: URL `https://bitter-brook-9ee2.citalyapp-cr.workers.dev/wa/meta`, token de verificación = el valor de `WA_VERIFY`, y suscribirse al campo **messages**.
 
 ### 4. Probar
 En la app, con un negocio Nitro o en prueba: Ajustes → Recordatorios automáticos → «Enviarme una prueba». Después hacer una reserva real en la página del negocio con tu propio número.
 
+### Frenos contra abuso (para cuidar la plata y que Meta no bloquee el número)
+- Solo se le escribe a números **del país del negocio**.
+- Un mismo número recibe como mucho **3 mensajes al día** entre todos los negocios.
+- Un negocio manda como mucho **50 al día**; toda la plataforma, **300 al día** (`WA_DIA_MAX`); todas las pruebas gratis juntas, **60 al día** (`WA_PRUEBA_DIA`). Si se llega al de la plataforma o al de las pruebas, llega un correo al admin.
+- La prueba gratis tiene 20 mensajes **en total** (no se renuevan al cambiar de mes). Las cuentas demo no mandan.
+- A los nombres del cliente y del negocio se les quitan links y teléfonos antes de mandarlos.
+- Cada mensaje tiene un candado: aunque la página avise dos veces o algo falle a medio camino, no sale repetido.
+
 ### Datos que guarda
-- En la cita: `waC` (confirmación enviada), `waR` + `waRd` (recordatorio enviado y para qué fecha), `waE` (por qué no salió: `tope`, `tel`, `error`), `waRt` (interno).
-- `wa/{negocio}_{AAAA-MM}`: cuántos mensajes lleva en el mes (solo lo escribe el Worker). `waTo/{número}`: a qué negocio y cita pertenece el último aviso a ese número (para pasarle las respuestas al dueño). Ninguna de las dos colecciones se puede leer desde la app: no hace falta tocar las reglas de Firebase.
+- En la cita: `waC` (confirmación enviada), `waR` + `waRd` (recordatorio enviado y para qué fecha), `waE` (por qué no salió: `tope`, `tel`, `error`, `freno`), `waRt` y `waRn` (internos: último intento y cuántos van).
+- Colección `wa/` (solo la escribe el Worker; desde la app no se puede leer, no hace falta tocar las reglas de Firebase): `{negocio}_{AAAA-MM}` o `{negocio}_prueba` = mensajes del plan; `c_…`, `r_…`, `p_…` = candado de cada mensaje; `t_{número}_{día}`, `d_{negocio}_{día}`, `_dia_{día}`, `_diap_{día}` = cuentas de los frenos.
+- `waTo/{número}`: a qué negocio y cita pertenece el último aviso a ese número, con el primer nombre del cliente (para pasarle las respuestas al dueño).
 - `biz/{negocio}.waDay`: día para el que ya salieron todos los recordatorios (para no volver a leer sus citas).
+- Limpieza (opcional, recomendado): en Firebase → Firestore → TTL, crear una política para la colección `wa` y otra para `waTo`, las dos con el campo `exp`. Así los candados, las cuentas por día y los números se borran solos (a los 45 y 30 días).
 
 ### Límite de Cloudflare y volumen
-El plan gratis de Workers permite unas 50 llamadas por corrida. El cron de cada hora manda primero los correos y después hasta unos 6 recordatorios por corrida (unos 30 por tarde). Cuando haya más: Disparadores → agregar un cron `*/10 * * * *` y la variable `WA_CRON` (Texto) con ese mismo texto exacto; ese cron manda solo recordatorios (unos 10 por corrida, 300 por tarde). Para más que eso, pasar a Workers de pago.
+El plan gratis de Workers permite unas 50 llamadas por corrida y cada recordatorio usa 4. Con el cron aparte de cada 10 minutos salen unos 10 por corrida (unos 300 por tarde). Sin el cron aparte, los recordatorios usan lo que dejen libre los correos de esa hora. Para más volumen, pasar a Workers de pago. Si una corrida se queda sin llamadas no pasa nada: la siguiente continúa donde quedó y nunca repite un mensaje.
