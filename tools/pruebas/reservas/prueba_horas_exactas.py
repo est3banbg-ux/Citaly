@@ -20,6 +20,12 @@ with Banco() as b:
     b.ok("En pantalla el cliente ve solo esas horas", p.locator("#hrs button").all_inner_texts() == ["8 am", "1:30 pm", "3:30 pm"], p.locator("#hrs button").all_inner_texts())
     b.ok("Reservas sin errores", not p.errs, p.errs[:3])
 
+    # Decisión de producto: con horas exactas manda la hora de INICIO que eligió el dueño. No se filtra por
+    # almuerzo ni por terminar después del cierre (un turno de 3:30 pm se ofrece aunque el servicio dure 2 h).
+    datos2, _ = negocio(fixed=["08:00", "11:30", "15:30"], brk={"a": "12:00", "b": "13:00"})
+    p = b.abrir("/r/?n=prueba", datos2)
+    b.ok("Horas exactas: se ofrecen tal cual las eligió el dueño (aunque crucen almuerzo o cierre)", p.evaluate("async (d)=>{S.pick=[1];await loadBusy();return freeStarts(d)}", d2) == ["08:00", "11:30", "15:30"])
+
     datos0, _ = negocio(brk={"a": "12:00", "b": "13:00"})
     datos0["biz/U1/slots/%s_1030" % d1] = {"date": d1, "t": "1030", "job": "J9"}
     p = b.abrir("/r/?n=prueba", datos0)

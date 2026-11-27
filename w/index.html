@@ -59,7 +59,7 @@ section.s{padding:54px 0}
 section.s.alt{background:var(--card);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .kick{color:var(--acc);font-weight:800;font-size:12.5px;letter-spacing:.09em;text-transform:uppercase}
 h2.t{font-size:clamp(27px,4.4vw,40px);line-height:1.06;margin:6px 0 10px;letter-spacing:-.03em}
-.sub{color:var(--mute);margin:0 0 22px;max-width:620px;font-size:17px}
+.sub{color:var(--mute);margin:0 0 22px;max-width:620px;font-size:17px;overflow-wrap:anywhere}
 .grid{display:grid;gap:12px}
 @media(min-width:620px){.grid.g2{grid-template-columns:1fr 1fr}.grid.g3{grid-template-columns:1fr 1fr}}
 @media(min-width:900px){.grid.g3{grid-template-columns:1fr 1fr 1fr}}
@@ -385,7 +385,7 @@ function crc(n){return "₡"+Math.round(n||0).toLocaleString("es-CR")}
 function tm(s){var p=String(s||"0:0").split(":");return +p[0]*60+ +p[1]}
 function fh(s){var m=tm(s),h=Math.floor(m/60),mi=m%60;return (h%12||12)+(mi?":"+(mi<10?"0":"")+mi:"")+" "+(h<12?"am":"pm")}
 function durTxt(m){var h=Math.floor(m/60),r=m%60;return ((h?h+" h":"")+(h&&r?" ":"")+(r?r+" min":""))||"0 min"}
-function waNum(t){t=String(t||"").replace(/\D/g,"");if(t.length===11&&t.indexOf("506")===0)return t;return t.length===8?"506"+t:t}
+function waNum(t){t=String(t||"").replace(/\D/g,"").replace(/^00/,"");if(t.length===11&&t.indexOf("506")===0)return t;return t.length===8?"506"+t:t}
 function waUrl(t,m){if(waNum(t).length<8)return OPEN&&typeof bookUrl==="function"?bookUrl():"#";return "https://api.whatsapp.com/send?phone="+waNum(t)+(m?"&text="+encodeURIComponent(m):"")}
 function hechoCon(){var T={detailing:"detailing",lavacar:"lavacar",pulido:"pulido de focos y vidrios",polarizado:"polarizado de vidrios",taller:"taller mecánico"},t=P&&T[P.type],q="?desde="+encodeURIComponent(slug);return t?'Hecho con <a href="/para/'+P.type+'/'+q+'" target="_blank" rel="noopener">Citaly, sistema de citas para '+t+'</a>':'Hecho con <a href="/'+q+'" target="_blank" rel="noopener">Citaly</a>'}
 function img(u){return C.safeImg(u)}
@@ -401,7 +401,7 @@ if(!slug||!db)nf();else db.doc("pub/"+slug).get().then(function(d){if(!d.exists)
     db.doc("subs/"+P.biz).get().then(function(s){var x=s.exists?s.data():null;OPEN=!!(x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now()&&P.open!==false)}).catch(function(){OPEN=P.open!==false}),
     db.collection("pub/"+slug+"/fotos").orderBy("i").limit(Math.min(12,(P.cap&&+P.cap.fot)||12)).get().then(function(s){FOTOS=s.docs.map(function(x){return x.data()}).filter(function(f){return img(f.img)})}).catch(function(){FOTOS=[]})
   ]).then(render)}).catch(function(e){console.error(e);nf(true)});
-function nf(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
+function nf(net){document.title=net?"Sin conexión · Citaly":"Página no encontrada · Citaly";$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
 
 function bookUrl(){return "/r/?n="+slug+"&go=1"}
 function hoursSummary(H){var on=[];for(var d=0;d<7;d++)if(H[d]&&H[d].on)on.push(d);if(!on.length)return "";
@@ -464,9 +464,9 @@ function render(){if((P.web||{}).layout!=="clasica")return renderPro();
   h+='<section class="s'+(W.about?" alt":"")+'"><div class="c rv grid g2" style="gap:30px">'
     +'<div><div class="kick">'+(P.home?"Servicio a domicilio":"Dónde estamos")+'</div><h2 class="t">'+(P.home?"Vamos donde estés":"Visítanos")+'</h2>'
     +(P.home?'<p class="sub">'+esc(W.homeNote||"Llegamos a tu casa o trabajo.")+'</p>'+(zones.length?'<div class="zones">'+(function(){var DS=["dom","lun","mar","mié","jue","vie","sáb"];var h=zones.map(function(z){var d=z.days&&z.days.length&&z.days.length<7?' <small style="opacity:.7;font-weight:500">('+z.days.slice().sort(function(a,b){return (a||7)-(b||7)}).map(function(x){return DS[x]}).join(" ")+')</small>':"";return '<span>'+esc(z.n)+(z.ask?'<b>consultar</b>':z.fee?'<b>+'+crc(z.fee)+'</b>':'<b>gratis</b>')+d+'</span>'}).join("");return zones.length>12?'<details class="zmore" style="width:100%"><summary style="cursor:pointer;font-weight:700;margin:6px 0 10px">Ver las '+zones.length+' zonas que atendemos</summary><div class="zones">'+h+'</div></details>':h})()+'</div>':"")
-      :(P.addr?'<p class="sub">📍 '+esc(P.addr)+'</p><a class="btn ghost" style="width:auto" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(P.addr+", Costa Rica")+'">Cómo llegar</a>':'<p class="sub">Escríbenos por WhatsApp y te damos la ubicación.</p>'))
+      :(P.addr?'<p class="sub">📍 '+esc(P.addr)+'</p><a class="btn ghost" style="width:auto" target="_blank" rel="noopener" href="'+(/^https?:\/\/[^\s"'<>]+$/i.test(P.addr)?esc(P.addr):"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(P.addr+", Costa Rica"))+'">Cómo llegar</a>':'<p class="sub">Escríbenos por WhatsApp y te damos la ubicación.</p>'))
     +'</div><div><div class="kick">Horario</div><h2 class="t">¿Cuándo atendemos?</h2><div class="card hours" style="padding:4px 16px">'
-    +[1,2,3,4,5,6,0].map(function(d){var x=H[d];return '<div class="li'+(d===new Date().getDay()?" today":"")+'"><span>'+DN[d]+'</span><span>'+(x&&x.on?fh(x.a)+" – "+fh(x.b):"Cerrado")+'</span></div>'}).join("")
+    +[1,2,3,4,5,6,0].map(function(d){var x=H[d];return '<div class="li'+(d===crNow().d?" today":"")+'"><span>'+DN[d]+'</span><span>'+(x&&x.on?fh(x.a)+" – "+fh(x.b):"Cerrado")+'</span></div>'}).join("")
     +'</div></div></div></section>';
   // reseñas
   if(revs.length||url(W.greview))h+='<section class="s'+(W.about?"":" alt")+'" id="resenas"><div class="c rv"><div class="kick">Clientes reales</div><h2 class="t">Lo que dicen de nosotros</h2><p class="sub"></p><div class="grid g3">'
@@ -529,7 +529,7 @@ function proStatus(H){var any=false,d;for(d=0;d<7;d++)if(H[d]&&H[d].on)any=true;
   if(t&&t.on&&n.m>=tm(t.a)&&n.m<tm(t.b))return {on:true,t:"Atendiendo ahora · hoy hasta las "+fh(t.b)};
   if(t&&t.on&&n.m<tm(t.a))return {on:false,t:"Cerrado ahora · abre hoy "+fh(t.a)};
   for(var i=1;i<=7;i++){var k=(n.d+i)%7,h=H[k];if(h&&h.on)return {on:false,t:"Cerrado ahora · abre "+(i===1?"mañana":"el "+DN[k].toLowerCase())+" "+fh(h.a)}}return null}
-function zoneShort(a){var p=String(a||"").split(",").map(function(x){return x.trim()}).filter(function(x){return x&&!/^costa rica$/i.test(x)});return p.length?p[0].slice(0,24):""}
+function zoneShort(a){if(/^https?:\/\//i.test(String(a||"").trim()))return "";var p=String(a||"").split(",").map(function(x){return x.trim()}).filter(function(x){return x&&!/^costa rica$/i.test(x)});return p.length?p[0].slice(0,24):""}
 function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name=P.name||"",ty=PT[P.type]||PT.otro,d=document.documentElement,pal=proPal(W);
   if(pal&&pal.a)col=pal.a;
   d.setAttribute("data-th","pro");d.style.setProperty("--acc",col);proApply(proPm(W),col,pal);
@@ -570,7 +570,7 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
   var base=chips.slice(),mq=chips.slice();while(mq.length<8&&base.length)mq=mq.concat(base);
   h+='<div class="pr-marq" aria-label="'+esc(W.chipsTitle||ty.cT)+'"><p>'+esc(W.chipsTitle||ty.cT)+'</p><div class="pr-mask"><div class="pr-track">'+mq.join("")+mq.map(function(c){return c.replace("<span>",'<span aria-hidden="true">')}).join("")+'</div></div></div>';
   // 4. datos rápidos
-  var prices=svcs.map(function(s){return +s.p||0}).filter(function(p){return p>0}),minP=prices.length?Math.min.apply(null,prices):0,days=0,k,stats=[];
+  var prices=svcs.map(function(s){return vehOn&&s.vx?C.vrange(s,P.veh)[0]:(+s.p||0)}).filter(function(p){return p>0}),minP=prices.length?Math.min.apply(null,prices):0,days=0,k,stats=[];
   for(k=0;k<7;k++)if(H[k]&&H[k].on)days++;
   stats.push(showP&&minP?[crc(minP),"precio desde"]:svcs.length?[String(svcs.length),svcs.length===1?"servicio":"servicios"]:["1 min","para agendar"]);
   if(P.home){var fz=zones.filter(function(z){return !z.ask}).map(function(z){return +z.fee||0}),mf=fz.length?Math.min.apply(null,fz):-1;stats.push(mf<0?["🏠","Vamos donde estés"]:mf===0?["₡0","de traslado a domicilio"]:[crc(mf),"traslado desde"])}
@@ -608,7 +608,7 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
   // 9. zonas / dónde estamos y horario
   var hch=hs?'<div class="pr-hours">'+hs.split(" · ").map(function(x){return '<span>'+esc(x)+'</span>'}).join("")+'</div>':"";
   if(P.home&&zones.length)h+='<section class="pr-s" id="zonas"><div class="pr-w rv"><h2>'+hlp(W.zonesTitle||"Vamos donde estés")+'</h2><p class="pr-sub">'+esc(W.homeNote||"Llegamos a tu casa o trabajo.")+'</p><div class="pr-zones">'+zones.map(function(z){var dd=z.days&&z.days.length&&z.days.length<7?" <small>("+z.days.slice().sort(function(a,b){return (a||7)-(b||7)}).map(function(x){return DS[x]}).join(" ")+")</small>":"";return '<span class="pr-zc'+(!z.ask&&!z.fee?" free":"")+'"><b>'+esc(z.n)+'</b><i>'+(z.ask?"Consultar":z.fee?"+"+crc(z.fee):"Gratis")+'</i>'+dd+'</span>'}).join("")+'</div>'+hch+'</div></section>';
-  else if(!P.home&&(P.addr||hch))h+='<section class="pr-s" id="zonas"><div class="pr-w rv"><h2>'+hlp(W.zonesTitle||"Dónde estamos")+'</h2>'+(P.addr?'<p class="pr-sub">📍 '+esc(P.addr)+'</p><div class="pr-cc2"><a class="pr-btn pr-line" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(P.addr+", Costa Rica")+'">Cómo llegar</a></div>':"")+hch+'</div></section>';
+  else if(!P.home&&(P.addr||hch))h+='<section class="pr-s" id="zonas"><div class="pr-w rv"><h2>'+hlp(W.zonesTitle||"Dónde estamos")+'</h2>'+(P.addr?'<p class="pr-sub">📍 '+esc(P.addr)+'</p><div class="pr-cc2"><a class="pr-btn pr-line" target="_blank" rel="noopener" href="'+(/^https?:\/\/[^\s"'<>]+$/i.test(P.addr)?esc(P.addr):"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(P.addr+", Costa Rica"))+'">Cómo llegar</a></div>':"")+hch+'</div></section>';
   // 10. reseñas
   if(revs.length)h+='<section class="pr-s" id="resenas"><div class="pr-w rv"><h2>'+hlp(W.revTitle||"Lo que dicen nuestros clientes")+'</h2><div class="pr-revs">'+revs.map(function(r){var n=String(r.n||"Cliente");return '<figure class="pr-rv"><div class="pr-stars" aria-label="5 estrellas">'+new Array(6).join(pIc("star"))+'</div><blockquote>“'+esc(r.t)+'”</blockquote><figcaption><span class="pr-avt">'+esc(n.charAt(0).toUpperCase())+'</span><span><b>'+esc(n)+'</b>'+(r.src?esc(r.src):"")+'</span></figcaption></figure>'}).join("")+'</div>'+(url(W.greview)?'<div class="pr-cc2"><a class="pr-btn pr-line" target="_blank" rel="noopener" href="'+esc(url(W.greview))+'">Ver reseñas en Google</a></div>':"")+'</div></section>';
   // 11. preguntas
@@ -638,7 +638,7 @@ function renderPro(){var W=P.web||{},H=P.hours||[],col=P.color||C.colors[0],name
   if($("fMore"))$("fMore").onclick=function(){$("gal").classList.add("all");this.parentNode.remove()};
   if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:0,rootMargin:"0px 0px -8% 0px"});
     Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(x){io.observe(x)});setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(x){var r=x.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)x.classList.add("in")})},1200)}else Array.prototype.forEach.call(document.querySelectorAll(".rv"),function(x){x.classList.add("in")})}
-function fmtTel(t){var n=String(t||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n.length===8?n.slice(0,4)+"-"+n.slice(4):n}
+function fmtTel(t){var n=String(t||"").replace(/\D/g,"").replace(/^00/,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n.length===8?n.slice(0,4)+"-"+n.slice(4):n}
 $("lbX").onclick=$("lb").onclick=function(e){if(e.target.id==="lbI")return;$("lb").classList.remove("on")};
 addEventListener("keydown",function(e){if(e.key==="Escape")$("lb").classList.remove("on")});
 </script>

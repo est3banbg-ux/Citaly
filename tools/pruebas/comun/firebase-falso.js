@@ -19,7 +19,7 @@ function fv(cur,v){if(v&&v.__fv){if(v.__fv==="ts")return new Ts(Date.now());if(v
   if(v.__fv==="remove")return (cur||[]).filter(function(x){return v.v.indexOf(x)<0});if(v.__fv==="del")return undefined}
   if(v&&typeof v==="object"&&!Array.isArray(v)&&!(v instanceof Ts)){var o={};Object.keys(v).forEach(function(k){var r=fv(cur&&cur[k],v[k]);if(r!==undefined)o[k]=r});return o}return v}
 function merge(cur,v){var o=clone(cur||{});Object.keys(v).forEach(function(k){var x=v[k];if(x&&x.__fv){var r=fv(o[k],x);if(r===undefined)delete o[k];else o[k]=r}
-  else if(x&&typeof x==="object"&&!Array.isArray(x)&&!(x instanceof Ts)&&o[k]&&typeof o[k]==="object"&&!Array.isArray(o[k]))o[k]=merge(o[k],x);else o[k]=clone(x)});return o}
+  else if(x&&typeof x==="object"&&!Array.isArray(x)&&!(x instanceof Ts)&&Object.keys(x).length&&o[k]&&typeof o[k]==="object"&&!Array.isArray(o[k]))o[k]=merge(o[k],x);else o[k]=clone(x)});return o}
 function setPath(o,path,val){var p=path.split("."),c=o;for(var i=0;i<p.length-1;i++){if(!c[p[i]]||typeof c[p[i]]!=="object")c[p[i]]={};c=c[p[i]]}var r=fv(c[p[p.length-1]],val);if(r===undefined)delete c[p[p.length-1]];else c[p[p.length-1]]=r}
 function denied(p){return DENY.some(function(x){return p.indexOf(x)===0})}
 function err(code){var e=new Error(code);e.code=code;return e}
