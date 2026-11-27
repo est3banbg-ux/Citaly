@@ -1,7 +1,7 @@
 /* Citaly · Mi apariencia: temas exclusivos, fondos (diseño, escenas, foto propia), animados, acento, letra y vidrio.
    Los datos (CITALY_PACKS, CITALY_BGS, CITALY_ANIMS) viven en temas.js. */
 var APA=(function(){
-  var K="citaly_ap",R=document.documentElement,st={pack:"",bg:"",anim:"",daily:0,dim:25,blur:0,acc:"",font:"",glass:0},photo="",rafId=0,cv=null,parts=[],lastT=0;
+  var K="citaly_ap",R=document.documentElement,tc0=null,tcP=0,st={pack:"",bg:"",anim:"",daily:0,dim:25,blur:0,acc:"",font:"",glass:0},photo="",rafId=0,cv=null,parts=[],lastT=0;
   function lsg(k){try{return localStorage.getItem(k)}catch(e){return null}}
   function lss(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
   function load(){try{var o=JSON.parse(lsg(K)||"{}");for(var k in st)if(o[k]!==undefined)st[k]=o[k]}catch(e){}photo=lsg(K+"_foto")||""}
@@ -9,15 +9,24 @@ var APA=(function(){
   function packs(){return typeof CITALY_PACKS!=="undefined"?CITALY_PACKS:[]}
   function bgs(){return typeof CITALY_BGS!=="undefined"?CITALY_BGS:[]}
   function anims(){return typeof CITALY_ANIMS!=="undefined"?CITALY_ANIMS:[]}
+  /* Temas premium (premium.js / premium.css): Turbo en adelante. En la prueba tier() es "nitro", así que se pueden usar.
+     Mientras no se sepa el plan (SUB todavía no llegó) se usa lo último que se supo en este celular (citaly_pmok),
+     para que la app no parpadee al abrir: ni quien lo tiene lo pierde un instante, ni quien no lo tiene lo ve un instante. */
+  function prem(){return typeof CITALY_PREM!=="undefined"?CITALY_PREM:[]}
+  function premOk(){try{if(typeof SUB==="undefined"||!SUB||typeof tier!=="function"||typeof TIERS==="undefined")return lsg("citaly_pmok")!=="0";var ok=TIERS.indexOf(tier())>=TIERS.indexOf("turbo");lss("citaly_pmok",ok?"1":"0");return ok}catch(e){return true}}
   function byId(a,id){for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
   function dayN(){var d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(d.getFullYear(),0,0))/864e5)}
-  function curPack(){var P=packs();if(!P.length)return null;if(st.daily)return P[dayN()%P.length];return st.pack?byId(P,st.pack):null}
+  function curPack(){var P=packs();if(!P.length)return null;if(st.daily)return P[dayN()%P.length];return st.pack?(byId(P,st.pack)||byId(prem(),st.pack)):null}
   function ensureLayer(){var b=document.getElementById("bgx");if(b)return b;b=document.createElement("div");b.id="bgx";b.setAttribute("aria-hidden","true");b.innerHTML='<i class="bl"></i><canvas class="ba"></canvas><i class="bd"></i>';document.body.insertBefore(b,document.body.firstChild);return b}
   function hexRgb(h){var m=/^#?([0-9a-f]{6})$/i.exec(h||"");if(!m)return null;var n=parseInt(m[1],16);return[n>>16,n>>8&255,n&255]}
   function lum(c){var a=c.map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*a[0]+.7152*a[1]+.0722*a[2]}
   function ap2(){if(typeof applyTheme==="function")applyTheme();else apply()}
   function apply(){
     var p=curPack(),vars=["--bg","--card","--ink","--mute","--line","--soft","--acc","--sh"],dkNow=false;
+    /* premium: los colores salen de premium.css (clases), no de variables en línea. Si el plan no lo trae, queda guardado pero se ve el diseño normal. */
+    var pm=p&&p.prem&&premOk()?p.id:"";if(p&&p.prem&&!pm)p=null;
+    if(typeof PREM!=="undefined")PREM.set(pm,!st.bg,!!st.acc);
+    if(pm){vars.forEach(function(v){R.style.removeProperty(v)});R.style.removeProperty("--accink")}
     if(p){vars.forEach(function(v){if(p.v[v])R.style.setProperty(v,p.v[v])});dkNow=!!p.dark;R.setAttribute("data-mode",p.dark?"dark":"light")}
     else{var mm=lsg("citaly_mode");if(mm==="light"||mm==="dark")R.setAttribute("data-mode",mm);else R.removeAttribute("data-mode");dkNow=typeof isDark==="function"?isDark():false}
     if(st.acc){R.style.setProperty("--acc",st.acc);var c=hexRgb(st.acc);if(c)R.style.setProperty("--accink",lum(c)>.5?"#1a1530":"#fff")}else if(p)R.style.removeProperty("--accink");
@@ -35,6 +44,8 @@ var APA=(function(){
     R.classList.toggle("glass",!!st.glass||on);
     R.classList.remove("fx-clasica","fx-sistema","fx-redonda");if(st.font)R.classList.add("fx-"+st.font);
     var th=document.querySelector('meta[name="theme-color"]');if(th&&p&&p.v["--bg"]&&/^#/.test(p.v["--bg"]))th.setAttribute("content",p.v["--bg"]);
+    /* la barra del sistema toma el color del tema premium y vuelve al de antes cuando se quita */
+    if(th){if(tc0===null)tc0=th.getAttribute("content")||"";if(p&&p.tc){th.setAttribute("content",p.tc);tcP=1}else if(tcP){tcP=0;if(!(p&&p.v["--bg"]))th.setAttribute("content",tc0)}}
     startAnim(st.anim,dkNow)}
   /* ---------- animaciones (canvas liviano) ---------- */
   function startAnim(id,dk){
@@ -64,6 +75,9 @@ var APA=(function(){
     var ct=typeof curTheme==="function"?curTheme():"neg",cur=lsg("citaly_mode")||"auto",h="";
     if(t==="t"){
       h+='<h3 class="apH">Claro u oscuro</h3><div class="chips" id="mdC">'+[["auto","📱 Automático"],["light","☀️ Claro"],["dark","🌙 Oscuro"]].map(function(o){return '<button class="chip" data-md="'+o[0]+'" aria-pressed="'+(cur===o[0]&&!curPack())+'">'+o[1]+'</button>'}).join("")+'</div>';
+      if(prem().length){var pok=premOk(),ptr=typeof SUB!=="undefined"&&SUB&&SUB.status==="trial";
+        h+='<h3 class="apH">💎 Premium</h3><div class="apP" id="prG">'+prem().map(function(p){return '<button type="button" class="apPm" data-pm="'+p.id+'" aria-pressed="'+(st.pack===p.id&&!st.daily&&pok)+'"><i style="background:'+p.sw.replace(/"/g,"&quot;")+'"></i>'+(pok?'':'<span class="lk">Desde Turbo</span>')+'<b>'+p.n+'</b><small>'+p.d+'</small></button>'}).join("")+'</div>'
+          +'<p class="mute small" id="prN" style="margin:8px 0 0">'+(pok?'Diseño completo, con íconos y animaciones propias. Viene en Turbo y Nitro'+(ptr?'; en tu prueba lo podés usar.':'.'):'Vienen con el plan Turbo o Nitro. Tocá uno para ver los planes.')+'</p>'}
       h+='<h3 class="apH">✨ Temas exclusivos</h3><div class="apG" id="pkG">'+packs().map(function(p){return '<button type="button" class="apT" data-pk="'+p.id+'" aria-pressed="'+(st.pack===p.id&&!st.daily)+'"><i style="background:'+p.sw+'"></i><b>'+p.n+'</b><small>'+(p.dark?"🌙 ":"☀️ ")+p.d+'</small></button>'}).join("")+'</div>';
       h+='<label class="apR"><span><b>Cambiar de tema cada día</b><small>Un look nuevo cada mañana</small></span><input type="checkbox" id="apD"'+(st.daily?" checked":"")+'></label>';
       h+='<h3 class="apH">Colores básicos</h3><div class="thg" id="thG">'+THEMES.map(function(t){return '<button type="button" class="thb" data-th="'+t.id+'" aria-pressed="'+(ct===t.id&&!curPack())+'"><i style="background:'+thSw(t)+'"></i><b>'+t.n+'</b><small>'+t.d+'</small></button>'}).join("")+'</div>'}
@@ -94,6 +108,9 @@ var APA=(function(){
     var b=$("apBody");
     if(tab==="t"){
       $("mdC").onclick=function(e){var x=e.target.closest("[data-md]");if(!x)return;st.pack="";st.daily=0;save();setMode(x.dataset.md);ap2();refresh("t")};
+      if($("prG"))$("prG").onclick=function(e){var x=e.target.closest("[data-pm]");if(!x)return;
+        if(!premOk()){if(typeof planSheet==="function")planSheet();if(typeof toast==="function")toast("Laca y Perla vienen desde el plan Turbo");return}
+        st.pack=x.dataset.pm;st.daily=0;save();ap2();refresh("t")};
       $("pkG").onclick=function(e){var x=e.target.closest("[data-pk]");if(!x)return;st.pack=x.dataset.pk;st.daily=0;save();ap2();refresh("t")};
       $("apD").onchange=function(){st.daily=this.checked?1:0;if(!st.daily&&!st.pack)st.pack="";save();ap2();refresh("t")};
       $("thG").onclick=function(e){var x=e.target.closest("[data-th]");if(!x)return;st.pack="";st.daily=0;save();setTheme(x.dataset.th);ap2();refresh("t")}}

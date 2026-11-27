@@ -16,5 +16,8 @@ Regla: **correrlas todas antes de subir cambios a main.** Si algo falla, no se p
 - `app/` app del dueño · `reservas/` página de reservas y "Mi cita" · `web/` página pública del negocio · `venta/` página de venta (index.html de la raíz), páginas por rubro `/para/` y `/descargar/`.
 - Archivos `prueba_*.py` deben pasar siempre. `pendiente_*.py` = error conocido todavía sin arreglar (no los corre `correr.py`).
 
+Con `TEMA=laca` (o `perla`) delante, las pruebas de siempre corren con ese tema premium de la app ya puesto:
+`TEMA=laca python3 tools/pruebas/correr.py app`. Sirve para comprobar que el tema no rompe nada.
+
 Necesita Python con Playwright y Chrome (`/usr/bin/google-chrome`, o variable `CHROME`).
 Cada error que se arregle debe dejar aquí una prueba que lo habría detectado.

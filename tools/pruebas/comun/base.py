@@ -15,6 +15,9 @@ from playwright.sync_api import sync_playwright
 
 RAIZ = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 FALSO = open(os.path.join(os.path.dirname(__file__), "firebase-falso.js"), encoding="utf-8").read()
+# TEMA=laca (o perla): abre todas las páginas con ese tema premium de la app ya elegido, para correr
+# las pruebas de siempre con el tema puesto (python3 tools/pruebas/correr.py app, con TEMA=laca delante).
+TEMA = os.environ.get("TEMA")
 CHROME = os.environ.get("CHROME") or next((c for c in ("/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser") if os.path.exists(c)), None)
 
 
@@ -69,6 +72,8 @@ class Banco:
         p.errs, p.consola = [], []
         p.on("pageerror", lambda e: p.errs.append(str(e)))
         p.on("console", lambda m: p.consola.append(m.text) if m.type == "error" else None)
+        if TEMA:
+            antes = "try{localStorage.setItem('citaly_ap',JSON.stringify({pack:%s}))}catch(e){};" % json.dumps(TEMA) + antes
         js = "window.__DATA=%s;window.__USER=%s;window.__DENY=%s;%s\n%s" % (
             json.dumps(datos or {}), json.dumps(usuario), json.dumps(negar or []), antes, FALSO)
         local = "127.0.0.1:%d" % self.puerto

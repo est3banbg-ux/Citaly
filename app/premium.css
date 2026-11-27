@@ -1,0 +1,234 @@
+/* Citaly · temas premium de la app del dueño (Turbo en adelante; en la prueba se pueden usar).
+   Estructura compartida en html.tm-prem; cada acabado solo cambia fichas:
+   .tm-laca (oscuro, laca negra pulida) y .tm-perla (claro, blanco perla cerámico).
+   Las clases las pone premium.js (PREM.set), que llama apariencia.js. Sin esas clases este archivo
+   no cambia nada, salvo los mosaicos del selector (.apP) que ve todo el mundo.
+   Va DESPUÉS del <style> de index.html: gana los empates; las reglas de etiqueta usan :where() para no pisar componentes. */
+
+/* ---------- selector en Mi apariencia (se ve en cualquier tema) ---------- */
+.apP{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.apPm{position:relative;display:block;text-align:left;padding:0 0 10px;border:2px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);cursor:pointer;overflow:hidden;font-family:inherit}
+.apPm i{display:block;height:92px;margin-bottom:9px;background-size:cover;background-position:center}
+.apPm b{display:block;padding:0 12px;font:700 15px "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em}
+.apPm small{display:block;padding:0 12px;color:var(--mute);font-size:12px;line-height:1.3;margin-top:1px}
+.apPm[aria-pressed=true]{border-color:var(--acc);box-shadow:0 14px 28px -18px var(--acc)}
+.apPm .lk{position:absolute;top:8px;right:8px;font:800 10.5px Figtree,system-ui,sans-serif;background:rgba(10,8,20,.72);color:#fff;border-radius:999px;padding:3px 8px}
+
+html.tm-prem.tm-laca[data-mode]{
+  --bg:#07060c;--card:#15131f;--ink:#f4f2fb;--mute:#a7a2c2;--line:rgba(255,255,255,.085);--soft:rgba(143,123,255,.16);
+  --acc:#9a88ff;--acc2:#ff8a5b;--accink:#fff;--ok:#62d99c;--warn:#f2c14e;--bad:#ff8b80;
+  --sh:inset 0 1px 0 rgba(255,255,255,.09),0 24px 46px -30px #000;
+  --p-glass:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.032));
+  --p-solid:linear-gradient(180deg,#1b1828,#12101b);
+  --p-edge:rgba(255,255,255,.09);--p-top:rgba(255,255,255,.16);
+  --p-money:#ead9a2;--p-field:rgba(255,255,255,.055);--p-dock:rgba(20,18,31,.95);
+  --p-fill:#7353f2;--p-on:#fff;--p-grad:var(--p-fill);--p-glow:rgba(115,83,242,.6);
+  --p-foto:url(tema/laca.webp) left -30px top -78px/218% auto no-repeat;--p-vel:linear-gradient(180deg,rgba(7,6,12,.3) 0,rgba(7,6,12,.18) 70px,rgba(7,6,12,.5) 250px,#07060c 392px);
+  color-scheme:dark}
+html.tm-prem.tm-perla[data-mode]{
+  --bg:#eceef4;--card:#fff;--ink:#15122b;--mute:#5f5a78;--line:rgba(22,18,50,.09);--soft:rgba(91,61,240,.09);
+  --acc:#5b3df0;--acc2:#e8632c;--accink:#fff;--ok:#12784a;--warn:#9a6200;--bad:#c2372d;
+  --sh:inset 0 1px 0 #fff,0 1px 2px rgba(30,24,70,.05),0 24px 46px -32px rgba(40,30,100,.5);
+  --p-glass:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.62));
+  --p-solid:linear-gradient(180deg,#fff,#f7f8fb);
+  --p-edge:rgba(255,255,255,.95);--p-top:#fff;
+  --p-money:#15122b;--p-field:rgba(255,255,255,.72);--p-dock:rgba(255,255,255,.95);
+  --p-fill:#5b3df0;--p-on:#fff;--p-grad:var(--p-fill);--p-glow:rgba(91,61,240,.42);
+  --p-foto:url(tema/perla.webp) right -20px top -40px/218% auto no-repeat;--p-vel:linear-gradient(180deg,rgba(236,238,244,.1) 0,rgba(236,238,244,.25) 190px,rgba(236,238,244,.88) 350px,#eceef4 430px);
+  color-scheme:light}
+
+/* Botones y fichas marcadas: --p-fill es el relleno (blanco encima pasa AA) y --p-on el color del texto.
+   Si el dueño eligió un color de acento (Extras), apariencia.js pone tm-acc y el relleno pasa a ser ese color,
+   con el texto claro u oscuro que ya calcula (--accink). */
+html.tm-prem.tm-acc[data-mode]{--p-fill:var(--acc);--p-on:var(--accink,#fff)}
+
+/* ---------- lienzo: el capó queda fijo arriba y el contenido pasa por encima ---------- */
+html.tm-prem{background:var(--bg)}
+html.tm-prem body,html.tm-prem .screen{background:transparent}
+html.tm-prem body{-webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 0;letter-spacing:-.003em}
+html.tm-prem.tm-foto #bgx .bl{background:var(--p-vel),var(--p-foto)!important;filter:none!important;transform:none!important}
+@media(min-width:700px){html.tm-prem.tm-laca[data-mode]{--p-foto:url(tema/laca.webp) center top/100% auto no-repeat;--p-vel:linear-gradient(180deg,rgba(7,6,12,.35) 0,rgba(7,6,12,.3) 8vw,rgba(7,6,12,.7) 24vw,#07060c 40vw)}
+html.tm-prem.tm-perla[data-mode]{--p-foto:url(tema/perla.webp) center top/100% auto no-repeat;--p-vel:linear-gradient(180deg,rgba(236,238,244,.15) 0,rgba(236,238,244,.3) 12vw,rgba(236,238,244,.9) 28vw,#eceef4 40vw)}}
+@media(max-width:1023px){html.tm-prem #main .wrap{padding:18px 16px 128px}}
+html.tm-prem h2{font-size:17px;font-weight:700;letter-spacing:-.025em}
+
+/* ---------- encabezado ---------- */
+.tm-prem .top{grid-template-columns:50px minmax(0,1fr) 38px 38px;column-gap:8px;margin-bottom:16px}
+.tm-prem .top .av{border-radius:16px;box-shadow:0 0 0 1px var(--p-top),0 12px 26px -12px var(--p-glow)}
+.tm-prem #hi{font-size:12.5px;color:var(--mute)}
+.tm-prem .top h1{font-size:20.5px;font-weight:700;letter-spacing:-.032em}
+.tm-prem .ib{width:38px;height:38px;border-radius:50%;border:1px solid var(--p-edge);background:var(--p-glass);-webkit-backdrop-filter:blur(16px) saturate(1.4);backdrop-filter:blur(16px) saturate(1.4);box-shadow:inset 0 1px 0 var(--p-top);font-size:16px;color:var(--ink);transition:transform .14s cubic-bezier(.23,1,.32,1)}
+.tm-prem .ib:active{transform:scale(.92)}
+.tm-prem .nd{background:var(--acc2);box-shadow:0 0 0 2px var(--bg),0 0 10px var(--acc2);width:9px;height:9px;top:-1px;right:-1px}
+
+/* ---------- tarjeta de hoy ---------- */
+.tm-prem #hero .hero{text-align:left;color:var(--ink);background:var(--p-glass);border:1px solid var(--p-edge);box-shadow:var(--sh);border-radius:28px;padding:20px 22px 18px;margin-bottom:14px}
+.tm-prem #hero .hero::after{animation:none;opacity:0}
+.tm-prem #hero .mapc{border-color:var(--line)}
+.tm-prem .hg{font-size:12.5px;color:var(--mute);opacity:1}
+.tm-prem .hn{font:600 15px/1.3 Figtree,system-ui,sans-serif;margin:14px 0 4px;color:var(--ink)}
+.tm-prem .hc{font:800 46px/1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.tm-prem .hs{font-size:13.5px;color:var(--mute);opacity:1;margin-top:6px;font-variant-numeric:tabular-nums}
+.tm-prem .hbar{height:6px;background:var(--line);margin:20px 0 10px;overflow:visible}
+.tm-prem .hbar i{position:relative;background:linear-gradient(90deg,var(--acc),var(--acc2));box-shadow:0 0 18px -2px var(--p-glow)}
+.tm-prem .hbar i::after{content:"";position:absolute;right:-6px;top:50%;width:12px;height:12px;margin-top:-6px;border-radius:50%;background:#fff;box-shadow:0 0 16px var(--acc2)}
+
+/* ---------- campos ---------- */
+:where(html.tm-prem) input,:where(html.tm-prem) select,:where(html.tm-prem) textarea{background-color:var(--p-field);border:1px solid var(--line);border-radius:14px;transition:border-color .15s,box-shadow .15s}
+:where(html.tm-prem) input:where(:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file])),:where(html.tm-prem) select,:where(html.tm-prem) textarea{padding:13px 14px}
+:where(html.tm-prem) input:focus,:where(html.tm-prem) select:focus,:where(html.tm-prem) textarea:focus{border-color:var(--acc)}
+:where(html.tm-prem) label{font-size:12.5px;letter-spacing:.005em}
+.tm-prem .sq input{padding-left:42px;border-radius:16px;border-color:var(--p-edge);box-shadow:inset 0 1px 0 var(--p-top)}
+.tm-prem .sq:before{content:"";left:14px;width:17px;height:17px;background:var(--mute);opacity:1;-webkit-mask:var(--i-search) center/contain no-repeat;mask:var(--i-search) center/contain no-repeat}
+
+/* ---------- semana ---------- */
+.tm-prem .nav2 b{color:var(--ink);font:700 15px "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em}
+.tm-prem .week{gap:4px;padding:5px;border-radius:22px;background:var(--p-solid);border:1px solid var(--p-edge);box-shadow:var(--sh);margin-bottom:14px}
+.tm-prem .week button{border:0;background:none;border-radius:17px;padding:9px 0 10px;color:var(--mute);font-size:11.5px;transition:background .2s,color .2s}
+.tm-prem .week button b{color:var(--ink);font-size:18px;font-weight:700;letter-spacing:-.03em}
+.tm-prem .week button.today b{color:var(--acc)}
+.tm-prem .week button[aria-pressed=true]{background:var(--p-grad);color:var(--p-on);box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 12px 22px -12px var(--p-glow)}
+.tm-prem .week button[aria-pressed=true] b{color:var(--p-on)}
+.tm-prem .week button i s{background:var(--acc2)}
+.tm-prem .week button[aria-pressed=true] i s{background:#fff}
+.tm-prem .week button em{top:-4px;right:-1px;min-width:17px;height:17px;line-height:17px;font-size:10.5px;background:var(--soft);color:var(--ink);box-shadow:0 0 0 2px var(--card)}
+.tm-prem .week button em.pe{background:var(--acc2);color:#fff;box-shadow:0 0 10px -1px var(--acc2)}
+.tm-prem .week button[aria-pressed=true] em:not(.pe){background:#fff;color:#2a1a8a;box-shadow:none}
+.tm-prem .btn.alt.mtg{background:transparent;border:1px solid var(--line);color:var(--ink);box-shadow:none;font-weight:600}
+.tm-prem .btn.alt.mtg .pi{color:var(--acc)}
+
+/* ---------- citas ---------- */
+.tm-prem .card,.tm-prem .jc,.tm-prem .stat,.tm-prem .ibar,.tm-prem .banner,.tm-prem .pcard{background:var(--p-solid);border:1px solid var(--p-edge);box-shadow:var(--sh);border-radius:22px}
+.tm-prem .card{padding:18px}
+.tm-prem .jc{margin-bottom:10px}
+.tm-prem .job{padding:15px 16px;gap:14px;transition:transform .14s cubic-bezier(.23,1,.32,1)}
+.tm-prem .job .t{min-width:60px;border-right:0;padding-right:14px;position:relative;font:700 15px "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tm-prem .job .t small{font-size:11.5px;margin-top:2px}
+.tm-prem .job .t::after{content:"";position:absolute;right:0;top:1px;bottom:1px;width:3px;border-radius:3px;background:var(--acc)}
+.tm-prem .job.st-Lista .t::after{background:var(--ok)}
+.tm-prem .job.st-Por\ confirmar .t::after{background:var(--acc2);box-shadow:0 0 12px var(--acc2)}
+.tm-prem .job .m b{font-weight:700;font-size:15.5px;letter-spacing:-.012em}
+.tm-prem .job .m span{font-size:13px;margin-top:1px}
+.tm-prem .job .r{font:700 15px "Bricolage Grotesque",system-ui,sans-serif;color:var(--p-money);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tm-prem .pill{font:700 11px Figtree,system-ui,sans-serif;padding:3px 9px;letter-spacing:.005em}
+.tm-prem .jc .ja{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:6px;padding:0 16px 15px;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}
+.tm-prem .jc .ja::-webkit-scrollbar{display:none}
+.tm-prem .jc .ja .btn,.tm-prem .jc .ja select{flex:none;background:transparent;border:1px solid var(--line);color:var(--ink);font:600 13px Figtree,system-ui,sans-serif;border-radius:999px;padding:7px 13px;min-height:34px;box-shadow:none}
+.tm-prem .jc .ja select{order:-1;padding-right:28px;background:var(--soft);border-color:transparent;color:var(--acc);font-weight:700}
+.tm-prem .jc .ja .pi{color:var(--acc);margin-right:2px}
+.tm-prem .jc .ja .btn.wa{background:#15803d;border-color:transparent;color:#fff}
+.tm-prem .jc .ja .btn.wa .pi{color:#fff}
+.tm-prem .jc .ja::after{content:"";flex:0 0 30px}   /* para que el último botón pueda salir del difuminado */
+/* Con mouse (y en compu) no hay cómo deslizar una fila sin barra: ahí los botones van todos a la vista, como siempre. */
+@media (min-width:1024px),(hover:hover) and (pointer:fine){
+.tm-prem .jc .ja{flex-wrap:wrap;overflow:visible;-webkit-mask-image:none;mask-image:none}
+.tm-prem .jc .ja::after{content:none}
+}
+
+/* ---------- botones y fichas ---------- */
+.tm-prem .btn{border-radius:14px}
+.tm-prem .btn:not(.alt):not(.ghost):not(.danger):not(.wa):not(.gbtn){color:var(--p-on);background:var(--p-grad);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 14px 26px -16px var(--p-glow);transition:transform .14s cubic-bezier(.23,1,.32,1),filter .15s}
+.tm-prem .chip{border:1px solid var(--line);background:var(--p-field);transition:background .18s,color .18s,border-color .18s,transform .14s}
+.tm-prem .chip:active{transform:scale(.96)}
+.tm-prem .chip[aria-pressed=true]{background:var(--p-grad);border-color:transparent;color:var(--p-on);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 20px -12px var(--p-glow)}
+.tm-prem .banner{border-radius:18px;padding:12px 14px}
+
+/* ---------- clientes ---------- */
+.tm-prem .cl{padding:13px 2px;gap:13px}
+.tm-prem .cl .ini{width:42px;height:42px;border-radius:14px;background:var(--soft);color:var(--acc);font:800 15px "Bricolage Grotesque",system-ui,sans-serif}
+.tm-prem .cl .m b{font-weight:700;letter-spacing:-.012em}
+
+/* ---------- números ---------- */
+.tm-prem .wnav b{font-size:17px;letter-spacing:-.025em}
+.tm-prem .stat{padding:15px 16px}
+.tm-prem .stat span{font-size:12px}
+.tm-prem .stat b{font:800 23px "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:-.035em;font-variant-numeric:tabular-nums;margin-top:4px}
+.tm-prem .stat.big{padding:20px 22px;border:1px solid var(--p-edge);color:var(--ink);background:var(--p-solid)}
+.tm-prem .stat.big span{color:var(--mute)}
+.tm-prem .stat.big b{font-size:42px;line-height:1;letter-spacing:-.05em;color:var(--p-money);margin-top:8px}
+.tm-prem .stat.big em{color:var(--ok);opacity:1;margin-top:8px}
+.tm-prem .goal svg circle{stroke-width:7}
+.tm-prem .goal #gpr{stroke:url(#pgrad);filter:drop-shadow(0 0 6px var(--p-glow))}
+.tm-prem .goal .gp{font-size:21px;letter-spacing:-.03em}
+.tm-prem .ins div{background:var(--p-field);border-radius:12px;padding:10px 12px}
+.tm-prem .bars{gap:3px}
+.tm-prem .bars i{opacity:1;border-radius:4px 4px 1px 1px;background:var(--acc)}
+.tm-prem .bars i.z{background:var(--line)}
+
+/* ---------- barra de abajo: flota ---------- */
+@media(max-width:1023px){
+.tm-prem nav.tabs{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;padding:6px;border:1px solid var(--p-edge);border-radius:26px;background:var(--p-dock);box-shadow:inset 0 1px 0 var(--p-top),0 26px 50px -22px rgba(0,0,0,.6)}
+.tm-prem nav.tabs button{padding:8px 0 7px;border-radius:20px;font-size:10.5px;gap:3px;transition:color .16s,background .22s cubic-bezier(.23,1,.32,1)}
+.tm-prem nav.tabs button svg{width:22px;height:22px;stroke-width:1.8}
+.tm-prem nav.tabs button[aria-current=page]{color:var(--ink);background:var(--soft)}
+.tm-prem nav.tabs button[aria-current=page] svg{color:var(--acc)}
+.tm-prem .fab{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+}
+.tm-prem .fab{border-radius:999px;padding:15px 22px;color:var(--p-on);background:var(--p-grad);box-shadow:inset 0 1px 0 rgba(255,255,255,.36),0 0 0 1px rgba(255,255,255,.06),0 18px 34px -14px var(--p-glow);transition:transform .14s cubic-bezier(.23,1,.32,1)}
+
+/* ---------- hojas ---------- */
+.tm-prem .sheet .bd{background:rgba(6,5,12,.56)}
+.tm-prem .sheet .pn{background:var(--card);border-radius:30px 30px 0 0;border-top:1px solid var(--p-top);box-shadow:0 -30px 70px -30px rgba(0,0,0,.6);padding:10px 20px calc(24px + env(safe-area-inset-bottom,0px));animation:up .34s cubic-bezier(.32,.72,0,1) both}
+.tm-prem .sheet .grab{width:36px;height:4px;background:var(--mute);opacity:.35;margin-bottom:14px}
+.tm-prem .sheet h2{font-size:21px;letter-spacing:-.03em}
+.tm-prem .nhd{background:transparent}
+.tm-prem .nban,.tm-prem .toast{border-radius:18px}
+
+/* ---------- íconos de trazo en vez de emojis ---------- */
+/* el emoji queda adentro como texto (la app lo lee); aquí se saca de la vista y se pinta el trazo encima */
+.tm-prem .pi{display:inline-block;width:1.12em;height:1.12em;vertical-align:-.2em;overflow:hidden;text-indent:-99em;white-space:nowrap;font-style:normal;-webkit-user-select:none;user-select:none;background:currentColor;-webkit-mask:var(--i) center/contain no-repeat;mask:var(--i) center/contain no-repeat}
+.tm-prem h2 .pi,.tm-prem h3 .pi,.tm-prem .ins .pi,.tm-prem .cl .pi,.tm-prem .banner .pi{color:var(--acc);margin-right:3px}
+.tm-prem .ib .pi{width:18px;height:18px;vertical-align:middle}
+.tm-prem .pi.pi-none{display:none}
+
+/* ---------- movimiento: poco y rápido. Lo que se ve cien veces al día casi no se mueve ---------- */
+@media (prefers-reduced-motion:no-preference){
+/* 1) Al abrir la app, una sola vez: entra en cascada y pasa una luz por la tarjeta de hoy */
+.tm-prem.p-in #main .top,.tm-prem.p-in #main .view>*,.tm-prem.p-in .agA>*,.tm-prem.p-in .agB>*,.tm-prem.p-in .agC>*{animation:pIn .56s cubic-bezier(.23,1,.32,1) both}
+.tm-prem.p-in #main .view>:nth-child(2),.tm-prem.p-in .agA>:nth-child(2),.tm-prem.p-in .agB>:nth-child(2){animation-delay:.05s}
+.tm-prem.p-in #main .view>:nth-child(3),.tm-prem.p-in .agA>:nth-child(3),.tm-prem.p-in .agB>:nth-child(3){animation-delay:.1s}
+.tm-prem.p-in #main .view>:nth-child(n+4),.tm-prem.p-in .agB>:nth-child(n+4){animation-delay:.15s}
+.tm-prem.p-in .agB>*{animation-delay:.12s}.tm-prem.p-in .agB>:nth-child(n+3){animation-delay:.18s}.tm-prem.p-in .agC>*{animation-delay:.22s}
+.tm-prem.p-in nav.tabs,.tm-prem.p-in .fab{animation:pSube .6s .18s cubic-bezier(.23,1,.32,1) both}
+.tm-prem.p-in #hero .hero::after{opacity:1;animation:pLuz 1.25s .4s cubic-bezier(.4,0,.2,1) 1 both}
+/* 2) Cambiar de pestaña: fundido corto */
+.tm-prem .view{animation:pVista .18s cubic-bezier(.23,1,.32,1)}
+.tm-prem .fade{animation-duration:.24s}
+/* 3) Tocar responde al instante */
+.tm-prem .jc:active{transform:scale(.985)}.tm-prem .jc{transition:transform .14s cubic-bezier(.23,1,.32,1)}
+.tm-prem .cl:active{background:var(--soft)}.tm-prem .week button:active{transform:scale(.94)}.tm-prem .fab:active{transform:scale(.95)}
+/* 4) Cita atendida: pasa un brillo por la tarjeta y la etiqueta da un saltito */
+.tm-prem .p-done{position:relative;overflow:hidden}
+.tm-prem .p-done::before{content:"";position:absolute;z-index:2;top:-20%;bottom:-20%;left:-60%;width:46%;pointer-events:none;transform:skewX(-18deg);background:linear-gradient(100deg,transparent,rgba(86,214,150,.3) 45%,rgba(255,255,255,.34) 55%,transparent);animation:pLuz .95s cubic-bezier(.4,0,.2,1) 1 both}
+.tm-prem .p-done .pill{animation:pSalto .5s .12s cubic-bezier(.2,1.5,.4,1) both}
+.tm-prem .p-done .job .t::after{animation:pLinea .7s cubic-bezier(.23,1,.32,1) both}
+}
+/* 5) Números: la primera vez que se abren, las cifras suben contando. La cifra real queda en el texto; data-pn solo se pinta encima. */
+.tm-prem .stat b[data-pn]{position:relative;color:transparent}
+.tm-prem .stat b[data-pn]::after{content:attr(data-pn);position:absolute;left:0;top:0;white-space:nowrap;color:var(--ink)}
+.tm-prem .stat.big b[data-pn]::after{color:var(--p-money)}
+@keyframes pIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pSube{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes pVista{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes pLuz{from{transform:translateX(0) skewX(-18deg)}to{transform:translateX(430%) skewX(-18deg)}}
+@keyframes pSalto{0%{transform:scale(.6);opacity:0}100%{transform:none;opacity:1}}
+@keyframes pLinea{0%{transform:scaleY(.2);box-shadow:0 0 0 var(--ok)}60%{box-shadow:0 0 16px var(--ok)}100%{transform:none;box-shadow:0 0 0 transparent}}
+
+/* ---------- solo donde hay color-mix (Chrome 111+, Safari 16.2+). Fuera de aquí nada lo usa: una declaración con var()
+   y color-mix que falla no cae al respaldo, queda vacía; por eso la base de arriba ya se ve bien sola. ---------- */
+@supports (color:color-mix(in srgb,red,blue)){
+html.tm-prem.tm-laca[data-mode],html.tm-prem.tm-perla[data-mode]{--p-grad:linear-gradient(140deg,var(--p-fill),color-mix(in srgb,var(--p-fill) 76%,#12063a))}
+html.tm-prem.tm-laca[data-mode]{--p-glow:color-mix(in srgb,var(--p-fill) 60%,transparent)}
+html.tm-prem.tm-perla[data-mode]{--p-glow:color-mix(in srgb,var(--p-fill) 42%,transparent)}
+.tm-prem #hero .hero::after{background:linear-gradient(100deg,transparent,color-mix(in srgb,var(--acc) 22%,rgba(255,255,255,.22)),transparent)}
+.tm-prem .hbar i::after{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc2) 40%,transparent),0 0 16px var(--acc2)}
+:where(html.tm-prem) input:focus,:where(html.tm-prem) select:focus,:where(html.tm-prem) textarea:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 22%,transparent)}
+.tm-prem .week button em{background:color-mix(in srgb,var(--mute) 18%,var(--card))}
+.tm-prem .week button em.pe{background:var(--acc2)}
+.tm-prem .week button[aria-pressed=true] em:not(.pe){background:#fff}
+.tm-prem .jc.st-Por\ confirmar{border-color:color-mix(in srgb,var(--acc2) 45%,var(--p-edge))}
+.tm-prem .banner.hot{background:linear-gradient(90deg,color-mix(in srgb,var(--acc2) 20%,transparent),transparent 72%),var(--p-solid);border-color:color-mix(in srgb,var(--acc2) 32%,var(--p-edge))}
+.tm-prem .stat.big{background:radial-gradient(130% 150% at 100% 0%,color-mix(in srgb,var(--acc) 34%,transparent),transparent 58%),radial-gradient(90% 120% at 0% 100%,color-mix(in srgb,var(--acc2) 16%,transparent),transparent 60%),var(--p-solid)}
+.tm-prem .bars i{background:linear-gradient(180deg,var(--acc),color-mix(in srgb,var(--acc) 28%,transparent))}
+.tm-prem .bars i.z{background:var(--line)}
+}
