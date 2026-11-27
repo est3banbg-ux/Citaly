@@ -163,7 +163,7 @@ function decorate(){var cards=document.querySelectorAll("#list .biz");Array.prot
   ex.innerHTML=((a.tags||[]).length?'<div>'+a.tags.map(function(t){return '<span class="tag">'+esc(t)+'</span>'}).join("")+'</div>':"")+(a.note?'<p class="note">📝 '+esc(a.note)+'</p>':"");
   ac.parentNode.insertBefore(ex,ac);
   var s=SUBS[id],h='<button class="btn sm ghost" data-x="note" data-id="'+id+'">📝 Nota</button><button class="btn sm ghost" data-x="tag" data-id="'+id+'">🏷️ Etiquetas</button>'
-    +(s&&!s.demo?'<button class="btn sm ghost" data-x="pf" data-id="'+id+'">📆 Plan / fecha</button>':"")+'<button class="btn sm ghost" data-x="msg" data-id="'+id+'">💬 Mensajes</button><button class="btn sm danger" data-x="del" data-id="'+id+'">🗑️ Eliminar</button>';
+    +(s&&!s.demo?'<button class="btn sm ghost" data-x="pf" data-id="'+id+'">📆 Plan / fecha</button><button class="btn sm ghost" data-x="waa" data-id="'+id+'">📲 Extra WhatsApp: '+(s.waauto===true?"quitar":"activar")+'</button>':"")+'<button class="btn sm ghost" data-x="msg" data-id="'+id+'">💬 Mensajes</button><button class="btn sm danger" data-x="del" data-id="'+id+'">🗑️ Eliminar</button>';
   ac.insertAdjacentHTML("beforeend",h)})}
 function saveAdm(id,o){return db.doc("adm/"+id).set(o,{merge:true}).then(function(){toast("Guardado ✓")},function(er){toast(er.message)})}
 function parseDate(v){v=String(v||"").trim();var m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)||null,d;
@@ -175,6 +175,9 @@ $("list").addEventListener("click",function(e){var x=e.target.closest("[data-x]"
   if(k==="note"){var v=prompt("Nota privada sobre "+(b.name||"este negocio")+" (solo la ves vos)",a.note||"");if(v!=null)saveAdm(id,{note:v.trim().slice(0,300)});return}
   if(k==="tag"){var t=prompt("Etiquetas separadas por coma (ej: lavacar, vip, moroso)",(a.tags||[]).join(", "));if(t==null)return;
     saveAdm(id,{tags:t.split(",").map(function(z){return z.trim().toLowerCase().slice(0,20)}).filter(Boolean).slice(0,8)});return}
+  /* Extra de recordatorios automáticos por WhatsApp (₡2.900/mes, 150 mensajes). Nitro y la prueba ya lo traen. */
+  if(k==="waa"&&s){var on=s.waauto===true;if(!confirm((on?"¿Quitarle":"¿Activarle")+" a "+(b.name||"este negocio")+" el extra de recordatorios automáticos por WhatsApp?"+(on?"":"\n\nSon 150 mensajes al mes. El dueño lo enciende después en Ajustes → Recordatorios automáticos.")))return;
+    db.doc("subs/"+id).set({waauto:!on},{merge:true}).then(function(){toast(on?"Extra quitado":"Extra activado ✓")},function(er){toast(er.message)});return}
   if(k==="pf"&&s){var TK=["arranque","turbo","nitro"],cur=Math.max(0,TK.indexOf(s.tier||"arranque"))+1,
       q=prompt("Plan de "+(b.name||"")+"\n"+TK.map(function(z,i){return (i+1)+" = "+C.plans[z].n}).join("\n")+"\n(Cancelar = no cambiar)",cur);if(q==null)return;
     var tk=TK[Math.min(2,Math.max(0,(+q||cur)-1))],cd=untilMs(s),f=prompt("Activo hasta (AAAA-MM-DD o DD/MM/AAAA).\nHoy está hasta el "+(cd?fd(cd):"—")+". Vacío = no cambiar.","");if(f==null)return;
