@@ -220,7 +220,7 @@ ok(META.wa.length === 0 && llamadas === 2, "con el negocio listo, la siguiente c
 
 titulo("Fuera de horario y funciones apagadas");
 AHORA = cr("2026-12-03T10:00:00"); limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 });
-igual([await cron(), META.wa.length], [0, 0], "a las 10 a. m. no hace ni una llamada");
+ok((await cron()) <= 2 && META.wa.length === 0 && !doc("biz/b1").waDay, "a las 10 a. m. de Costa Rica no manda nada (solo mira si hay negocios de otro país en su hora)");
 AHORA = cr("2026-12-03T21:30:00"); igual([await cron(), META.wa.length], [0, 0], "a las 9:30 p. m. tampoco");
 AHORA = cr("2026-12-03T17:00:00");
 for (const [que, extra, sub] of [["recordatorio apagado (rem: false)", { waAuto: { on: true, rem: false } }, {}], ["función apagada", { waAuto: { on: false } }, {}], ["plan Turbo sin extra", {}, { tier: "turbo" }], ["plan vencido", {}, { until: new Date(AHORA - 1) }]]) {
@@ -229,7 +229,23 @@ for (const [que, extra, sub] of [["recordatorio apagado (rem: false)", { waAuto:
 limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1 });
 await cron({ ...ENV0, WA_TOKEN: "" }); igual(META.wa.length, 0, "sin WhatsApp conectado: no manda");
 
+titulo("Negocios de otros países: cada uno a su hora");
+AHORA = Date.parse("2026-12-03T16:30:00Z"); // 10:30 a. m. en Costa Rica, 5:30 p. m. en España
+limpio(); negocio("cr1"); cita("cr1", "j1", { at: 1, waC: 1 });
+negocio("es1", { country: "ES", slug: "taller-madrid", wa: "612345678" }); cita("es1", "j1", { at: 1, waC: 1, tel: "612345679", date: "2026-12-04" });
+await cron();
+igual(META.wa.map((x) => x.to), ["34612345679"], "a las 5:30 p. m. de España sale el de España (con +34) y el de Costa Rica espera");
+AHORA = Date.parse("2026-12-04T01:30:00Z"); // 7:30 p. m. del jueves 3 en Costa Rica, 2:30 a. m. del viernes 4 en España
+limpio(); negocio("es1", { country: "ES", slug: "taller-madrid" }); cita("es1", "j1", { at: 1, waC: 1, tel: "612345679", date: "2026-12-05" });
+negocio("cr1"); cita("cr1", "j1", { at: 1, waC: 1, date: "2026-12-04" });
+await cron();
+igual(META.wa.map((x) => x.to), ["50688887777"], "a las 2:30 a. m. de España no se le escribe a nadie allá; en Costa Rica sí, para el día que es «mañana» allí");
+AHORA = Date.parse("2026-12-03T09:00:00Z"); // 3 a. m. en Costa Rica: no es hora en ningún país
+limpio(); negocio("cr1"); cita("cr1", "j1", { at: 1, waC: 1 });
+igual([await cron(), META.wa.length], [0, 0], "cuando no es hora en ningún país no hace ni una llamada");
+
 titulo("Cita que se movió de día");
+AHORA = cr("2026-12-03T17:00:00");
 limpio(); negocio("b1"); cita("b1", "j1", { at: 1, waC: 1, waR: 5, waRd: "2026-12-02", waRt: "2026-12-02" });
 await cron(); ok(META.wa.length === 1 && J_("b1", "j1").waRd === man, "si ya había recibido recordatorio para OTRO día, recibe el del día nuevo");
 

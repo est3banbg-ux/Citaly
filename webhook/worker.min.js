@@ -481,7 +481,9 @@ async function baja(env, bid, tok) {
    La cuenta de mensajes vive en wa/{negocio}_{AAAA-MM}.n y solo la escribe el Worker. Sin WA_TOKEN no hace nada. */
 const WA_LIM = { nitro: 150, extra: 150, prueba: 20 };
 const WA_TPL = { conf: "reserva_recibida", rem: "cita_recordatorio", remS: "cita_recordatorio_simple" };
-const WA_H0 = 16, WA_H1 = 20; // el recordatorio del día antes sale entre las 4 y las 8 p. m. (hora de Costa Rica)
+const WA_H0 = 16, WA_H1 = 20; // el recordatorio del día antes sale entre las 4 y las 8 p. m., hora del país del negocio
+const WA_UTC = { CR: -6, PA: -5, NI: -6, HN: -6, SV: -6, GT: -6, MX: -6, CO: -5, PE: -5, CL: -4, EC: -5, DO: -4, PR: -4, AR: -3, UY: -3, PY: -3, BO: -4, VE: -4, US: -5, ES: 1 }; // horas respecto a UTC (aproximado donde hay horario de verano)
+const waLoc = (now, country) => new Date(now + (country in WA_UTC ? WA_UTC[country] : -6) * 3600e3); // reloj del negocio, leído con getUTC…
 const WA_CC = { CR: ["506", 8], PA: ["507", 8], NI: ["505", 8], HN: ["504", 8], SV: ["503", 8], GT: ["502", 8], MX: ["52", 10], CO: ["57", 10], PE: ["51", 9], CL: ["56", 9], EC: ["593", 9], DO: ["1", 10], PR: ["1", 10],
   AR: ["54", 10], UY: ["598", 8], PY: ["595", 9], BO: ["591", 8], VE: ["58", 10], US: ["1", 10], ES: ["34", 9] }; // igual que C.countries en cfg.js
 const DIAS_L = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
@@ -573,20 +575,20 @@ async function waConfirm(env, tk, bid, jid, jf) {
   if (j.waC || !j.date || !j.time) return 0;
   return (await waJob(env, tk, { bid, jid, b, j, pl, now, kind: "conf" })) === "ok" ? 1 : 0;
 }
-/* Recordatorio del día antes: corre con el cron. Solo lee los negocios que lo tienen encendido y sus citas de mañana.
+/* Recordatorio del día antes: corre con el cron, entre 4 y 8 p. m. del país de cada negocio. Solo lee los negocios que lo tienen encendido y sus citas de mañana.
    Lleva la cuenta de las llamadas que hace (sub) para no pasarse del límite de Cloudflare; lo que no alcance sale en la siguiente corrida. */
 async function waCiclo(env, solo) {
   if (!waLive(env)) return 0;
-  const now = Date.now(), hr = new Date(now - 6 * 3600e3).getUTCHours();
-  if (hr < WA_H0 || hr > WA_H1) return 0;
-  const tk = await token(env), man = crDay(now + 864e5), max = solo ? 44 : 30, H = { authorization: "Bearer " + tk, "content-type": "application/json" };
+  const now = Date.now(), enHora = (c) => { const h = waLoc(now, c).getUTCHours(); return h >= WA_H0 && h <= WA_H1; };
+  if (!Object.keys(WA_UTC).some(enHora)) return 0; // a esta hora no le toca a ningún país: ni una llamada
+  const tk = await token(env), max = solo ? 44 : 30, H = { authorization: "Bearer " + tk, "content-type": "application/json" };
   const q = await fetch(`${fs(env)}:runQuery`, { method: "POST", headers: H, body: JSON.stringify({ structuredQuery: { from: [{ collectionId: "biz" }], where: { fieldFilter: { field: { fieldPath: "waAuto.on" }, op: "EQUAL", value: { booleanValue: true } } }, limit: 300 } }) });
   const negocios = q.ok ? (await q.json()).filter((x) => x.document).map((x) => x.document) : [];
   let sub = 2, sent = 0;
   for (const d of negocios) {
     if (sub + 7 > max) break;
-    const bid = d.name.split("/").pop(), b = dec(d.fields), w = b.waAuto || {};
-    if (w.on !== true || w.rem === false || b.waDay === man) continue;
+    const bid = d.name.split("/").pop(), b = dec(d.fields), w = b.waAuto || {}, man = waLoc(now + 864e5, b.country).toISOString().slice(0, 10); // «mañana» en el país del negocio
+    if (w.on !== true || w.rem === false || b.waDay === man || !enHora(b.country)) continue;
     const pl = waPlan(dec(await get(env, tk, "subs/" + bid)), now); sub++;
     if (!pl.max) continue;
     const r = await fetch(`${fs(env)}/biz/${bid}:runQuery`, { method: "POST", headers: H, body: JSON.stringify({ structuredQuery: { from: [{ collectionId: "jobs" }], where: { fieldFilter: { field: { fieldPath: "date" }, op: "EQUAL", value: { stringValue: man } } }, limit: 200 } }) }); sub++;

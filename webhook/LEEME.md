@@ -50,7 +50,7 @@ Cuando un dueño o el admin pega un link corto de TikTok (vm.tiktok.com…) o de
 
 
 ## Recordatorios automáticos por WhatsApp (rutas /wa/… y el cron del mismo Worker)
-Citaly le escribe solo al cliente final desde **un número de Citaly** (API oficial de WhatsApp de Meta): confirmación cuando reserva y recordatorio el día antes (entre 4 y 8 p. m., hora de Costa Rica). Cada dueño lo enciende en Ajustes → Recordatorios automáticos. Lo tienen Nitro (150 mensajes al mes), la prueba gratis (20) y quien tenga el extra (`subs/{negocio}.waauto = true`, 150). **Sin `WA_TOKEN` el Worker no manda nada y todo lo demás funciona igual.**
+Citaly le escribe solo al cliente final desde **un número de Citaly** (API oficial de WhatsApp de Meta): confirmación cuando reserva y recordatorio el día antes (entre 4 y 8 p. m., hora del país del negocio). Cada dueño lo enciende en Ajustes → Recordatorios automáticos. Lo tienen Nitro (150 mensajes al mes), la prueba gratis (20) y quien tenga el extra (`subs/{negocio}.waauto = true`, 150). **Sin `WA_TOKEN` el Worker no manda nada y todo lo demás funciona igual.**
 
 ### 1. En Meta (una sola vez)
 1. Un número nuevo que no tenga WhatsApp activo (chip prepago).
