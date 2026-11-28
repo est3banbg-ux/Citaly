@@ -36,7 +36,8 @@ with Banco() as b:
 
     # Freno anti-robots y campo trampa
     p = b.abrir("/r/?n=prueba", datos, antes=reloj())
-    a_datos(p); llenar_datos(p); siguiente(p); p.click("#nx"); p.wait_for_timeout(500)
+    # T0 = momento en que abrió la página. Se pone "ahora" para que la prueba no dependa de cuánto tarda el banco en llegar al resumen.
+    a_datos(p); llenar_datos(p); siguiente(p); p.evaluate("()=>{T0=Date.now()}"); p.click("#nx"); p.wait_for_timeout(500)
     b.ok("Freno de 6 s: si confirma muy rápido pide tocar otra vez y no guarda", "toca Confirmar otra vez" in txt(p, "#er") and not jobs(p), txt(p, "#er"))
     p.wait_for_timeout(100); p.evaluate("()=>{T0=0}"); p.click("#nx"); p.wait_for_timeout(800)
     b.ok("Freno de 6 s: al tocar de nuevo sí guarda", len(jobs(p)) == 1)

@@ -4,6 +4,12 @@
 <meta name="robots" content="noindex,follow">
 <meta charset="utf-8">
 <script>try{var __m=localStorage.getItem("citaly_mode");if(__m==="light"||__m==="dark")document.documentElement.setAttribute("data-mode",__m)}catch(e){}</script>
+<script>/* Colores del negocio guardados de la visita anterior (o de su página web): se ponen antes de pintar, para que no parpadee */
+try{(function(){var n=(new URLSearchParams(location.search).get("n")||"").toLowerCase().replace(/[^a-z0-9-]/g,""),s=JSON.parse(localStorage.getItem("citaly_sk:"+n)||"null"),d=document.documentElement,m=typeof __m==="string"&&(__m==="light"||__m==="dark")?__m:"",k,pm,pl;
+if(!s||typeof s!=="object"||(s.m||"")!==m)return;pm=s.pm==="light"||s.pm==="dark"?s.pm:"";pl=s.th==="clara"||s.th==="pro";if(pl&&!pm)return;
+if(/^(clara|pro|glass|atrevido|elegante|fresco)$/.test(s.th||""))d.setAttribute("data-th",s.th);
+if(pl)d.setAttribute("data-pm",pm);else if(pm&&!m)d.setAttribute("data-mode",pm);
+for(k in s.v||{})if(/^--(acc|cta|ctaink|acct|soft|soft2|mark|hi|tint)$/.test(k)&&/^#[0-9a-f]{3,8}$/i.test(s.v[k]))d.style.setProperty(k,s.v[k])})()}catch(e){}</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Reserva tu cita</title>
 <meta name="theme-color" content="#6c4cf5">
@@ -18,95 +24,250 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="../cfg.js?v=20261127d"></script>
 <style>
-.wrap{padding-bottom:130px}
-.head{text-align:center;padding:22px 0 8px}
-.head .lg{width:84px;height:84px;border-radius:24px;margin:0 auto 12px;background:var(--acc);color:#fff;display:grid;place-items:center;font:800 36px "Bricolage Grotesque",sans-serif;overflow:hidden;box-shadow:0 14px 34px -14px var(--acc)}
+/* ===== Página de reservas =====
+   Se ve igual que la página web del negocio (/w/): misma plantilla, mismos colores, mismo claro/oscuro y misma letra.
+   Los colores llegan en variables que pone skin() (abajo, en el script):
+   --bg --card --ink --mute --line --hair --soft --soft2 --acc --acct --cta --ctaink --mark --hi --sh
+   Clásica: las pone themes.css (data-th del tema) y aquí solo se les da un valor de respaldo. */
+:root{--hair:var(--line);--cta:var(--acc);--ctaink:var(--accink,#fff);--acct:var(--acc);--soft2:var(--soft);--dim:var(--mute);--mark:color-mix(in srgb,var(--acc) 26%,transparent);--ez:cubic-bezier(.23,1,.32,1)}
+/* Clara (los mismos valores que html[data-th=clara] en /w/) */
+html[data-th=clara]{--bg:#f7f5f0;--card:#fff;--ink:#14171c;--mute:#5b6370;--dim:#7a8290;--line:#e6e1d6;--hair:#ebe6da;--ok:#15784a;--warn:#a86400;--bad:#c2372d;--sh:0 1px 2px rgba(20,23,28,.04),0 10px 28px -18px rgba(20,23,28,.22);color-scheme:light}
+html[data-th=clara][data-pm=dark]{--bg:#0e1013;--card:#171a1f;--ink:#eef0f3;--mute:#a3abb7;--dim:#8a93a0;--line:#2a2e36;--hair:#23272e;--ok:#4ade80;--warn:#f2b134;--bad:#ff8b80;--sh:0 1px 2px rgba(0,0,0,.3),0 10px 28px -18px rgba(0,0,0,.7);color-scheme:dark}
+/* Pro (los mismos valores que html[data-th=pro] en /w/) */
+html[data-th=pro]{--tint:var(--acc);--bg:color-mix(in srgb,var(--tint) 7%,#04111a);--card:color-mix(in srgb,var(--tint) 11%,#08161f);--ink:#eaf6f5;--mute:#9dbdbd;--dim:#6f9396;--line:color-mix(in srgb,var(--tint) 28%,#0a1c25);--hair:color-mix(in srgb,var(--tint) 22%,transparent);--soft:color-mix(in srgb,var(--tint) 16%,#0a1a22);--soft2:var(--soft);--hi:color-mix(in srgb,var(--acc) 50%,#fff);--acct:var(--hi);--mark:color-mix(in srgb,var(--hi) 22%,transparent);--ok:#4cc782;--warn:#f2b134;--bad:#ff8b80;--sh:0 0 0 0 transparent;color-scheme:dark}
+html[data-th=pro][data-pm=light]{--bg:color-mix(in srgb,var(--tint) 4%,#f7f9fb);--card:#fff;--ink:#14202b;--mute:#54626f;--dim:#7a8794;--line:color-mix(in srgb,var(--tint) 18%,#dde3ea);--hair:color-mix(in srgb,var(--tint) 14%,#dde3ea);--soft:color-mix(in srgb,var(--tint) 9%,#fff);--hi:color-mix(in srgb,var(--acc) 82%,#000);--ok:#1f8a4c;--warn:#c27a00;--bad:#c2372d;--sh:0 14px 34px -18px rgba(20,32,43,.28);color-scheme:light}
+
+/* --sh va dentro de listas de sombras (borde fino + sombra): "none" ahí no es válido y borraría todo */
+html[data-th=glass],html[data-th=elegante]{--sh:0 0 0 0 transparent}
+body{font:16.5px/1.5 Figtree,system-ui,-apple-system,sans-serif;overflow-x:clip}
+/* fondo: un baño suave del color de la marca arriba (capa de ambiente, no se mueve) */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(120% 44% at 50% -10%,color-mix(in srgb,var(--acc) 9%,transparent),transparent 72%)}
+html[data-th=clara] body::before{background:radial-gradient(120% 44% at 50% -10%,var(--soft2),transparent 72%)}
+html[data-th=pro] body::before{background:radial-gradient(1200px 700px at 50% -10%,color-mix(in srgb,var(--acc) 24%,transparent),transparent 60%),radial-gradient(900px 600px at 100% 60%,color-mix(in srgb,var(--acc) 9%,transparent),transparent 60%)}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;letter-spacing:-.035em;text-wrap:balance}
+:focus-visible{outline:2.5px solid var(--acct);outline-offset:3px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
+.i{width:1.15em;height:1.15em;flex:none;display:inline-block;vertical-align:-.2em}
+.wrap{max-width:560px;padding:0 18px 150px}
+@media(min-width:700px){.wrap{max-width:604px;padding-top:14px}}
+
+/* cargando */
+#load{padding-top:20px}
+.sk{display:block;border-radius:16px;background:linear-gradient(100deg,color-mix(in srgb,var(--ink) 6%,transparent) 40%,color-mix(in srgb,var(--ink) 12%,transparent) 50%,color-mix(in srgb,var(--ink) 6%,transparent) 60%);background-size:220% 100%;animation:sk 1.5s linear infinite}
+@keyframes sk{from{background-position:120% 0}to{background-position:-100% 0}}
+
+/* botones */
+.btn{min-height:52px;padding:13px 18px;border-radius:16px;font:700 16px/1.25 Figtree,system-ui,sans-serif;background:var(--cta);color:var(--ctaink);text-align:center;transition:transform .16s var(--ez),filter .15s ease,box-shadow .2s ease,background-color .2s ease,color .2s ease}
+.btn:active{transform:scale(.97)}
+.btn .i{width:20px;height:20px}
+.btn .arw{transition:transform .2s var(--ez)}
+.btn.big{min-height:58px;font-size:17.5px;border-radius:18px;margin-top:18px;box-shadow:0 14px 28px -14px color-mix(in srgb,var(--cta) 75%,transparent)}
+.btn.alt{background:var(--soft);color:var(--acct)}
+.btn.ghost{background:var(--card);color:var(--ink);border:0;box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.wa{background:#1fa855;color:#fff}
+.btn.wa.big{box-shadow:0 14px 28px -14px rgba(31,168,85,.8)}
+@media (hover:hover) and (pointer:fine){.btn:not(.off):not(:disabled):hover{filter:brightness(1.07)}.btn:hover .arw{transform:translateX(3px)}.btn.ghost:hover{box-shadow:inset 0 0 0 1.5px var(--ink)}}
+
+/* tarjetas y campos */
+.card{background:var(--card);border:0;border-radius:22px;padding:18px;margin-bottom:12px;box-shadow:inset 0 0 0 1px var(--hair),var(--sh)}
+label{font-size:13.5px;margin:16px 0 6px}
+input,select,textarea{font-size:16px;background:var(--card);border:0;border-radius:14px;padding:14px 15px;box-shadow:inset 0 0 0 1.5px var(--line);transition:box-shadow .18s ease}
+.card input,.card select,.card textarea{background:var(--bg)}
+input:focus,select:focus,textarea:focus{box-shadow:inset 0 0 0 2px var(--acct),0 0 0 4px color-mix(in srgb,var(--acct) 16%,transparent)}
+textarea{min-height:84px}
+.chip{border:0;box-shadow:inset 0 0 0 1.5px var(--line);padding:9px 14px;transition:background-color .18s ease,color .18s ease,box-shadow .18s ease,transform .16s var(--ez)}
+.chip:active{transform:scale(.96)}
+.chip[aria-pressed=true]{background:var(--cta);color:var(--ctaink);box-shadow:none}
+.note{background:var(--soft);border-radius:14px;padding:12px 14px;font-size:14.5px;margin:0 0 12px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.ics{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.ico-img{object-fit:contain}.ic .ics{width:82%;height:82%;color:var(--ink)}
+
+/* entradas (primero lo principal, después lo demás; con "reducir movimiento" no se anima nada) */
+@keyframes up{from{opacity:0;transform:translateY(12px)}}
+.fade{animation:up .5s var(--ez) both}
+.head.fade{animation-delay:.05s}.promo.fade,.cls.fade{animation-delay:.11s}#go1.fade{animation-delay:.15s}.cta-s.fade{animation-delay:.19s}.perks.fade{animation-delay:.23s}
+.js-rv .rv{opacity:0;transform:translateY(16px);transition:opacity .6s var(--ez),transform .6s var(--ez)}
+.js-rv .rv.in{opacity:1;transform:none}
+
+/* ===== PORTADA ===== */
+.cov{margin:14px 0 -48px;border-radius:26px;overflow:hidden;aspect-ratio:16/9;background:var(--soft);box-shadow:var(--sh)}
+.cov img{width:100%;height:100%;object-fit:cover;display:block;animation:kb 1.1s var(--ez) both}
+@keyframes kb{from{transform:scale(1.06)}}
+.head{text-align:center;padding:26px 0 4px}
+.head .lg{width:88px;height:88px;border-radius:26px;margin:0 auto 14px;background:var(--cta);color:var(--ctaink);display:grid;place-items:center;font:800 36px "Bricolage Grotesque",sans-serif;overflow:hidden;box-shadow:0 18px 36px -18px rgba(0,0,0,.5)}
 .head .lg img{width:100%;height:100%;object-fit:cover}
-.cov{margin:12px 0 -46px;border-radius:22px;overflow:hidden;aspect-ratio:16/8;background:var(--line)}
-.cov img{width:100%;height:100%;object-fit:cover;display:block}
-.cov+.head{padding-top:0}.cov+.head .lg{position:relative;border:4px solid var(--bg)}
+.cov:not([hidden])+.head{padding-top:0}.cov:not([hidden])+.head .lg{position:relative;box-shadow:0 0 0 5px var(--bg),0 18px 36px -18px rgba(0,0,0,.5)}
 .head h1{font-size:28px}
 .head p{margin:6px 0 0}
-.head .links{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
-.prog{height:5px;background:var(--line);border-radius:9px;overflow:hidden;margin:14px 0 6px}.prog i{display:block;height:100%;background:var(--acc);border-radius:9px;transition:width .35s}
-.pt{font-size:13px;color:var(--mute);font-weight:600}
-.step{display:none}.step.on{display:block;animation:fade .35s ease both}
+.head .bn{font:700 15.5px/1.3 Figtree,sans-serif;color:var(--mute);overflow-wrap:anywhere}
+.st{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin-top:10px;font:600 13.5px/1.3 Figtree,sans-serif;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);border-radius:999px;padding:7px 13px;color:var(--mute);text-align:left}
+.st i{width:8px;height:8px;border-radius:50%;background:#9aa3ad;flex:none}
+.st.on{color:var(--ok)}.st.on i{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.18);animation:live 2.6s ease-in-out infinite}
+@keyframes live{50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+.head .tag{font-size:clamp(34px,9.6vw,50px);line-height:1.03;letter-spacing:-.045em;margin:14px 0 0;padding-bottom:.08em;overflow-wrap:break-word}
+.head .tag em{font-style:normal;background:linear-gradient(180deg,transparent 56%,var(--mark) 56%,var(--mark) 88%,transparent 88%);-webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 .05em;margin:0 -.05em}
+html[data-th=pro] .tag .dim{color:var(--dim);display:block}
+html[data-th=pro] .tag .hl{position:relative;display:inline-block;padding:0 .14em;margin:.04em 0;color:var(--ink);max-width:100%}
+html[data-th=pro] .tag .hl::before{content:"";position:absolute;inset:-.02em -.02em .04em;border:2px solid var(--hi);border-radius:6px;background:color-mix(in srgb,var(--hi) 10%,transparent);box-shadow:0 0 24px color-mix(in srgb,var(--hi) 18%,transparent) inset}
+html[data-th=pro] .tag .hl b{position:absolute;width:.26em;height:.26em;min-width:10px;min-height:10px;border-radius:50%;background:var(--hi);box-shadow:0 0 0 3px var(--bg)}
+html[data-th=pro] .tag .hl b:first-of-type{left:-.1em;top:-.12em}
+html[data-th=pro] .tag .hl b:last-of-type{right:-.1em;bottom:-.06em}
+html[data-th=pro] .tag .hl span{position:relative}
+.head p.mute{font-size:17px;line-height:1.5;margin:14px auto 0;max-width:40ch;overflow-wrap:anywhere}
+.promo{display:flex;align-items:center;gap:13px;width:100%;text-align:left;margin:20px 0 0;padding:13px 15px;border:0;border-radius:18px;background:var(--soft);color:var(--ink);font:inherit;cursor:pointer;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--acct) 22%,transparent);transition:transform .16s var(--ez)}
+.promo:active{transform:scale(.985)}
+.promo .pi{width:42px;height:42px;border-radius:13px;background:var(--cta);color:var(--ctaink);display:grid;place-items:center;flex:none}.promo .pi .i{width:22px;height:22px}
+.promo .pb{flex:1;min-width:0}
+.promo b{display:block;font:700 16px/1.3 Figtree,sans-serif;overflow-wrap:anywhere}
+.promo small{display:block;color:var(--mute);font-size:13.5px;margin-top:2px}
+.promo .go{color:var(--acct);width:20px;height:20px;flex:none}
+.promo.fijo{cursor:default}.promo.fijo .go,.promo.fijo small{display:none}
+.cls{display:flex;align-items:center;gap:8px;justify-content:center;margin:18px auto 0;padding:9px 14px;border-radius:999px;background:var(--soft);color:var(--ink);font:600 13.5px/1.3 Figtree,sans-serif;max-width:380px}
+.cls+.btn.big{margin-top:12px}
+.cta-s{display:flex;justify-content:center;align-items:center;gap:6px;text-align:center;margin:10px 0 2px;font-size:13.5px;color:var(--mute)}
+.cta-s .i{color:var(--acct);width:16px;height:16px}
+.perks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:18px 0 0}
+.perks span{display:inline-flex;align-items:center;gap:7px;max-width:100%;background:var(--card);box-shadow:inset 0 0 0 1px var(--hair);border-radius:999px;padding:8px 13px;font-size:13.5px;font-weight:600;overflow-wrap:anywhere}
+.perks .i{width:16px;height:16px;color:var(--acct)}
+.kick{display:block;font:800 12px/1.2 Figtree,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--acct);margin:46px 0 8px}
+h2.sec{margin:46px 0 16px;font-size:clamp(26px,7vw,32px);line-height:1.06}
+.kick+h2.sec{margin-top:0}
+.how3{display:grid;gap:10px;counter-reset:s}
+.how3 div{position:relative;display:flex;flex-direction:column;justify-content:center;min-height:76px;background:var(--card);border-radius:20px;padding:16px 16px 16px 72px;box-shadow:inset 0 0 0 1px var(--hair)}
+.how3 div:before{counter-increment:s;content:counter(s);position:absolute;left:16px;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:12px;background:var(--cta);color:var(--ctaink);display:grid;place-items:center;font:800 18px "Bricolage Grotesque",sans-serif}
+.how3 b{font:700 17px/1.25 "Bricolage Grotesque",sans-serif;letter-spacing:-.015em;overflow-wrap:anywhere}
+.how3 span{font-size:14.5px;color:var(--mute);margin-top:3px}
+.plist{padding:6px 16px}
+.plist .li{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--hair);gap:12px}.plist .li:last-child{border-bottom:0}
+.plist .li>span{min-width:0;overflow-wrap:anywhere}
+.plist .li>b{font:800 16.5px/1.2 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stk{position:fixed;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;width:auto;max-width:532px;margin:0 auto;box-shadow:0 16px 34px -14px rgba(0,0,0,.55);animation:dock .4s var(--ez) both}
+body.hasstk .wafab{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+.foot{text-align:center;margin-top:34px;font-size:12.5px;color:var(--mute)}.foot a{color:var(--mute);font-weight:700;text-decoration:none}
+.modeb{display:inline-flex;align-items:center;gap:7px;margin-top:12px;background:var(--card);border:0;box-shadow:inset 0 0 0 1px var(--line);border-radius:999px;color:var(--ink);font:600 13px Figtree,sans-serif;cursor:pointer;padding:8px 14px}
+.modeb .i{width:16px;height:16px}
+
+/* ===== RESERVA ===== */
+.mini{position:sticky;top:0;z-index:15;display:flex;align-items:center;gap:11px;margin:0 -18px;padding:12px 18px 10px;background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.mini .lg{width:40px;height:40px;border-radius:12px;background:var(--cta);color:var(--ctaink);display:grid;place-items:center;font:800 17px "Bricolage Grotesque",sans-serif;overflow:hidden;flex:none}.mini .lg img{width:100%;height:100%;object-fit:cover}
+.mini b{flex:1;min-width:0;font:700 17.5px/1.15 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+@media(min-width:700px){.mini{position:static;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;padding-top:8px}}
+.prog{display:none}
+.segs{display:flex;gap:6px;margin:6px 0 18px}
+.segs i{position:relative;flex:1;height:5px;border-radius:9px;background:color-mix(in srgb,var(--ink) 11%,transparent);overflow:hidden}
+.segs i::after{content:"";position:absolute;inset:0;border-radius:9px;background:var(--acct);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ez)}
+.segs i.d::after{transform:scaleX(1)}
+.pt{font:700 13.5px/1.25 Figtree,sans-serif;letter-spacing:.01em;color:var(--acct);margin:0 0 8px}
+.step{display:none}.step.on{display:block}
+.step.enter>*{animation:up .38s var(--ez) both}
+.step.enter>:nth-child(2){animation-delay:.04s}.step.enter>:nth-child(3){animation-delay:.08s}.step.enter>:nth-child(n+4){animation-delay:.12s}
+.step.enter #svcs>.svc,.step.enter .vcards>.vc{animation:up .38s var(--ez) both;animation-delay:calc(.06s + var(--n,0)*.035s)}
+#svcs>.svc:nth-child(2),.vcards>.vc:nth-child(2){--n:1}#svcs>.svc:nth-child(3),.vcards>.vc:nth-child(3){--n:2}#svcs>.svc:nth-child(4),.vcards>.vc:nth-child(4){--n:3}#svcs>.svc:nth-child(5){--n:4}#svcs>.svc:nth-child(6){--n:5}#svcs>.svc:nth-child(n+7){--n:6}
+.step h2{font-size:clamp(27px,7.4vw,34px);line-height:1.06;margin:0 0 8px}
+.step h2+p{margin:0 0 18px;font-size:15.5px}
+.step h2.h2b{font-size:19px;font-weight:700;letter-spacing:-.02em;line-height:1.25;margin:22px 0 12px}
 .cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.cat{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;text-align:center;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:10px 4px 8px;cursor:pointer;color:var(--ink);font:inherit;box-shadow:var(--sh);transition:all .15s;min-width:0}
-.ics{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.ico-img{object-fit:contain}.ic .ics{width:82%;height:82%;color:var(--ink)}
-.cat .ic{width:52px;height:52px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:23px}
+.cat{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;text-align:center;background:var(--card);border:0;border-radius:16px;padding:10px 4px 9px;cursor:pointer;color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1px var(--hair);transition:box-shadow .2s ease,background-color .2s ease,transform .16s var(--ez);min-width:0}
+.cat:active{transform:scale(.97)}
+.cat .ic{width:52px;height:52px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:23px}
 .cat b{font-size:11.5px;line-height:1.15;word-break:break-word}
-.cat .bd{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--acc);color:#fff;font:800 11px Figtree,sans-serif;display:grid;place-items:center;padding:0 5px}
-.cat.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--card))}
-.cat.on .ic{background:color-mix(in srgb,var(--acc) 20%,var(--card))}
-.svc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:13px;margin-bottom:9px;cursor:pointer;color:var(--ink);font:inherit;transition:all .15s;box-shadow:var(--sh)}
-.svc .ic{width:46px;height:46px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:23px;flex:none}
-.svc .m{flex:1}.svc .m b{display:block}.svc .m span{font-size:13px;color:var(--mute)}
-.svc .ck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:transparent;font-weight:800;font-size:14px;flex:none;transition:all .15s}
-.svc[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 7%,var(--card))}
-.svc[aria-pressed=true] .ck{background:var(--acc);border-color:var(--acc);color:#fff}
-.days{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+.cat .bd{position:absolute;top:-6px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--cta);color:var(--ctaink);font:800 11px Figtree,sans-serif;display:grid;place-items:center;padding:0 5px}
+.cat.on{box-shadow:inset 0 0 0 2px var(--acct);background:color-mix(in srgb,var(--acct) 8%,var(--card))}
+.svc{display:flex;align-items:center;gap:13px;width:100%;text-align:left;background:var(--card);border:0;border-radius:20px;padding:14px;margin-bottom:10px;cursor:pointer;color:var(--ink);font:inherit;box-shadow:inset 0 0 0 1px var(--hair),var(--sh);transition:transform .16s var(--ez),box-shadow .2s ease,background-color .2s ease}
+.svc:active{transform:scale(.985)}
+.svc .ic{width:50px;height:50px;border-radius:15px;background:var(--soft);display:grid;place-items:center;font-size:24px;flex:none}
+.svc .m{flex:1;min-width:0}.svc .m b{display:block;font:700 16.5px/1.25 Figtree,sans-serif;overflow-wrap:anywhere}.svc .m>span{display:block;font-size:14px;color:var(--mute);margin-top:3px}
+.svc .m i{font-style:normal;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.svc .ck{width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);display:grid;place-items:center;color:transparent;font-weight:800;font-size:14px;flex:none;transform:scale(.9);transition:transform .24s var(--ez),background-color .18s ease,box-shadow .18s ease,color .18s ease}
+.svc[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--acct),var(--sh);background:color-mix(in srgb,var(--acct) 7%,var(--card))}
+.svc[aria-pressed=true] .ck{background:var(--cta);box-shadow:none;color:var(--ctaink);transform:none}
+html[data-th=atrevido] .svc[aria-pressed=true],html[data-th=elegante] .svc[aria-pressed=true],html[data-th=fresco] .svc[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--acct),var(--sh)}
+.hotb{display:inline-block;margin-top:7px;background:var(--cta);color:var(--ctaink);font:700 11.5px/1.4 Figtree,sans-serif;font-style:normal;padding:3px 9px;border-radius:999px}
+.vcards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.vcards.n1{grid-template-columns:1fr}
+.vc{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--card);border:0;border-radius:20px;padding:14px;color:var(--ink);font:inherit;cursor:pointer;box-shadow:inset 0 0 0 1px var(--hair),var(--sh);transition:transform .16s var(--ez),box-shadow .2s ease,background-color .2s ease}
+.vc:active{transform:scale(.98)}
+.vc svg{width:100%;max-width:120px;height:46px;color:var(--mute);transition:color .2s ease}.vc b{font:700 15.5px/1.2 Figtree,sans-serif}.vc small{font-size:12.5px;color:var(--mute);line-height:1.3}
+.vc .ck{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 2px var(--line);display:grid;place-items:center;color:transparent;font-weight:800;font-size:13px;transition:background-color .18s ease,box-shadow .18s ease,color .18s ease}
+.vc[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--acct),var(--sh);background:color-mix(in srgb,var(--acct) 7%,var(--card))}.vc[aria-pressed=true] svg{color:var(--acct)}.vc[aria-pressed=true] .ck{background:var(--cta);box-shadow:none;color:var(--ctaink)}
+.vwarn{margin-top:10px;padding:12px 14px;border-radius:16px;box-shadow:inset 0 0 0 1.5px #f0b429;background:color-mix(in srgb,#f0b429 14%,var(--card));font-size:14.5px}.vwarn .btn{margin-top:8px;min-height:44px;padding:9px 12px;font-size:14.5px}
+.carsd{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}.carsd button{border:0;box-shadow:inset 0 0 0 1.5px var(--acct);background:color-mix(in srgb,var(--acct) 9%,var(--card));color:var(--ink);border-radius:999px;padding:8px 9px 8px 13px;font:700 13.5px Figtree,sans-serif;cursor:pointer}.carsd button span{opacity:.6;margin-left:6px}
+.addcar{margin-top:8px;padding:16px;border:1.5px dashed var(--line);border-radius:20px;text-align:center}.addcar p{margin:10px 0 0;font-size:13.5px;color:var(--mute)}.addcar .btn{width:auto;display:inline-flex;min-height:46px}
+.days{display:flex;gap:8px;overflow-x:auto;margin:0 -18px;padding:4px 18px 12px;scroll-snap-type:x proximity;scroll-padding:0 18px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .days::-webkit-scrollbar{display:none}
-.days button{flex:none;width:64px;border:2px solid var(--line);background:var(--card);border-radius:16px;padding:9px 0;cursor:pointer;color:var(--ink);font:600 12px Figtree,sans-serif;scroll-snap-align:start;text-transform:capitalize}
-.days button b{display:block;font:800 21px "Bricolage Grotesque",sans-serif;margin:1px 0}
-.days button:disabled{opacity:.35;cursor:default}
-.days button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
-.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.hours button{border:2px solid var(--line);background:var(--card);border-radius:12px;padding:12px 0;font:700 15px Figtree,sans-serif;color:var(--ink);cursor:pointer}
-.hours button[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:#fff}
-.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
-.bar{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));z-index:20}
-.bar>div{max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center}
-.bar .tot{flex:1;font-size:13px;color:var(--mute)}.bar .tot b{display:block;font:800 20px "Bricolage Grotesque",sans-serif;color:var(--ink)}
-.bar .btn{width:auto;flex:1.3}
-.bar .bk{flex:none;width:48px;padding:13px 0}
-.sumc .li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);gap:12px}.sumc .li:last-child{border-bottom:0}
-.done{text-align:center;padding-top:30px}
-.done .big{font-size:64px;animation:pop .5s cubic-bezier(.2,1.6,.4,1) both}
-@keyframes pop{from{transform:scale(.3);opacity:0}}
+.days button{flex:none;width:66px;border:0;background:var(--card);border-radius:18px;padding:11px 0 10px;cursor:pointer;color:var(--mute);font:600 12px/1.2 Figtree,sans-serif;scroll-snap-align:start;text-transform:capitalize;box-shadow:inset 0 0 0 1px var(--hair);transition:transform .16s var(--ez),background-color .2s ease,color .2s ease,box-shadow .2s ease}
+.days button b{display:block;font:800 22px/1.15 "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;margin:2px 0;color:var(--ink)}
+.days button:disabled{opacity:.38;cursor:default}
+.days button:active:not(:disabled){transform:scale(.95)}
+.days button[aria-pressed=true]{background:var(--cta);color:var(--ctaink);box-shadow:0 10px 22px -12px color-mix(in srgb,var(--cta) 80%,transparent)}
+.days button[aria-pressed=true] b{color:inherit}
+.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.hours button{border:0;background:var(--card);border-radius:15px;padding:14px 0;font:700 15.5px Figtree,sans-serif;font-variant-numeric:tabular-nums;color:var(--ink);cursor:pointer;box-shadow:inset 0 0 0 1px var(--hair);transition:transform .16s var(--ez),background-color .2s ease,color .2s ease,box-shadow .2s ease}
+.hours button:active{transform:scale(.96)}
+.hours button[aria-pressed=true]{background:var(--cta);color:var(--ctaink);box-shadow:0 10px 22px -12px color-mix(in srgb,var(--cta) 80%,transparent)}
+#hrs.nuevo>button{animation:up .3s var(--ez) both;animation-delay:calc(var(--n,0)*.018s)}
+#hrs>button:nth-child(2){--n:1}#hrs>button:nth-child(3){--n:2}#hrs>button:nth-child(4){--n:3}#hrs>button:nth-child(5){--n:4}#hrs>button:nth-child(6){--n:5}#hrs>button:nth-child(7){--n:6}#hrs>button:nth-child(8){--n:7}#hrs>button:nth-child(n+9){--n:8}
+#gps{margin-top:0;background:var(--soft);color:var(--acct);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--acct) 28%,transparent)}
+.or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:18px 0 10px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+#zsel{width:100%}
+.zok{margin-top:10px;padding:13px 15px;border-radius:16px;box-shadow:inset 0 0 0 1.5px var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}.zok.bad{box-shadow:inset 0 0 0 1.5px var(--bad);background:color-mix(in srgb,var(--bad) 9%,var(--card))}.zok.bad b{color:var(--bad)}.zok.ask{box-shadow:inset 0 0 0 1.5px var(--acct);background:color-mix(in srgb,var(--acct) 9%,var(--card))}.zok.ask b{color:var(--acct)}.zok a.btn{margin-top:10px;display:flex}.zok b{display:block;color:var(--ok)}.zok span{font-size:13.5px;color:var(--mute)}
+.zn{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;box-shadow:inset 0 0 0 1.5px var(--line);background:var(--card);border-radius:14px;padding:13px 15px;margin-bottom:8px;font:600 15px Figtree,sans-serif;color:var(--ink);cursor:pointer}
+.zn b{color:var(--acct)}.zn[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--acct);background:color-mix(in srgb,var(--acct) 8%,var(--card))}
+.sumc{padding:8px 18px}
+.sumc .li{display:flex;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--hair);gap:12px}
+.sumc .li>span:first-child{min-width:0;overflow-wrap:anywhere}
+.sumc .li:nth-last-child(2){border-bottom:0}
+.sumc .li:last-child{border-bottom:0;border-top:1.5px dashed var(--line);padding:15px 0 12px;align-items:baseline}
+.sumc .li:last-child b:last-child{font:800 22px/1.1 "Bricolage Grotesque",sans-serif;letter-spacing:-.025em;font-variant-numeric:tabular-nums}
+.sumc .li:only-child{border-top:0}
+.err{font-size:14.5px;margin:12px 0 0}
+.idea{display:block;text-align:center;margin:22px auto 4px;font:600 13px Figtree,sans-serif;color:var(--mute);text-decoration:none;border:1px dashed var(--line);border-radius:14px;padding:10px 12px;max-width:360px}.idea b{color:var(--ink)}
+
+/* barra de abajo: flota sobre la página */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:16px 12px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,var(--bg) 52%);pointer-events:none;animation:dock .45s var(--ez) both}
+@keyframes dock{from{transform:translateY(110%)}}
+.bar>div{pointer-events:auto;max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center;padding:9px;border-radius:24px;background:color-mix(in srgb,var(--card) 90%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:inset 0 0 0 1px var(--hair),0 18px 40px -18px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.06)}
+.bar .tot{flex:1;min-width:0;font-size:12.5px;line-height:1.25;color:var(--mute)}
+.bar .tot b{display:block;font:800 clamp(18px,5.2vw,21px)/1.15 "Bricolage Grotesque",sans-serif;letter-spacing:-.025em;color:var(--ink);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.bar .tot.warn{color:var(--acct);font-weight:700}.bar .tot.warn b{color:var(--ink)}
+.bar .btn{width:auto;flex:1.25;font-size:15.5px;border-radius:17px;padding:10px 12px}
+.bar .btn.bk{flex:none;width:50px;min-height:50px;height:50px;padding:0;border-radius:50%;font-size:22px;line-height:1;background:transparent}
+#nx::after{content:"→";font-weight:700;transition:transform .2s var(--ez)}
+#nx.fin::after,#nx:disabled::after{content:none}
+#nx.off{background:color-mix(in srgb,var(--ink) 9%,var(--card));color:var(--mute);box-shadow:none;cursor:pointer}
+#nx:not(.off):not(:disabled){font-weight:800;box-shadow:0 12px 24px -12px color-mix(in srgb,var(--cta) 85%,transparent)}
+#nx.rdy{animation:rdy .5s var(--ez)}@keyframes rdy{35%{transform:scale(1.035)}}
+@media (hover:hover) and (pointer:fine){#nx:not(.off):hover::after{transform:translateX(3px)}}
+
+/* ===== ¡LISTO! ===== */
+.done{text-align:center;padding-top:clamp(18px,calc((100vh - 620px)*.3),56px)}
+.done:not([hidden])>*{animation:up .5s var(--ez) both;animation-delay:.3s}
+.done:not([hidden])>div.big{animation:none}.done:not([hidden])>h1{animation-delay:.2s}.done:not([hidden])>p:first-of-type{animation-delay:.25s}
+.done>div.big,.okbig{width:68px;height:68px;margin:0 auto 12px}
+.okbig{margin-top:8px}
+.okv{display:block;width:100%;height:100%;overflow:visible}
+.okv .c{fill:var(--cta);transform-box:fill-box;transform-origin:center;animation:okc .5s cubic-bezier(.34,1.4,.64,1) both}
+.okv .r{fill:none;stroke:var(--cta);stroke-width:2;opacity:0;transform-box:fill-box;transform-origin:center;animation:okr .9s .12s var(--ez) both}
+.okv .k{fill:none;stroke:var(--ctaink);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:44;animation:okk .4s .26s var(--ez) both}
+@keyframes okc{from{transform:scale(.6);opacity:0}}
+@keyframes okr{from{transform:scale(.8);opacity:.55}to{transform:scale(1.6);opacity:0}}
+@keyframes okk{from{stroke-dashoffset:44}}
+.done h1{font-size:clamp(26px,7.2vw,34px);line-height:1.06}
+.done>p.mute{margin:6px 0 14px;font-size:16px}
+.done .card{padding:14px 16px;margin-bottom:10px}
+.done .btn.big{margin-top:6px}
+.done .card b{font:700 17px/1.25 "Bricolage Grotesque",sans-serif;letter-spacing:-.015em}
 .cf{position:fixed;top:-10px;width:9px;height:14px;border-radius:2px;z-index:99;animation:cf 2.2s ease-in forwards}
 @keyframes cf{to{transform:translate(var(--dx),105vh) rotate(var(--r));opacity:.9}}
-.foot{text-align:center;margin-top:26px;font-size:12px;color:var(--mute)}.foot a{color:var(--mute);font-weight:700;text-decoration:none}
-.note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 12px}
+.mylink{text-align:left;background:var(--card);border:1.5px dashed var(--acct);border-radius:18px;padding:14px 15px;margin:6px 0 12px}.mylink b{display:block}.mylink small{display:block;color:var(--mute);font-size:13.5px;margin:3px 0 10px}
+.ml{display:flex;gap:6px}.ml input{flex:1;min-width:0;font-size:16px;padding:9px 11px}.ml button{border:0;border-radius:12px;padding:0 15px;background:var(--cta);color:var(--ctaink);font-weight:700;cursor:pointer}
+#mc h2{font-size:clamp(26px,7vw,32px);line-height:1.06;margin:6px 0 4px}
+#mc .note{text-align:left}#mc .days{margin-top:10px;text-align:left}#mc .hours{margin-bottom:16px}
 
-.head .bn{font-weight:700;color:var(--mute);font-size:15px}
-.head .tag{font-size:clamp(28px,7.5vw,38px);line-height:1.05;margin:6px 0 0;letter-spacing:-.03em}
-.promo{display:flex;gap:10px;align-items:center;background:linear-gradient(120deg,color-mix(in srgb,var(--acc) 16%,var(--card)),color-mix(in srgb,#ff8a5b 18%,var(--card)));border:1.5px dashed color-mix(in srgb,var(--acc) 45%,transparent);border-radius:16px;padding:12px 14px;margin:14px 0 4px;font-size:15px}
-.promo span{font-size:24px}
-.btn.big{padding:16px;font-size:17px;border-radius:15px;box-shadow:0 14px 30px -14px var(--acc);margin-top:14px}
-.perks{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 4px}
-.perks span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px;font-weight:600}
-h2.sec{margin:28px 0 12px;font-size:20px}
-.how3{display:grid;gap:10px;counter-reset:s}
-.how3 div{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 14px 13px 56px;position:relative;box-shadow:var(--sh)}
-.how3 div:before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font:800 15px "Bricolage Grotesque",sans-serif}
-.how3 span{font-size:13px;color:var(--mute)}
-.plist{padding:4px 14px}.plist .li{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);gap:12px}.plist .li:last-child{border-bottom:0}
-.mini{display:flex;align-items:center;gap:10px;padding:10px 0 2px}.mini .lg{width:36px;height:36px;border-radius:11px;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:800;overflow:hidden}.mini .lg img{width:100%;height:100%;object-fit:cover}
-.vcards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.vcards.n1{grid-template-columns:1fr}.vcards.n3,.vcards.n5,.vcards.n7{grid-template-columns:1fr 1fr}
-.vc{position:relative;display:flex;flex-direction:column;gap:6px;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;color:var(--ink);font:inherit;cursor:pointer;box-shadow:var(--sh);transition:all .15s}
-.vc svg{width:100%;max-width:120px;height:46px;color:var(--mute);transition:color .15s}.vc b{font:700 15px/1.2 Figtree,sans-serif}.vc small{font-size:12px;color:var(--mute);line-height:1.3}
-.vc .ck{position:absolute;top:9px;right:9px;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:transparent;font-weight:800;font-size:13px}
-.vc[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}.vc[aria-pressed=true] svg{color:var(--acc)}.vc[aria-pressed=true] .ck{background:var(--acc);border-color:var(--acc);color:#fff}
-.vwarn{margin-top:10px;padding:11px 13px;border-radius:13px;border:1.5px solid #f0b429;background:color-mix(in srgb,#f0b429 14%,var(--card));font-size:14px}.vwarn .btn{margin-top:8px;padding:9px 12px;font-size:14px}
-.hotb{display:inline-block;margin-top:6px;background:#ffd54a;color:#4a3500;font:800 11px Figtree,sans-serif;font-style:normal;padding:3px 9px;border-radius:999px;letter-spacing:.2px}
-.carsd{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 2px}.carsd button{border:1.5px solid var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--card));color:var(--ink);border-radius:999px;padding:7px 8px 7px 12px;font:700 13px Figtree,sans-serif;cursor:pointer}.carsd button span{opacity:.6;margin-left:6px}
-.addcar{margin-top:6px;padding:14px;border:2px dashed var(--line);border-radius:16px;text-align:center}.addcar p{margin:8px 0 0;font-size:13px;color:var(--mute)}.addcar .btn{width:auto;display:inline-flex}
-#nx.off{background:var(--line);color:var(--mute);box-shadow:none;cursor:pointer}
-#nx:not(.off):not(:disabled){font-weight:800;box-shadow:0 10px 24px -8px var(--acc)}#nx.rdy{animation:rdy .45s ease}@keyframes rdy{40%{transform:scale(1.04)}}
-.bar .tot.warn{color:var(--acc);font-weight:700}.bar .tot.warn b{color:var(--ink)}
-.cta-s{text-align:center;margin:8px 0 2px;font-size:13px;color:var(--mute)}
-.stk{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:30;max-width:528px;margin:0 auto}body.hasstk .wafab{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
-.zok{margin-top:8px;padding:11px 14px;border-radius:13px;border:2px solid var(--ok);background:color-mix(in srgb,var(--ok) 10%,var(--card))}.zok.bad{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 9%,var(--card))}.zok.bad b{color:var(--bad)}.zok.ask{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 9%,var(--card))}.zok.ask b{color:var(--acc)}.zok a.btn{margin-top:8px;display:block;text-align:center}.zok b{display:block;color:var(--ok)}.zok span{font-size:13px;color:var(--mute)}
-#zsel{width:100%}.idea{display:block;text-align:center;margin:14px auto 4px;font:600 13px Figtree,sans-serif;color:var(--mute);text-decoration:none;border:1px dashed var(--line);border-radius:12px;padding:9px 12px;max-width:360px}.idea b{color:var(--ink)}
-.cls{display:flex;align-items:center;gap:8px;justify-content:center;margin:0 auto 12px;padding:8px 12px;border-radius:12px;background:color-mix(in srgb,var(--acc2) 14%,var(--card));font:600 13px Figtree,sans-serif;max-width:360px}
-.zn{display:flex;justify-content:space-between;align-items:center;width:100%;border:2px solid var(--line);background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:7px;font:600 15px Figtree,sans-serif;color:var(--ink);cursor:pointer}
-.zn b{color:var(--acc)}.zn[aria-pressed=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}
-.or{display:flex;align-items:center;gap:10px;color:var(--mute);font-size:13px;margin:16px 0 10px}.or:before,.or:after{content:"";flex:1;height:1px;background:var(--line)}
+/* mapa de la ubicación */
 :root{--fmbg:#e8edf0;--fmpk:#cfe6c8;--fmr:#fff;--fmm:#ffd98a}
 @media (prefers-color-scheme:dark){:root:not([data-mode=light]):not([data-th]){--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a}}
-:root[data-mode=dark]:not([data-th]){--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a}
-.mapc{position:relative;display:block;height:130px;margin:10px 0 4px;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--fmbg);text-decoration:none;color:#fff}
+:root[data-mode=dark]:not([data-th]),html[data-pm=dark]{--fmbg:#221f35;--fmpk:#283a2c;--fmr:#3a3555;--fmm:#6b5a2a}
+.mapc{position:relative;display:block;height:136px;margin:12px 0 4px;border-radius:18px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--hair);background:var(--fmbg);text-decoration:none;color:#fff}
 .fm{position:absolute;inset:0;width:100%;height:100%}.fm-bg{fill:var(--fmbg)}.fm-pk{fill:var(--fmpk)}.fm-r{fill:none;stroke:var(--fmr);stroke-width:3.5;stroke-linecap:round}.fm-m{fill:none;stroke:var(--fmm);stroke-width:7;stroke-linecap:round}
 .tl{position:absolute;left:50%;top:50%;width:512px;height:512px;opacity:0;transition:opacity .5s}.tl img{position:absolute;width:256px;height:256px;max-width:none}.tl.on{opacity:1}.tl.off{display:none}
 .osm{display:none;position:absolute;right:4px;top:3px;font-size:9px;color:#333;background:rgba(255,255,255,.75);padding:0 4px;border-radius:4px}.tl.on+.osm{display:block}
@@ -116,17 +277,15 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 .mpu{position:absolute;left:50%;top:50%;width:26px;height:10px;margin:-5px 0 0 -13px;border-radius:50%;background:rgba(229,72,77,.45);animation:mpulse 2.2s ease-out infinite}
 @keyframes drop{0%{transform:translate(-50%,-190%);opacity:0}100%{transform:translate(-50%,-100%);opacity:1}}
 @keyframes mpulse{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2.4);opacity:0}}
-.mylink{text-align:left;background:var(--card);border:1.5px dashed var(--acc);border-radius:16px;padding:12px 14px;margin:6px 0 12px}.mylink b{display:block}.mylink small{display:block;color:var(--mute);font-size:13px;margin:3px 0 8px}
-.ml{display:flex;gap:6px}.ml input{flex:1;min-width:0;font-size:13px;padding:9px 10px}.ml button{border:0;border-radius:10px;padding:0 14px;background:var(--acc);color:#fff;font-weight:700;cursor:pointer}
-#mc .note{background:var(--soft);border-radius:12px;padding:10px 12px;font-size:14px;margin:0 0 12px;text-align:left}#mc .days{margin-top:8px}#mc .hours{margin-bottom:14px}
 .wafab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:7;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#25d366;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.28);opacity:0;transform:translateY(12px) scale(.9);pointer-events:none;transition:opacity .25s ease,transform .25s ease}
 .wafab svg{width:27px;height:27px}.wafab.on{opacity:.95;transform:none;pointer-events:auto}
-@media (prefers-reduced-motion:reduce){.wafab{transition:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol><symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol><symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/></symbol><symbol id="i-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v7h14v-7M12 8v12M12 8c-1.5-3-5-3.5-5-1.2C7 8 9.5 8 12 8Zm0 0c1.5-3 5-3.5 5-1.2C17 8 14.5 8 12 8Z"/></symbol><symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol><symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></symbol><symbol id="i-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16H3v-4l2-5h10l4 5h2v4h-2"/><circle cx="7.5" cy="16.5" r="2"/><circle cx="16.5" cy="16.5" r="2"/><path d="M9.5 16.5h5"/></symbol><symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12Z"/></symbol><symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol><symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol><symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm4.5 12.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3Z"/></symbol></svg>
 <div class="wrap">
-  <div id="load"><div class="spin"></div></div>
+  <div id="load" aria-label="Cargando"><i class="sk" style="width:46%;height:40px"></i><i class="sk" style="height:6px;margin-top:20px"></i><i class="sk" style="width:72%;height:34px;margin-top:26px"></i><i class="sk" style="height:78px;margin-top:20px;border-radius:20px"></i><i class="sk" style="height:78px;margin-top:10px;border-radius:20px"></i><i class="sk" style="height:78px;margin-top:10px;border-radius:20px"></i></div>
   <div id="nf" hidden><div class="head"><div class="lg">?</div><h1>No encontramos este negocio</h1><p class="mute">Revisa que el link esté bien escrito.</p></div><div class="foot"><a href="../">Hecho con Citaly</a></div></div>
 
   <!-- PORTADA -->
@@ -135,46 +294,47 @@ h2.sec{margin:28px 0 12px;font-size:20px}
     <div class="head fade">
       <div class="lg" id="lg"></div>
       <div class="bn" id="nm"></div>
+      <span class="st" id="st" hidden><i></i><span id="stT"></span></span>
       <h1 class="tag" id="tg"></h1>
       <p class="mute" id="bl"></p>
     </div>
-    <div class="promo fade" id="pm" hidden><span>🎁</span><b id="pmT"></b></div>
-    <button class="btn big fade" id="go1">Agendar en 1 minuto →</button><p class="cta-s fade">✓ Eliges servicio, día y hora. Sin llamadas.</p>
+    <button type="button" class="promo fade" id="pm" hidden><span class="pi"><svg class="i" aria-hidden="true"><use href="#i-gift"/></svg></span><span class="pb"><b id="pmT"></b><small>Toca aquí para agendar la promo</small></span><svg class="go" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+    <button class="btn big fade" id="go1"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg>Agendar en 1 minuto<svg class="i arw" aria-hidden="true"><use href="#i-arrow"/></svg></button><p class="cta-s fade"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Eliges servicio, día y hora. Sin llamadas.</p>
     <div class="perks fade" id="pk"></div>
-    <div id="closed" hidden class="card" style="text-align:center;margin-top:14px"><p style="margin-top:0">Por ahora las reservas en línea están pausadas.</p><a class="btn wa" id="waC" target="_blank" rel="noopener">Escríbenos por WhatsApp para agendar</a></div>
+    <div id="closed" hidden class="card" style="text-align:center;margin-top:20px"><p style="margin-top:0">Por ahora las reservas en línea están pausadas.</p><a class="btn wa" id="waC" target="_blank" rel="noopener">Escríbenos por WhatsApp para agendar</a></div>
     <div id="landMore">
-      <h2 class="sec">Así de fácil</h2>
-      <div class="how3" id="h3"></div>
+      <span class="kick rv">Cómo funciona</span><h2 class="sec rv">Así de fácil</h2>
+      <div class="how3 rv" id="h3"></div>
       <div id="prices"></div>
-      <button class="btn big" id="go2" style="margin-top:6px">Agendar en 1 minuto →</button><p class="cta-s">✓ Eliges servicio, día y hora. Sin llamadas.</p>
-      <a class="btn ghost" id="waTop" target="_blank" rel="noopener" style="margin-top:8px">💬 Escríbenos por WhatsApp</a>
+      <button class="btn big rv" id="go2" style="margin-top:24px"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg>Agendar en 1 minuto<svg class="i arw" aria-hidden="true"><use href="#i-arrow"/></svg></button><p class="cta-s"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Eliges servicio, día y hora. Sin llamadas.</p>
+      <a class="btn ghost" id="waTop" target="_blank" rel="noopener" style="margin-top:10px"><svg class="i" aria-hidden="true" style="color:#1fa855"><use href="#i-wa"/></svg>Escríbenos por WhatsApp</a>
     </div>
-    <a class="btn ghost" id="toWeb" style="margin-top:8px">🌐 Ver más de este negocio</a>
+    <a class="btn ghost" id="toWeb" style="margin-top:10px">Ver más de este negocio</a>
     <div class="foot">Reservas con <a href="../" target="_blank">citaly</a><span class="mlk"></span></div>
   </div>
 
   <!-- RESERVA -->
   <div id="flow" hidden>
     <div class="mini"><div class="lg" id="lg2"></div><b id="nm2"></b></div>
-    <div class="prog"><i id="pg"></i></div><div class="pt" id="pt"></div>
+    <div class="segs" id="segs" role="progressbar" aria-label="Avance de tu reserva" aria-valuemin="1"></div><div class="prog"><i id="pg"></i></div><div class="pt" id="pt"></div>
 
     <div id="carsDone" class="carsd" hidden></div>
-    <div class="step" id="s-veh"><h2 style="margin-top:12px" id="vT">¿Qué vehículo tienes?</h2><p class="mute small" style="margin-top:-6px">Elige el tipo, así el precio te sale exacto.</p><div class="vcards" id="vehs"></div><label for="vmod" style="margin-top:14px">Marca, modelo y año <span class="mute">(opcional)</span></label><input id="vmod" maxlength="40" placeholder="Ej: Toyota Hilux 2020" autocomplete="off"><p class="small" id="vmh" style="margin:6px 0 0;color:var(--mute)"></p><div class="vwarn" id="vmw" hidden></div></div>
+    <div class="step" id="s-veh"><h2 id="vT">¿Qué vehículo tienes?</h2><p class="mute">Elige el tipo, así el precio te sale exacto.</p><div class="vcards" id="vehs"></div><label for="vmod" style="margin-top:18px">Marca, modelo y año <span class="mute">(opcional)</span></label><input id="vmod" maxlength="40" placeholder="Ej: Toyota Hilux 2020" autocomplete="off"><p class="small" id="vmh" style="margin:6px 0 0;color:var(--mute)"></p><div class="vwarn" id="vmw" hidden></div></div>
 
-    <div class="step" id="s-svc"><h2 style="margin-top:12px" id="sT">¿Qué te vas a hacer?</h2><p class="mute small" style="margin-top:-6px">Puedes elegir más de uno.</p><div id="svcs"></div>
+    <div class="step" id="s-svc"><h2 id="sT">¿Qué te vas a hacer?</h2><p class="mute">Puedes elegir más de uno.</p><div id="svcs"></div>
       <div class="addcar" id="addCar" hidden><button class="btn alt" id="addCarB" type="button">＋ Agregar otro carro</button><p>¿Tienes otro carro? Agéndalos juntos en la misma visita. Cada uno con sus propios servicios.</p></div>
       <button class="btn ghost" id="noMore" type="button" hidden>Ya no agrego más carros →</button></div>
 
-    <div class="step" id="s-when"><h2 style="margin-top:12px">Elige el día</h2><p class="mute small" id="whenN" style="margin-top:-6px" hidden></p><div class="days" id="days"></div><h2 id="hT">Elige la hora</h2><div class="hours" id="hrs"></div><div id="hEmpty"></div></div>
+    <div class="step" id="s-when"><h2>Elige el día</h2><p class="mute" id="whenN" hidden></p><div class="days" id="days"></div><h2 id="hT" class="h2b">Elige la hora</h2><div class="hours" id="hrs"></div><div id="hEmpty"></div></div>
 
-    <div class="step" id="s-loc"><h2 style="margin-top:12px">¿Dónde te atendemos?</h2><p class="mute small" style="margin-top:-6px">Llegamos a tu casa, trabajo o donde nos digas.</p>
+    <div class="step" id="s-loc"><h2>¿Dónde te atendemos?</h2><p class="mute">Llegamos a tu casa, trabajo o donde nos digas.</p>
       <button class="btn wa big" id="gps">📍 Usar mi ubicación actual</button>
       <p class="small" id="gpsM" style="margin:6px 0 0"></p><div id="gpsV"></div>
       <div id="zW"><div class="or"><span>elige tu zona</span></div><div id="zones"></div></div>
       <label for="ad">Dirección y señas</label><textarea id="ad" maxlength="200" placeholder="Ej: Residencial Los Robles, casa 14, portón negro"></textarea>
     </div>
 
-    <div class="step" id="s-you"><h2 style="margin-top:12px">Tus datos</h2>
+    <div class="step" id="s-you"><h2>Tus datos</h2>
       <div class="card">
         <label for="cli">Tu nombre</label><input id="cli" maxlength="60" autocomplete="name" placeholder="Nombre y apellido">
         <label for="tel">Tu WhatsApp</label><input id="tel" inputmode="tel" autocomplete="tel" maxlength="15" placeholder="8888 8888">
@@ -184,9 +344,9 @@ h2.sec{margin:28px 0 12px;font-size:20px}
       </div>
     </div>
 
-    <div class="step" id="s-sum"><h2 style="margin-top:12px">Revisa tu cita</h2>
+    <div class="step" id="s-sum"><h2>Revisa tu cita</h2>
       <div class="card sumc" id="sum"></div>
-      <p class="mute small">Al confirmar, apartamos tu hora y te confirmamos por WhatsApp.</p>
+      <p class="mute small" style="text-align:center;margin:14px 0 0">Al confirmar, apartamos tu hora y te confirmamos por WhatsApp.</p>
     </div>
     <p class="err" id="er"></p>
     <a class="idea" id="idea" target="_blank" rel="noopener" hidden>💡 ¿Ideas para mejorar esta página? <b>Escríbenos</b></a>
@@ -200,21 +360,21 @@ h2.sec{margin:28px 0 12px;font-size:20px}
   </div>
 
   <div id="ok" class="done" hidden>
-    <div class="big">🎉</div>
+    <div class="big"><svg class="okv" viewBox="0 0 72 72" aria-hidden="true"><circle class="r" cx="36" cy="36" r="33"/><circle class="c" cx="36" cy="36" r="32"/><path class="k" d="M22 37.5l9.5 9.5L51 27.5"/></svg></div>
     <h1>¡Listo, tu cita quedó agendada!</h1>
     <p class="mute" id="okT"></p>
     <div class="card" style="text-align:left" id="okS"></div>
     <div class="card" id="okDep" hidden style="text-align:left;margin-bottom:12px"></div>
-    <a class="btn wa big" id="okWa" target="_blank" rel="noopener">Avisar por WhatsApp</a>
-    <p class="mute small" style="margin:6px 0 12px">Toca el botón y manda el mensaje que ya va escrito. Así nos llega el aviso al instante y te confirmamos por ahí mismo.</p>
+    <a class="btn wa big" id="okWa" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-wa"/></svg>Avisar por WhatsApp</a>
+    <p class="mute small" style="margin:10px 0 16px">Toca el botón y manda el mensaje que ya va escrito. Así nos llega el aviso al instante y te confirmamos por ahí mismo.</p>
     <div class="mylink" id="mylink" hidden><b>🔁 ¿Necesitas cambiar o cancelar?</b><small>Guarda este link: ahí puedes cambiar el día u hora, o cancelar, hasta 12 horas antes.</small><div class="ml"><input id="mlv" readonly aria-label="Link de tu cita"><button id="mlc">Copiar</button></div></div>
-    <a class="btn alt" id="okCal" target="_blank" rel="noopener">📅 Agregar a mi calendario</a>
+    <a class="btn alt" id="okCal" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg>Agregar a mi calendario</a>
     <button class="btn ghost" id="again" style="margin-top:8px">Reservar otra cita</button>
     <div class="foot">¿Tienes un negocio? <a href="../">Conoce Citaly</a></div>
   </div>
 </div>
 
-<button class="btn big stk" id="stk" hidden>Agendar en 1 minuto →</button>
+<button class="btn big stk" id="stk" hidden><svg class="i" aria-hidden="true"><use href="#i-cal"/></svg>Agendar en 1 minuto<svg class="i arw" aria-hidden="true"><use href="#i-arrow"/></svg></button>
 <div class="bar" id="bar" hidden><div>
   <button class="btn ghost bk" id="bk" aria-label="Atrás">‹</button>
   <div class="tot"><span id="tl">Total</span><b id="tot">₡0</b></div>
@@ -224,7 +384,7 @@ h2.sec{margin:28px 0 12px;font-size:20px}
 <script>
 function setMode(m){try{if(m==="light"||m==="dark"){localStorage.setItem("citaly_mode",m);document.documentElement.setAttribute("data-mode",m)}else{localStorage.removeItem("citaly_mode");document.documentElement.removeAttribute("data-mode")}}catch(e){}}
 function isDark(){var m=document.documentElement.getAttribute("data-mode");return m?m==="dark":matchMedia("(prefers-color-scheme: dark)").matches}
-function modeLink(){return document.documentElement.hasAttribute("data-th")?"":' · <button class="link small" onclick="setMode(isDark()?\'light\':\'dark\');this.textContent=isDark()?\'☀️ Modo claro\':\'🌙 Modo oscuro\'" style="font-size:inherit">'+(isDark()?"☀️ Modo claro":"🌙 Modo oscuro")+'</button>'}
+function modeLink(){var th=document.documentElement.getAttribute("data-th");return th&&th!=="clara"&&th!=="pro"?"":'<br><button type="button" class="modeb" onclick="modeTap()">'+modeLbl()+'</button>'}
 
 "use strict";
 var $=function(i){return document.getElementById(i)},C=CITALY;
@@ -243,6 +403,75 @@ function durTxt(m){var h=Math.floor(m/60),r=m%60;return (h?h+" h":"")+(h&&r?" ":
 function niceDay(s){var t=ymd(new Date()),m=ymd(new Date(Date.now()+864e5));return (s===t?"hoy, ":s===m?"mañana, ":"")+DN[pd(s).getDay()]+" "+pd(s).getDate()+" de "+MN[pd(s).getMonth()]}
 function telN(v){var n=String(v||"").replace(/\D/g,"");if(n.length===11&&n.indexOf("506")===0)n=n.slice(3);return n}
 function waUrl(t,msg){t=telN(t);return "https://api.whatsapp.com/send?phone="+(t.length===8?"506"+t:t)+(msg?"&text="+encodeURIComponent(msg):"")}
+
+/* ===== Diseño: la página de reservas se ve SIEMPRE igual que la página web del negocio =====
+   Misma plantilla (Clara, Pro o Clásica), mismos colores (web.pal o el color del negocio), mismo claro/oscuro y misma letra
+   que /w/. Las cuentas de color son las mismas de allá (clApply, proApply y los temas): si se cambia algo en /w/, se cambia aquí.
+   tools/pruebas/reservas/prueba_calza_con_web.py abre las dos páginas y avisa si dejan de coincidir.
+   El dueño puede darle otro color SOLO a reservas (app > Estilo de tu página): web.rpal = {a:"#rrggbb", pm:"light"|"dark"|""}.
+   Sin web.rpal = igual que la web. Lo que el visitante eligió (modo claro/oscuro) manda sobre lo que puso el dueño. */
+function hexOk(x){return /^#[0-9a-f]{6}$/i.test(String(x||""))}
+function colOk(x){try{return !(window.CSS&&CSS.supports)||CSS.supports("color",String(x))}catch(e){return true}}
+function lum(h){var m=/^#([0-9a-f]{6})$/i.exec(String(h||"").trim());if(!m)return .3;var n=parseInt(m[1],16),f=function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)};return .2126*f(n>>16&255)+.7152*f(n>>8&255)+.0722*f(n&255)}
+function lighten(h,k){var m=/^#([0-9a-f]{6})$/i.exec(String(h||"").trim());if(!m)return h;var n=parseInt(m[1],16),o="#";[n>>16&255,n>>8&255,n&255].forEach(function(v){v=Math.round(v+(255-v)*k);o+=("0"+v.toString(16)).slice(-2)});return o}
+function darken(h,k){var m=/^#([0-9a-f]{6})$/i.exec(String(h||"").trim());if(!m)return h;var n=parseInt(m[1],16),o="#";[n>>16&255,n>>8&255,n&255].forEach(function(v){v=Math.round(v*(1-k));o+=("0"+v.toString(16)).slice(-2)});return o}
+function cRatio(a,b){var x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+function mixHex(a,b,k){var A=/^#([0-9a-f]{6})$/i.exec(String(a||"")),B=/^#([0-9a-f]{6})$/i.exec(String(b||""));if(!A||!B)return a;var x=parseInt(A[1],16),y=parseInt(B[1],16),o="#";[16,8,0].forEach(function(s){var v=Math.round((x>>s&255)*(1-k)+(y>>s&255)*k);o+=("0"+v.toString(16)).slice(-2)});return o}
+function palOf(W){var p=W&&W.pal;if(!p||typeof p!=="object")return null;var o={a:hexOk(p.a)?p.a:"",h:hexOk(p.h)?p.h:"",bg:hexOk(p.bg)?p.bg:"",pm:p.pm==="dark"||p.pm==="light"?p.pm:""};return o.a||o.h||o.bg||o.pm?o:null}
+function rpalOf(W){var p=W&&W.rpal;if(!p||typeof p!=="object")return null;var o={a:hexOk(p.a)?p.a:"",pm:p.pm==="dark"||p.pm==="light"?p.pm:""};return o.a||o.pm?o:null}
+function modeSaved(){var m="";try{m=localStorage.getItem("citaly_mode")||""}catch(e){}return m==="light"||m==="dark"?m:""}
+var SKV=["--acc","--cta","--ctaink","--acct","--soft","--soft2","--mark","--hi","--tint"];
+function skin(force){var W=P.web||{},d=document.documentElement,lay=W.layout==="clara"||W.layout==="clasica"?W.layout:"pro",pal=palOf(W),rp=rpalOf(W),ms=force||modeSaved(),col=P.color||C.colors[0],V={},th="",pm="",tc,i;
+  if(lay!=="clasica"&&pal&&pal.a)col=pal.a;
+  if(rp&&rp.a){col=rp.a;if(pal)pal={a:rp.a,h:"",bg:"",pm:pal.pm}}
+  if(lay!=="clara"&&!colOk(col))col=C.colors[0];
+  if(lay==="clara"){th="clara";pm=ms||(rp&&rp.pm)||"light";
+    var dk=pm==="dark",bg=dk?"#0e1013":"#f7f5f0",card=dk?"#171a1f":"#ffffff",ink=dk?"#eef0f3":"#14171c",c=hexOk(col)?col:"#6c4cf5",hb=pal&&hexOk(pal.h)?pal.h:c,cta=c,t=hb;
+    if(!dk&&lum(c)>.72)cta=ink;if(dk&&lum(c)<.035)cta=lighten(c,.55);
+    for(i=0;i<10&&cRatio(t,bg)<4.5;i++)t=dk?lighten(t,.22):darken(t,.16);
+    var lightC=lum(hb)>.72;
+    V={"--acc":c,"--cta":cta,"--ctaink":cRatio(cta,"#ffffff")>=3?"#fff":"#14171c","--acct":t,
+      "--soft":dk?mixHex(card,hb,.2):lightC?mixHex(bg,"#14171c",.06):lighten(hb,.87),
+      "--soft2":dk?mixHex(bg,hb,.08):lightC?mixHex(bg,"#14171c",.03):mixHex(bg,hb,.07),
+      "--mark":dk?mixHex(bg,hb,.5):lightC?mixHex(bg,"#e8c95c",.55):lighten(hb,lum(hb)<.03?.78:.6)};tc=bg}
+  else if(lay==="pro"){th="pro";pm=ms||(rp&&rp.pm)||(pal&&pal.pm)||(["fresco","elegante","atrevido"].indexOf(W.estilo)>=0?"light":"dark");
+    var c2=col;if(pm==="dark"&&lum(col)<.12)c2=lighten(col,.4);V={"--acc":col,"--cta":c2,"--ctaink":lum(c2)>.35?"#111":"#fff"};
+    if(pal&&pal.h){var hh=pal.h;for(i=0;i<6&&pm==="dark"&&lum(hh)<.18;i++)hh=lighten(hh,.25);for(i=0;i<6&&pm==="light"&&lum(hh)>.3;i++)hh=darken(hh,.2);V["--hi"]=hh}
+    if(pal&&pal.bg)V["--tint"]=pal.bg;tc=pm==="dark"?"#04111a":"#f7f9fb";
+    var at=V["--hi"]||(hexOk(col)?(pm==="dark"?mixHex(col,"#ffffff",.5):mixHex(col,"#000000",.18)):"");
+    if(at){for(i=0;i<10&&cRatio(at,tc)<4.5;i++)at=pm==="dark"?lighten(at,.22):darken(at,.16);V["--acct"]=at}}
+  else{/* Clásica: el tema de themes.css, como siempre. Con otro fondo para reservas (rp.pm) va sin tema, en claro u oscuro. */
+    if(rp&&rp.pm)pm=rp.pm;else if(["glass","atrevido","elegante","fresco"].indexOf(W.estilo)>=0)th=W.estilo;V={"--acc":col};tc=col}
+  if(th)d.setAttribute("data-th",th);else d.removeAttribute("data-th");
+  if(th==="clara"||th==="pro")d.setAttribute("data-pm",pm);else{d.removeAttribute("data-pm");if(!ms){if(pm)d.setAttribute("data-mode",pm);else d.removeAttribute("data-mode")}}
+  SKV.forEach(function(k){if(V[k])d.style.setProperty(k,V[k]);else d.style.removeProperty(k)});
+  /* --sh se usa dentro de listas de sombras; si un tema la deja en "none", se cambia por una sombra vacía (válida) */
+  d.style.removeProperty("--sh");try{if(getComputedStyle(d).getPropertyValue("--sh").trim()==="none")d.style.setProperty("--sh","0 0 0 0 transparent")}catch(e){}
+  var mt=document.querySelector("meta[name=theme-color]");if(mt)mt.content=tc;
+  /* se guarda para pintar con estos colores desde el primer instante en la próxima visita */
+  try{localStorage.setItem("citaly_sk:"+slug,JSON.stringify({th:th,pm:pm,m:modeSaved(),v:V}))}catch(e){}}
+function svgI(n,c){return '<svg class="i'+(c?" "+c:"")+'" aria-hidden="true"><use href="#i-'+n+'"/></svg>'}
+function modeLbl(){var d=document.documentElement,th=d.getAttribute("data-th"),dk=th==="clara"||th==="pro"?d.getAttribute("data-pm")==="dark":isDark();return svgI(dk?"sun":"moon")+(dk?"Modo claro":"Modo oscuro")}
+function modeTap(){var d=document.documentElement,th=d.getAttribute("data-th");
+  if(th==="clara"||th==="pro"){var n=d.getAttribute("data-pm")==="dark"?"light":"dark";try{localStorage.setItem("citaly_mode",n)}catch(e){}skin(n)}else setMode(isDark()?"light":"dark");
+  Array.prototype.forEach.call(document.querySelectorAll(".modeb"),function(b){b.innerHTML=modeLbl()})}
+/* Titular con el mismo resaltado que la web: marcador en la Clara, recuadro en la Pro y lo que defina el tema en la Clásica */
+function hlHtml(t){t=String(t||"").trim();var w=t.split(/\s+/).filter(Boolean),th=document.documentElement.getAttribute("data-th");if(!w.length)return "";
+  var k=w.length>=4&&(w[w.length-2]+" "+w[w.length-1]).length<=16?2:1,a=esc(w.slice(0,-k).join(" ")),b=esc(w.slice(-k).join(" "));
+  if(th==="clara")return w.length===1?"<em>"+esc(t)+"</em>":a+" <em>"+b+"</em>";
+  if(th!=="pro"&&w.length<2)return esc(t);
+  return (a?'<span class="dim">'+a+'</span> ':"")+'<span class="hl"><b></b><span>'+b+'</span><b></b></span>'}
+/* "Abierto · hoy hasta las 4 pm" (misma cuenta que la web, con la hora de Costa Rica) */
+function crNow(){try{var p=new Intl.DateTimeFormat("en-US",{timeZone:"America/Costa_Rica",weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(new Date()),g=function(t){var x=p.filter(function(y){return y.type===t})[0];return x?x.value:""},d=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].indexOf(g("weekday"));if(d<0)throw 0;return {d:d,m:(parseInt(g("hour"),10)%24)*60+parseInt(g("minute"),10)}}catch(e){var n=new Date();return {d:n.getDay(),m:n.getHours()*60+n.getMinutes()}}}
+function bizStatus(H){var any=false,d;for(d=0;d<7;d++)if(H[d]&&H[d].on)any=true;if(!any)return null;var n=crNow(),ci=(P.cierre||{})[ymd(new Date())],t=ci===0?null:H[n.d],fin=t&&t.on?(ci!=null&&ci*60<tm(t.b)?ci*60:tm(t.b)):0;
+  if(t&&t.on&&n.m>=tm(t.a)&&n.m<fin)return {on:true,t:"Abierto · hoy hasta las "+fh(hm(fin))};
+  if(t&&t.on&&n.m<tm(t.a))return {on:false,t:"Cerrado · abre hoy "+fh(t.a)};
+  for(var i=1;i<=7;i++){var k=(n.d+i)%7,h=H[k];if(h&&h.on)return {on:false,t:"Cerrado · abre "+(i===1?"mañana":"el "+DN[k])+" "+fh(h.a)}}return null}
+/* Las secciones de abajo de la portada entran al llegar a ellas (si el celular pide menos movimiento, no) */
+function reveal(){var L=document.querySelectorAll("#land .rv");if(!L.length||!("IntersectionObserver" in window)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;
+  document.documentElement.classList.add("js-rv");var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{rootMargin:"0px 0px -6% 0px"});
+  Array.prototype.forEach.call(L,function(x){io.observe(x)})}
+var OKSVG='<svg class="okv" viewBox="0 0 72 72" aria-hidden="true"><circle class="r" cx="36" cy="36" r="33"/><circle class="c" cx="36" cy="36" r="32"/><path class="k" d="M22 37.5l9.5 9.5L51 27.5"/></svg>';
 
 /* mapa (igual que GlassStudioCR) */
 function hs(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -265,26 +494,26 @@ if(!slug||!db)notFound();else db.doc("pub/"+slug).get().then(function(d){if(!d.e
   return db.doc("subs/"+BID).get().then(function(s){var x=s.exists?s.data():null,ok=x&&x.status!=="suspended"&&x.until&&x.until.toMillis()>Date.now();if(MCQ){openMine();return}init(ok&&P.open!==false)})}).catch(function(){notFound(true)});
 function notFound(net){$("load").hidden=true;$("nf").hidden=false;if(net)$("nf").querySelector("p").textContent="No se pudo cargar. Revisa tu internet y vuelve a intentar."}
 
-function init(open){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];
-  document.title=P.name+" · Reserva tu cita";document.documentElement.style.setProperty("--acc",col);document.querySelector('meta[name=theme-color]').content=col;
+function init(open){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=false;skin();
+  document.title=P.name+" · Reserva tu cita";
   var lg=P.logo?'<img alt="" src="'+esc(C.safeImg(P.logo))+'">':C.autoLogo?'<img alt="" src="'+esc(C.autoLogo(P))+'">':esc(P.name.charAt(0).toUpperCase());$("lg").innerHTML=$("lg2").innerHTML=lg;
   var cv=C.coverOf?C.coverOf(P.type,(P.web||{}).cover,900,P.color):"";if(cv){$("cov").innerHTML='<img alt="" src="'+esc(cv)+'" onerror="this.parentNode.hidden=true">';$("cov").hidden=false}
-  $("nm").textContent=P.name;$("nm2").textContent=P.name;$("tg").textContent=P.tagline||"Reserva tu cita en segundos";$("bl").textContent=P.blurb||P.addr||"";
-  if(P.promo){$("pm").hidden=false;$("pmT").textContent=P.promo}
-  $("toWeb").href="/"+slug;$("toWeb").textContent="🌐 Ver más de "+P.name;
+  $("nm").textContent=P.name;$("nm2").textContent=P.name;$("tg").innerHTML=hlHtml(P.tagline||"Reserva tu cita en segundos");var stt=null;try{stt=open?bizStatus(P.hours||[]):null}catch(e){}if(stt){$("st").hidden=false;$("st").classList.toggle("on",stt.on);$("stT").textContent=stt.t}$("bl").textContent=P.blurb||P.addr||"";
+  if(P.promo){$("pm").hidden=false;$("pmT").textContent=P.promo;if(open)$("pm").onclick=start;else{$("pm").classList.add("fijo");$("pm").tabIndex=-1;$("pm").setAttribute("aria-disabled","true")}}
+  $("toWeb").href="/"+slug;$("toWeb").innerHTML=esc("Ver más de "+P.name)+svgI("arrow","arw");
   var hi="Hola "+P.name+", quiero agendar una cita";$("waTop").href=$("waC").href=waUrl(P.wa,hi);
-  $("pk").innerHTML=(P.home?'<span>🚗 Vamos donde estés</span>':P.addr?'<span>📍 '+esc(P.addr)+'</span>':'')+'<span>⏱️ Reservas en 1 minuto</span><span>💬 Confirmación por WhatsApp</span>';
+  $("pk").innerHTML=(P.home?'<span>'+svgI("car")+'Vamos donde estés</span>':P.addr?'<span>'+svgI("pin")+esc(P.addr)+'</span>':'')+'<span>'+svgI("clock")+'Reservas en 1 minuto</span><span>'+svgI("chat")+'Confirmación por WhatsApp</span>';
   $("h3").innerHTML=(P.home?'<div><b>Elige servicio y mándanos tu ubicación</b><span>Con un toque, desde tu celular</span></div><div><b>Elige día y hora</b><span>Solo ves las horas libres</span></div>':'<div><b>Elige servicio, día y hora</b><span>Solo ves las horas libres</span></div><div><b>Déjanos tu nombre</b><span>Y tu WhatsApp para confirmarte</span></div>')+'<div><b>¡Listo!</b><span>'+(P.home?"Llegamos y tú sigues en lo tuyo":"Te esperamos a tu hora")+'</span></div>';
-  if(P.showPrices!==false&&(P.services||[]).length)$("prices").innerHTML='<h2 class="sec">Precios</h2><div class="card plist">'+P.services.map(function(s){return '<div class="li"><span>'+C.ico(s.ic||"✨")+' '+esc(s.n)+'<br><span class="mute small">'+durTxt(+s.d||60)+'</span></span><b>'+(function(){var r=vehOn()?C.vrange(s,P.veh):[+s.p||0,+s.p||0];return r[0]?(r[1]>r[0]?"desde ":"")+crc(r[0]):"Consultar"})()+'</b></div>'}).join("")+((P.zones||[]).length?'<div class="li"><span>🚗 Domicilio<br><span class="mute small">Según tu zona</span></span><b>'+(P.zones.some(function(z){return !z.fee})?"Desde gratis":"Desde "+crc(Math.min.apply(null,P.zones.map(function(z){return z.fee}))))+'</b></div>':P.home?'<div class="li"><span>🚗 Domicilio</span><b>Gratis</b></div>':'')+'</div>';
+  if(P.showPrices!==false&&(P.services||[]).length)$("prices").innerHTML='<span class="kick rv">Servicios</span><h2 class="sec rv">Precios</h2><div class="card plist rv">'+P.services.map(function(s){return '<div class="li"><span>'+C.ico(s.ic||"✨")+' '+esc(s.n)+'<br><span class="mute small">'+durTxt(+s.d||60)+'</span></span><b>'+(function(){var r=vehOn()?C.vrange(s,P.veh):[+s.p||0,+s.p||0];return r[0]?(r[1]>r[0]?"desde ":"")+crc(r[0]):"Consultar"})()+'</b></div>'}).join("")+((P.zones||[]).length?'<div class="li"><span>🚗 Domicilio<br><span class="mute small">Según tu zona</span></span><b>'+(P.zones.some(function(z){return !z.fee})?"Desde gratis":"Desde "+crc(Math.min.apply(null,P.zones.map(function(z){return z.fee}))))+'</b></div>':P.home?'<div class="li"><span>🚗 Domicilio</span><b>Gratis</b></div>':'')+'</div>';
   if(!open){$("closed").hidden=false;$("go1").hidden=true;$("landMore").hidden=true;return}
   if(P.wa){$("idea").href=waUrl(P.wa,"Hola "+P.name+", tengo una sugerencia para mejorar su página de reservas: ");$("idea").hidden=false}
-  try{var t0=ymd(new Date());if(!closedDay(t0)&&!freeStarts(t0).length){var c=document.createElement("div");c.className="cls fade";c.textContent="🕘 Ya cerramos por hoy · agenda para mañana";$("go1").parentNode.insertBefore(c,$("go1"))}}catch(e){}
+  try{var t0=ymd(new Date());if(!closedDay(t0)&&!freeStarts(t0).length){var c=document.createElement("div");c.className="cls fade";c.innerHTML=svgI("clock")+"Ya cerramos por hoy · agenda para mañana";$("st").hidden=true;$("go1").parentNode.insertBefore(c,$("go1"))}}catch(e){}
   STEPS=(vehOn()?["veh"]:[]).concat(["svc"]).concat(P.home?["loc"]:[]).concat(["when","you","sum"]);
   renderSvcs();
   if(vehOn()){renderVehCards();$("addCar").hidden=false}else $("addCar").hidden=false
   if((P.zones||[]).length)$("zones").innerHTML='<select id="zsel" aria-label="Zona"><option value="-1">Elige dónde está tu vehículo…</option>'+P.zones.map(function(z,i){return '<option value="'+i+'">'+esc(z.n)+" · "+(z.ask?"consultar":z.fee?"+"+crc(z.fee):"gratis")+'</option>'}).join("")+'<option value="-2">Mi zona no aparece en la lista</option></select><div class="zok" id="zok" hidden></div>';else $("zW").hidden=true;
   if(P.askHow!==false)$("how").innerHTML=HOW.map(function(h){return '<button class="chip" data-h="'+esc(h)+'" aria-pressed="false">'+esc(h)+'</button>'}).join("");else $("howW").hidden=true;
-  if(/[?&]go=1/.test(location.search))start()}
+  if(/[?&]go=1/.test(location.search))start();else reveal()}
 function start(){memFill();$("land").hidden=true;$("flow").hidden=false;$("bar").hidden=false;show(0)}
 $("go1").onclick=$("go2").onclick=$("stk").onclick=start;
 (function(){var g=$("go1"),k=$("stk");function f(){var on=!$("land").hidden&&!g.hidden&&g.getBoundingClientRect().bottom<0&&$("flow").hidden;k.hidden=!on;document.body.classList.toggle("hasstk",on)}addEventListener("scroll",f,{passive:true});addEventListener("resize",f);setInterval(f,600)})();
@@ -332,7 +561,7 @@ function vehX(){var v=vehOn()&&S.veh>=0?P.veh[S.veh]:null;return v?+v.x||0:0}
 function sp(l){return l.p}
 function vpOf(s,vi){return C.vprice(s,vehOn()&&vi>=0?P.veh[vi]:null)}
 function spc(s){return vpOf(s,S.veh)}
-function svcCard(s,i){var p=vehOn()&&S.veh<0?C.vrange(s,P.veh)[0]:spc(s);return '<button class="svc" data-i="'+i+'" aria-pressed="'+(S.pick.indexOf(i)>=0)+'"><span class="ic">'+C.ico(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+(p?crc(p)+(s.vx&&vehOn()&&S.veh<0&&C.vrange(s,P.veh)[1]>C.vrange(s,P.veh)[0]?" o más":"")+" · ":"")+durTxt(+s.d||60)+'</span>'+(s.vx&&vehOn()&&S.veh>=0&&p!==(+s.p||0)?'<small style="display:block;color:var(--mute);font-size:12px;margin-top:2px">Precio para '+esc(P.veh[S.veh].n)+'</small>':"")+(s.hot?'<em class="hotb">⭐ Más pedido</em>':"")+'</span><span class="ck">✓</span></button>'}
+function svcCard(s,i){var p=vehOn()&&S.veh<0?C.vrange(s,P.veh)[0]:spc(s);return '<button class="svc" data-i="'+i+'" aria-pressed="'+(S.pick.indexOf(i)>=0)+'"><span class="ic">'+C.ico(s.ic||"✨")+'</span><span class="m"><b>'+esc(s.n)+'</b><span>'+(p?'<i>'+crc(p)+(s.vx&&vehOn()&&S.veh<0&&C.vrange(s,P.veh)[1]>C.vrange(s,P.veh)[0]?" o más":"")+'</i> · ':"")+durTxt(+s.d||60)+'</span>'+(s.vx&&vehOn()&&S.veh>=0&&p!==(+s.p||0)?'<small style="display:block;color:var(--mute);font-size:12px;margin-top:2px">Precio para '+esc(P.veh[S.veh].n)+'</small>':"")+(s.hot?'<em class="hotb">Más pedido</em>':"")+'</span><span class="ck">✓</span></button>'}
 function gOf(s){return String(s.g||"").trim()}
 function cats(){var o=[],m={};(P.services||[]).forEach(function(s,i){var g=gOf(s)||"Otros";if(!m[g]){m[g]={n:g,ic:s.ic||"✨",ix:[]};o.push(m[g])}m[g].ix.push(i)});return o}
 function renderSvcs(){var L=P.services||[],C=cats(),el=$("svcs");
@@ -350,6 +579,8 @@ function dur(){return Math.max(30,Math.ceil(durReal()/30)*30)}
 var LBL={veh:"Tu vehículo",svc:"Servicios",when:"Día y hora",loc:"Ubicación",you:"Tus datos",sum:"Último paso"};
 function show(i){S.step=i;var k=STEPS[i];["veh","svc","loc","when","you","sum"].forEach(function(x){$("s-"+x).classList.toggle("on",x===k)});
   $("pt").textContent=(i<STEPS.length-1?"Paso "+(i+1)+" de "+(STEPS.length-1)+" · ":"")+LBL[k];$("pg").style.width=((i+1)/STEPS.length*100)+"%";
+  var sg=$("segs"),ns=STEPS.length-1,se=$("s-"+k);if(sg.children.length!==ns)sg.innerHTML=new Array(ns+1).join("<i></i>");Array.prototype.forEach.call(sg.children,function(x,j){x.className=j<=i?"d":""});sg.setAttribute("aria-valuemax",ns);sg.setAttribute("aria-valuenow",Math.min(i+1,ns));
+  se.classList.remove("enter");void se.offsetWidth;se.classList.add("enter");clearTimeout(show.t);show.t=setTimeout(function(){se.classList.remove("enter")},900);$("nx").classList.toggle("fin",k==="sum");
   $("nx").textContent=k==="sum"?"Confirmar cita":"Siguiente";err("");if(k==="when"){loadBusy();var nc=carsAll().length;var zz=S.zone>=0&&P.zones?P.zones[S.zone]:null,zd=zDays(zz),nt=(nc>1?"Son "+nc+" carros: necesitamos unas "+durTxt(dur())+" en total. ":"")+(zd?"En "+zz.n+" atendemos "+zd+".":"");$("whenN").hidden=!nt;$("whenN").textContent=nt}$("bar").hidden=false;if(k==="sum")renderSum();upd();window.scrollTo(0,0)}
 $("bk").onclick=function(){if($("nx").disabled&&S.step===STEPS.length-1)return;if(S.step>0)show(S.step-1);else{$("flow").hidden=true;$("bar").hidden=true;$("land").hidden=false;window.scrollTo(0,0)}};
 $("nx").onclick=function(){if(!okStep()){hint();return}if(S.step<STEPS.length-1)show(S.step+1);else submit()};
@@ -405,7 +636,7 @@ function renderDays(){var h="",first="",n=+P.ahead||21;for(var i=0;i<=n;i++){var
   Array.prototype.forEach.call($("days").children,function(b){b.setAttribute("aria-pressed",b.dataset.d===S.day)});
   var sel=$("days").querySelector('[aria-pressed="true"]');if(sel)sel.scrollIntoView({inline:"center",block:"nearest"});renderHours()}
 $("days").onclick=function(e){var b=e.target.closest("button");if(!b||b.disabled)return;S.day=b.dataset.d;S.t=null;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)});renderHours()};
-function renderHours(){var L=S.day?freeStarts(S.day):[];$("hT").textContent=S.day?"Horas libres · "+niceDay(S.day):"Elige la hora";
+function renderHours(){var L=S.day?freeStarts(S.day):[];$("hrs").classList.toggle("nuevo",renderHours.d!==S.day);renderHours.d=S.day;$("hT").textContent=S.day?"Horas libres · "+niceDay(S.day):"Elige la hora";
   $("hrs").innerHTML=L.map(function(t){return '<button data-t="'+t+'" aria-pressed="'+(t===S.t)+'">'+fh(t)+'</button>'}).join("");
   $("hEmpty").innerHTML=S.day?"":'<div class="note">No hay espacios libres en los próximos días. <a href="'+waUrl(P.wa,"Hola "+P.name+", quiero agendar una cita")+'" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>.</div>';upd()}
 $("hrs").onclick=function(e){var b=e.target.closest("button");if(!b)return;S.t=b.dataset.t;Array.prototype.forEach.call(this.children,function(x){x.setAttribute("aria-pressed",x===b)});upd()};
@@ -485,7 +716,7 @@ function done(){memSet({n:$("cli").value.trim().slice(0,60),t:$("tel").value.tri
   $("okCal").href="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent("Cita en "+P.name)+"&dates="+f(tm(S.t))+"/"+f(tm(S.t)+dur())+"&details="+encodeURIComponent(picked().map(function(s){return s.n}).join(" + ")+" · "+crq(total()))+"&location="+encodeURIComponent(P.home?($("ad").value.trim()||S.ll):(P.addr||""));
   confetti()}
 $("again").onclick=function(){location.href=location.pathname+"?n="+slug+"&go=1"};
-function confetti(){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;var K=[P.color||"#6c4cf5","#ff8a5b","#ffd166","#4cc782","#8b72ff"];
+function confetti(){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;var K=[(function(){try{return getComputedStyle(document.documentElement).getPropertyValue("--cta").trim()}catch(e){return ""}})()||P.color||"#6c4cf5","#ff8a5b","#ffd166","#4cc782","#8b72ff"];
   for(var i=0;i<60;i++){var d=document.createElement("i");d.className="cf";d.style.left=Math.random()*100+"vw";d.style.background=K[i%K.length];d.style.setProperty("--dx",(Math.random()*160-80)+"px");d.style.setProperty("--r",(Math.random()*900-450)+"deg");d.style.animationDelay=Math.random()*.5+"s";document.body.appendChild(d);setTimeout(function(x){x.remove()}.bind(null,d),2800)}}
 
 /* ===== MI CITA: el cliente cambia o cancela su cita con su link secreto (hasta 12 h antes) ===== */
@@ -495,7 +726,7 @@ function myLink(tk){return location.origin+location.pathname+"?n="+slug+"&cita="
 function atMs(f,t){var d=pd(f);d.setMinutes(tm(t));return d.getTime()}
 function mcBox(h){$("mcb").innerHTML=h;window.scrollTo(0,0)}
 function mcWa(t){return waUrl(P.wa,t||"¡Hola "+P.name+"! 👋 Quiero hacer un cambio en mi cita"+(MC?" del "+niceDay(MC.date)+", "+fh(MC.time):""))}
-function openMine(){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;var _e=(P.web||{}).estilo;if(["glass","atrevido","elegante","fresco"].indexOf(_e)>=0)document.documentElement.setAttribute("data-th",_e);var col=P.color||C.colors[0];document.documentElement.style.setProperty("--acc",col);document.title="Mi cita · "+P.name;
+function openMine(){setTimeout(function(){Array.prototype.forEach.call(document.querySelectorAll(".mlk"),function(x){x.innerHTML=modeLink()})},0);$("load").hidden=true;$("land").hidden=true;$("mc").hidden=false;skin();document.title="Mi cita · "+P.name;
   $("lg3").innerHTML=P.logo?'<img alt="" src="'+esc(C.safeImg(P.logo))+'">':C.autoLogo?'<img alt="" src="'+esc(C.autoLogo(P))+'">':esc(P.name.charAt(0).toUpperCase());$("nm3").textContent=P.name;
   db.doc("biz/"+BID+"/mine/"+MCQ).get().then(function(d){if(!d.exists){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p><a class="btn wa" target="_blank" rel="noopener" href="'+mcWa("¡Hola "+P.name+"! 👋 Tengo una consulta sobre mi cita")+'">Escribir por WhatsApp</a>');return}MC=d.data();renderMine()},
    function(e){if(e&&e.code==="permission-denied"){mcBox('<h2>No encontramos esta cita</h2><p class="mute">Revisa que el link esté completo o escríbenos por WhatsApp.</p>');return}mcBox('<h2>No se pudo cargar tu cita</h2><p class="mute">Revisa tu internet y vuelve a intentar.</p><a class="btn alt" href="">Reintentar</a>')})}
@@ -529,7 +760,7 @@ function doMove(){var b=$("mGo");if(MS.t==null)return;b.disabled=true;b.textCont
   N.forEach(function(k){if(O.indexOf(k)<0)bt.set(db.doc("biz/"+BID+"/slots/"+k),{date:MS.day,t:k.split("_")[1],job:J,at:at})});
   bt.update(db.doc("biz/"+BID+"/mine/"+MCQ),{date:MS.day,time:MS.t,upd:at});
   bt.commit().then(function(){pushOwner("chg",J);MC.date=MS.day;MC.time=MS.t;var t="¡Hola "+P.name+"! 👋 Cambié mi cita desde el link.\nAntes: "+before+"\nAhora: "+niceDay(MC.date)+", "+fh(MC.time)+"\n👤 "+MC.cli;
-    mcBox('<div class="big" style="font-size:54px">✅</div><h2>¡Listo, cambiamos tu cita!</h2>'+mcSum()+'<a class="btn wa big" target="_blank" rel="noopener" href="'+waUrl(P.wa,t)+'">Avisar por WhatsApp</a><p class="mute small">Te confirmamos la nueva hora por WhatsApp.</p><button class="btn ghost" id="mOk">Ver mi cita</button>');$("mOk").onclick=renderMine},
+    mcBox('<div class="okbig">'+OKSVG+'</div><h2>¡Listo, cambiamos tu cita!</h2>'+mcSum()+'<a class="btn wa big" target="_blank" rel="noopener" href="'+waUrl(P.wa,t)+'">Avisar por WhatsApp</a><p class="mute small">Te confirmamos la nueva hora por WhatsApp.</p><button class="btn ghost" id="mOk">Ver mi cita</button>');$("mOk").onclick=renderMine},
    function(){b.disabled=false;b.textContent="Confirmar el cambio";$("mer").innerHTML=atMs(MC.date,MC.time)-Date.now()<12*36e5?"Ya faltan menos de 12 horas. Escríbenos por WhatsApp para cambiarla.":"No se pudo cambiar: puede que esa hora se acabe de ocupar. Elige otra o escríbenos por WhatsApp.";loadMBusy()})}
 function askCancel(){mcBox('<h2>¿Cancelar tu cita?</h2>'+mcSum()+'<p class="mute">La hora queda libre para otra persona. También puedes cambiarla de día.</p><button class="btn big" id="cY" style="background:var(--bad)">Sí, cancelar mi cita</button><button class="btn alt" id="cM" style="margin-top:8px">🔁 Mejor cambiar el día</button><button class="btn ghost" id="cN" style="margin-top:8px">No, dejarla como está</button><p class="err" id="mer"></p>');
   $("cN").onclick=renderMine;$("cM").onclick=startMove;$("cY").onclick=function(){var b=this;b.disabled=true;b.textContent="Cancelando…";
