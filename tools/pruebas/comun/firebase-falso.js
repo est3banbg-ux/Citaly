@@ -64,7 +64,7 @@ function coll(p,fl,ob,lim){fl=fl||[];ob=ob||[];
 var db={doc:doc,collection:function(p){return coll(p)},
   batch:function(){var ops=[];return {set:function(r,v,o){if(hasUndef(v))throw badData(r.path,v);ops.push(["set",r.path,v,o]);return this},update:function(r,v){if(hasUndef(v))throw badData(r.path,v);ops.push(["update",r.path,v]);return this},delete:function(r){ops.push(["delete",r.path]);return this},
     commit:function(){var bad=ops.filter(function(o){return denied(o[1])})[0];if(bad)return Promise.reject(err("permission-denied"));ops.forEach(function(o){apply(o[0],o[1],o[2],o[3])});return Promise.resolve()}}},
-  runTransaction:function(f){var ops=[];var t={get:function(r){return r.get()},set:function(r,v,o){ops.push(["set",r.path,v,o]);return t},update:function(r,v){ops.push(["update",r.path,v]);return t},delete:function(r){ops.push(["delete",r.path]);return t}};
+  runTransaction:function(f){var ops=[];var t={get:function(r){return r.get()},set:function(r,v,o){if(hasUndef(v))throw badData(r.path,v);ops.push(["set",r.path,v,o]);return t},update:function(r,v){if(hasUndef(v))throw badData(r.path,v);ops.push(["update",r.path,v]);return t},delete:function(r){ops.push(["delete",r.path]);return t}};
     return Promise.resolve().then(function(){return f(t)}).then(function(res){ops.forEach(function(o){apply(o[0],o[1],o[2],o[3])});return res})},
   enablePersistence:function(){return Promise.resolve()},settings:function(){}};
 function fs(){return db}

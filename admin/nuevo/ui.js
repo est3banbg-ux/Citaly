@@ -207,7 +207,7 @@ function notasHtml(id){var a=(typeof ADM!=="undefined"&&ADM[id])||{};
 function planCard(id,b,s){var st=state(s),tot=totalOf(s),paid=paidOf(id),due=Math.max(0,tot-paid),h='<div class="a-card" id="fPlan"><p class="a-t">Plan y cobros</p>';
   h+='<div class="a-ln"><b>'+esc(planTxt(b,s))+'</b><span>'+(monthly(s)&&st!=="suspended"?(st==="trial"?"prueba hasta el ":"pagado hasta el ")+fdC(untilMs(s)):st==="suspended"?"pausado":st==="demo"?"no se cobra":"")+'</span></div>';
   if(st!=="demo"&&st!=="none"&&!monthly(s))h+='<div class="a-ln"><span style="text-align:left">Pagó '+crc(paid)+' de '+crc(tot)+'</span><span>'+(due?'<b style="color:var(--bad)">debe '+crc(due)+'</b>':"completo")+'</span></div>';
-  h+='<div class="a-bt">'+(st==="none"?'<button type="button" class="a-b pri" data-u="mensNone">Registrar mensualidad</button><button type="button" class="a-b" data-u="pay">Cobrar un extra</button>':(s&&s.demo)||st!=="demo"?'<button type="button" class="a-b pri" data-u="pay">'+(monthly(s)||(s&&s.demo)?"Registrar mensualidad":"Registrar pago")+'</button>':"")
+  h+='<div class="a-bt">'+(st==="none"?'<button type="button" class="a-b pri" data-u="mensNone">Poner en prueba gratis</button><button type="button" class="a-b" data-u="pay">Cobrar un extra</button>':(s&&s.demo)||st!=="demo"?'<button type="button" class="a-b pri" data-u="pay">'+(monthly(s)||(s&&s.demo)?"Registrar mensualidad":"Registrar pago")+'</button>':"")
     +(s&&!s.demo?'<button type="button" class="a-b" data-u="pf">Cambiar plan o fecha</button>':"")+(b.wa?'<button type="button" class="a-b" data-u="msg">Mensajes</button>':"")+'</div>';
   return h+'<p class="a-use" id="fUse"></p></div>'}
 /* Planes del modelo viejo (promo/standard/pers, con instalación): no se ofrecen para negocios nuevos ni a quien no
@@ -225,7 +225,7 @@ edRender=function(){var nw=!E.id,W=E.web,id=E.id,b=id?(BIZ[id]||{}):{},s=id?(SUB
   var pl=id?pillOf(id):null,nS=E.services.filter(function(x){return String(x.n||"").trim()}).length,days=E.hours.filter(function(h){return h&&h.on}).length,mods=Object.keys(C.mods).filter(function(k){return E.mods[k]}).map(function(k){return C.mods[k].n.split(" ")[0]});
   var h='<div class="a-hero"><button type="button" class="a-back" id="eX">‹ Negocios</button><div class="n">'+avHtml(nw?{name:E.name||"N",logo:E.logo}:b)+'<div style="min-width:0"><h1>'+(nw?"Nuevo negocio":esc(E.name||"(sin nombre)"))+'</h1><div class="l">'+(nw?"Llená los datos y tocá Crear negocio.":"citalyapp.com/"+esc(E.slug)+' <span class="a-pill '+pl[0]+'">'+esc(pl[1])+'</span>')+'</div></div></div>';
   if(!nw)h+='<div class="a-q"><button type="button" class="wa" data-u="msg">'+ICO.wa+'WhatsApp</button><a target="_blank" rel="noopener" href="../../'+enc(E.slug)+'">'+ICO.web+'Ver web</a><a target="_blank" rel="noopener" href="../../r/?n='+enc(E.slug)+'">'+ICO.cal+'Reservas</a><button type="button" data-u="copy">'+ICO.copy+'Copiar link</button></div>';
-  h+='</div><div id="fWarn"></div>';
+  h+='</div><div id="fWarn"></div><div id="fWarnPub"></div>';
   if(nw)h+='<div class="demo"><span style="flex:1">¿Armando una demo? Llená todo con los datos, logo y fotos de GlassStudioCR.</span><button class="btn sm" id="eDemo">Usar GlassStudioCR</button></div>';
   if(C.iaUrl)h+='<details class="a-ia" data-sec="ia"'+(OPEN.ia?" open":"")+'><summary><b>Llenar con los mensajes del cliente</b><span>Pegá lo que te mandó por WhatsApp y se llena solo. Revisás y guardás.</span></summary><div class="in"><p class="hint">Servicios, precios, horario, dónde atiende… La IA llena el formulario y vos revisás. No cambia nada hasta que toqués Guardar.</p><textarea id="impT" maxlength="6000" style="min-height:90px" aria-label="Mensajes del cliente" placeholder="Ej: Ofrezco lavado 8mil sedan y 10000 suv. Atiendo miércoles y jueves de 8 a 2…"></textarea><div class="row" style="margin-top:8px"><button class="btn sm" id="impGo">Llenar formulario</button></div><div id="impR" class="hint" style="margin-top:8px" hidden></div></div></details>';
   if(!nw){var P=pasos(b,id),k=P.filter(function(p){return p.ok}).length;
@@ -289,6 +289,8 @@ function edUi(id){var ed=$("ed");
   var close=function(){if(!DIRTY&&E&&E.id||confirm("¿Salir sin guardar?")){dropEd();nav("#negocios",true)}};
   $("eX").onclick=close;$("eX2").onclick=close;
   $("eGo").addEventListener("click",function(e){if(E&&E.stale&&!confirm("Este negocio cambió mientras lo editabas. El plan y los cobros no se tocan, pero tus cambios reemplazan los suyos en la ficha. ¿Guardar igual?")){e.stopImmediatePropagation();e.preventDefault()}},true);
+  /* Si el guardado falla, el botón se vuelve a encender: ahí se revisa si el negocio cambió mientras se guardaba. */
+  try{new MutationObserver(function(){var g=$("eGo");if(g&&!g.disabled&&E)setTimeout(fichaSync,0)}).observe($("eGo"),{attributes:true,attributeFilter:["disabled"]})}catch(e){}
   ed.oninput=ed.onchange=function(e){if(e.target&&e.target.id==="impT")return;if(E&&e.target&&/^(pPl|pTo|pSp)$/.test(e.target.id))E.planTouched=true;if(e.target&&e.target.closest&&e.target.closest(".a-sec,.a-ia"))mark()};
   ed.onclick=function(e){var g=e.target.closest("[data-go]");if(g){var d=openSec(g.getAttribute("data-go"));if(d)d.scrollIntoView({behavior:"smooth",block:"start"});return}
     var u=e.target.closest("[data-u]");if(u){fichaAct(u.getAttribute("data-u"),id);return}
@@ -296,7 +298,7 @@ function edUi(id){var ed=$("ed");
   if(id){loadUse(id);checkPub(id)}}
 function fichaAct(k,id){if(!id)return;var b=BIZ[id]||{};
   if(k==="msg"){AX.openMsgs(id);return}
-  if(k==="mensNone"){var d=openSec("plan");if(d)d.scrollIntoView({behavior:"smooth",block:"center"});toast("No tiene plan todavía: guardá la ficha con Prueba gratis y después registrás la mensualidad");return}
+  if(k==="mensNone"){var d=openSec("plan");if(d)d.scrollIntoView({behavior:"smooth",block:"center"});toast("No tiene plan todavía: tocá Guardar y queda en prueba gratis. Después registrás la mensualidad.");mark();return}
   if(k==="copy"){copy((C.site||"https://citalyapp.com")+"/"+b.slug+"/reservar","Link de reservas copiado ✓");return}
   if(k==="note"||k==="tag"){act("x",k,id);return}
   if(k==="promo"){act("a","promo",id);return}
@@ -314,7 +316,7 @@ function fichaSync(){if(!E||!E.id)return;var id=E.id;
   if(REOP===id||saving())return;
   if(sigOf(id)===SIG)return;
   var fa=document.activeElement,foc=fa&&$("ed").contains(fa)&&/^(INPUT|TEXTAREA|SELECT)$/.test(fa.tagName);
-  if(!DIRTY&&!foc){refresh(id);return}
+  if(!DIRTY&&!foc&&BIZ[id].slug===E.slug){refresh(id);return}
   /* Con cambios o escribiendo: no se recarga (se perdería lo tecleado). Se avisa y Guardar no toca el plan (G1). */
   E.stale=true;var w=$("fWarn");if(w&&!w.querySelector(".stale"))w.innerHTML='<div class="a-warnbox stale" role="alert"><b>Este negocio cambió mientras lo editabas</b> (un pago, el plan o el dueño desde su app). Guardar no toca el plan ni los cobros, pero tus cambios reemplazan los suyos en la ficha. Lo más seguro: tocá Cancelar y volvé a abrir la ficha.</div>'}
 /* Refrescar la ficha sin cambios: mismas fotos si el link no cambió (no se vuelven a leer) y mismo lugar en la pantalla. */
@@ -326,7 +328,7 @@ function loadUse(id){var el=$("fUse");if(!el)return;if(USE[id]){el.innerHTML=USE
     var t=last?"Última cita: <b>"+fdS(last.date)+"</b> · "+(full?"50+":n)+" cita"+(n===1&&!full?"":"s")+" en los últimos 30 días":"Todavía no tiene citas.";USE[id]=t;var e2=$("fUse");if(e2&&E&&E.id===id)e2.innerHTML=t},
     function(){var e2=$("fUse");if(e2)e2.textContent="No se pudo ver el uso (sin conexión o sin permiso)."})}
 function checkPub(id){var b=BIZ[id];if(!b||!b.slug)return;var s=b.slug;
-  var show=function(st){var w=$("fWarn");if(!w||!E||E.id!==id||st==="ok"||st==="err")return;w.innerHTML='<div class="a-warnbox" role="alert"><b>'+(st==="falta"?"Su link de reservas no abre":"Su link es de otro negocio")+'</b>: '+(st==="falta"?"falta la página pública (pub/"+esc(s)+"). Al guardar la ficha se vuelve a publicar.":"la página pública apunta a otro negocio. Revisalo antes de tocar nada.")+(st==="falta"?' <button type="button" class="a-b pri" id="fRepub" style="margin-top:8px">Volver a publicar</button>':"")+'</div>';
+  var show=function(st){var w=$("fWarnPub");if(!w||!E||E.id!==id||st==="ok"||st==="err")return;w.innerHTML='<div class="a-warnbox" role="alert"><b>'+(st==="falta"?"Su link de reservas no abre":"Su link es de otro negocio")+'</b>: '+(st==="falta"?"falta la página pública (pub/"+esc(s)+"). Al guardar la ficha se vuelve a publicar.":"la página pública apunta a otro negocio. Revisalo antes de tocar nada.")+(st==="falta"?' <button type="button" class="a-b pri" id="fRepub" style="margin-top:8px">Volver a publicar</button>':"")+'</div>';
     var r=$("fRepub");if(r)r.onclick=function(){mark();$("eGo").click()}};
   if(PUB[s]){show(PUB[s]);return}
   db.doc("pub/"+s).get().then(function(d){var st=!d.exists?"falta":(d.data()||{}).biz===id?"ok":"otro";PUB[s]=st;var ck=ls(K.lnk,{});ck[s]={s:st,at:Date.now()};lsSet(K.lnk,ck);show(st)},function(){})}
