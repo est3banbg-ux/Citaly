@@ -28,7 +28,8 @@ function setPath(o,path,val){var p=path.split("."),c=o;for(var i=0;i<p.length-1;
 function mergeFields(cur,v,fields){var o=clone(cur||{});fields.forEach(function(f){var x=String(f).split(".").reduce(function(a,k){return a==null?undefined:a[k]},v);if(x!==undefined)setPath(o,String(f),x)});return o}
 /* Firestore real rechaza undefined en los datos (sin ignoreUndefinedProperties) */
 function hasUndef(v){if(v===undefined)return true;if(v instanceof Ts||v===null||typeof v!=="object"||v.__fv)return false;if(Array.isArray(v))return v.some(hasUndef);return Object.keys(v).some(function(k){return hasUndef(v[k])})}
-function badData(p){var e=err("invalid-argument");e.message="Function called with invalid data. Unsupported field value: undefined ("+p+")";return e}
+function undefPath(v,pre){if(v===undefined)return pre;if(v instanceof Ts||v===null||typeof v!=="object"||v.__fv)return null;var ks=Object.keys(v);for(var i=0;i<ks.length;i++){var r=undefPath(v[ks[i]],pre?pre+"."+ks[i]:ks[i]);if(r!=null)return r}return null}
+function badData(p,v){var e=err("invalid-argument");e.message="Function called with invalid data. Unsupported field value: undefined (found in field "+(undefPath(v,"")||"?")+" in document "+p+")";return e}
 function denied(p){return DENY.some(function(x){return p.indexOf(x)===0})}
 function err(code){var e=new Error(code);e.code=code;return e}
 function apply(op,p,v,opt){W.push([op,p,plain(v===undefined?null:v)]);WO.push(opt?plain(opt):null);
@@ -39,8 +40,8 @@ function snap(p){var d=D[p];return {id:p.split("/").pop(),exists:d!=null,ref:doc
 function notify(){setTimeout(function(){SUBS.slice().forEach(function(s){s.fire()})},0)}
 function doc(p){return {id:p.split("/").pop(),path:p,
   get:function(){return denied(p)?Promise.reject(err("permission-denied")):Promise.resolve(snap(p))},
-  set:function(v,opt){if(hasUndef(v))return Promise.reject(badData(p));if(denied(p))return Promise.reject(err("permission-denied"));apply("set",p,v,opt);return Promise.resolve()},
-  update:function(v){if(hasUndef(v))return Promise.reject(badData(p));if(denied(p))return Promise.reject(err("permission-denied"));if(D[p]==null)return Promise.reject(err("not-found"));apply("update",p,v);return Promise.resolve()},
+  set:function(v,opt){if(hasUndef(v))return Promise.reject(badData(p,v));if(denied(p))return Promise.reject(err("permission-denied"));apply("set",p,v,opt);return Promise.resolve()},
+  update:function(v){if(hasUndef(v))return Promise.reject(badData(p,v));if(denied(p))return Promise.reject(err("permission-denied"));if(D[p]==null)return Promise.reject(err("not-found"));apply("update",p,v);return Promise.resolve()},
   delete:function(){if(denied(p))return Promise.reject(err("permission-denied"));apply("delete",p);return Promise.resolve()},
   collection:function(n){return coll(p+"/"+n)},
   onSnapshot:function(cb,ec){if(denied(p)){setTimeout(function(){ec&&ec(err("permission-denied"))},0);return function(){}}var last;var s={fire:function(){var j=JSON.stringify(plain(D[p]===undefined?null:D[p]));if(j===last)return;last=j;cb(snap(p))}};SUBS.push(s);setTimeout(s.fire,0);return function(){var i=SUBS.indexOf(s);if(i>=0)SUBS.splice(i,1)}}}}
@@ -61,7 +62,7 @@ function coll(p,fl,ob,lim){fl=fl||[];ob=ob||[];
     get:function(){return denied(p)?Promise.reject(err("permission-denied")):Promise.resolve(qs(run()))},
     onSnapshot:function(cb,ec){if(denied(p)){setTimeout(function(){ec&&ec(err("permission-denied"))},0);return function(){}}var prev=null,last;var s={fire:function(){var docs=run(),m={};docs.forEach(function(d){m[d.id]=JSON.stringify(plain(d.data()))});var j=JSON.stringify(m);if(j===last)return;last=j;cb(qs(docs,prev));prev=m}};SUBS.push(s);setTimeout(s.fire,0);return function(){var i=SUBS.indexOf(s);if(i>=0)SUBS.splice(i,1)}}}}
 var db={doc:doc,collection:function(p){return coll(p)},
-  batch:function(){var ops=[];return {set:function(r,v,o){if(hasUndef(v))throw badData(r.path);ops.push(["set",r.path,v,o]);return this},update:function(r,v){if(hasUndef(v))throw badData(r.path);ops.push(["update",r.path,v]);return this},delete:function(r){ops.push(["delete",r.path]);return this},
+  batch:function(){var ops=[];return {set:function(r,v,o){if(hasUndef(v))throw badData(r.path,v);ops.push(["set",r.path,v,o]);return this},update:function(r,v){if(hasUndef(v))throw badData(r.path,v);ops.push(["update",r.path,v]);return this},delete:function(r){ops.push(["delete",r.path]);return this},
     commit:function(){var bad=ops.filter(function(o){return denied(o[1])})[0];if(bad)return Promise.reject(err("permission-denied"));ops.forEach(function(o){apply(o[0],o[1],o[2],o[3])});return Promise.resolve()}}},
   runTransaction:function(f){var ops=[];var t={get:function(r){return r.get()},set:function(r,v,o){ops.push(["set",r.path,v,o]);return t},update:function(r,v){ops.push(["update",r.path,v]);return t},delete:function(r){ops.push(["delete",r.path]);return t}};
     return Promise.resolve().then(function(){return f(t)}).then(function(res){ops.forEach(function(o){apply(o[0],o[1],o[2],o[3])});return res})},
