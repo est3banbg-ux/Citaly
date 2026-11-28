@@ -10,8 +10,12 @@ with Banco() as b:
     n = p.evaluate("()=>({v:CITALY_NEWS.v,it:CITALY_NEWS.items.length,fx:CITALY_NEWS.fixes.length,so:CITALY_NEWS.soon.length})")
     b.ok("Novedades: hay novedades, arreglos y próximamente", n["it"] >= 40 and n["fx"] >= 20 and n["so"] >= 8, n)
     p.evaluate("()=>newsSheet()"); p.wait_for_timeout(400)
+    for _ in range(30):  # Lo nuevo muestra las 5 más recientes; las demás salen con «Mostrar más»
+        if not p.locator("#nMore").count():
+            break
+        p.click("#nMore"); p.wait_for_timeout(60)
     t = p.inner_text("#nBody")
-    b.ok("Lo nuevo: sale Horas exactas", "Horas exactas para reservar" in t, t[:300])
+    b.ok("Lo nuevo: sale Horas exactas (abriendo «Mostrar más» si ya quedó abajo)", "Horas exactas para reservar" in t, t[:300])
     p.click("#ntS"); p.wait_for_timeout(200); t = p.inner_text("#nBody")
     b.ok("Próximamente: sale Horario que cambia por semana", "Horario que cambia por semana" in t, t[:300])
     b.ok("Próximamente: no habla del admin", "admin" not in t.lower(), t)

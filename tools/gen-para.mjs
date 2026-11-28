@@ -131,7 +131,7 @@ const nav = tipo => `
 <a class="promo" href="${CTA(tipo)}">${promoTxt()}</a>
 <header class="menu"><div class="caja">
   <a class="logo" href="/"><img src="/icon-192.png" alt="" width="30" height="30">citaly</a>
-  <nav aria-label="Principal"><a class="solo-compu" href="/para/">Para tu negocio</a><a class="solo-compu" href="/#precio">Planes</a><a href="/app/">Entrar</a><a class="btn btn-p" href="${CTA(tipo)}">Probar gratis</a></nav>
+  <nav aria-label="Principal"><a class="solo-compu" href="/para/">Para tu negocio</a><a class="solo-compu" href="/#precio">Planes</a><a class="ini" href="/app/">Iniciar sesión</a><a class="btn btn-p" href="${CTA(tipo)}">Probar gratis</a></nav>
 </div></header>`;
 const dock = tipo => `<div class="pega dos" id="pega"><a class="btn btn-p" href="${CTA(tipo)}">Probar gratis ${C.trialDays} días</a><a class="btn btn-w" href="${WA}" target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">WhatsApp</a></div>`;
 const foot = otros => `<footer class="pata"><div class="caja">
