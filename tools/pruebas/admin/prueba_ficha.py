@@ -70,7 +70,7 @@ with Banco() as b:
     p.evaluate("()=>document.querySelector('.shOv').remove()")
     # negocio sin página pública: aviso con Volver a publicar
     p.evaluate("()=>{location.hash='#negocio/b_nosub'}"); p.wait_for_timeout(1000)
-    b.ok("Link que no abre: avisa en la ficha", "no abre" in p.text_content("#fWarn") and p.locator("#fRepub").count() == 1, p.text_content("#fWarn"))
+    b.ok("Link que no abre: avisa en la ficha", "no abre" in p.text_content("#fWarnPub") and p.locator("#fRepub").count() == 1, p.text_content("#fWarnPub"))
     p.click("#fRepub"); p.wait_for_timeout(1400)
     b.ok("Volver a publicar = Guardar: crea pub/<link>", p.evaluate("()=>!!window.__DB['pub/unas-bella']&&window.__DB['pub/unas-bella'].biz==='b_nosub'"))
     # id que no existe
@@ -120,8 +120,8 @@ with Banco() as b:
     p.evaluate("()=>{location.hash='#negocio/b_nosub'}"); p.wait_for_timeout(1000)
     b.ok("G2: sin subs preselecciona Prueba gratis (solo prueba o demo)", p.evaluate("()=>document.getElementById('pPl').value") == "trial" and p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,demo")
     btn = p.evaluate("()=>[...document.querySelectorAll('#fPlan .a-bt button')].map(x=>x.textContent)")
-    b.ok("M4: sin plan, el botón principal es Registrar mensualidad y el extra queda aparte", btn[:2] == ["Registrar mensualidad", "Cobrar un extra"] and "a-b pri" in p.evaluate("()=>document.querySelector('#fPlan [data-u=\"mensNone\"]').className"), btn)
+    b.ok("M4: sin plan, el botón principal es Poner en prueba gratis y el extra queda aparte", btn[:2] == ["Poner en prueba gratis", "Cobrar un extra"] and "a-b pri" in p.evaluate("()=>document.querySelector('#fPlan [data-u=\"mensNone\"]').className"), btn)
     p.evaluate("()=>{window.__PROMPTS.length=0;window.__WRITES.length=0}")
     p.click('#fPlan [data-u="mensNone"]'); p.wait_for_timeout(300)
-    b.ok("M4: Registrar mensualidad sin plan no cobra el módulo de ₡40.000: guía a crear la prueba", p.evaluate("()=>window.__PROMPTS.length===0&&window.__WRITES.length===0") and "Prueba gratis" in p.text_content("#toast") and p.evaluate("()=>document.querySelector('#ed .a-sec[data-sec=\"plan\"]').open"))
+    b.ok("M4: sin plan, el botón principal no cobra el módulo de ₡40.000: guía a crear la prueba", p.evaluate("()=>window.__PROMPTS.length===0&&window.__WRITES.length===0") and "prueba gratis" in p.text_content("#toast") and p.evaluate("()=>document.querySelector('#ed .a-sec[data-sec=\"plan\"]').open"))
     b.ok("Ficha (3): sin errores", not errores(p), errores(p)[:3])
