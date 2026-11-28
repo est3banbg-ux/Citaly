@@ -27,7 +27,7 @@ with Banco() as b:
     base = b.base
     hrefs = p.evaluate("()=>[...document.querySelectorAll('#ed .a-q a')].map(a=>a.href)")
     b.ok("Rutas: Ver web y Reservas apuntan a la raíz del sitio", hrefs == [base + "/detailing-las-brisas", base + "/r/?n=detailing-las-brisas"], hrefs)
-    b.ok("Rutas: admin clásico es ../", p.evaluate("()=>[...document.querySelectorAll('#v-mas a')].find(a=>a.textContent.indexOf('clásico')>=0).href") == base + "/admin/")
+    b.ok("Rutas: admin clásico es ../clasico/", p.evaluate("()=>[...document.querySelectorAll('#v-mas a')].find(a=>a.textContent.indexOf('clásico')>=0).href") == base + "/admin/clasico/")
     b.ok("Rutas: cfg.js y style.css se cargan desde la raíz", p.evaluate("()=>typeof CITALY==='object'&&[...document.styleSheets].some(s=>(s.href||'').endsWith('/style.css'))"))
     b.ok("Rutas: noindex", p.get_attribute('meta[name="robots"]', "content") == "noindex")
     p.click('#ed [data-u="copy"]'); p.wait_for_timeout(200)

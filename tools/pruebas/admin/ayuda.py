@@ -145,7 +145,7 @@ def nuevo(b, d=None, hash_="", **kw):
 def clasico(b, d=None, antes="", **kw):
     # El clásico tiene una carrera al cargar (si Firebase responde antes de que llegue extra.js no carga notas ni
     # prospectos). Como en la vida real Firebase tarda un poco, aquí se le dan 150 ms para que la prueba sea estable.
-    return abrir(b, "/admin/", d, antes="window.__AUTH_DELAY=150;" + antes, **kw)
+    return abrir(b, "/admin/clasico/", d, antes="window.__AUTH_DELAY=150;" + antes, **kw)
 
 
 def norm(ws):

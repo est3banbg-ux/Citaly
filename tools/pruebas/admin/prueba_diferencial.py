@@ -215,7 +215,7 @@ with Banco() as b:
             b.ok("[%s] guarda con merge (no borra goal, notes, ins ni campos viejos)" % nombre, bz[3] == {"merge": True} and not any(k in bz[2] for k in ("goal", "notes", "ins", "legadoX")), bz[3])
         if nombre == "crear negocio nuevo":
             b.ok("[%s] creó biz, pub, subs y own" % nombre, sorted(set(x[1].split("/")[0] for x in wn)) == ["biz", "own", "pub", "subs"], [x[1] for x in wn])
-            b.ok("[%s] al final abre la web con la ruta correcta (viejo ../, nuevo ../../)" % nombre, xv["opened"] == ["../lavacar-prueba-nueva"] and xn["opened"] == ["../../lavacar-prueba-nueva"], (xv["opened"], xn["opened"]))
+            b.ok("[%s] al final abre la web con la ruta correcta (los dos viven dos niveles adentro: ../../)" % nombre, xv["opened"] == ["../../lavacar-prueba-nueva"] and xn["opened"] == ["../../lavacar-prueba-nueva"], (xv["opened"], xn["opened"]))
         if nombre == "crear demo con GlassStudioCR":
             lg = [x for x in wn if x[1].startswith("biz/")]
             b.ok("[%s] el nuevo carga logo y fotos de ../../demo (no quedan vacíos)" % nombre, lg and str(lg[0][2].get("logo", "")).startswith("data:image/") and len([x for x in wn if "/fotos/" in x[1]]) == 2, [x[1] for x in wn])
