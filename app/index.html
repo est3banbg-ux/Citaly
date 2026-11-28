@@ -415,7 +415,8 @@ html.thx *,html.thx *:before,html.thx *:after{transition:background-color .4s,bo
 .waP>small{display:block;color:var(--mute);font-size:12px;margin:0 0 6px}
 .waB{max-width:88%;background:color-mix(in srgb,#1fa855 16%,var(--card));color:var(--ink);border-radius:4px 14px 14px 14px;padding:8px 10px 6px;font-size:14px;line-height:1.4;box-shadow:0 1px 1px rgba(0,0,0,.08)}
 .waB em{display:block;text-align:right;font-style:normal;font-size:11px;color:var(--mute);margin-top:2px}
-.waB .wbt{display:block;margin:8px -10px -6px;padding:8px 10px;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);text-align:center;color:color-mix(in srgb,#1fa855 70%,var(--ink));font-weight:700;font-size:14px}
+.waB .wbt{display:block;margin:8px -10px 0;padding:8px 10px;border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);text-align:center;color:color-mix(in srgb,#1fa855 70%,var(--ink));font-weight:700;font-size:14px}
+.waB .wbt+.wbt{margin-top:0}.waB .wbt:last-child{margin-bottom:-6px}
 .waRw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}.waRw b{display:block;font-size:14.5px}.waRw small{color:var(--mute);font-size:12.5px}
 label.waRw{margin:0;color:var(--ink);font-size:inherit;font-weight:inherit;cursor:pointer}label.waRw small{font-weight:600}
 .waRw input[type=checkbox]:not(.tg){width:22px;height:22px;flex:none;accent-color:var(--acc)}
@@ -1666,21 +1667,26 @@ h+='<div class="card" style="box-shadow:none;margin-top:14px"><b>✉️ Respaldo
 /* ---------- Recordatorios automáticos por WhatsApp ----------
    Los manda el Worker desde el número de Citaly (confirmación al reservar y recordatorio el día antes). La app solo guarda
    biz.waAuto {on,conf,rem} (apagado si no existe; conf y rem valen true si faltan), muestra el uso (/wa/uso) y pide una prueba (/wa/prueba).
-   En cada cita el Worker escribe waC / waR / waRd / waE: la app solo los lee. Mismo criterio de plan que el Worker. */
+   En cada cita el Worker escribe waC / waR / waRd / waE y, cuando el cliente toca un botón del recordatorio, waA ("si" = confirmó,
+   "no" = avisó que no puede llegar) con waAd = fecha y hora a las que respondió: la app solo los lee. Mismo criterio de plan que el Worker. */
 var WA_MAX={prueba:20,nitro:150,extra:150};
 function waPlan(){if(!SUB||SUB.demo===true||SUB.status==="suspended")return "";var u=SUB.until&&SUB.until.toDate?SUB.until.toDate().getTime():0;if(!(u>Date.now()))return "";
   if(SUB.status==="trial")return "prueba";if(tier()==="nitro")return "nitro";if(SUB.waauto===true)return "extra";return ""}
 function waCfg(){var w=B&&B.waAuto||{};return {on:w.on===true,conf:w.conf!==false,rem:w.rem!==false}}
 function waCall(path){return auth.currentUser.getIdToken().then(function(t){return fetch((C.pushUrl||"").replace(/\/push$/,"")+path,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken:t})})}).then(function(r){return r.json()})}
 var WA_ERR={tope:"se acabaron los mensajes",tel:"el número del cliente no es válido o no tiene WhatsApp",error:"WhatsApp no lo aceptó",freno:"se llegó al máximo de mensajes de hoy"};
-function waMarks(j){var o=[],c=!!j.waC,r=!!(j.waR&&j.waRd===j.date);if(c)o.push([1,"✓ Confirmación automática enviada"]);if(r)o.push([1,"✓ Recordatorio automático enviado"]);
+/* Lo que contestó el cliente con los botones del recordatorio. Solo vale si la cita sigue en la misma fecha y hora. */
+function waAns(j){return (j.waA==="si"||j.waA==="no")&&j.waAd===j.date+" "+j.time?j.waA:""}
+function waMarks(j){var o=[],c=!!j.waC,r=!!(j.waR&&j.waRd===j.date),a=waAns(j);if(a)o.push(a==="si"?[1,"✅ El cliente confirmó que llega"]:[0,"⚠️ El cliente avisó que no puede llegar"]);
+  if(c)o.push([1,"✓ Confirmación automática enviada"]);if(r)o.push([1,"✓ Recordatorio automático enviado"]);
   if(j.waE&&!(c&&r))o.push([0,"No salió el WhatsApp automático"+(WA_ERR[j.waE]?": "+WA_ERR[j.waE]:"")]);return o}
 /* En la tarjeta de la agenda, corto (el detalle de la cita trae el texto completo) */
-function waMarkS(j){var m=waMarks(j),ok=m.filter(function(x){return x[0]}),bad=m.filter(function(x){return !x[0]})[0];
+function waMarkS(j){var a=waAns(j);if(a)return '<span class="wamk'+(a==="si"?"":" wbad")+'">'+(a==="si"?"✅ Confirmó que llega":"⚠️ Avisó que no puede llegar")+'</span>'; // lo que contestó el cliente es lo que más importa: va solo
+  var m=waMarks(j),ok=m.filter(function(x){return x[0]}),bad=m.filter(function(x){return !x[0]})[0];
   return (ok.length?'<span class="wamk">'+(ok.length>1?"✓ Confirmación y recordatorio enviados":esc(ok[0][1]))+'</span>':"")+(bad?'<span class="wamk wbad" title="'+esc(bad[1])+'">No salió el WhatsApp automático</span>':"")}
 function waaSheet(){var pl=waPlan(),A=C.addons&&C.addons.waauto||{n:"Recordatorios automáticos por WhatsApp",crc:2900,usd:5},U0=null;
-  var prev='<div class="waP noi"><small>Así le llega a tu cliente:</small><div class="waB">Hola Ana, te recordamos tu cita en <b>'+esc(B.name||"tu negocio")+'</b>: mañana viernes 4 de diciembre a las 10:00 am. Si no puedes llegar, cámbiala o cancélala con el botón. ¡Te esperamos! Este es un mensaje automático.<em>4:05 p. m.</em><span class="wbt" aria-hidden="true">↗ Ver mi cita</span></div></div>';
-  var head='<h2>Recordatorios automáticos por WhatsApp</h2><p class="mute small" style="margin-top:-4px">Citaly le escribe solo a tu cliente: una confirmación cuando reserva y un recordatorio el día antes. Salen del número de Citaly con el nombre de tu negocio, y si el cliente contesta, te llega el aviso a vos.</p>'+prev;
+  var prev='<div class="waP noi"><small>Así le llega a tu cliente:</small><div class="waB">Hola Ana, te recordamos tu cita en <b>'+esc(B.name||"tu negocio")+'</b>: mañana viernes 4 de diciembre a las 10:00 am. Toca <b>Confirmo</b> si vas a llegar o <b>No puedo ir</b> si no puedes. Este es un mensaje automático.<em>4:05 p. m.</em><span class="wbt" aria-hidden="true">↩ Confirmo</span><span class="wbt" aria-hidden="true">↩ No puedo ir</span></div></div>';
+  var head='<h2>Recordatorios automáticos por WhatsApp</h2><p class="mute small" style="margin-top:-4px">Citaly le escribe solo a tu cliente: una confirmación cuando reserva y un recordatorio el día antes, con botones para que confirme o avise que no puede llegar. Salen del número de Citaly con el nombre de tu negocio, y lo que conteste te llega a vos.</p>'+prev;
   if(!pl){var msg="Hola, quiero agregar los recordatorios automáticos a mi plan. Mi negocio es "+(B.name||"")+".";
     sheet(head+'<div class="card" style="box-shadow:none" id="waLk"><b>🔒 Viene incluido en '+C.plans.nitro.ic+' '+C.plans.nitro.n+'</b><p class="mute small" style="margin:4px 0 10px">'+WA_MAX.nitro+' mensajes al mes que salen solos.</p><button class="btn" id="waPl">Ver planes</button>'
       +(PLAY?'':'<p class="small" style="margin:14px 0 8px">O agregalo a tu plan por <b>'+(intl()?"US$"+A.usd:crcF(A.crc))+' al mes</b> ('+WA_MAX.extra+' mensajes)</p><a class="btn wa" id="waEx" target="_blank" rel="noopener" href="'+esc(waUrl(C.wa,msg))+'">Pedir el extra</a>')+'</div>',
@@ -1692,7 +1698,7 @@ function waaSheet(){var pl=waPlan(),A=C.addons&&C.addons.waauto||{n:"Recordatori
   function draw(){if(!$("waaBox"))return;var off=!!(U0&&U0.ok&&U0.live===false),lk=off&&!w.on;
     $("waaBox").innerHTML=(off?'<div class="warnbox" id="waaLive" style="margin-bottom:8px">🚧 Muy pronto: estamos terminando de conectar WhatsApp</div>':'')
       +'<div class="waRw" style="border-top:0"><div><b>Encender recordatorios automáticos</b><small>'+(w.on?"Encendidos: salen solos":"Apagados: no sale nada automático")+'</small></div><label class="toggle"><input type="checkbox" class="tg" id="waaOn" aria-label="Encender recordatorios automáticos"'+(w.on?" checked":"")+(lk?" disabled":"")+'><span></span></label></div>'
-      +(w.on?'<label class="waRw"><span><b>Confirmación cuando reserva</b><small>Apenas reserva en tu página</small></span><input type="checkbox" id="waaC"'+(w.conf?" checked":"")+'></label><label class="waRw"><span><b>Recordatorio el día antes</b><small>Con el botón para cambiar o cancelar</small></span><input type="checkbox" id="waaR"'+(w.rem?" checked":"")+'></label>':'')
+      +(w.on?'<label class="waRw"><span><b>Confirmación cuando reserva</b><small>Apenas reserva en tu página</small></span><input type="checkbox" id="waaC"'+(w.conf?" checked":"")+'></label><label class="waRw"><span><b>Recordatorio el día antes</b><small>Con botones: «Confirmo» y «No puedo ir»</small></span><input type="checkbox" id="waaR"'+(w.rem?" checked":"")+'></label>':'')
       +'<div class="waRw" style="display:block"><div class="waU" id="waaU">'+uso()+'</div>'+(pl==="prueba"?'<small>Son '+WA_MAX.prueba+' mensajes para que lo veás funcionar. Con Nitro tenés '+WA_MAX.nitro+' al mes.</small>':'<small>Se renuevan cada mes.</small>')+'</div>'
       +'<button class="btn alt" id="waaT"'+(off?" disabled":"")+'>📩 Enviarme una prueba</button><p class="mute small" style="text-align:center;margin:6px 0 0">Te llega al WhatsApp de tu negocio.</p>';
     $("waaOn").onchange=save;if($("waaC"))$("waaC").onchange=save;if($("waaR"))$("waaR").onchange=save;

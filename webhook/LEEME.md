@@ -57,30 +57,31 @@ Citaly le escribe solo al cliente final desde **un número de Citaly** (API ofic
 2. developers.facebook.com → la app de Citaly → agregar el producto **WhatsApp** → registrar el número (llega un código por SMS o llamada) y ponerle de nombre «Citaly».
 3. En la cuenta de WhatsApp Business: agregar la **tarjeta** para el cobro de mensajes (≈ US$0,0113 por mensaje a Costa Rica).
 4. Configuración del negocio → Usuarios del sistema → crear uno con permiso `whatsapp_business_messaging` sobre la cuenta de WhatsApp → **Generar token** que no venza.
-5. WhatsApp Manager → Plantillas de mensajes → crear estas 3, categoría **Utilidad**, idioma **Español (es)**. Los nombres deben quedar exactos:
+5. WhatsApp Manager → Plantillas de mensajes → crear estas 2, categoría **Utilidad**, idioma **Español (es)**. Los nombres y el orden de los botones deben quedar exactos:
 
 | Nombre | Texto del cuerpo | Botón |
 |---|---|---|
 | `reserva_recibida` | `Hola {{1}} 👋 Recibimos tu reserva en *{{2}}* para el {{3}}. Para ver los detalles, cambiarla o cancelarla, toca el botón. Este es un mensaje automático.` | «Ir al sitio web», texto `Ver mi cita`, URL **dinámica** `https://citalyapp.com/r/?wa={{1}}` |
-| `cita_recordatorio` | `Hola {{1}}, te recordamos tu cita en *{{2}}*: {{3}}. Si no puedes llegar, cámbiala o cancélala con el botón. ¡Te esperamos! Este es un mensaje automático.` | el mismo |
-| `cita_recordatorio_simple` | `Hola {{1}}, te recordamos tu cita en *{{2}}*: {{3}}. Si no puedes llegar, avísale al negocio con tiempo. ¡Te esperamos! Este es un mensaje automático.` | sin botón |
+| `cita_recordatorio` | `Hola {{1}}, te recordamos tu cita en *{{2}}*: {{3}}. Toca *Confirmo* si vas a llegar o *No puedo ir* si no puedes. Este es un mensaje automático.` | Dos botones de **«Respuesta rápida»**, en este orden: 1.º `Confirmo` · 2.º `No puedo ir` |
 
-   Ejemplos que pide Meta: `{{1}}` = Ana · `{{2}}` = Car Keyss Detailing · `{{3}}` = mañana viernes 4 de diciembre a las 10:00 am · botón = `https://citalyapp.com/r/?wa=car-keyss.abcdefghijkmnpqrstuvwxyz` (si el formulario pide solo la parte variable: `car-keyss.abcdefghijkmnpqrstuvwxyz`). Sin promociones ni precios en el texto: si Meta lo clasifica como «marketing» cuesta unas 6 veces más.
+   El recordatorio lleva solo botones de respuesta, sin botón de link, a propósito: Meta no muestra en WhatsApp de computadora las plantillas que mezclan un botón de respuesta con otro tipo de botón. Si se cambia el texto de un botón hay que cambiar `WA_BTN` en `worker.js`.
+
+   Ejemplos que pide Meta: `{{1}}` = Ana · `{{2}}` = Car Keyss Detailing · `{{3}}` = mañana viernes 4 de diciembre a las 10:00 am · botón de `reserva_recibida` = `https://citalyapp.com/r/?wa=car-keyss.abcdefghijkmnpqrstuvwxyz` (si el formulario pide solo la parte variable: `car-keyss.abcdefghijkmnpqrstuvwxyz`). Sin promociones ni precios en el texto: si Meta lo clasifica como «marketing» cuesta unas 6 veces más.
 
 ### 2. En Cloudflare (Worker → Configuración → Variables y secretos)
 - `WA_TOKEN` (Secreto) = el token del paso 4.
 - `WA_PHONE_ID` (Texto) = el «Identificador de número de teléfono» (WhatsApp → Configuración de la API). No es el número.
 - `WA_APP_SECRET` (Secreto) = la «Clave secreta de la app» (Configuración de la app → Básica).
 - `WA_VERIFY` (Secreto) = cualquier palabra larga inventada (se repite en el paso 3).
-- Opcionales: `WA_LANG` (si las plantillas quedaron en otro español, por ejemplo `es_MX`), `WA_API` (versión de la API, por defecto `v25.0`), `WA_DIA_MAX` (máximo de mensajes al día en toda la plataforma, por defecto 300) y `WA_PRUEBA_DIA` (máximo al día entre todas las pruebas gratis, por defecto 60).
+- Opcionales: `WA_LANG` (si las plantillas quedaron en otro español, por ejemplo `es_MX`), `WA_API` (versión de la API, por defecto `v25.0`), `WA_DIA_MAX` (máximo de mensajes al día en toda la plataforma, por defecto 300), `WA_PRUEBA_DIA` (máximo al día entre todas las pruebas gratis, por defecto 60), `WA_RESP_GRATIS` (respuestas de texto que Meta regala al mes, por defecto 1000) y `WA_RESP_DIA` (máximo de respuestas de texto ya cobradas al día, por defecto 100).
 - **Cron aparte para los recordatorios (hacerlo desde el primer día):** Disparadores → agregar un cron `*/10 * * * *`, y la variable `WA_CRON` (Texto) con ese mismo texto exacto. Así los recordatorios no compiten con los correos por el límite de llamadas de Cloudflare.
 Después, volver a pegar `worker.js` → Implementar.
 
-### 3. Para que lleguen las respuestas de los clientes y los avisos de «no entregado»
-Al número de avisos no lo lee nadie. Para que lo que conteste el cliente le llegue al dueño (aviso al celular y correo, máximo 3 por hora por cliente), el cliente reciba una respuesta automática, y para saber cuándo un mensaje no se pudo entregar (se le quita el ✓ a la cita y se devuelve a la cuenta): en la app de Meta → WhatsApp → Configuración → **Webhook**: URL `https://bitter-brook-9ee2.citalyapp-cr.workers.dev/wa/meta`, token de verificación = el valor de `WA_VERIFY`, y suscribirse al campo **messages**.
+### 3. Conectar el webhook (obligatorio: sin esto los botones «Confirmo» y «No puedo ir» no hacen nada)
+Al número de avisos no lo lee nadie. Para que funcionen los botones del recordatorio (se anota en la cita, se le avisa al dueño y al cliente se le contesta), para que lo demás que conteste el cliente le llegue al dueño (aviso al celular y correo, máximo 3 por hora por cliente), el cliente reciba una respuesta automática, y para saber cuándo un mensaje no se pudo entregar (se le quita el ✓ a la cita y se devuelve a la cuenta): en la app de Meta → WhatsApp → Configuración → **Webhook**: URL `https://bitter-brook-9ee2.citalyapp-cr.workers.dev/wa/meta`, token de verificación = el valor de `WA_VERIFY`, y suscribirse al campo **messages**.
 
 ### 4. Probar
-En la app, con un negocio Nitro o en prueba: Ajustes → Recordatorios automáticos → «Enviarme una prueba». Después hacer una reserva real en la página del negocio con tu propio número.
+En la app, con un negocio Nitro o en prueba: Ajustes → Recordatorios automáticos → «Enviarme una prueba» y tocar los dos botones del mensaje (cada uno contesta qué va a pasar con una cita real). Después hacer una reserva real en la página del negocio con tu propio número y, cuando llegue el recordatorio, tocar «Confirmo»: tiene que aparecer «✅ Confirmó que llega» en la cita y llegar el aviso al celular. **Ojo en la primera prueba:** si al tocar un botón de la muestra llega «Este número solo envía avisos automáticos…» en vez de «Así se ve cuando tu cliente confirma», es que Meta está devolviendo solo el texto del botón y no el dato que le pusimos. No es grave (el Worker reconoce el toque por el mensaje al que responde), pero entonces cada número solo puede contestar su último recordatorio; avisarle a Claude para dejarlo anotado.
 
 ### Frenos contra abuso (para cuidar la plata y que Meta no bloquee el número)
 - Solo se le escribe a números **del país del negocio**.
@@ -89,10 +90,11 @@ En la app, con un negocio Nitro o en prueba: Ajustes → Recordatorios automáti
 - La prueba gratis tiene 20 mensajes **en total** (no se renuevan al cambiar de mes). Las cuentas demo no mandan.
 - A los nombres del cliente y del negocio se les quitan links y teléfonos antes de mandarlos.
 - Cada mensaje tiene un candado: aunque la página avise dos veces o algo falle a medio camino, no sale repetido.
+- **Las respuestas al cliente también se cuidan.** Lo que Citaly le contesta al cliente (cuando toca «Confirmo» o «No puedo ir», o cuando le escribe al número de avisos) es un texto normal, no una plantilla, y no gasta mensajes del plan del negocio. Desde el 1 de octubre de 2026 Meta cobra esos textos: regala **1.000 al mes por número** y cobra los demás como un mensaje más. Por eso se cuentan todos en `wa/_resp_{AAAA-MM}`; al pasar de 1.000 llega un correo al admin y de ahí al día 1 las respuestas tienen su propio tope de **100 al día** (`WA_RESP_DIA`), aparte del de los recordatorios, que no se afectan (si ese tope se llena, la cita se anota y al dueño se le avisa igual, pero al cliente no se le contesta). A quien le escribe al número sin tener cita solo se le contesta con las primeras 500 del mes. Además: un mismo número recibe como mucho **4 respuestas al día**, y por cada número se avisa y se contesta como mucho **3 toques de botón por hora**; el cuarto ya no avisa ni contesta, pero igual queda anotado en la cita: lo que ve el dueño es siempre lo último que tocó el cliente.
 
 ### Datos que guarda
-- En la cita: `waC` (confirmación enviada), `waR` + `waRd` (recordatorio enviado y para qué fecha), `waE` (por qué no salió: `tope`, `tel`, `error`, `freno`), `waRt` y `waRn` (internos: último intento y cuántos van).
-- Colección `wa/` (solo la escribe el Worker; desde la app no se puede leer, no hace falta tocar las reglas de Firebase): `{negocio}_{AAAA-MM}` o `{negocio}_prueba` = mensajes del plan; `c_…`, `r_…`, `p_…` = candado de cada mensaje; `t_{número}_{día}`, `d_{negocio}_{día}`, `_dia_{día}`, `_diap_{día}` = cuentas de los frenos.
+- En la cita: `waC` (confirmación enviada), `waR` + `waRd` (recordatorio enviado y para qué fecha), `waE` (por qué no salió: `tope`, `tel`, `error`, `freno`), `waRt` y `waRn` (internos: último intento y cuántos van), y lo que contestó el cliente con los botones: `waA` (`si` = confirmó, `no` = avisó que no puede llegar), `waAt` (cuándo) y `waAd` (para qué fecha y hora). Tocar un botón **no cambia el estado de la cita ni la cancela**.
+- Colección `wa/` (solo la escribe el Worker; desde la app no se puede leer, no hace falta tocar las reglas de Firebase): `{negocio}_{AAAA-MM}` o `{negocio}_prueba` = mensajes del plan; `c_…`, `r_…`, `p_…` = candado de cada mensaje; `b_…` = candado de cada toque de botón; `t_{número}_{día}`, `d_{negocio}_{día}`, `_dia_{día}`, `_diap_{día}` = cuentas de los frenos; `_resp_{AAAA-MM}` = respuestas de texto del mes en toda la plataforma; `_rdia_{día}` = respuestas ya cobradas de ese día.
 - `waTo/{número}`: a qué negocio y cita pertenece el último aviso a ese número, con el primer nombre del cliente (para pasarle las respuestas al dueño).
 - `biz/{negocio}.waDay`: día para el que ya salieron todos los recordatorios (para no volver a leer sus citas).
 - Limpieza (opcional, recomendado): en Firebase → Firestore → TTL, crear una política para la colección `wa` y otra para `waTo`, las dos con el campo `exp`. Así los candados, las cuentas por día y los números se borran solos (a los 45 y 30 días).

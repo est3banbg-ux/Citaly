@@ -5,7 +5,8 @@ Los manda el Worker; la app solo guarda biz.waAuto {on,conf,rem}, muestra el uso
 - Nitro: se enciende, guarda waAuto correcto (set con merge), muestra «37 de 150» de /wa/uso, la prueba avisa con toast.
 - /wa/uso con live:false: aviso «Muy pronto» y el interruptor y la prueba deshabilitados. Si falla la red: «—» sin errores.
 - Prueba gratis: «Son 20 mensajes para que lo veás funcionar». Extra (subs.waauto) en Arranque: sin candado.
-- En cada cita: marcas por waC / waR+waRd / waE, y guardar la cita no borra esos campos.
+- En cada cita: marcas por waC / waR+waRd / waE y por lo que contestó el cliente con los botones del recordatorio (waA + waAd),
+  y guardar la cita no borra esos campos.
 - Con la función apagada (el caso de todos hoy) la app no llama nunca a /wa/."""
 import json, os, sys
 sys.path.insert(0, os.path.dirname(__file__))
@@ -63,7 +64,7 @@ with Banco() as b:
     abrir_hoja(p)
     t = texto_hoja(p)
     b.ok("[arranque] la hoja explica y muestra la vista previa con el nombre del negocio",
-         "Recordatorios automáticos por WhatsApp" in t and "te recordamos tu cita en Taller Prueba" in t and "Ver mi cita" in t, t[:300])
+         "Recordatorios automáticos por WhatsApp" in t and "te recordamos tu cita en Taller Prueba" in t and "↩ Confirmo" in t and "↩ No puedo ir" in t and "Ver mi cita" not in t, t[:400])
     b.ok("[arranque] candado «Viene incluido en Nitro» y botón «Ver planes»", "Viene incluido en" in t and "Nitro" in t and p.evaluate("()=>!!document.getElementById('waPl')"), t[:400])
     b.ok("[arranque] no hay interruptor ni botón de prueba", p.evaluate("()=>!document.getElementById('waaOn')&&!document.getElementById('waaT')"))
     href = p.evaluate("()=>(document.getElementById('waEx')||{}).href||''")
@@ -190,6 +191,10 @@ with Banco() as b:
     d["biz/U1/jobs/706"] = cita("706", waC=1700000000000, waR=1700000100000, waRd=HOY, waE="error")  # ya salieron los dos: sin aviso
     d["biz/U1/jobs/707"] = cita("707", waE="error")
     d["biz/U1/jobs/708"] = cita("708", web=False, src="app")                       # cita de siempre: nada nuevo
+    d["biz/U1/jobs/711"] = cita("711", waC=1700000000000, waR=1700000100000, waRd=HOY, waA="si", waAt=1700000200000, waAd=HOY + " 09:00")   # tocó «Confirmo»
+    d["biz/U1/jobs/712"] = cita("712", waR=1700000100000, waRd=HOY, waA="no", waAt=1700000200000, waAd=HOY + " 10:00")                      # tocó «No puedo ir»
+    d["biz/U1/jobs/713"] = cita("713", waR=1700000100000, waRd=HOY, waA="si", waAt=1700000200000, waAd=HOY + " 08:00")                      # confirmó, pero después le cambiaron la hora
+    d["biz/U1/jobs/714"] = cita("714", waA="tal vez", waAd=HOY + " 12:00")                                                                 # dato raro: no se muestra
     p = abrir_app(b, d, u, "nitro", antes=ESPIA)
     M = """(id)=>waMarks(JOBS.find(x=>x._id===id)).map(m=>m[1])"""
     K = """(id)=>[].map.call(document.querySelectorAll('.job[data-id="'+id+'"] .wamk'),x=>x.textContent)"""
@@ -201,6 +206,12 @@ with Banco() as b:
     b.ok("[cita] si ya salieron los dos, waE no se muestra", p.evaluate(M, "706") == ["✓ Confirmación automática enviada", "✓ Recordatorio automático enviado"], p.evaluate(M, "706"))
     b.ok("[cita] waE error → «WhatsApp no lo aceptó»", p.evaluate(M, "707") == ["No salió el WhatsApp automático: WhatsApp no lo aceptó"], p.evaluate(M, "707"))
     b.ok("[cita] una cita sin esos campos no muestra nada", p.evaluate(M, "708") == [] and p.evaluate(K, "708") == [])
+    b.ok("[cita] el cliente tocó «Confirmo» → va primero «✅ El cliente confirmó que llega»", p.evaluate(M, "711") == ["✅ El cliente confirmó que llega", "✓ Confirmación automática enviada", "✓ Recordatorio automático enviado"], p.evaluate(M, "711"))
+    b.ok("[cita] el cliente tocó «No puedo ir» → «⚠️ El cliente avisó que no puede llegar»", p.evaluate(M, "712") == ["⚠️ El cliente avisó que no puede llegar", "✓ Recordatorio automático enviado"], p.evaluate(M, "712"))
+    b.ok("[cita] si después le cambiaron la hora, la respuesta vieja ya no se muestra", p.evaluate(M, "713") == ["✓ Recordatorio automático enviado"], p.evaluate(M, "713"))
+    b.ok("[cita] una respuesta con un dato raro no se muestra", p.evaluate(M, "714") == [] and p.evaluate(K, "714") == [], p.evaluate(M, "714"))
+    b.ok("[agenda] tarjeta: «✅ Confirmó que llega», sola y en verde", p.evaluate(K, "711") == ["✅ Confirmó que llega"] and p.evaluate("()=>!document.querySelector('.job[data-id=\"711\"] .wamk').classList.contains('wbad')"), p.evaluate(K, "711"))
+    b.ok("[agenda] tarjeta: «⚠️ Avisó que no puede llegar», como aviso", p.evaluate(K, "712") == ["⚠️ Avisó que no puede llegar"] and p.evaluate("()=>document.querySelector('.job[data-id=\"712\"] .wamk').classList.contains('wbad')"), p.evaluate(K, "712"))
     b.ok("[agenda] tarjeta: marca corta de confirmación", p.evaluate(K, "701") == ["✓ Confirmación automática enviada"], p.evaluate(K, "701"))
     b.ok("[agenda] tarjeta: las dos en una línea", p.evaluate(K, "702") == ["✓ Confirmación y recordatorio enviados"], p.evaluate(K, "702"))
     b.ok("[agenda] tarjeta: aviso corto cuando no salió", p.evaluate(K, "704") == ["No salió el WhatsApp automático"] and p.evaluate(K, "705") == ["✓ Confirmación automática enviada", "No salió el WhatsApp automático"], [p.evaluate(K, "704"), p.evaluate(K, "705")])

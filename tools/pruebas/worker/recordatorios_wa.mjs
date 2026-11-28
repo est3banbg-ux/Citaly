@@ -48,6 +48,7 @@ const put = (p, o) => DB.set(p, ff(o));
 const doc = (p) => (DB.has(p) ? uf(DB.get(p)) : null);
 const campo = (fields, fp) => fp.split(".").reduce((a, k) => (a && a.mapValue ? a.mapValue.fields[k] : a && a[k]), { mapValue: { fields } });
 const J = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json" } });
+const ut = (p) => "u" + [...JSON.stringify(DB.get(p) || null)].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7); // «updateTime»: cambia cada vez que cambia el documento
 
 async function falso(url, init = {}) {
   url = String(url); const m = (init.method || "GET").toUpperCase(), body = init.body ? String(init.body) : "";
@@ -70,6 +71,8 @@ async function falso(url, init = {}) {
     if (META.choque > 0) { META.choque--; return J({ error: { code: 409, status: "ABORTED" } }, 409); } // choque de escrituras
     const res = [], writes = JSON.parse(body).writes;
     for (const w of writes) if (w.currentDocument && w.currentDocument.exists === false && DB.has(w.update.name.replace(NAME, ""))) return J({ error: { code: 409, status: "ALREADY_EXISTS" } }, 409); // todo o nada
+    for (const w of writes) if (w.currentDocument && w.currentDocument.exists === true && !DB.has(w.update.name.replace(NAME, ""))) return J({ error: { code: 404, status: "NOT_FOUND" } }, 404);
+    for (const w of writes) if (w.currentDocument && w.currentDocument.updateTime !== undefined && (!DB.has(w.update.name.replace(NAME, "")) || ut(w.update.name.replace(NAME, "")) !== w.currentDocument.updateTime)) return J({ error: { code: 400, status: "FAILED_PRECONDITION" } }, 400);
     for (const w of writes) {
       if (w.delete) { DB.delete(w.delete.replace(NAME, "")); res.push({}); continue; }
       const p = w.update.name.replace(NAME, ""), f = w.updateMask ? DB.get(p) || {} : { ...w.update.fields }; DB.set(p, f);
@@ -102,7 +105,7 @@ async function falso(url, init = {}) {
     const docs = [...DB].filter(([p]) => p.startsWith(ruta + "/") && !p.slice(ruta.length + 1).includes("/")).map(([p, fields]) => ({ name: NAME + p, fields }));
     return J(docs.length ? { documents: docs } : {});
   }
-  return DB.has(ruta) ? J({ name: NAME + ruta, fields: DB.get(ruta) }) : J({ error: { code: 404 } }, 404);
+  return DB.has(ruta) ? J({ name: NAME + ruta, fields: DB.get(ruta), updateTime: ut(ruta) }) : J({ error: { code: 404 } }, 404);
 }
 globalThis.fetch = falso;
 
@@ -252,9 +255,12 @@ cita("b1", "hoy", { date: "2026-12-03", tel: "88880006" });
 cita("b1", "pasado", { date: "2026-12-05", tel: "88880007" });
 cita("b1", "malnum", { tel: "12", time: "09:00" });
 await cron();
-igual(META.wa.map((x) => x.to + " " + x.template.name), ["50688880001 cita_recordatorio_simple", "50688887777 cita_recordatorio"], "solo salen los 2 que tocan, en orden de hora");
+igual(META.wa.map((x) => x.to + " " + x.template.name), ["50688880001 cita_recordatorio", "50688887777 cita_recordatorio"], "solo salen los 2 que tocan, en orden de hora, con la misma plantilla");
 igual(META.wa[1].template.components[0].parameters[2].text, "mañana viernes 4 de diciembre a las 10:00 am", "el texto dice «mañana viernes 4 de diciembre…»");
-ok(META.wa[0].template.components.length === 1 && META.wa[1].template.components[1].parameters[0].text === "car-keyss." + TK, "con link lleva botón; la cita hecha a mano va sin botón");
+const qr = (i, p) => ({ type: "button", sub_type: "quick_reply", index: String(i), parameters: [{ type: "payload", payload: p }] });
+igual(META.wa[1].template.components.slice(1), [qr(0, "ok.b1.web.202612041000"), qr(1, "no.b1.web.202612041000")], "lleva los dos botones de respuesta («Confirmo» y «No puedo ir»), cada uno con su cita, su día y su hora");
+igual(META.wa[0].template.components.slice(1), [qr(0, "ok.b1.mano.202612040830"), qr(1, "no.b1.mano.202612040830")], "la cita hecha a mano lleva los mismos botones");
+ok(!META.wa.some((x) => x.template.components.some((c) => c.sub_type === "url")), "el recordatorio no mezcla botón de link con botones de respuesta (Meta no muestra esa mezcla en WhatsApp de computadora)");
 igual([J_("b1", "web").waR, J_("b1", "web").waRd, J_("b1", "mano").waRd], [AHORA, man, man], "las citas quedan marcadas con waR y waRd");
 igual(J_("b1", "malnum").waE, "tel", "el número inválido queda con waE = tel");
 ok(!J_("b1", "recien").waR && doc("biz/b1").waDay !== man, "al que reservó hace 2 horas no se le escribe todavía, y el negocio queda pendiente");
@@ -386,7 +392,8 @@ titulo("Ruta /wa/prueba");
 limpio(); negocio("b1");
 r = await (await post("/wa/prueba", { idToken: tok })).json();
 igual(r, { ok: true, to: "6610" }, "manda la muestra al WhatsApp del negocio");
-igual([META.wa[0].to, META.wa[0].template.name, META.wa[0].template.components[0].parameters.map((x) => x.text).join("|")], ["50661506610", "cita_recordatorio_simple", "Ana|Car Keyss Detailing|mañana viernes 4 de diciembre a las 10:00 am"], "con un recordatorio de ejemplo");
+igual([META.wa[0].to, META.wa[0].template.name, META.wa[0].template.components[0].parameters.map((x) => x.text).join("|")], ["50661506610", "cita_recordatorio", "Ana|Car Keyss Detailing|mañana viernes 4 de diciembre a las 10:00 am"], "con un recordatorio de ejemplo");
+igual(META.wa[0].template.components.slice(1).map((c) => c.parameters[0].payload), ["ok.prueba", "no.prueba"], "la muestra lleva los botones marcados como prueba");
 igual(usados("b1"), 1, "la muestra cuenta como mensaje");
 await post("/wa/prueba", { idToken: tok }); await post("/wa/prueba", { idToken: tok });
 r = await post("/wa/prueba", { idToken: tok });
@@ -433,6 +440,184 @@ ok(META.push.length === 4, "mensajes de otro número de Meta se ignoran");
 put("waTo/50688881111", { biz: "b1", job: "j9", cli: "Luis", name: "Car Keyss Detailing", bwa: "50661506610", at: AHORA - 9 * 864e5 });
 await meta(entra({ from: "50688881111", id: "wamid.G", type: "text", text: { body: "hola" } }));
 ok(META.push.length === 4 && META.wa.length === 3, "si el aviso fue hace más de 7 días, ya no se le pasa al dueño");
+
+titulo("El cliente toca «Confirmo» o «No puedo ir» en el recordatorio");
+const ENVM = { ...ENV0, RESEND_KEY: "re" };
+const metaE = async (cuerpo) => post("/wa/meta", cuerpo, ENVM, { "x-hub-signature-256": await firma(cuerpo) });
+const btn = (id, payload, text, ctx, from = "50688887777", extra = {}) => ({ from, id, type: "button", button: { payload, text }, context: { from: "50600000000", id: ctx }, ...extra });
+const boton = (...a) => entra(btn(...a));
+/* Deja una cita con su recordatorio ya enviado (jueves 4:05 p. m.) y avanza 20 minutos */
+const recordar = async (extraCita = {}, extraBiz = {}) => {
+  AHORA = cr("2026-12-03T16:05:00"); limpio(); negocio("b1", { mailTo: "dueno@prueba.com", ...extraBiz }); cita("b1", "j1", { at: 1, waC: 1, ...extraCita }); await cron();
+  const t = META.wa[0].template.components, o = { ok: t[1].parameters[0].payload, no: t[2].parameters[0].payload, wid: doc("waTo/" + META.wa[0].to).wid };
+  META.wa = []; META.push = []; META.mail = []; AHORA += 20 * 60e3; return o;
+};
+const resp = (i = 0) => ((META.wa[i] || {}).text || {}).body || "";
+let B = await recordar();
+igual([B.ok, B.no], ["ok.b1.j1.202612041000", "no.b1.j1.202612041000"], "(el recordatorio salió con sus dos botones)");
+LOG = []; await metaE(boton("wamid.T1", B.ok, "Confirmo", B.wid)); const llToque = LOG.length;
+igual([J_("b1", "j1").waA, J_("b1", "j1").waAt, J_("b1", "j1").waAd, J_("b1", "j1").st], ["si", AHORA, "2026-12-04 10:00", "Por confirmar"], "«Confirmo»: queda anotado en la cita (waA = si) y el estado de la cita NO cambia");
+ok(META.push.length === 1 && META.push[0].title === "✅ Ana confirmó que llega" && META.push[0].body === "Mañana viernes 4 de diciembre a las 10:00 am · Tocá para ver la cita." && META.push[0].url === "/app/?cita=j1" && META.push[0].biz === "b1", "al dueño le llega el aviso al celular, con link a la cita");
+igual(META.mail.length, 0, "una confirmación no manda correo (solo el aviso al celular)");
+ok(META.wa.length === 1 && META.wa[0].type === "text" && META.wa[0].to === "50688887777", "al cliente se le contesta con un texto normal (no es plantilla)");
+igual(resp(), "¡Listo, Ana! ✅ Ya le avisamos a *Car Keyss Detailing* que vas a llegar mañana viernes 4 de diciembre a las 10:00 am. ¡Te esperamos!", "y le dice que ya se le avisó al negocio (no promete que el negocio la «confirmó»)");
+igual(usados("b1"), 1, "esa respuesta no gasta mensajes del plan (solo contó el recordatorio)");
+ok(llToque <= 16, `un toque gasta pocas llamadas (${llToque}; Cloudflare gratis permite unas 50)`);
+await metaE(boton("wamid.T1", B.ok, "Confirmo", B.wid));
+ok(META.push.length === 1 && META.wa.length === 1, "si Meta repite el mismo toque, no se avisa ni se contesta dos veces");
+await metaE(boton("wamid.T2", B.ok, "Confirmo", B.wid));
+ok(META.push.length === 1 && META.wa.length === 2 && /Ya le avisamos/.test(resp(1)), "si el cliente vuelve a tocar «Confirmo», se le contesta otra vez pero al dueño no se le repite el aviso");
+await metaE(boton("wamid.T3", B.no, "No puedo ir", B.wid));
+igual([J_("b1", "j1").waA, J_("b1", "j1").waAd, J_("b1", "j1").st], ["no", "2026-12-04 10:00", "Por confirmar"], "«No puedo ir»: queda anotado (waA = no) y la cita NO se cancela sola");
+ok(META.push.length === 2 && META.push[1].title === "⚠️ Ana avisó que no puede llegar" && META.push[1].body === "Cita de mañana viernes 4 de diciembre a las 10:00 am. Sigue en tu agenda: tocá para verla y escribirle." && META.push[1].url === "/app/?cita=j1", "al dueño le llega el aviso al celular");
+ok(META.mail.length === 1 && META.mail[0].subject === "⚠️ Ana avisó que no puede llegar" && META.mail[0].to[0] === "dueno@prueba.com", "y también por correo, porque es el que más importa");
+igual(resp(2), "Gracias por avisar, Ana. Ya le dijimos a *Car Keyss Detailing* que no puedes llegar. Tu cita sigue apartada: para pasarla a otro día o cancelarla, entra aquí: https://citalyapp.com/r/?wa=car-keyss." + TK, "al cliente se le da su link para cambiarla o cancelarla");
+await metaE(boton("wamid.T1", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "no" && META.push.length === 2 && META.wa.length === 3, "si Meta vuelve a mandar un toque viejo mucho después, no revive la respuesta anterior");
+await metaE(boton("wamid.T4", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 2 && META.wa.length === 3, "cuarto toque en la misma hora: ya no avisa ni contesta, pero la cita SÍ queda con lo último que tocó (si)");
+await metaE(boton("wamid.T5", B.no, "No puedo ir", B.wid));
+ok(J_("b1", "j1").waA === "no" && META.push.length === 2 && META.wa.length === 3, "quinto toque: igual, queda anotado lo último (no). El dueño nunca ve un estado viejo");
+AHORA += 3600e3; await metaE(boton("wamid.T6", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 3 && META.wa.length === 4, "a la hora siguiente vuelve a avisar y a contestar");
+igual(usados("b1"), 1, "y nada de eso gastó mensajes del plan");
+
+B = await recordar(); put("waTo/50688887777", { ...doc("waTo/50688887777"), at: AHORA - 60e3 });
+for (const [i, t] of ["hola", "¿puedo llegar 15 min tarde?", "¿me escuchan?"].entries()) await metaE(entra({ from: "50688887777", id: "wamid.TX" + i, type: "text", text: { body: t } }));
+igual(META.push.length, 3, "(el cliente escribió 3 textos y al dueño le llegaron los 3)");
+await metaE(boton("wamid.TX9", B.no, "No puedo ir", B.wid));
+ok(J_("b1", "j1").waA === "no" && META.push.length === 4 && META.push[3].title === "⚠️ Ana avisó que no puede llegar" && /Gracias por avisar/.test(resp(1)), "si después de escribir 3 textos toca «No puedo ir», el toque NO se pierde: se anota, se avisa y se contesta");
+
+B = await recordar({ tk: null, web: false });
+await metaE(boton("wamid.M1", B.no, "No puedo ir", B.wid));
+ok(J_("b1", "j1").waA === "no" && resp().endsWith("para pasarla a otro día o cancelarla, escríbeles: https://wa.me/50661506610"), "cita hecha a mano (sin link): se le da el WhatsApp del negocio");
+B = await recordar({ web: false });
+await metaE(boton("wamid.M2", B.no, "No puedo ir", B.wid));
+ok(resp().endsWith("escríbeles: https://wa.me/50661506610"), "cita que no se reservó en la página: tampoco se le manda el link (con él no podría cambiarla)");
+B = await recordar({ time: "07:00" }); AHORA = cr("2026-12-03T20:00:00");
+await metaE(boton("wamid.M3", B.no, "No puedo ir", B.wid));
+ok(resp().endsWith("escríbeles: https://wa.me/50661506610"), "si faltan menos de 12 horas (con el link ya no puede cambiarla), se le da el WhatsApp del negocio");
+B = await recordar({ time: "09:00" }); AHORA = cr("2026-12-03T20:00:00");
+await metaE(boton("wamid.M4", B.no, "No puedo ir", B.wid));
+ok(resp().endsWith("entra aquí: https://citalyapp.com/r/?wa=car-keyss." + TK), "si faltan 13 horas, todavía se le manda su link");
+B = await recordar({ cli: "" });
+await metaE(boton("wamid.N1", B.ok, "Confirmo", B.wid));
+ok(resp().startsWith("¡Listo! ✅ Ya le avisamos") && META.push[0].title === "✅ Tu cliente confirmó que llega", "cita sin nombre: los textos salen bien igual");
+B = await recordar(); put("biz/b1/jobs/j1", { ...J_("b1", "j1"), time: "15:00" });
+await metaE(boton("wamid.H1", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waAd === "2026-12-04 15:00" && resp() === "¡Listo, Ana! ✅ Ojo, la hora cambió: tu cita en *Car Keyss Detailing* es mañana viernes 4 de diciembre a las 3:00 pm. Ya les avisamos que vas a llegar; si a esa hora no puedes, toca *No puedo ir*.", "si el dueño le cambió la hora (mismo día), se anota con la hora nueva y al cliente se le advierte del cambio");
+B = await recordar(); AHORA = cr("2026-12-04T08:00:00");
+await metaE(boton("wamid.H2", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && /vas a llegar hoy viernes 4 de diciembre a las 10:00 am/.test(resp()) && META.push[0].body.startsWith("Hoy viernes 4"), "si toca el botón la mañana de la cita, dice «hoy»");
+
+titulo("Botones que NO se anotan");
+B = await recordar(); AHORA = cr("2026-12-04T10:30:00");
+await metaE(boton("wamid.V1", B.ok, "Confirmo", B.wid));
+ok(!J_("b1", "j1").waA && META.push.length === 0 && /ya no está pendiente en la agenda de \*Car Keyss Detailing\*/.test(resp()) && /wa\.me\/50661506610/.test(resp()), "cita que ya pasó: no se anota, no molesta al dueño y al cliente se le explica");
+for (const st of ["Cancelada", "No vino", "Lista"]) {
+  B = await recordar(); put("biz/b1/jobs/j1", { ...J_("b1", "j1"), st });
+  await metaE(boton("wamid.V2", B.no, "No puedo ir", B.wid));
+  ok(!J_("b1", "j1").waA && META.push.length === 0 && /ya no está pendiente/.test(resp()), "cita «" + st + "»: no se anota ni se avisa");
+}
+B = await recordar(); put("biz/b1/jobs/j1", { ...J_("b1", "j1"), date: "2026-12-06" });
+await metaE(boton("wamid.V3", B.ok, "Confirmo", B.wid));
+ok(!J_("b1", "j1").waA && META.push.length === 0 && resp() === "Tu cita en *Car Keyss Detailing* cambió: ahora es el domingo 6 de diciembre a las 10:00 am. Puedes verla aquí: https://citalyapp.com/r/?wa=car-keyss." + TK, "cita que se movió a otro día: no se confirma con el botón viejo, se le dice la fecha nueva");
+B = await recordar();
+await metaE(boton("wamid.V4", B.ok, "Confirmo", B.wid, "50670000000"));
+ok(!J_("b1", "j1").waA && META.push.length === 0 && !/vas a llegar/.test(resp()), "el mismo botón desde OTRO número: no se anota ni se le avisa al dueño");
+for (const p of ["ok.b1.j1", "ok.b1.j1.2026-12-04", "ok.b1/jobs.j1.20261204", "si.b1.j1.20261204", "ok..j1.20261204", "ok.b1.j1.20261204.x", "ok.b1.j1.2026120410", ""]) {
+  B = await recordar(); await metaE(boton("wamid.V5", p, "Otra cosa", "wamid.otro"));
+  ok(!J_("b1", "j1").waA && !/vas a llegar/.test(resp()), "botón con un dato raro (" + (p || "vacío") + "): no se anota nada");
+}
+B = await recordar(); await metaE(boton("wamid.V6", "ok.b1.noexiste.202612041000", "Confirmo", "wamid.otro"));
+ok(!DB.has("biz/b1/jobs/noexiste") && !/vas a llegar/.test(resp()), "botón de una cita que no existe: no crea nada");
+B = await recordar(); META.romper = (url) => { if (url.endsWith(":commit")) DB.delete("biz/b1/jobs/j1"); return false; };
+await metaE(boton("wamid.V7", B.ok, "Confirmo", B.wid)); META.romper = null;
+ok(!DB.has("biz/b1/jobs/j1") && ![...DB.keys()].some((k) => k.startsWith("wa/b_")) && META.push.length === 0 && META.wa.length === 0, "si la cita se borra justo en ese momento: no queda una cita fantasma y no se avisa nada");
+B = await recordar(); await metaE(entra({ ...btn("wamid.V8", B.ok, "Confirmo", B.wid), from: undefined }));
+ok(!J_("b1", "j1").waA && META.push.length === 0 && META.wa.length === 0, "si Meta no manda el número de quien tocó, no se hace nada");
+
+titulo("Botones: orden, carreras y casos de Meta");
+const seg = (d) => String(Math.floor(AHORA / 1000) + d);
+B = await recordar();
+await metaE(boton("wamid.O2", B.no, "No puedo ir", B.wid, undefined, { timestamp: seg(-5) }));
+await metaE(boton("wamid.O1", B.ok, "Confirmo", B.wid, undefined, { timestamp: seg(-9) }));
+ok(J_("b1", "j1").waA === "no" && J_("b1", "j1").waAt === (Math.floor(AHORA / 1000) - 5) * 1000 && META.push.length === 1 && META.wa.length === 1, "si Meta entrega dos toques al revés, vale el que el cliente tocó de último (el más viejo se ignora)");
+let malOrden = 0;
+for (let k = 0; k < 8; k++) {
+  B = await recordar(); META.lat = 40;
+  await Promise.all([metaE(boton("wamid.C1", B.ok, "Confirmo", B.wid, undefined, { timestamp: seg(-9) })), metaE(boton("wamid.C2", B.no, "No puedo ir", B.wid, undefined, { timestamp: seg(-5) }))]); META.lat = 0;
+  if (J_("b1", "j1").waA !== "no") malOrden++;
+}
+igual(malOrden, 0, "dos toques distintos procesados a la vez (8 intentos): siempre queda el último que tocó");
+B = await recordar(); await metaE(boton("wamid.L1", "Confirmo", "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 1 && /Ya le avisamos/.test(resp()), "si Meta devuelve solo el texto del botón, se reconoce por el recordatorio al que responde");
+B = await recordar(); await metaE(boton("wamid.L2", "No puedo ir", "No puedo ir", B.wid));
+igual(J_("b1", "j1").waA, "no", "igual con «No puedo ir»");
+B = await recordar(); await metaE(boton("wamid.L3", "Confirmo", "Confirmo", "wamid.otro"));
+ok(!J_("b1", "j1").waA && META.push.length === 1 && /respondió al aviso de su cita/.test(META.push[0].title), "solo el texto y respondiendo a OTRO mensaje: no se anota; le llega al dueño como una respuesta cualquiera");
+B = await recordar(); negocio("b2", { slug: "otro-negocio" }); cita("b2", "j1", { at: 1, waC: 1, time: "14:00" }); await cron(); META.wa = []; META.push = [];
+igual(doc("waTo/50688887777").biz, "b2", "(el mismo cliente tiene cita en otro negocio y ese fue el último recordatorio)");
+await metaE(boton("wamid.L4", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && !J_("b2", "j1").waA && META.push.length === 1 && META.push[0].biz === "b1" && /\*Car Keyss Detailing\*/.test(resp()), "con citas en dos negocios, el botón confirma la cita correcta y avisa al negocio correcto");
+B = await recordar(); META.lat = 40;
+await Promise.all([1, 2, 3, 4].map(() => metaE(boton("wamid.P1", B.ok, "Confirmo", B.wid)))); META.lat = 0;
+ok(META.push.length === 1 && META.wa.length === 1 && J_("b1", "j1").waA === "si", `el mismo toque 4 veces a la vez: un solo aviso y una sola respuesta (avisos: ${META.push.length}, respuestas: ${META.wa.length})`);
+B = await recordar(); META.choque = 1; await metaE(boton("wamid.Q1", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 1 && META.wa.length === 1, "si la primera escritura choca en Firestore, se reintenta y queda anotado");
+B = await recordar(); META.choque = 2; await metaE(boton("wamid.Q2", B.ok, "Confirmo", B.wid)); META.choque = 0;
+ok(!J_("b1", "j1").waA && META.push.length === 0 && META.wa.length === 0, "si no se pudo anotar, no se le dice a nadie que quedó anotado");
+B = await recordar(); let cambios = 0; META.romper = (url) => { if (url.endsWith(":commit") && !cambios++) put("biz/b1/jobs/j1", { ...J_("b1", "j1"), note: "el dueño la editó justo ahora" }); return false; };
+await metaE(boton("wamid.Q3", B.ok, "Confirmo", B.wid)); META.romper = null;
+ok(J_("b1", "j1").waA === "si" && J_("b1", "j1").note === "el dueño la editó justo ahora" && META.push.length === 1, "si el dueño edita la cita justo en ese momento, se lee otra vez y se anota sin pisarle nada");
+B = await recordar(); await post("/wa/meta", boton("wamid.S1", B.ok, "Confirmo", B.wid), ENVM, { "x-hub-signature-256": "sha256=" + "0".repeat(64) });
+ok(!J_("b1", "j1").waA && META.push.length === 0, "un toque con firma falsa no anota nada");
+limpio(); negocio("b1"); await metaE(boton("wamid.PR1", "ok.prueba", "Confirmo", "wamid.x", "50661506610"));
+ok(META.wa.length === 1 && /Así se ve cuando tu cliente confirma/.test(resp()) && META.push.length === 0, "en la muestra que se manda el dueño, «Confirmo» le explica qué va a pasar");
+await metaE(boton("wamid.PR2", "no.prueba", "No puedo ir", "wamid.x", "50661506610"));
+ok(META.wa.length === 2 && /Así se ve cuando tu cliente avisa que no puede llegar/.test(resp(1)), "y «No puedo ir» también");
+B = await recordar({ tel: "5512345678" }, { country: "MX", wa: "5587654321" });
+igual(doc("waTo/525512345678").job, "j1", "(negocio de México: el recordatorio salió al 52 + 10 dígitos)");
+await metaE(boton("wamid.MX1", B.ok, "Confirmo", B.wid, "5215512345678"));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 1 && META.wa[0].to === "525512345678", "México: Meta manda el número con un 1 de más (521…) y el toque se reconoce igual");
+
+titulo("Varios toques en un mismo aviso de Meta: límite de llamadas");
+AHORA = cr("2026-12-03T16:05:00"); limpio(); negocio("b1", { mailTo: "dueno@prueba.com" }); put("biz/b1/push/p2", { t: "celular-2" }); put("biz/b1/push/p3", { t: "celular-3" });
+for (let i = 1; i <= 3; i++) cita("b1", "j" + i, { at: 1, waC: 1, tel: "8888000" + i, time: "1" + i + ":00" });
+await cron(); const ps = META.wa.map((x) => [x.to, x.template.components[2].parameters[0].payload, doc("waTo/" + x.to).wid]); META.wa = []; META.push = []; META.mail = []; AHORA += 20 * 60e3;
+const tres = JSON.stringify({ object: "whatsapp_business_account", entry: [{ changes: [{ field: "messages", value: { metadata: { phone_number_id: "111222" }, messages: ps.map((x, i) => btn("wamid.Z" + i, x[1], "No puedo ir", x[2], x[0])) } }] }] });
+META.max = 50; LOG = []; const rz = await metaE(tres); META.max = 0;
+const anotadas = [1, 2, 3].filter((i) => J_("b1", "j" + i).waA === "no").length;
+ok(rz.status === 200 && ps.length === 3 && anotadas === 2 && LOG.length <= 50 && META.wa.length === 2 && META.mail.length === 2, `3 «No puedo ir» en un mismo aviso y dueño con 3 celulares: se atienden 2 completos sin pasarse de 50 llamadas (${LOG.length}); el tercero no queda a medias`);
+
+titulo("Las respuestas al cliente: cuenta y tope de gasto");
+const RESP = () => (doc("wa/_resp_2026-12") || {}).n || 0, RDIA = () => (doc("wa/_rdia_2026-12-03") || {}).n || 0, DIA = () => (doc("wa/_dia_2026-12-03") || {}).n || 0;
+B = await recordar(); const dia0 = DIA();
+await metaE(boton("wamid.R1", B.ok, "Confirmo", B.wid));
+ok(RESP() === 1 && RDIA() === 0 && DIA() === dia0 && META.mail.length === 0, "cada respuesta se cuenta en el mes (wa/_resp_…); mientras sean de las 1.000 gratis no tocan ningún tope de gasto");
+B = await recordar(); put("wa/_resp_2026-12", { n: 1000 });
+await metaE(boton("wamid.R2", B.ok, "Confirmo", B.wid));
+ok(META.wa.length === 1 && RESP() === 1001 && RDIA() === 1 && DIA() === dia0, "pasadas las 1.000 del mes la respuesta sigue saliendo y cuenta en su propio tope del día, sin tocar el de los recordatorios");
+ok(META.mail.length === 1 && /respuestas gratis de WhatsApp/.test(META.mail[0].subject) && META.mail[0].to[0] === "est3banbg@gmail.com", "y le llega un correo al admin");
+await metaE(boton("wamid.R3", B.no, "No puedo ir", B.wid));
+ok(META.wa.length === 2 && META.mail.filter((x) => /respuestas gratis/.test(x.subject)).length === 1, "ese correo sale una sola vez");
+B = await recordar(); put("wa/_resp_2026-12", { n: 1500 }); put("wa/_rdia_2026-12-03", { n: 100 });
+await metaE(boton("wamid.R4", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 1 && META.wa.length === 0 && RESP() === 1500 && RDIA() === 100, "con el tope de respuestas pagadas lleno (100 al día): se anota y se le avisa al dueño (eso no cuesta), pero al cliente no se le contesta y no se cuenta nada");
+cita("b1", "j2", { at: 1, waC: 1, tel: "88880002" }); put("biz/b1", { ...doc("biz/b1"), waDay: "" }); AHORA = cr("2026-12-03T17:00:00"); await cron();
+ok(META.wa.length === 1 && META.wa[0].type === "template" && META.wa[0].to === "50688880002", "y los recordatorios siguen saliendo: las respuestas no les gastan su tope");
+B = await recordar(); put("waTo/50688887777", { ...doc("waTo/50688887777"), rd: "2026-12-03", rn: 4 });
+await metaE(boton("wamid.R5", B.ok, "Confirmo", B.wid));
+ok(J_("b1", "j1").waA === "si" && META.push.length === 1 && META.wa.length === 0 && RESP() === 0, "un mismo número recibe como mucho 4 respuestas al día: la quinta no sale (el aviso al dueño sí)");
+B = await recordar(); META.falla = true;
+await metaE(boton("wamid.R6", B.ok, "Confirmo", B.wid)); META.falla = false;
+ok(J_("b1", "j1").waA === "si" && META.push.length === 1 && RESP() === 0, "si Meta no acepta la respuesta, no se cuenta (la cita queda anotada igual)");
+limpio(); await metaE(entra({ from: "50670000000", id: "wamid.R7", type: "text", text: { body: "hola" } }));
+ok(META.wa.length === 1 && RESP() === 1, "la respuesta automática a quien le escribe al número de avisos también se cuenta");
+limpio(); put("wa/_resp_2026-12", { n: 500 }); await metaE(entra({ from: "50670000001", id: "wamid.R8", type: "text", text: { body: "hola" } }));
+ok(META.wa.length === 0 && RESP() === 500, "a números sin cita solo se les contesta con la primera mitad de las gratis: el resto se guarda para los clientes");
+B = await recordar(); put("wa/_resp_2026-12", { n: 500 }); await metaE(boton("wamid.R9", B.ok, "Confirmo", B.wid));
+ok(META.wa.length === 1 && RESP() === 501, "al cliente con cita sí se le sigue contestando");
 
 titulo("Mensajes que Meta no pudo entregar");
 AHORA = cr("2026-12-03T09:15:00"); limpio(); negocio("b1"); cita("b1", "j1");

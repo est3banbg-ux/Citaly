@@ -64,7 +64,7 @@ Dónde está cada cosa (la app tiene 4 pestañas abajo: Agenda, Clientes, Númer
 - Cobros y abonos: botón «💰 Cobrar» en cada cita; al marcar «Lista» pregunta cómo te pagó (SINPE, Efectivo, Tarjeta, Transferencia); se puede abonar una parte. Cierre de caja y quién te debe: en Agenda, tarjeta «Cierre del día» → «Cierre de caja» (planes Turbo y Nitro).
 - Link de reservas y página web: Ajustes arriba (Copiar/Compartir). Servicios y precios, Horario, Logo y color, Portada (frase, promo y foto de portada), Estilo de tu página, Fotos (varias a la vez y «Antes y después»), Reseñas, Preguntas frecuentes, Reglas de reserva (anticipación, días hacia adelante), Cerrar un día (en la agenda, botón de cerrar día), Servicio a domicilio con zonas, Adelanto por SINPE.
 - Avisos al celular de reservas nuevas, canceladas o cambiadas: Ajustes → Avisos de reservas → Activar (en iPhone primero agregar la app a la pantalla de inicio desde Safari).
-- Recordatorios automáticos por WhatsApp (Citaly le escribe solo al cliente: confirmación al reservar y recordatorio el día antes; plan Nitro, prueba gratis o como extra): Ajustes → Recordatorios automáticos. Salen del número de Citaly con el nombre del negocio.
+- Recordatorios automáticos por WhatsApp (Citaly le escribe solo al cliente: confirmación al reservar y recordatorio el día antes con los botones «Confirmo» y «No puedo ir»; lo que el cliente toque se ve en la cita y llega como aviso; plan Nitro, prueba gratis o como extra): Ajustes → Recordatorios automáticos. Salen del número de Citaly con el nombre del negocio.
 - Google Calendar: Ajustes → Google Calendar → Conectar. Apariencia claro/oscuro: Ajustes → Apariencia.
 - Asistente con IA (textos y respuestas): Ajustes → Asistente con IA. Equipo: Ajustes → Equipo. Clientes: pestaña Clientes (historial, para reactivar, recordatorios). Números: ingresos, gastos, metas.
 - Planes: Arranque ₡4.900, Turbo ₡9.900, Nitro ₡19.900 al mes; se paga con tarjeta (Polar) o SINPE en Ajustes → Mi plan.
@@ -475,8 +475,9 @@ async function baja(env, bid, tok) {
 }
 
 /* ---------- Recordatorios automáticos por WhatsApp (API oficial de Meta · un número de Citaly para todos los negocios) ----------
-   El cliente recibe: confirmación al reservar (plantilla reserva_recibida) y recordatorio el día antes (cita_recordatorio,
-   o cita_recordatorio_simple si la cita no tiene link «Mi cita»). El dueño lo enciende en Ajustes (biz.waAuto.on).
+   El cliente recibe: confirmación al reservar (plantilla reserva_recibida, con el botón de link «Ver mi cita») y recordatorio el día
+   antes (cita_recordatorio, con dos botones de respuesta: «Confirmo» y «No puedo ir»; al tocarlos se anota en la cita, se le avisa
+   al dueño y al cliente se le contesta, ver waBoton). El dueño lo enciende en Ajustes (biz.waAuto.on).
    Lo tienen: Nitro (150 al mes), la prueba gratis (20 en total) y quien tenga el extra (subs.waauto = true, 150 al mes).
    Variables: WA_TOKEN (secreto) y WA_PHONE_ID. Opcionales: WA_API (versión, def. v25.0), WA_LANG (idioma de las plantillas, def. es),
    WA_VERIFY y WA_APP_SECRET (para recibir en /wa/meta lo que contestan los clientes), WA_CRON (cron aparte, ver LEEME.md),
@@ -486,8 +487,10 @@ async function baja(env, bid, tok) {
    y todas las cuentas juntas (mes del negocio, día del negocio, día del número que recibe y día de toda la plataforma).
    Todo vive en la colección wa/, que solo escribe el Worker. */
 const WA_LIM = { nitro: 150, extra: 150, prueba: 20 };
-const WA_TPL = { conf: "reserva_recibida", rem: "cita_recordatorio", remS: "cita_recordatorio_simple" };
-const WA_FRENO = { num: 3, neg: 50, dia: 300, pdia: 60 }; // por día: a un mismo número (entre todos los negocios), por negocio, toda la plataforma y todas las pruebas gratis juntas
+const WA_TPL = { conf: "reserva_recibida", rem: "cita_recordatorio" };
+const WA_BTN = { ok: "confirmo", no: "no puedo ir" }; // texto de los dos botones del recordatorio, en minúscula (por si Meta devuelve solo el texto)
+const WA_FRENO = { num: 3, neg: 50, dia: 300, pdia: 60, resp: 4, rdia: 100 }; // por día: a un mismo número (entre todos los negocios), por negocio, toda la plataforma y todas las pruebas gratis juntas; resp = respuestas de texto a un mismo número; rdia = respuestas de texto ya cobradas, en toda la plataforma
+const WA_RESP_GRATIS = 1000; // respuestas de texto (no plantillas) que Meta regala cada mes por número de Citaly; desde el 1 oct 2026 las demás se cobran como un mensaje más
 const WA_H0 = 16, WA_H1 = 20; // el recordatorio del día antes sale entre las 4 y las 8 p. m., hora del país del negocio
 const WA_CC = { CR: ["506", 8], PA: ["507", 8], NI: ["505", 8], HN: ["504", 8], SV: ["503", 8], GT: ["502", 8], MX: ["52", 10], CO: ["57", 10], PE: ["51", 9], CL: ["56", 9], EC: ["593", 9], DO: ["1", 10], PR: ["1", 10],
   AR: ["54", 10], UY: ["598", 8], PY: ["595", 9], BO: ["591", 8], VE: ["58", 10], US: ["1", 10], ES: ["34", 9] }; // igual que C.countries en cfg.js
@@ -507,6 +510,10 @@ function waTo(tel, country) {
   if (n.length === c[1]) return c[0] + n;
   return n.length === c[0].length + c[1] && n.startsWith(c[0]) ? n : "";
 }
+/* Número tal como lo manda Meta, solo dígitos. Los de México y Argentina llegan con un dígito de más (521…, 549…): se dejan como los guarda Citaly (52…, 54…). */
+const waNum = (x) => String(x == null ? "" : x).replace(/\D/g, "").replace(/^521(\d{10})$/, "52$1").replace(/^549(\d{10})$/, "54$1");
+/* "9:05" → "0905". Vacío si no es una hora. */
+const waHm = (time) => { const t = /^(\d{1,2}):(\d{2})$/.exec(String(time || "")); return t ? t[1].padStart(2, "0") + t[2] : ""; };
 /* "viernes 4 de diciembre a las 10:00 am". Vacío si la fecha o la hora no son válidas. */
 function waCuando(date, time, pre) {
   const a = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(date || "")), t = /^(\d{1,2}):(\d{2})$/.exec(String(time || ""));
@@ -535,7 +542,7 @@ const waDoc = (env, id) => `projects/${env.FB_PROJECT}/databases/(default)/docum
 async function waCommit(env, tk, writes) {
   const r = await fetch(`${fs(env)}:commit`, { method: "POST", headers: { authorization: "Bearer " + tk, "content-type": "application/json" }, body: JSON.stringify({ writes }) });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) return { ok: false, dup: /^(ALREADY_EXISTS|FAILED_PRECONDITION)$/.test(String((j.error || {}).status || "")) }; // ojo: un 409 también puede ser ABORTED (choque de escrituras), y eso NO es «ya salió»
+  if (!r.ok) { const st = String((j.error || {}).status || ""); return { ok: false, st, dup: /^(ALREADY_EXISTS|FAILED_PRECONDITION)$/.test(st) }; } // ojo: un 409 también puede ser ABORTED (choque de escrituras), y eso NO es «ya salió»
   return { ok: true, n: (j.writeResults || []).map((w) => +((((w || {}).transformResults || [])[0] || {}).integerValue || 0)) };
 }
 const waSuma = (env, id, by, now, exp) => ({ update: { name: waDoc(env, id), fields: exp ? { at: V(now), exp } : { at: V(now) } }, updateMask: { fieldPaths: exp ? ["at", "exp"] : ["at"] }, updateTransforms: [{ fieldPath: "n", increment: { integerValue: String(by) } }] });
@@ -556,12 +563,34 @@ async function waApartar(env, tk, o) {
 }
 /* Deshace lo apartado (se pasó de un freno, o Meta no aceptó el mensaje) */
 async function waSoltar(env, tk, o) { return (await waCommit(env, tk, [{ delete: waDoc(env, o.lock) }].concat(o.ids.map((id) => waSuma(env, id, -1, o.now))))).ok; }
-async function waSend(env, to, tpl, params, btn) {
+/* btn = lo que va al final del link del botón «Ver mi cita»; qr = lo que devuelve cada botón de respuesta, en orden (una plantilla lleva uno u otro) */
+async function waSend(env, to, tpl, params, btn, qr) {
   const comps = [{ type: "body", parameters: params.map((t) => ({ type: "text", text: t })) }];
   if (btn) comps.push({ type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: btn }] });
+  (qr || []).forEach((p, i) => comps.push({ type: "button", sub_type: "quick_reply", index: String(i), parameters: [{ type: "payload", payload: p }] }));
   return waApi(env, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "template", template: { name: tpl, language: { code: env.WA_LANG || "es" }, components: comps } }, tpl);
 }
 const waText = (env, to, body) => waApi(env, { messaging_product: "whatsapp", recipient_type: "individual", to, type: "text", text: { preview_url: false, body } }, "texto");
+/* Contestarle al cliente con un texto normal (solo se puede dentro de las 24 horas siguientes a su mensaje). No gasta mensajes del plan del
+   negocio, pero no es gratis para siempre: Meta regala WA_RESP_GRATIS al mes y cobra las demás. Por eso se cuentan todas (wa/_resp_AAAA-MM).
+   A quien escribe sin tener cita (conCita = false) solo se le contesta con la primera mitad de las gratis: el resto se guarda para los
+   clientes. Las que ya se cobran tienen su propio tope por día (wa/_rdia_…, WA_RESP_DIA), aparte del de las plantillas, para que nadie
+   pueda frenar los recordatorios de todos escribiéndole al número. Devuelve true si salió. */
+async function waResp(env, tk, to, body, now, conCita) {
+  const mes = "_resp_" + waYm(now), dia = "_rdia_" + crDay(now), gratis = +env.WA_RESP_GRATIS || WA_RESP_GRATIS, menos = (ids) => waCommit(env, tk, ids.map((id) => waSuma(env, id, -1, now)));
+  const c = await waCommit(env, tk, [waSuma(env, mes, 1, now, T(now + 400 * 864e5))]), n = c.ok ? c.n[0] : 0; // si Firestore falla se contesta igual: vale más la respuesta que la cuenta
+  if (!conCita && n > gratis / 2) { await menos([mes]); return false; }
+  let paga = false;
+  if (n > gratis) {
+    const d = await waCommit(env, tk, [waSuma(env, dia, 1, now, T(now + 45 * 864e5))]);
+    if (d.ok && d.n[0] > (+env.WA_RESP_DIA || WA_FRENO.rdia)) { await menos([dia, mes]); return false; }
+    paga = d.ok;
+    if (n === gratis + 1) { try { await mandar(env, env.ADMIN_EMAIL || ADMIN_MAIL, "ℹ️ Citaly: se acabaron las respuestas gratis de WhatsApp de este mes", `<p>Este mes Citaly ya contestó ${gratis} mensajes de clientes por WhatsApp (las respuestas a «Confirmo», «No puedo ir» y a lo que escriben al número de avisos). Meta regala esas ${gratis} al mes; de aquí al día 1 cada respuesta se cobra como un mensaje más. Citaly les sigue contestando a los clientes con cita, hasta ${+env.WA_RESP_DIA || WA_FRENO.rdia} respuestas al día (<b>WA_RESP_DIA</b>). Los recordatorios no se afectan.</p>`); } catch (e) {} }
+  }
+  const r = await waText(env, to, body);
+  if (!r.ok && c.ok) await menos(paga ? [mes, dia] : [mes]);
+  return r.ok;
+}
 async function waApi(env, msg, what) {
   try {
     const r = await fetch(`https://graph.facebook.com/${env.WA_API || "v25.0"}/${env.WA_PHONE_ID}/messages`, { method: "POST", headers: { authorization: "Bearer " + env.WA_TOKEN, "content-type": "application/json" }, body: JSON.stringify(msg) });
@@ -614,10 +643,11 @@ async function waJob(env, tk, o) {
     return st;
   }
   const quien = waNom(String(j.cli || "").trim().split(/\s+/)[0], 30) || "👋", neg = waNom(b.name, 60) || "el negocio";
-  const r = await waSend(env, to, rem ? (btn ? WA_TPL.rem : WA_TPL.remS) : WA_TPL.conf, [quien, neg, cuando], btn);
+  const cual = /^[\w-]{1,60}$/.test(bid) && /^[\w-]{1,60}$/.test(jid) ? `.${bid}.${jid}.${date.replace(/-/g, "")}${waHm(j.time)}` : ""; // de qué cita y para qué día y hora es el botón
+  const r = rem ? await waSend(env, to, WA_TPL.rem, [quien, neg, cuando], "", ["ok" + cual, "no" + cual]) : await waSend(env, to, WA_TPL.conf, [quien, neg, cuando], btn);
   if (!r.ok) { await waSoltar(env, tk, ap); await fail("error"); return "error"; }
   await patch(env, tk, path, rem ? { waR: V(now), waRd: V(date), waRt: V(date), waE: V("") } : { waC: V(now), waE: V("") });
-  try { await patch(env, tk, "waTo/" + to, { biz: V(bid), job: V(jid), cli: V(quien), name: V(neg), bwa: V(waTo(b.wa, b.country)), at: V(now), exp: T(now + 30 * 864e5), wid: V(r.id), k: V(kind), m: V(ap.ids[0]) }); } catch (e) {}
+  try { await patch(env, tk, "waTo/" + to, { biz: V(bid), job: V(jid), cli: V(quien), name: V(neg), bwa: V(waTo(b.wa, b.country)), at: V(now), exp: T(now + 30 * 864e5), wid: V(r.id), k: V(kind), d: V(date), h: V(waHm(j.time)), m: V(ap.ids[0]) }); } catch (e) {}
   return "ok";
 }
 /* Confirmación al reservar: la llama /push cuando entra una reserva nueva de la página */
@@ -698,7 +728,7 @@ async function waPrueba(req, env) {
   if (!to) return jr(req, { error: "tel" }, 400);
   const ap = { lock: `p_${bid}_${now}_${Math.random().toString(36).slice(2, 8)}`, ids: waIds(bid, to, pl, now), pl, now }, st = await waApartar(env, tk, ap);
   if (st !== "ok") return st === "tope" ? jr(req, { error: "tope" }, 429) : st && st !== "dup" ? jr(req, { error: "limite" }, 429) : jr(req, { error: "wa" }, 502);
-  const r = await waSend(env, to, WA_TPL.remS, ["Ana", waNom(bz.name, 60) || "tu negocio", waCuando(crDay(now + 864e5), "10:00", "mañana ")], "");
+  const r = await waSend(env, to, WA_TPL.rem, ["Ana", waNom(bz.name, 60) || "tu negocio", waCuando(crDay(now + 864e5), "10:00", "mañana ")], "", ["ok.prueba", "no.prueba"]);
   if (!r.ok) { await waSoltar(env, tk, ap); return jr(req, { error: "wa" }, 502); }
   return jr(req, { ok: true, to: to.slice(-4) });
 }
@@ -730,16 +760,26 @@ async function waMeta(req, env) {
   }
   if (!msgs.length && !fallos.length) return new Response("ok");
   const tk = await token(env), now = Date.now();
-  for (const m of msgs.slice(0, 3)) { try { await waEntra(env, tk, m, now); } catch (e) { console.log("wa entra", String(e)); } }
+  let cupo = 44; // llamadas que se pueden gastar en los mensajes de este aviso (Cloudflare gratis permite unas 50): caben 3 textos o 2 toques de botón
+  for (const m of msgs) { const c = m && m.type === "button" ? 22 : 14; if (cupo < c) break; cupo -= c; try { await waEntra(env, tk, m, now); } catch (e) { console.log("wa entra", String(e)); } }
   for (const s of fallos.slice(0, 3)) { try { await waFallo(env, tk, s); } catch (e) { console.log("wa fallo", String(e)); } }
   return new Response("ok");
 }
 async function waEntra(env, tk, m, now) {
-  const from = String((m && m.from) || "").replace(/\D/g, ""), tipo = String((m && m.type) || "");
+  const from = waNum(m && m.from), tipo = String((m && m.type) || "");
   if (from.length < 10 || from.length > 15 || !tipo || tipo === "system" || tipo === "unsupported") return;
   const w = dec(await get(env, tk, "waTo/" + from)), mid = clip(m.id, 200);
   if (mid && w.mid === mid) return; // Meta lo mandó dos veces
   const up = { mid: V(mid) }, deCita = !!w.biz && now - (+w.at || 0) < 7 * 864e5, reac = tipo === "reaction", hora = Math.floor(now / 3600e3), ya = w.fh === hora ? +w.fn || 0 : 0;
+  const hoy = crDay(now); let rn = w.rd === hoy ? +w.rn || 0 : 0;
+  const responder = async (body, conCita) => { // como mucho WA_FRENO.resp respuestas al día a un mismo número
+    if (rn >= WA_FRENO.resp || !(await waResp(env, tk, from, body, now, conCita))) return false;
+    rn++; up.rd = V(hoy); up.rn = V(rn); return true;
+  };
+  if (tipo === "button") { // tocó «Confirmo» o «No puedo ir» en el recordatorio
+    const r = await waBoton(env, tk, m, w, from, now, hora, responder);
+    if (r) { await patch(env, tk, "waTo/" + from, Object.assign(up, r)); return; }
+  }
   if (deCita && ya < 3) { // como mucho 3 avisos por hora al dueño por cada cliente (escribirle a Citaly es gratis para el que escribe)
     const quien = waNom(w.cli, 30) || "Tu cliente";
     const txt = tipo === "text" ? clip((m.text || {}).body, 140) : tipo === "button" ? clip((m.button || {}).text, 140) : reac ? clip((m.reaction || {}).emoji, 8) : tipo === "audio" ? "🎤 un audio" : tipo === "image" ? "📷 una foto" : "un mensaje";
@@ -752,13 +792,88 @@ async function waEntra(env, tk, m, now) {
   if (!reac && (!w.auto || now - w.auto > 12 * 3600e3)) {
     const t = deCita ? `Hola 👋 Este número solo envía avisos automáticos de citas y aquí nadie lee los mensajes. Ya le avisamos a *${waNom(w.name, 60) || "el negocio"}* que escribiste.${w.bwa ? " Si es urgente, escríbeles directo: https://wa.me/" + w.bwa : ""}`
       : "Hola 👋 Este número solo envía avisos automáticos de citas de negocios que usan Citaly y aquí nadie lee los mensajes. Para hablar con el negocio, escríbele a su WhatsApp de siempre.";
-    if ((await waText(env, from, t)).ok) up.auto = V(now);
+    if (await responder(t, deCita)) up.auto = V(now);
   }
   await patch(env, tk, "waTo/" + from, up);
 }
+/* "hoy ", "mañana " o "el ", según qué tan cerca esté la cita en el reloj del negocio */
+const waPre = (date, now, country) => (date === waLoc(now, country).toISOString().slice(0, 10) ? "hoy " : date === waLoc(now + 864e5, country).toISOString().slice(0, 10) ? "mañana " : "el ");
+/* Lee un documento junto con su fecha de última escritura, para poder escribir solo si nadie lo cambió entretanto */
+async function getU(env, tk, path) { const r = await fetch(`${fs(env)}/${path}`, { headers: { authorization: "Bearer " + tk } }); if (!r.ok) return null; const j = await r.json(); return { f: j.fields || {}, u: String(j.updateTime || "") }; }
+/* El cliente tocó uno de los botones del recordatorio. Se anota en la cita (waA "si"/"no", waAt cuándo tocó, waAd para qué fecha y hora),
+   se le avisa al dueño y al cliente se le contesta. La respuesta es un texto normal (waResp): no gasta mensajes del plan del negocio.
+   NO cambia el estado de la cita ni la cancela: eso lo decide el dueño (o el cliente con su link).
+   Devuelve lo que hay que anotar en waTo si el toque quedó atendido, o null si no es un botón de una cita de este número (sigue como
+   una respuesta cualquiera). El botón trae de qué cita es (ok.<negocio>.<cita>.<AAAAMMDD><HHMM>), pero no se confía solo en eso: el número
+   que toca tiene que ser el de la cita.
+   Lo que el dueño ve en la cita tiene que ser SIEMPRE lo último que tocó el cliente: por eso el tope de 3 toques por hora frena los avisos
+   y las respuestas, nunca la marca; un toque más viejo que el ya anotado se ignora (Meta no garantiza el orden); y la marca se escribe
+   solo si la cita no cambió desde que se leyó (si cambió, se lee otra vez y se decide de nuevo). */
+async function waBoton(env, tk, m, w, from, now, hora, responder) {
+  const bt = (m && m.button) || {}, pay = String(bt.payload || ""), lab = String(bt.text || "").trim().toLowerCase();
+  const pm = /^(ok|no)\.([\w-]{1,60})\.([\w-]{1,60})\.(\d{4})(\d{2})(\d{2})(\d{4})?$/.exec(pay), pr = /^(ok|no)\.prueba$/.exec(pay);
+  const resp = pm ? pm[1] : pr ? pr[1] : lab === WA_BTN.ok ? "ok" : lab === WA_BTN.no ? "no" : "";
+  if (!resp) return null;
+  let bid = "", jid = "", dia = "", hm0 = "";
+  if (pm) { bid = pm[2]; jid = pm[3]; dia = `${pm[4]}-${pm[5]}-${pm[6]}`; hm0 = pm[7] || ""; }
+  else if (!pr) { // Meta devolvió solo el texto del botón: vale si es justo el último recordatorio que le mandamos a este número
+    if (!w.biz || !w.job || w.k !== "rem" || !w.wid || String((m.context || {}).id || "") !== w.wid) return null;
+    bid = w.biz; jid = w.job; dia = String(w.d || ""); hm0 = String(w.h || "");
+  }
+  const yb = w.bh === hora ? +w.bn || 0 : 0, tope = yb >= 3, cnt = tope ? {} : { bh: V(hora), bn: V(yb + 1) }; // cuenta propia de los toques (aparte de la de los textos)
+  const di = async (t) => { if (!tope) await responder(t, true); return cnt; };
+  if (pr) return di(resp === "ok" ? "✅ Así se ve cuando tu cliente confirma. En una cita real, el aviso te llega a la app de Citaly." : "⚠️ Así se ve cuando tu cliente avisa que no puede llegar. En una cita real, el aviso te llega a la app de Citaly."); // la prueba que se manda el dueño
+  const bf = await get(env, tk, "biz/" + bid);
+  if (!bf) return null;
+  const b = dec(bf), neg = waNom(b.name, 60) || "el negocio", bwa = waTo(b.wa, b.country), dudas = bwa ? " Si tienes dudas, escríbeles: https://wa.me/" + bwa : "";
+  const ts = Math.min(+m.timestamp > 0 ? +m.timestamp * 1000 : now, now), val = resp === "ok" ? "si" : "no", lock = clip(m.id, 200).replace(/[^A-Za-z0-9]/g, "_").slice(-120);
+  for (let i = 0; i < 2; i++) {
+    const jd = await getU(env, tk, `biz/${bid}/jobs/${jid}`);
+    if (!jd) return i ? {} : null;
+    const j = dec(jd.f);
+    if (waTo(j.tel, b.country) !== from) return i ? {} : null; // el botón no es de una cita de este número
+    const date = String(j.date || ""), loc = waLoc(now, b.country).toISOString(), hm = /^(\d{1,2}):(\d{2})$/.exec(String(j.time || ""));
+    const cuando = waCuando(date, j.time, waPre(date, now, b.country));
+    const pasada = !cuando || date < loc.slice(0, 10) || (date === loc.slice(0, 10) && hm[1].padStart(2, "0") + ":" + hm[2] < loc.slice(11, 16));
+    if (pasada || j.st === "Cancelada" || j.st === "No vino" || j.st === "Lista") return di(`Esa cita ya no está pendiente en la agenda de *${neg}*.${dudas}`);
+    let lk = b.slug && j.tk ? `${b.slug}.${j.tk}` : "";
+    if (!/^[a-z0-9-]{3,40}\.[a-z0-9]{20,60}$/.test(lk)) lk = "";
+    const link = lk ? `${SITE}/r/?wa=${lk}` : "";
+    if (dia && dia !== date) return di(`Tu cita en *${neg}* cambió: ahora es ${cuando}.${link ? " Puedes verla aquí: " + link : dudas}`); // el recordatorio era de otra fecha
+    if (+j.waAt > ts) return {}; // ya está anotado algo que tocó DESPUÉS de este toque
+    const key = `${date} ${j.time}`, nuevo = !(j.waA === val && j.waAd === key), writes = [];
+    /* Una sola escritura atómica: el candado de este toque (Meta puede mandarlo dos veces) y la marca en la cita */
+    if (lock) writes.push({ update: { name: waDoc(env, "b_" + lock), fields: { at: V(now), exp: T(now + 45 * 864e5) } }, currentDocument: { exists: false } });
+    if (nuevo) writes.push({ update: { name: `projects/${env.FB_PROJECT}/databases/(default)/documents/biz/${bid}/jobs/${jid}`, fields: { waA: V(val), waAt: V(ts), waAd: V(key) } }, updateMask: { fieldPaths: ["waA", "waAt", "waAd"] }, currentDocument: jd.u ? { updateTime: jd.u } : { exists: true } });
+    if (writes.length) {
+      let r = await waCommit(env, tk, writes);
+      if (!r.ok && r.st === "FAILED_PRECONDITION" && !i) continue; // la cita cambió justo en este momento: se lee otra vez
+      if (!r.ok && !r.dup) r = await waCommit(env, tk, writes);
+      if (!r.ok) return {}; // ese toque ya se había atendido, o no se pudo anotar: no se avisa algo que no quedó guardado
+    }
+    if (tope) return {}; // ya van 3 toques en esta hora: queda anotado, sin más avisos ni respuestas
+    const quien = waNom(String(j.cli || "").trim().split(/\s+/)[0], 30), url = "/app/?cita=" + jid, hola = quien ? ", " + quien : "";
+    if (nuevo) {
+      try {
+        if (resp === "ok") await sendPush(env, bid, `✅ ${quien || "Tu cliente"} confirmó que llega`, `${cuando.charAt(0).toUpperCase() + cuando.slice(1)} · Tocá para ver la cita.`, url);
+        else { const t = `⚠️ ${quien || "Tu cliente"} avisó que no puede llegar`, c = `Cita de ${cuando}. Sigue en tu agenda: tocá para verla y escribirle.`; await Promise.all([sendPush(env, bid, t, c, url), sendMail(env, tk, bid, t, c, url)]); }
+      } catch (e) { console.log("wa botón aviso", String(e)); }
+    }
+    let txt;
+    if (resp === "ok") txt = hm0 && hm0 !== waHm(j.time) ? `¡Listo${hola}! ✅ Ojo, la hora cambió: tu cita en *${neg}* es ${cuando}. Ya les avisamos que vas a llegar; si a esa hora no puedes, toca *No puedo ir*.` : `¡Listo${hola}! ✅ Ya le avisamos a *${neg}* que vas a llegar ${cuando}. ¡Te esperamos!`;
+    else {
+      const a = date.split("-"), falta = Date.UTC(+a[0], +a[1] - 1, +a[2], +hm[1], +hm[2]) - (b.country in WA_UTC ? WA_UTC[b.country] : -6) * 3600e3 - now;
+      const sola = !!link && j.web === true && falta > 12.25 * 3600e3; // con su link el cliente solo puede cambiarla o cancelarla si reservó en la página y faltan más de 12 horas (regla selfEdit)
+      txt = `Gracias por avisar${hola}. Ya le dijimos a *${neg}* que no puedes llegar. Tu cita sigue apartada: para pasarla a otro día o cancelarla, ${sola ? "entra aquí: " + link : bwa ? "escríbeles: https://wa.me/" + bwa : "escríbele al negocio."}`;
+    }
+    await responder(txt, true);
+    return cnt;
+  }
+  return {};
+}
 /* Meta avisa que un mensaje no se pudo entregar (por ejemplo, el número no tiene WhatsApp): se quita la marca de enviado y se devuelve a la cuenta */
 async function waFallo(env, tk, s) {
-  const to = String(s.recipient_id || "").replace(/\D/g, ""), wid = clip(s.id, 200);
+  const to = waNum(s.recipient_id), wid = clip(s.id, 200);
   if (to.length < 10 || to.length > 15 || !wid) return;
   const w = dec(await get(env, tk, "waTo/" + to));
   if (!w.biz || !w.job || w.wid !== wid) return;
