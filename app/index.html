@@ -29,6 +29,7 @@
 .hero p{margin:10px auto 0;max-width:330px}
 .gbtn{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
 .gbtn svg{width:20px;height:20px}
+@media(max-width:345px){.gbtn{font-size:14px;padding-left:10px;padding-right:10px}} /* «Iniciar sesión con Facebook» en una sola línea en celulares angostos */
 .reg .chips .chip{font-size:13.5px;padding:7px 11px}.btn.big{padding:16px;font-size:16px;border-radius:14px}
 /* planes */
 .pcard{border:1.5px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px;background:var(--card)}
@@ -443,15 +444,15 @@ fbq('init','1670659898178288');fbq('track','PageView');
     <p class="mute">Tu agenda, tus clientes y tu página de reservas, en un solo lugar.</p>
   </div>
   <div class="card fade">
-    <button class="btn gbtn" id="gIn"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Entrar con Google</button>
-    <button class="btn gbtn" id="fIn" style="margin-top:8px"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/><path fill="#fff" d="M16.7 15.5l.5-3.5h-3.4V9.8c0-1 .5-1.9 2-1.9h1.5v-3s-1.4-.2-2.7-.2c-2.7 0-4.5 1.7-4.5 4.7V12h-3v3.5h3v8.4a12 12 0 0 0 3.7 0v-8.4h2.9z"/></svg>Entrar con Facebook</button>
+    <button class="btn gbtn" id="gIn"><svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Iniciar sesión con Google</button>
+    <button class="btn gbtn" id="fIn" style="margin-top:8px"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.7 4.5-4.7 1.3 0 2.7.2 2.7.2v3h-1.5c-1.5 0-2 .9-2 1.9V12h3.4l-.5 3.5h-2.9v8.4A12 12 0 0 0 24 12z"/><path fill="#fff" d="M16.7 15.5l.5-3.5h-3.4V9.8c0-1 .5-1.9 2-1.9h1.5v-3s-1.4-.2-2.7-.2c-2.7 0-4.5 1.7-4.5 4.7V12h-3v3.5h3v8.4a12 12 0 0 0 3.7 0v-8.4h2.9z"/></svg>Iniciar sesión con Facebook</button>
     <div class="or">o con tu correo</div>
     <label for="aE">Correo</label><input id="aE" type="email" autocomplete="email" inputmode="email">
     <label for="aP">Contraseña</label><input id="aP" type="password" autocomplete="current-password" minlength="6">
     <p class="err" id="aErr"></p>
     <div style="height:12px"></div>
-    <button class="btn" id="aGo">Entrar</button>
-    <button class="btn ghost" id="aLink" style="margin-top:8px">📧 Entrar sin contraseña (te mando un link)</button>
+    <button class="btn" id="aGo">Iniciar sesión</button>
+    <button class="btn ghost" id="aLink" style="margin-top:8px">📧 Iniciar sesión sin contraseña (te mando un link)</button>
     <div class="between" style="margin-top:8px">
       <button class="link" id="aMode">Primera vez: crear contraseña</button>
       <button class="link" id="aReset">Olvidé mi contraseña</button>
@@ -480,7 +481,7 @@ fbq('init','1670659898178288');fbq('track','PageView');
     <button class="btn big" id="suGo">Crear cuenta gratis</button>
     <p class="mute small" style="margin:10px 0 0;text-align:center">Al crear tu cuenta aceptás los <a href="../terminos.html" target="_blank">Términos</a> y la <a href="../privacidad.html" target="_blank">Privacidad</a>.</p>
   </div>
-  <p class="mute small" style="text-align:center" id="suHave">¿Ya tenés cuenta? <button class="link" id="suLogin">Entrar</button></p>
+  <p class="mute small" style="text-align:center" id="suHave">¿Ya tenés cuenta? <button class="link" id="suLogin">Iniciar sesión</button></p>
   <p class="mute small" style="text-align:center" id="suTeam" hidden>Entraste como <b id="suEm"></b>. ¿Te agregaron al equipo de un negocio? <a id="suWa" target="_blank" rel="noopener">Escribinos</a> · <button class="link" id="suOut">Usar otro correo</button></p>
 </div></section>
 
@@ -642,7 +643,7 @@ function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTi
 function show(id){Array.prototype.forEach.call(document.querySelectorAll(".screen"),function(s){s.classList.toggle("on",s.id===id)});window.scrollTo(0,0)}
 function link(){return C.site+"/"+(B&&B.slug||"")+"/reservar"}
 function webLink(){return C.site+"/"+(B&&B.slug||"")}
-var ERR={"auth/account-exists-with-different-credential":"Ese correo ya tiene cuenta con otra forma de entrar (por ejemplo Google o contraseña). Entra con esa.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/user-cancelled":"","auth/operation-not-allowed":"Esta forma de entrar todavía no está activada. Usa Google o tu correo.","auth/invalid-action-code":"Ese link ya se usó o venció. Pide uno nuevo.","auth/missing-or-invalid-nonce":"Intenta otra vez.","auth/invalid-email":"Ese correo no es válido.","auth/user-not-found":"No hay una cuenta con ese correo.","auth/wrong-password":"La contraseña no es correcta.","auth/invalid-credential":"El correo o la contraseña no son correctos.","auth/email-already-in-use":"Ya existe una cuenta con ese correo. Toca Entrar.","auth/weak-password":"La contraseña necesita al menos 6 caracteres.","auth/too-many-requests":"Demasiados intentos. Espera un momento.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/network-request-failed":"Sin conexión. Revisa tu internet.","auth/unauthorized-domain":"Este sitio todavía no está autorizado en Firebase.","permission-denied":"No tienes permiso para hacer eso.","unavailable":"Sin conexión. Revisa tu internet."};
+var ERR={"auth/account-exists-with-different-credential":"Ese correo ya tiene cuenta con otra forma de entrar (por ejemplo Google o contraseña). Entra con esa.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/user-cancelled":"","auth/operation-not-allowed":"Esta forma de entrar todavía no está activada. Usa Google o tu correo.","auth/invalid-action-code":"Ese link ya se usó o venció. Pide uno nuevo.","auth/missing-or-invalid-nonce":"Intenta otra vez.","auth/invalid-email":"Ese correo no es válido.","auth/user-not-found":"No hay una cuenta con ese correo.","auth/wrong-password":"La contraseña no es correcta.","auth/invalid-credential":"El correo o la contraseña no son correctos.","auth/email-already-in-use":"Ya existe una cuenta con ese correo. Tocá «Iniciar sesión».","auth/weak-password":"La contraseña necesita al menos 6 caracteres.","auth/too-many-requests":"Demasiados intentos. Espera un momento.","auth/popup-closed-by-user":"","auth/cancelled-popup-request":"","auth/network-request-failed":"Sin conexión. Revisa tu internet.","auth/unauthorized-domain":"Este sitio todavía no está autorizado en Firebase.","permission-denied":"No tienes permiso para hacer eso.","unavailable":"Sin conexión. Revisa tu internet."};
 function errEs(e){var c=e&&e.code||"";return ERR[c]!=null?ERR[c]:"Algo salió mal. Intenta otra vez."}
 
 /* ---------- FIREBASE ---------- */
@@ -663,7 +664,7 @@ function stop(){UNS.forEach(function(f){try{f()}catch(e){}});UNS=[];LASTT=null;B
 var aNew=false;
 if($("aTrial"))$("aTrial").textContent=C.trialDays||7;
 $("aNewAcc").onclick=function(){NUEVO=true;signup()};
-$("aMode").onclick=function(){aNew=!aNew;$("aGo").textContent=aNew?"Crear contraseña":"Entrar";this.textContent=aNew?"Ya tengo contraseña":"Primera vez: crear contraseña";$("aP").autocomplete=aNew?"new-password":"current-password";$("aErr").textContent=""};
+$("aMode").onclick=function(){aNew=!aNew;$("aGo").textContent=aNew?"Crear contraseña":"Iniciar sesión";this.textContent=aNew?"Ya tengo contraseña":"Primera vez: crear contraseña";$("aP").autocomplete=aNew?"new-password":"current-password";$("aErr").textContent=""};
 $("aGo").onclick=function(){var e=$("aE").value.trim(),p=$("aP").value,b=this;$("aErr").textContent="";
   if(!/^\S+@\S+\.\S+$/.test(e)){$("aErr").textContent="Escribe tu correo.";return}if(p.length<6){$("aErr").textContent="La contraseña necesita al menos 6 caracteres.";return}
   b.disabled=true;(aNew?auth.createUserWithEmailAndPassword(e,p).then(function(r){return r.user.sendEmailVerification().then(function(){noAcc("verify")})}):auth.signInWithEmailAndPassword(e,p)).catch(function(x){$("aErr").textContent=errEs(x)}).finally(function(){b.disabled=false})};
@@ -791,7 +792,7 @@ $("suGo").onclick=function(){var e=$("suErr"),btn=this,c=suCountry(),n=$("suN").
   btn.disabled=true;btn.textContent="Creando tu cuenta…";CREATING=true;
   var step=inn?Promise.resolve(U):auth.createUserWithEmailAndPassword(em,pw).then(function(r){U=r.user;r.user.updateProfile({displayName:own}).catch(function(){});r.user.sendEmailVerification().catch(function(){});return r.user});
   step.then(function(){return createBiz(f)}).then(function(){CREATING=false;try{window.fbq&&fbq("track","CompleteRegistration",{content_name:SU.type,status:true})}catch(e){}stop();BID=U.uid;start(true)},function(x){console.error(x);CREATING=false;btn.disabled=false;btn.textContent="Crear cuenta gratis";
-    e.textContent=x.code==="auth/email-already-in-use"?"Ese correo ya tiene cuenta. Tocá «Entrar» abajo.":x.code==="permission-denied"?"No se pudo crear el negocio. Escribinos por WhatsApp y te ayudamos.":errEs(x);
+    e.textContent=x.code==="auth/email-already-in-use"?"Ese correo ya tiene cuenta. Tocá «Iniciar sesión» abajo.":x.code==="permission-denied"?"No se pudo crear el negocio. Escribinos por WhatsApp y te ayudamos.":errEs(x);
     if(x.code==="auth/email-already-in-use")$("suHave").hidden=false})};
 
 /* ---------- SIN ACCESO ---------- */

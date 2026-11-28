@@ -33,7 +33,7 @@ var CITALY_NEWS={
   {d:"2026-11-19",ic:"⌨️",t:"Buscador y atajos",x:"Con Ctrl K encontrás lo que sea, y elegís tus atajos favoritos con la estrella en Ajustes."},
   {d:"2026-11-19",ic:"🌈",t:"9 colores para tu app",x:"Elegí el color de tu app en Ajustes → Apariencia."},
   {d:"2026-11-19",ic:"🔔",t:"Avisos en la compu",x:"Guía paso a paso para activar los avisos en Brave, Chrome, Edge, Firefox y Safari."},
-  {d:"2026-11-19",ic:"🔑",t:"Entrar con Facebook",x:"Iniciá sesión con Facebook desde la compu, además de Google y link al correo."},
+  {d:"2026-11-19",ic:"🔑",t:"Iniciar sesión con Facebook",x:"Desde la compu, además de Google y del link al correo."},
   {d:"2026-11-18",ic:"📳",t:"Avisos reales al celular",x:"Te llega un aviso por cada reserva nueva, cancelada o cambiada, y al tocarlo se abre la cita. Si no llega, un asistente por marca de celular te guía."},
   {d:"2026-11-18",ic:"🤖",t:"Asistente con IA",x:"Te escribe los textos de tu página y tus respuestas a clientes."},
   {d:"2026-11-18",ic:"🌓",t:"Modo claro y oscuro",x:"Elegí cómo ver la app: claro, oscuro o automático."},
@@ -82,7 +82,7 @@ var CITALY_NEWS={
   {ic:"🔄",t:"Horario que cambia por semana",x:"Para quien trabaja una semana con un horario y la otra con otro: lo dejás armado una vez y se alterna solo.",s:"En camino"},
   {ic:"🚘",t:"Placa y carro en cada cita",x:"Guardá la placa y el carro dentro de la cita y encontrala con el buscador escribiendo la placa.",s:"En camino"},
   {ic:"📣",t:"Avisos fáciles de arreglar",x:"Una guía paso a paso para que los avisos te lleguen bien en iPhone, Huawei y Android.",s:"En camino"},
-  {ic:"🔑",t:"Entrar con Google y Facebook desde el celular",x:"Iniciar sesión más fácil desde el celular, sin pasos de más.",s:"En camino"},
+  {ic:"🔑",t:"Iniciar sesión con Google y Facebook desde el celular",x:"Iniciar sesión más fácil desde el celular, sin pasos de más.",s:"En camino"},
   {ic:"🧱",t:"Editor de páginas por niveles",x:"Personalizá tu página sección por sección, con más opciones en los planes altos.",s:"En camino"},
   {ic:"✏️",t:"«Mi cita» siempre al día",x:"Si cambiás los servicios o el total de una cita, tu cliente también lo ve en su link.",s:"En camino"},
   {ic:"🧑‍🤝‍🧑",t:"Equipo sin pisarse",x:"Si dos personas de tu equipo editan clientes al mismo tiempo, no se borran los cambios del otro.",s:"Más adelante"},
@@ -90,7 +90,7 @@ var CITALY_NEWS={
   {ic:"🪄",t:"Diseñador de tu página con IA",x:"Contale a Citaly cómo querés tu página y te arma una propuesta.",s:"Más adelante"},
   {ic:"🎥",t:"Subir videos directo",x:"Subí tus videos desde el celular, sin necesidad de links.",s:"Más adelante"},
   {ic:"🏪",t:"App en Play Store",x:"Descargá Citaly desde la tienda, además de instalarla desde el navegador.",s:"Más adelante"},
-  {ic:"🍎",t:"Entrar con Apple",x:"Otra forma de iniciar sesión.",s:"Más adelante"}
+  {ic:"🍎",t:"Iniciar sesión con Apple",x:"Otra forma de iniciar sesión.",s:"Más adelante"}
  ]
 };
 
