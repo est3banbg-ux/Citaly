@@ -103,10 +103,10 @@ function blank(){var t=C.types.otro;return {id:null,name:"",type:"",slug:"",slug
   services:[],hours:[0,1,2,3,4,5,6].map(function(d){return {on:d>=1&&d<=6,a:"08:00",b:"18:00"}}),home:false,zones:[],
   tagline:"",blurb:"",promo:"",web:{faqs:[],reviews:[]},fotos:[],delFotos:[],
   plan:"trial",total:0,paidNow:0,demo:false,mods:{},veh:[{n:"Sedán o hatchback",x:0},{n:"SUV o pick-up",x:5000}],extra:{}}}
-function openEd(id){
+function openEd(id,fotosYa){  /* admin nuevo: fotosYa = fotos ya leídas (para refrescar la ficha sin volver a leerlas) */
   if(!id){E=blank();edRender();return}
-  var b=BIZ[id],s=SUBS[id]||{};if(!b)return;$("load").hidden=false;
-  db.collection("pub/"+b.slug+"/fotos").orderBy("i").get().then(function(q){return q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||"",ba:x.ba===true}})},function(){return []}).then(function(fotos){$("load").hidden=true;
+  var b=BIZ[id],s=SUBS[id]||{};if(!b)return;if(!fotosYa)$("load").hidden=false;
+  (fotosYa?Promise.resolve({docs:fotosYa.map(function(f){return {id:f.id,data:function(){return f}}})}):db.collection("pub/"+b.slug+"/fotos").orderBy("i").get()).then(function(q){return q.docs.map(function(d){var x=d.data();return {id:d.id,img:x.img,cap:x.cap||"",ba:x.ba===true}})},function(){return []}).then(function(fotos){$("load").hidden=true;
     E={id:id,name:b.name||"",type:b.type||"otro",slug:b.slug,slugOk:true,wa:b.wa||"",addr:b.addr||"",email:b.email||"",team:(b.team||[]).join("\n"),color:b.color||C.colors[0],logo:b.logo||"",
       services:(b.services||[]).map(function(x){return Object.assign({},x)}),hours:(b.hours||blank().hours).map(function(h){return Object.assign({},h)}),home:!!b.home,zones:(b.zones||[]).map(function(z){return Object.assign({},z)}),
       tagline:b.tagline||"",blurb:b.blurb||"",promo:b.promo||"",web:JSON.parse(JSON.stringify(b.web||{})),fotos:fotos,delFotos:[],
@@ -339,6 +339,11 @@ function save(){collect();if(!validate())return;var nw=!E.id,btn=$("eGo"),bid=E.
     var po=pubOf(Object.assign({},nw?{}:(BIZ[bid]||{}),biz),bid);bt.set(db.doc("pub/"+E.slug),po,nw?{}:{mergeFields:Object.keys(po).map(function(k){return k==="cap"?"cap.vid":k})});
     var mon=E.plan==="trial"||E.plan==="mensual",sub=mon?{name:E.name,email:E.email,plan:E.plan,total:0,demo:false}:{name:E.name,email:E.email,plan:E.plan,total:E.total,demo:E.demo,until:FAR()};
     if(nw){sub.start=now;sub.status=E.plan==="trial"?"trial":"active";if(mon)sub.until=TS.fromMillis(Date.now()+(E.plan==="trial"?(C.trialDays||30)*864e5:31*864e5))}
+    /* admin nuevo (G1/G2): en un negocio que ya existe, el plan solo se escribe si se tocó el selector de plan y la ficha
+       no quedó vieja; si no, solo nombre y correo (merge: no se pisa plan/status/until/tier/price/total que cambió un pago).
+       Sin documento subs: se crea la prueba gratis como a un negocio nuevo (nunca el modelo viejo ni "total"). */
+    if(!nw){if(!SUBS[bid]){if(!E.demo)sub={name:E.name,email:E.email,plan:"trial",status:"trial",demo:false,start:now,until:TS.fromMillis(Date.now()+(C.trialDays||7)*864e5)}}
+      else if(!E.planTouched||E.stale)sub={name:E.name,email:E.email}}
     bt.set(db.doc("subs/"+bid),sub,{merge:true});
     all.forEach(function(em){bt.set(db.doc("own/"+em),{biz:bid,rol:em===E.email?"dueño":"equipo",name:E.name})});
     (E.oldEmails||[]).forEach(function(em){if(all.indexOf(em)<0)bt.delete(db.doc("own/"+em))});

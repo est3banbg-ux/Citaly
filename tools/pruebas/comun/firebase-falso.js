@@ -2,6 +2,7 @@
    - window.__DATA   : { "ruta/del/doc": {datos} } con lo que "hay" en Firestore. {"__ts":ms} se vuelve Timestamp.
    - window.__USER   : usuario con sesión iniciada ({uid,email,...}) o null/undefined para "sin sesión".
    - window.__WRITES : bitácora de todo lo que la página escribió: ["set"|"update"|"delete", ruta, datos].
+   - Como Firestore real: set con {mergeFields:[…]} conserva lo demás y los datos con undefined se rechazan.
    - window.__WOPTS  : opciones de cada escritura (mismo orden que __WRITES), ej. {merge:true} o {mergeFields:[…]}.
    - window.__AUTH_DELAY : ms que tarda en avisar quién inició sesión (opcional; como el Firebase real, que tarda un poco).
    - window.__DENY   : lista de prefijos de ruta que responden permission-denied (opcional).
@@ -23,18 +24,23 @@ function fv(cur,v){if(v&&v.__fv){if(v.__fv==="ts")return new Ts(Date.now());if(v
 function merge(cur,v){var o=clone(cur||{});Object.keys(v).forEach(function(k){var x=v[k];if(x&&x.__fv){var r=fv(o[k],x);if(r===undefined)delete o[k];else o[k]=r}
   else if(x&&typeof x==="object"&&!Array.isArray(x)&&!(x instanceof Ts)&&Object.keys(x).length&&o[k]&&typeof o[k]==="object"&&!Array.isArray(o[k]))o[k]=merge(o[k],x);else o[k]=clone(x)});return o}
 function setPath(o,path,val){var p=path.split("."),c=o;for(var i=0;i<p.length-1;i++){if(!c[p[i]]||typeof c[p[i]]!=="object")c[p[i]]={};c=c[p[i]]}var r=fv(c[p[p.length-1]],val);if(r===undefined)delete c[p[p.length-1]];else c[p[p.length-1]]=r}
+/* set(…,{mergeFields:[…]}): como Firestore real, solo cambia esas rutas y conserva lo demás */
+function mergeFields(cur,v,fields){var o=clone(cur||{});fields.forEach(function(f){var x=String(f).split(".").reduce(function(a,k){return a==null?undefined:a[k]},v);if(x!==undefined)setPath(o,String(f),x)});return o}
+/* Firestore real rechaza undefined en los datos (sin ignoreUndefinedProperties) */
+function hasUndef(v){if(v===undefined)return true;if(v instanceof Ts||v===null||typeof v!=="object"||v.__fv)return false;if(Array.isArray(v))return v.some(hasUndef);return Object.keys(v).some(function(k){return hasUndef(v[k])})}
+function badData(p){var e=err("invalid-argument");e.message="Function called with invalid data. Unsupported field value: undefined ("+p+")";return e}
 function denied(p){return DENY.some(function(x){return p.indexOf(x)===0})}
 function err(code){var e=new Error(code);e.code=code;return e}
 function apply(op,p,v,opt){W.push([op,p,plain(v===undefined?null:v)]);WO.push(opt?plain(opt):null);
-  if(op==="delete")delete D[p];else if(op==="set")D[p]=opt&&opt.merge?merge(D[p],v):fv(null,v);
+  if(op==="delete")delete D[p];else if(op==="set")D[p]=opt&&opt.mergeFields?mergeFields(D[p],v,opt.mergeFields):opt&&opt.merge?merge(D[p],v):fv(null,v);
   else{var o=clone(D[p]||{});Object.keys(v).forEach(function(k){setPath(o,k,v[k])});D[p]=o}
   notify()}
 function snap(p){var d=D[p];return {id:p.split("/").pop(),exists:d!=null,ref:doc(p),data:function(){return d==null?undefined:clone(d)},get:function(f){return d==null?undefined:f.split(".").reduce(function(a,k){return a==null?a:a[k]},d)}}}
 function notify(){setTimeout(function(){SUBS.slice().forEach(function(s){s.fire()})},0)}
 function doc(p){return {id:p.split("/").pop(),path:p,
   get:function(){return denied(p)?Promise.reject(err("permission-denied")):Promise.resolve(snap(p))},
-  set:function(v,opt){if(denied(p))return Promise.reject(err("permission-denied"));apply("set",p,v,opt);return Promise.resolve()},
-  update:function(v){if(denied(p))return Promise.reject(err("permission-denied"));if(D[p]==null)return Promise.reject(err("not-found"));apply("update",p,v);return Promise.resolve()},
+  set:function(v,opt){if(hasUndef(v))return Promise.reject(badData(p));if(denied(p))return Promise.reject(err("permission-denied"));apply("set",p,v,opt);return Promise.resolve()},
+  update:function(v){if(hasUndef(v))return Promise.reject(badData(p));if(denied(p))return Promise.reject(err("permission-denied"));if(D[p]==null)return Promise.reject(err("not-found"));apply("update",p,v);return Promise.resolve()},
   delete:function(){if(denied(p))return Promise.reject(err("permission-denied"));apply("delete",p);return Promise.resolve()},
   collection:function(n){return coll(p+"/"+n)},
   onSnapshot:function(cb,ec){if(denied(p)){setTimeout(function(){ec&&ec(err("permission-denied"))},0);return function(){}}var last;var s={fire:function(){var j=JSON.stringify(plain(D[p]===undefined?null:D[p]));if(j===last)return;last=j;cb(snap(p))}};SUBS.push(s);setTimeout(s.fire,0);return function(){var i=SUBS.indexOf(s);if(i>=0)SUBS.splice(i,1)}}}}
@@ -55,7 +61,7 @@ function coll(p,fl,ob,lim){fl=fl||[];ob=ob||[];
     get:function(){return denied(p)?Promise.reject(err("permission-denied")):Promise.resolve(qs(run()))},
     onSnapshot:function(cb,ec){if(denied(p)){setTimeout(function(){ec&&ec(err("permission-denied"))},0);return function(){}}var prev=null,last;var s={fire:function(){var docs=run(),m={};docs.forEach(function(d){m[d.id]=JSON.stringify(plain(d.data()))});var j=JSON.stringify(m);if(j===last)return;last=j;cb(qs(docs,prev));prev=m}};SUBS.push(s);setTimeout(s.fire,0);return function(){var i=SUBS.indexOf(s);if(i>=0)SUBS.splice(i,1)}}}}
 var db={doc:doc,collection:function(p){return coll(p)},
-  batch:function(){var ops=[];return {set:function(r,v,o){ops.push(["set",r.path,v,o]);return this},update:function(r,v){ops.push(["update",r.path,v]);return this},delete:function(r){ops.push(["delete",r.path]);return this},
+  batch:function(){var ops=[];return {set:function(r,v,o){if(hasUndef(v))throw badData(r.path);ops.push(["set",r.path,v,o]);return this},update:function(r,v){if(hasUndef(v))throw badData(r.path);ops.push(["update",r.path,v]);return this},delete:function(r){ops.push(["delete",r.path]);return this},
     commit:function(){var bad=ops.filter(function(o){return denied(o[1])})[0];if(bad)return Promise.reject(err("permission-denied"));ops.forEach(function(o){apply(o[0],o[1],o[2],o[3])});return Promise.resolve()}}},
   runTransaction:function(f){var ops=[];var t={get:function(r){return r.get()},set:function(r,v,o){ops.push(["set",r.path,v,o]);return t},update:function(r,v){ops.push(["update",r.path,v]);return t},delete:function(r){ops.push(["delete",r.path]);return t}};
     return Promise.resolve().then(function(){return f(t)}).then(function(res){ops.forEach(function(o){apply(o[0],o[1],o[2],o[3])});return res})},
