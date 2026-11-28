@@ -97,9 +97,31 @@ with Banco() as b:
     p.click("#eGo"); p.wait_for_timeout(500)
     b.ok("Nuevo: al faltar el nombre abre Datos y muestra el error", p.evaluate("()=>document.querySelector('#ed .a-sec[data-sec=\"datos\"]').open") and "nombre" in p.text_content("#eErr"), p.text_content("#eErr"))
     b.ok("Nuevo: no escribió nada", not p.evaluate("()=>window.__WRITES.length"))
-    b.ok("Modelo viejo: al crear solo se ofrece prueba, mensual o demo", p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,mensual,demo")
+    b.ok("Al crear solo se ofrece prueba gratis o demo (M3: sin mensualidad regalada)", p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,demo")
     b.ok("Ficha (2): sin errores", not errores(p), errores(p)[:3])
 
     # Compu: la fila del negocio abierto queda marcada
     p = nuevo(b, hash_="negocio/b_full", espera=2200, ancho=1280, alto=800, movil=False)
     b.ok("Compu: lista y ficha a la vez, fila marcada", p.evaluate("()=>document.querySelector('#list a[aria-current=\"true\"]').getAttribute('href')==='#negocio/b_full'&&document.querySelector('.a-listpane').offsetWidth>0&&!document.getElementById('ed').hidden"))
+
+    # U9: tocar un día del horario muestra la barra Guardar; abrir/cerrar una sección no
+    p = nuevo(b, hash_="negocio/b_full", espera=2000)
+    p.click('#ed .a-sec[data-sec="hor"] > summary'); p.click('#ed .a-sec[data-sec="web"] > summary'); p.click('#ed .a-sec[data-sec="web"] > summary'); p.wait_for_timeout(150)
+    b.ok("U9: abrir y cerrar secciones no muestra la barra Guardar", p.evaluate("()=>document.getElementById('fSave').hidden&&!UI.isDirty()"))
+    p.click('[data-hd="0"]'); p.wait_for_timeout(150)
+    b.ok("U9: tocar un día del horario sí muestra la barra Guardar", p.evaluate("()=>!document.getElementById('fSave').hidden&&UI.isDirty()"))
+    # U6: el aviso del navegador al cerrar o recargar con cambios sin guardar
+    av = p.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented}")
+    b.ok("U6: con cambios, cerrar o recargar la página avisa (beforeunload)", av is True)
+    p.evaluate("()=>{window.__CQ=[true];location.hash='#negocios'}"); p.wait_for_timeout(300)
+    av = p.evaluate("()=>{const e=new Event('beforeunload',{cancelable:true});window.dispatchEvent(e);return e.defaultPrevented}")
+    b.ok("U6: sin cambios no avisa", av is False)
+    # G2 y M4: negocio sin subs
+    p.evaluate("()=>{location.hash='#negocio/b_nosub'}"); p.wait_for_timeout(1000)
+    b.ok("G2: sin subs preselecciona Prueba gratis (solo prueba o demo)", p.evaluate("()=>document.getElementById('pPl').value") == "trial" and p.evaluate("()=>[...document.querySelectorAll('#pPl option')].map(o=>o.value).join(',')") == "trial,demo")
+    btn = p.evaluate("()=>[...document.querySelectorAll('#fPlan .a-bt button')].map(x=>x.textContent)")
+    b.ok("M4: sin plan, el botón principal es Registrar mensualidad y el extra queda aparte", btn[:2] == ["Registrar mensualidad", "Cobrar un extra"] and "a-b pri" in p.evaluate("()=>document.querySelector('#fPlan [data-u=\"mensNone\"]').className"), btn)
+    p.evaluate("()=>{window.__PROMPTS.length=0;window.__WRITES.length=0}")
+    p.click('#fPlan [data-u="mensNone"]'); p.wait_for_timeout(300)
+    b.ok("M4: Registrar mensualidad sin plan no cobra el módulo de ₡40.000: guía a crear la prueba", p.evaluate("()=>window.__PROMPTS.length===0&&window.__WRITES.length===0") and "Prueba gratis" in p.text_content("#toast") and p.evaluate("()=>document.querySelector('#ed .a-sec[data-sec=\"plan\"]').open"))
+    b.ok("Ficha (3): sin errores", not errores(p), errores(p)[:3])

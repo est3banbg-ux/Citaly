@@ -1,4 +1,4 @@
-"""PENDIENTE (revisión Opus, banco de pruebas): el Firebase falso NO implementa set(..., {mergeFields:[…]}): lo trata
+"""ARREGLADO (era pendiente de la revisión Opus): el Firebase falso NO implementa set(..., {mergeFields:[…]}): lo trata
 como set sin merge y BORRA los demás campos. Firestore real los conserva. El admin guarda pub/<link> con mergeFields,
 así que después de Guardar el estado en memoria de pub (tier, lanes, dep, ntf, cap.fot…) no se parece al real y
 ninguna prueba puede ver si el admin pisa o conserva esos campos. (También: plain() convierte undefined en null,

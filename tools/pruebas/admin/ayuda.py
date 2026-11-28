@@ -16,7 +16,9 @@ CFG = open(os.path.join(RAIZ, "cfg.js"), encoding="utf-8").read()
 ADMIN = {"uid": "ADM1", "email": re.search(r'admin:\s*"([^"]+)"', CFG).group(1), "displayName": "Esteban Prueba"}
 OTRO = {"uid": "X9", "email": "alguien@ejemplo.test", "displayName": "Otra Persona"}
 DIA = 86400000
-T0 = (int(time.time()) // 60) * 60000
+# Mediodía de hoy en Costa Rica (UTC-6): así "hoy", "mañana" y "este mes" no cambian según la hora a la que se corra.
+_cr = int(time.time()) - 6 * 3600
+T0 = ((_cr // 86400) * 86400 + 12 * 3600 + 6 * 3600) * 1000
 
 
 def ts(dias=0, horas=0):
@@ -126,8 +128,8 @@ def datos():
     return d
 
 
-def abrir(b, ruta, d=None, usuario=ADMIN, ancho=400, alto=850, espera=1800, antes="", movil=True, lento=None, reducir=False):
-    p = b.abrir(ruta, d if d is not None else datos(), usuario, ancho=ancho, alto=alto, espera=espera, antes=(RELOJ % T0) + antes + ";", movil=movil, lento=lento, reducir=reducir)
+def abrir(b, ruta, d=None, usuario=ADMIN, ancho=400, alto=850, espera=1800, antes="", movil=True, lento=None, reducir=False, t0=None, zona="America/Costa_Rica"):
+    p = b.abrir(ruta, d if d is not None else datos(), usuario, ancho=ancho, alto=alto, espera=espera, antes=(RELOJ % (t0 or T0)) + antes + ";", movil=movil, lento=lento, reducir=reducir, zona=zona)
     return p
 
 

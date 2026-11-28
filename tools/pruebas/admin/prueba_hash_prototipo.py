@@ -1,4 +1,4 @@
-"""PENDIENTE (revisión Opus): #negocio/constructor (o __proto__, toString…) abre una ficha fantasma ("Object"):
+"""ARREGLADO (era pendiente de la revisión Opus): #negocio/constructor (o __proto__, toString…) abre una ficha fantasma ("Object"):
 openFicha usa BIZ[t] y BIZ es un objeto normal, así que encuentra propiedades del prototipo. Si se llenara y guardara,
 escribiría biz/constructor y pub/undefined. Arreglo: Object.prototype.hasOwnProperty.call(BIZ,t) en openFicha/render."""
 from ayuda import Banco, nuevo

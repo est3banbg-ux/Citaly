@@ -2,9 +2,14 @@
 debe escribir lo mismo en Firestore (rutas, operación, opciones como merge/mergeFields y contenido).
 Mismos datos falsos, mismo usuario admin y reloj congelado, así que no hace falta normalizar fechas.
 
-Única diferencia a propósito: al guardar, el nuevo CONSERVA en cada servicio los campos hot (destacado),
-g (grupo) y re (cada cuánto vuelve) que pone la app del dueño; el clásico los borraba. La prueba compara
-sin esos tres campos y además revisa que el nuevo los conserve y el clásico no."""
+Diferencias a propósito (se comparan aparte):
+1. Al guardar, el nuevo CONSERVA en cada servicio hot (destacado), g (grupo) y re (cada cuánto vuelve), que pone la
+   app del dueño; el clásico los borraba. Se compara sin esos campos y se revisa que el nuevo los conserve.
+2. G1: en un negocio que ya existe, si no se tocó el selector de plan, el nuevo escribe en subs solo name y email
+   (merge); el clásico reescribía plan/total/demo/until y podía pisar un pago que entró mientras editaba.
+3. G2: negocio sin subs: el nuevo crea la prueba gratis (C.trialDays) y el clásico el plan "standard" del modelo viejo.
+En el nuevo, Guardar se toca solo si la barra Guardar está visible (como lo haría Esteban); para "guardar sin
+cambios" primero se escribe y se borra una letra (la barra aparece y los datos quedan iguales)."""
 import json, os, sys
 from ayuda import Banco, clasico, nuevo, datos, norm, errores, pilas, T0
 
@@ -19,12 +24,15 @@ def abrir_ficha(id_):
 
 
 GUARDAR = [("js", "__click('#eGo')"), ("w", 1400)]
+GUARDAR_N = [("js", "if(document.getElementById('fSave').hidden)throw new Error('la barra Guardar no está visible');__click('#eGo')"), ("w", 1400)]
+TOCAR = ("js", "var e=document.getElementById('eA'),v=e.value;__set('#eA',v+'x');__set('#eA',v)")
+PLAN = {"plan avanzado: pasar a demo · viejo"}   # casos donde sí se tocó el selector de plan
 
 
-def ed(id_, *edicion):
+def ed(id_, *edicion, tocar=False):
     """Abrir la ficha, hacer la edición (mismos ids en los dos) y guardar."""
     a = abrir_ficha(id_)
-    return {k: a[k] + list(edicion) + GUARDAR for k in a}
+    return {"viejo": a["viejo"] + list(edicion) + GUARDAR, "nuevo": a["nuevo"] + ([TOCAR] if tocar else []) + list(edicion) + GUARDAR_N}
 
 
 def boton(id_, viejo_sel, nuevo_sel, pq=None, cq=None, espera=1200):
@@ -40,8 +48,9 @@ def S(js):
 
 CASOS = []
 # 1. Guardar sin cambiar nada, con negocios de formas distintas
-for i in ("b_nuevo", "b_full", "b_viejo", "b_paga", "b_pausa", "b_demo", "b_tvenc", "b_late", "b_nosub"):
-    CASOS.append(("guardar sin cambios · " + i, ed(i)))
+for i in ("b_nuevo", "b_full", "b_viejo", "b_paga", "b_pausa", "b_demo", "b_tvenc", "b_late"):
+    CASOS.append(("guardar sin cambios · " + i, ed(i, tocar=True)))
+CASOS.append(("G2 sin subs: guardar crea la prueba gratis", ed("b_nosub", tocar=True)))
 # 2. Ediciones del editor
 CASOS += [
     ("nombre, tipo y WhatsApp · viejo", ed("b_viejo", S("__set('#eN','Lavacar El Roble CR')"), S("__set('#eT','detailing')"), S("__set('#eW','8888-3399')"))),
@@ -67,9 +76,9 @@ CASOS += [
 NUEVO = [S("__set('#eN','Lavacar Prueba Nueva')"), ("w", 300), S("__set('#eT','lavacar')"), S("__set('#eW','88001122')"), S("__set('#eE','nuevo@ejemplo.test')"),
          S("__set('#wTg','Lavamos bien')"), S("__set('#eTm','equipo1@ejemplo.test')")]
 CASOS.append(("crear negocio nuevo", {"viejo": [S("__click('#newB')"), ("w", 300)] + NUEVO + GUARDAR + [("w", 400)],
-                                       "nuevo": [S("__click('#newB')"), ("w", 500)] + NUEVO + GUARDAR + [("w", 400)]}))
+                                       "nuevo": [S("__click('#newB')"), ("w", 500)] + NUEVO + GUARDAR_N + [("w", 400)]}))
 CASOS.append(("crear demo con GlassStudioCR", {"viejo": [S("__click('#newB')"), ("w", 300), S("__click('#eDemo')"), ("w", 1500), S("__set('#eS','glass-demo-x')"), ("w", 700)] + GUARDAR,
-                                                "nuevo": [S("location.hash='#negocio/nuevo'"), ("w", 500), S("__click('#eDemo')"), ("w", 1500), S("__set('#eS','glass-demo-x')"), ("w", 700)] + GUARDAR}))
+                                                "nuevo": [S("location.hash='#negocio/nuevo'"), ("w", 500), S("__click('#eDemo')"), ("w", 1500), S("__set('#eS','glass-demo-x')"), ("w", 700)] + GUARDAR_N}))
 # 4. Cobros y estado
 CASOS += [
     ("registrar mensualidad · plan pago", boton("b_paga", '#list [data-a="pay"][data-id="b_paga"]', '#ed [data-u="pay"]', pq=["1", "500"])),
@@ -130,6 +139,21 @@ def correr(b, cual, pasos):
     return p, norm(w), extra, fallo
 
 
+EXISTEN = {k.split("/")[1] for k in datos() if k.startswith("subs/")}
+
+
+def g1(ws, nombre):
+    """El guardado del clásico escribía plan/total/demo/until en subs; el nuevo (sin tocar el plan) solo name/email."""
+    if nombre in PLAN:
+        return ws
+    out = []
+    for w in ws:
+        if w[0] == "set" and w[1].startswith("subs/") and w[1][5:] in EXISTEN and isinstance(w[2], dict) and "name" in w[2] and "plan" in w[2]:
+            w = [w[0], w[1], {k: v for k, v in w[2].items() if k in ("name", "email")}, w[3]]
+        out.append(w)
+    return out
+
+
 def sin_hgr(ws):
     """Quita hot/g/re de los servicios (lo único que el nuevo conserva a propósito)."""
     def f(x):
@@ -158,20 +182,34 @@ with Banco() as b:
         pv, wv, xv, fv = correr(b, "viejo", pasos["viejo"])
         pn, wn, xn, fn = correr(b, "nuevo", pasos["nuevo"])
         b.ok("[%s] los pasos corren en los dos" % nombre, not fv and not fn, "viejo: %s · nuevo: %s" % (fv, fn))
-        a, c = sin_hgr(wv), sin_hgr(wn)
+        if nombre.startswith("G2"):
+            sv = [x for x in wv if x[1] == "subs/b_nosub"]
+            sn = [x for x in wn if x[1] == "subs/b_nosub"]
+            b.ok("[%s] el clásico escribía el modelo viejo (standard, ₡150.000, 100 años)" % nombre, sv and sv[0][2].get("plan") == "standard" and sv[0][2].get("total") == 150000, sv)
+            d = sn[0][2] if sn else {}
+            b.ok("[%s] el nuevo crea la prueba gratis de %d días, sin total" % (nombre, 7), d.get("plan") == "trial" and d.get("status") == "trial" and "total" not in d and d.get("until", {}).get("__ts") == T0 + 7 * 86400000, d)
+            b.ok("[%s] lo demás (biz, pub sin el tope de videos, own) igual" % nombre, [x for x in wv if not x[1].startswith(("subs/", "pub/"))] == [x for x in wn if not x[1].startswith(("subs/", "pub/"))])
+            b.ok("[%s] el nuevo sin errores de JS" % nombre, not errores(pn), errores(pn)[:3])
+            pv.context.close(); pn.context.close()
+            continue
+        a, c = sin_hgr(g1(wv, nombre)), sin_hgr(wn)
         b.ok("[%s] mismas escrituras (%d)" % (nombre, len(wv)), a == c, primera_dif(a, c))
         b.ok("[%s] mismos avisos y preguntas" % nombre, xv["err"] == xn["err"] and xv["prompts"] == xn["prompts"], (xv["err"], xn["err"], xv["prompts"], xn["prompts"]))
         b.ok("[%s] el nuevo sin errores de JS" % nombre, not errores(pn), (errores(pn)[:2], pilas(pn)[:1]))
         if nombre.startswith("guardar sin cambios · b_full") or nombre.startswith("servicios"):
             sv = [x for x in wv if x[1] == "biz/b_full"][0][2]["services"]
             sn = [x for x in wn if x[1] == "biz/b_full"][0][2]["services"]
-            b.ok("[%s] el nuevo conserva hot/g/re del servicio y el clásico los borra" % nombre,
-                 sn[0].get("hot") is True and sn[0].get("g") == "Lavados" and sn[0].get("re") == 30 and not any(k in sv[0] for k in ("hot", "g", "re")), (sv[0], sn[0]))
+            src = {x["id"]: x for x in datos()["biz/b_full"]["services"]}
+            okn = all(all(x.get(k) == src[x["id"]].get(k) for k in ("hot", "g", "re")) for x in sn if x["id"] in src) and any(x["id"] in src for x in sn)
+            okv = not any(k in x for x in sv for k in ("hot", "g", "re"))
+            b.ok("[%s] el nuevo conserva hot/g/re en TODOS los servicios y el clásico los borra" % nombre, okn and okv, (sv, sn))
         if nombre in ("guardar sin cambios · b_nuevo", "guardar sin cambios · b_tvenc"):
             b.ok("[%s] no guarda si falta lo básico (los dos, mismo mensaje)" % nombre, not wv and xn["err"], xn["err"])
         if nombre.startswith("guardar sin cambios") and nombre not in ("guardar sin cambios · b_nuevo", "guardar sin cambios · b_tvenc"):
             b.ok("[%s] sí escribió (biz, pub y subs)" % nombre, any(x[1].startswith("biz/") for x in wn) and any(x[1].startswith("pub/") for x in wn) and any(x[1].startswith("subs/") for x in wn), [x[1] for x in wn][:6])
             b.ok("[%s] Guardar deja E===null en el nuevo" % nombre, xn["E"] is True, xn["E"])
+            subn = [x for x in wn if x[1].startswith("subs/")]
+            b.ok("[%s] G1: subs solo con nombre y correo (merge), sin plan/total/demo/until" % nombre, subn and all(set(x[2]) <= {"name", "email"} and x[3] == {"merge": True} for x in subn), subn)
         if nombre == "guardar sin cambios · b_viejo":
             bz = [x for x in wn if x[1] == "biz/b_viejo"][0]
             b.ok("[%s] guarda con merge (no borra goal, notes, ins ni campos viejos)" % nombre, bz[3] == {"merge": True} and not any(k in bz[2] for k in ("goal", "notes", "ins", "legadoX")), bz[3])

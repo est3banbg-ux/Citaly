@@ -165,7 +165,7 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .icbA{width:52px;height:46px;border-radius:12px;border:1.5px solid var(--line);background:var(--soft,#f6f4ff);display:grid;place-items:center;font-size:22px;padding:0;cursor:pointer;color:inherit}.icbA .ico-img{width:34px;height:34px;object-fit:contain}.ics{width:1.15em;height:1.15em;vertical-align:-.2em;flex:none;--acc:#7c5cff}.ico-img{width:1.6em;height:1.6em;object-fit:contain}.icpkA{background:var(--soft,#f6f4ff);border-radius:14px;padding:10px}.icgA{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.icgA button{aspect-ratio:1;border-radius:12px;border:2px solid transparent;background:var(--card,#fff);font-size:26px;cursor:pointer;display:grid;place-items:center;padding:4px;color:inherit;min-width:0}.icgA .ico-img,.icgA .ics{width:100%;height:100%}
 .r4{display:grid;grid-template-columns:52px minmax(0,1fr) 44px;gap:7px;align-items:center}
 .r3{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}
-.rowl input,.rowl select,.rowl textarea{padding:9px 10px;min-width:0}
+.rowl input,.rowl select,.rowl textarea{padding:9px 10px;min-width:0;min-height:44px}
 .ib{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:16px;cursor:pointer;display:inline-grid;place-items:center;flex:none}
 .hrow{display:grid;grid-template-columns:50px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center;margin-bottom:8px}
 .hrow input{padding:8px 4px;min-width:0;font-size:14.5px;text-align:center}
@@ -267,7 +267,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none}
 .r4[style="grid-template-columns:1fr 36px"]{grid-template-columns:minmax(0,1fr) 44px!important}
 .r4[style="grid-template-columns:1fr 1fr 36px"]{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 44px!important}
 .ed label.small{min-height:44px}
-.ed input[type=checkbox]{width:22px!important;height:22px;flex:none}
+.ed .rowl input[type=checkbox]{width:22px!important;height:22px;flex:none}
+.toggle{height:44px;width:52px}.toggle span{inset:7px 0}
 .a-task a.t{min-height:44px;display:flex;align-items:center;padding:0;margin-top:-8px;margin-bottom:-6px}
 /* teclado abierto en el celular: se esconde la barra de abajo (la barra Guardar baja al borde) */
 @media (max-width:899px){

@@ -77,3 +77,11 @@ with Banco() as b:
     p = nuevo(b, d, espera=2000)
     b.ok("Vacío: mensaje amable cuando no hay nada", p.locator("#hoyL .a-ok").count() == 1 and "Todo al día" in p.text_content("#hoyL") and "todo al día" in p.text_content("#hoySub"), p.text_content("#hoyL"))
     b.ok("Vacío: sin errores", not errores(p), errores(p)[:3])
+
+    # U5: el corte de 14 días de "prueba vencida": 13 días sale como tarea, 15 días va al resumen
+    for dias, sale in ((13, True), (15, False)):
+        d = datos(); d["subs/b_tvenc"]["until"] = ts(-dias)
+        p = nuevo(b, d, espera=1800)
+        nombres = [t["t"] for t in p.evaluate(TAREAS)]
+        b.ok("U5: prueba vencida hace %d días %s" % (dias, "sale en Hoy" if sale else "no sale (va al resumen)"),
+             ("Barbería Corte Fino" in nombres) == sale and ("más de 2 semanas" in p.text_content("#hoyL")) != sale, nombres)

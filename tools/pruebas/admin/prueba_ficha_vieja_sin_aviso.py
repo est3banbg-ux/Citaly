@@ -1,4 +1,4 @@
-"""PENDIENTE (revisión Opus): si el negocio cambia MIENTRAS la ficha se está abriendo (openEd toma BIZ[id] y luego
+"""ARREGLADO (era pendiente de la revisión Opus): si el negocio cambia MIENTRAS la ficha se está abriendo (openEd toma BIZ[id] y luego
 espera la lectura de fotos), la ficha se dibuja con los datos viejos pero SIG se calcula con los nuevos (edRender →
 sigOf), así que no recarga ni avisa. Si Esteban cambia algo y guarda, borra sin aviso lo que el dueño acababa de
 guardar desde su app (aquí: la frase). Arreglo: calcular la firma en openEd con el mismo BIZ/SUBS que se usó para

@@ -1,4 +1,4 @@
-"""PENDIENTE (revisión Opus): Guardar la ficha pisa el plan que cambió por fuera.
+"""ARREGLADO (era pendiente de la revisión Opus): Guardar la ficha pisa el plan que cambió por fuera.
 Ficha de un negocio en prueba abierta con un cambio sin guardar; entra el pago de Polar (subs pasa a plan "mensual",
 tier, price…). Sale el aviso "Este negocio cambió…", pero Guardar igual escribe subs.plan = "trial" encima.
 Resultado: plan "trial" + status "active" (no cuenta en el ingreso fijo, pub queda con cap de Nitro).

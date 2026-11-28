@@ -11,7 +11,7 @@ DESBORDE = """()=>{const vw=document.documentElement.clientWidth,bad=[];
       if(!ok)bad.push(e.tagName+'.'+String(e.className).slice(0,30)+'#'+e.id+' '+Math.round(r.left)+'→'+Math.round(r.right))}});
   return {sw:document.documentElement.scrollWidth,vw:vw,bad:bad.slice(0,6)}}"""
 ABRIR_TODO = "()=>{document.querySelectorAll('#ed details').forEach(x=>x.open=true)}"
-TOQUE = """()=>[...document.querySelectorAll('#nav a, .a-b, .a-chips button, .a-tabs a, #ed .a-sec>summary, .a-q a, .a-q button, .a-row, .a-menu a, .a-menu button, .a-fab, .a-pp')]
+TOQUE = """()=>[...document.querySelectorAll('#nav a, .a-task a.t, .a-b, .a-chips button, .a-tabs a, #ed .a-sec>summary, .a-q a, .a-q button, .a-row, .a-menu a, .a-menu button, .a-fab, .a-pp')]
   .filter(e=>e.offsetParent!==null).map(e=>{const r=e.getBoundingClientRect();return [e.className||e.tagName,Math.round(r.width),Math.round(r.height)]}).filter(x=>x[1]<44&&x[2]<44||x[2]<40)"""
 
 with Banco() as b:
@@ -66,3 +66,20 @@ with Banco() as b:
     # el clásico sigue abriendo igual (no se tocó)
     p = clasico(b, espera=1800)
     b.ok("Admin clásico: abre y lista los negocios", p.locator("#list .biz").count() == 10 and not errores(p), errores(p)[:3])
+
+    # 360 px con TODAS las secciones de la ficha abiertas (y filas de zonas, preguntas, reseñas y vehículos)
+    FICHA360 = """()=>{document.querySelectorAll('#ed details').forEach(x=>x.open=true);['eZa','wFqA','wRvA','eVhA'].forEach(i=>{const b=document.getElementById(i);b&&b.click()});
+      const vw=document.documentElement.clientWidth,bad=[];
+      document.querySelectorAll('#ed *').forEach(e=>{if(e.closest('[hidden]'))return;const r=e.getBoundingClientRect();if(!r.width||!r.height)return;if(r.right>vw+1||r.left<-1)bad.push(e.tagName+'.'+String(e.className).slice(0,20)+'#'+e.id+' '+Math.round(r.right))});
+      const T=e=>{const r=e.getBoundingClientRect();return [Math.round(r.width),Math.round(r.height)]};
+      const small=[...document.querySelectorAll('#ed button,#ed summary,#ed a,#ed label.toggle,#ed label.small,#ed select')].filter(e=>e.offsetParent!==null).map(e=>[e.tagName+'.'+String(e.className).slice(0,20)+'#'+e.id].concat(T(e))).filter(x=>x[1]<44||x[2]<44);
+      const times=[...document.querySelectorAll('.hrow input')].map(i=>i.clientWidth);
+      return {bad:bad.slice(0,6),small:small.slice(0,8),tmin:Math.min.apply(null,times)}}"""
+    for h in ("negocio/b_full", "negocio/b_viejo", "negocio/nuevo"):
+        p = nuevo(b, hash_=h, ancho=360, alto=740, espera=1900)
+        r = p.evaluate(FICHA360); p.wait_for_timeout(200)
+        b.ok("[360 · %s · todo abierto] nada se sale de la pantalla" % h, not r["bad"], r["bad"])
+        b.ok("[360 · %s · todo abierto] botones, casillas y selectores de al menos 44 px" % h, not r["small"], r["small"])
+        b.ok("[360 · %s · todo abierto] las horas caben completas (no '07:00 A')" % h, r["tmin"] >= 110, r["tmin"])
+        b.ok("[360 · %s · todo abierto] sin errores" % h, not errores(p), errores(p)[:3])
+        p.context.close()

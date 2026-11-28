@@ -1,4 +1,4 @@
-"""PENDIENTE (revisión Opus): negocio SIN documento subs → la ficha preselecciona "Standard · ₡150 000 (modelo viejo)"
+"""ARREGLADO (era pendiente de la revisión Opus): negocio SIN documento subs → la ficha preselecciona "Standard · ₡150 000 (modelo viejo)"
 con "Total acordado 150000", y Guardar crea subs {plan:"standard", total:150000, until:+100 años}: el modelo viejo
 (prohibido) y una deuda falsa de ₡150 000 en Plata/"Con saldo". Igual que el clásico, pero contradice la regla
 "planes del modelo viejo solo para quien ya los tiene". Arreglo: sin subs, no ofrecer planes viejos y al guardar

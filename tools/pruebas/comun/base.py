@@ -64,11 +64,11 @@ class Banco:
     def base(self):
         return "http://127.0.0.1:%d" % self.puerto
 
-    def abrir(self, ruta, datos=None, usuario=None, ancho=400, alto=850, espera=1200, antes="", negar=None, movil=True, lento=None, reducir=False):
+    def abrir(self, ruta, datos=None, usuario=None, ancho=400, alto=850, espera=1200, antes="", negar=None, movil=True, lento=None, reducir=False, zona="America/Costa_Rica"):
         """Abre `ruta` (ej. "/app/") con `datos` en el Firestore falso y `usuario` con sesión (o None).
         `antes`: JS extra que corre antes que la página. Devuelve la página; p.errs junta los errores de JS.
-        `lento`: {patrón: ms} para que ciertos archivos tarden en llegar. `reducir`: prefers-reduced-motion."""
-        ctx = self.nav.new_context(viewport={"width": ancho, "height": alto}, has_touch=movil, locale="es-CR", timezone_id="America/Costa_Rica", reduced_motion="reduce" if reducir else "no-preference")
+        `lento`: {patrón: ms} para que ciertos archivos tarden en llegar. `reducir`: prefers-reduced-motion. `zona`: zona horaria de la compu."""
+        ctx = self.nav.new_context(viewport={"width": ancho, "height": alto}, has_touch=movil, locale="es-CR", timezone_id=zona, reduced_motion="reduce" if reducir else "no-preference")
         p = ctx.new_page()
         p.errs, p.consola = [], []
         p.on("pageerror", lambda e: p.errs.append(str(e)))
